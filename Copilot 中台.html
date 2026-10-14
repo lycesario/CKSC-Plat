@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Copilot 中台 · 企业级完整体系 · 高保真架构</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      --color-primary: #7a2e1a;
+      --color-primary-light: #fce9e0;
+      --color-primary-dark: #4d1c0e;
+      --color-accent: #b85c3a;
+      --color-accent-soft: #f0c8b8;
+      --color-neutral-50: #fcf9f7;
+      --color-neutral-100: #f5ede8;
+      --color-neutral-200: #e5d7ce;
+      --color-neutral-300: #cbb8ab;
+      --color-neutral-400: #a68b7a;
+      --color-neutral-600: #6f5544;
+      --color-neutral-700: #4f3a2e;
+      --color-neutral-800: #34241c;
+      --color-neutral-900: #1e140f;
+      --color-gold: #c29a4a;
+      --color-gold-light: #f3e1b0;
+      --color-jade: #3b7a5e;
+      --color-success: #1f6e4a;
+      --color-warning: #a86b2c;
+      --color-error: #b13a2a;
+      --font-base: 1rem;
+      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem;
+      --space-4: 1rem; --space-6: 1.5rem; --space-8: 2rem; --space-12: 3rem;
+      --radius-sm: 0.75rem; --radius-md: 1.25rem; --radius-card: 2rem; --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(60, 30, 10, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(60, 30, 10, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(60, 30, 10, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* Sidebar */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(255, 249, 245, 0.88);
+      backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(255, 235, 220, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); }
+    .sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+    .sidebar nav ul { list-style:none; }
+    .sidebar nav ul li { margin-bottom:0.1rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:12px;
+      padding:0.55rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.85rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+    }
+    .sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+    .sidebar nav ul li a:hover { background:var(--color-primary-light); color:var(--color-primary-dark); transform:translateX(4px); }
+    .sidebar-footer { margin-top:24px; padding:12px; text-align:center; font-size:0.7rem; color:var(--color-neutral-600); border-top:1px solid var(--color-neutral-200); }
+
+    /* Main */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+      font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+    .page-header .header-meta {
+      font-size:0.9rem; color:var(--color-neutral-600);
+      background:var(--color-neutral-100); padding:0.4rem 1.2rem;
+      border-radius:var(--radius-pill); border:1px solid var(--color-neutral-200);
+    }
+
+    /* Card */
+    .card {
+      background:rgba(255,252,248,0.92); backdrop-filter: blur(4px);
+      border-radius:var(--radius-card); box-shadow:var(--shadow-card);
+      margin-bottom:var(--space-6); border:1px solid rgba(255, 235, 220, 0.5);
+      overflow:hidden; transition: box-shadow var(--transition-default), transform 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6);
+      background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft);
+      display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 { font-size:clamp(1.2rem, 2.2vw, 1.6rem); font-weight:700; color:var(--color-primary-dark); display:flex; align-items:center; gap:12px; }
+    .card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+    .card-header .badge-count { margin-left:auto; background:var(--color-accent); color:white; border-radius:var(--radius-pill); padding:0.15rem 0.9rem; font-size:0.7rem; font-weight:600; }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* Grid & Policy Card */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3 { grid-template-columns:1fr; } .sidebar { display:none; } .layout { padding:0.5rem; } .card-body { padding:1.25rem 1rem; } }
+
+    .policy-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md); padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200); transition: all var(--transition-default);
+      position:relative; overflow:hidden; border-left: 4px solid var(--color-accent);
+    }
+    .policy-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft)); opacity:0; transition: opacity var(--transition-default); }
+    .policy-card:hover::before { opacity:1; }
+    .policy-card:hover { border-color:var(--color-accent-soft); box-shadow: 0 8px 24px -8px rgba(184,92,58,0.15); transform:translateY(-3px); }
+    .policy-card .policy-icon { font-size:1.8rem; color:var(--color-primary); display:inline-block; margin-right:6px; background: var(--color-primary-light); padding:0.2rem 0.6rem; border-radius:12px; }
+    .policy-card h4 { color:var(--color-primary-dark); font-size:1.05rem; margin-bottom:0.4rem; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .policy-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+    .policy-card .detail-list { padding-left:0; margin:0.4rem 0 0 0; list-style:none; }
+    .policy-card .detail-list li { margin-bottom:0.25rem; padding-left:1.2rem; position:relative; font-size:0.85rem; color:var(--color-neutral-700); }
+    .policy-card .detail-list li::before { content:'▹'; position:absolute; left:0; color:var(--color-accent); font-weight:600; }
+    .policy-card .detail-list li strong { color:var(--color-neutral-800); }
+
+    /* Arch Diagram */
+    .arch-diagram { display:flex; flex-direction:column; gap:0.6rem; padding:0.5rem 0; }
+    .arch-layer { display:flex; align-items:stretch; gap:0.75rem; background:var(--color-neutral-50); border-radius:var(--radius-md); padding:0.6rem 1rem; border:1px solid var(--color-neutral-200); transition: var(--transition-default); }
+    .arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+    .arch-layer .layer-label { display:flex; flex-direction:column; justify-content:center; min-width:120px; padding-right:1rem; border-right:2px solid var(--color-neutral-200); font-weight:700; font-size:0.8rem; color:var(--color-primary-dark); letter-spacing:0.3px; }
+    .arch-layer .layer-label i { font-size:1.1rem; color:var(--color-accent); margin-bottom:0.1rem; }
+    .arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+    .arch-layer .layer-blocks { display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem; flex:1; padding:0.2rem 0; }
+    .arch-block { background:white; border-radius:var(--radius-sm); padding:0.3rem 0.9rem; border:1px solid var(--color-neutral-200); font-size:0.75rem; font-weight:500; color:var(--color-neutral-700); transition: var(--transition-default); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    .arch-block:hover { border-color:var(--color-accent); background:var(--color-primary-light); color:var(--color-primary-dark); transform:translateY(-1px); }
+    .arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+    .arch-block.highlight-block { background:var(--color-accent); color:white; border-color:var(--color-accent); }
+    .arch-block.highlight-block i { color:white; }
+    .arch-layer.inner-layer { background:linear-gradient(135deg, #f5efe8, #f0e4da); border-color:var(--color-accent-soft); }
+    .arch-layer.outer-layer { background:linear-gradient(135deg, #f0f2ed, #e6ece2); border-color:#b8c8aa; }
+    .arch-layer.outer-layer .layer-label { border-right-color:#b8c8aa; color:#2d5a3a; }
+    .arch-layer.outer-layer .layer-label i { color:#3b7a5e; }
+    .arch-layer.outer-layer .arch-block { border-color:#c8d8b8; }
+    .arch-layer.outer-layer .arch-block:hover { border-color:#3b7a5e; background:#e0ede0; }
+    .arch-layer.ultimate-layer { background:linear-gradient(135deg, #f0ede8, #e8e0d8); border-color:#c8b8a8; }
+    .arch-layer.ultimate-layer .layer-label { border-right-color:#c8b8a8; color:#6a4a3a; }
+    .arch-layer.ultimate-layer .layer-label i { color:#8a6a5a; }
+    .arch-layer.ultimate-layer .arch-block { border-color:#d8c8b8; }
+    .arch-layer.ultimate-layer .arch-block:hover { border-color:#8a6a5a; background:#ede0d8; }
+
+    /* Table */
+    .table-wrapper { overflow-x:auto; border-radius:var(--radius-md); border:1px solid var(--color-neutral-200); background:white; }
+    table { width:100%; border-collapse:collapse; font-size:0.78rem; }
+    th { background:var(--color-neutral-100); padding:12px 10px; font-weight:600; color:var(--color-primary-dark); text-align:left; border-bottom:2px solid var(--color-neutral-200); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.4px; }
+    td { padding:10px 10px; border-bottom:1px solid var(--color-neutral-200); vertical-align:middle; color:var(--color-neutral-700); }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--color-neutral-50); }
+
+    /* Tip & Banner */
+    .info-tip { background:var(--color-neutral-50); border-radius:var(--radius-md); padding:0.7rem 1.5rem; border-left:5px solid var(--color-accent); margin-top:var(--space-4); display:flex; align-items:center; gap:0.8rem; font-size:0.9rem; color:var(--color-neutral-700); }
+    .info-tip i { color:var(--color-accent); font-size:1rem; }
+    .banner-card { background: linear-gradient(135deg, #f5ede6, #e8dcd2); text-align:center; border-color:var(--color-accent-soft); }
+    .banner-card .card-body { padding:2.5rem var(--space-6); }
+    .banner-card .icon-big { font-size:3rem; color:var(--color-primary); opacity:0.7; margin-bottom:var(--space-3); }
+    .banner-card h2 { color:var(--color-primary-dark); font-size:clamp(1.4rem, 2.5vw, 1.9rem); margin-bottom:var(--space-2); }
+    .banner-card p { max-width:680px; margin:0 auto; color:var(--color-neutral-700); font-size:1rem; }
+    .banner-card .footer-note { margin-top:var(--space-6); font-size:0.8rem; color:var(--color-primary); }
+
+    /* Content Typography */
+    .content-section { margin-bottom:1.2rem; }
+    .content-section h3 { color:var(--color-primary-dark); font-size:1.1rem; margin-bottom:0.5rem; font-weight:700; }
+    .content-section h4 { color:var(--color-primary-dark); font-size:1rem; margin-bottom:0.4rem; font-weight:600; }
+    .content-section p { margin-bottom:0.6rem; font-size:0.9rem; color:var(--color-neutral-700); }
+    .content-section ul { padding-left:1.2rem; margin-bottom:0.6rem; }
+    .content-section li { margin-bottom:0.3rem; font-size:0.88rem; color:var(--color-neutral-700); }
+    .content-section strong { color:var(--color-neutral-800); }
+    .text-block { background:var(--color-neutral-50); border-radius:var(--radius-sm); padding:1rem 1.2rem; border:1px solid var(--color-neutral-200); margin-bottom:0.8rem; }
+
+    /* Dark Mode */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #1a1410; --color-neutral-100: #221c18; --color-neutral-200: #3a2c24;
+        --color-neutral-400: #8a7a6e; --color-neutral-600: #b8a89c; --color-neutral-700: #d0c4b8;
+        --color-neutral-800: #e8dcd0; --color-neutral-900: #f5ede6;
+        --color-primary-light: #3a2a20; --color-accent-soft: #6a4a3a;
+        --color-primary: #d08a6a; --color-primary-dark: #f0c8b0; --color-accent: #c07a5a;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6); --shadow-card-hover: 0 20px 48px -12px rgba(0,0,0,0.7); --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #120e0a; }
+      .card { background: #1a1410; border-color: #3a2c24; }
+      .card-header { background: #1a1410; border-bottom-color: #4a3a2e; }
+      .policy-card { background: #1a1410; border-color: #3a2c24; }
+      .policy-card .policy-icon { background: #2a1e16; color: #d08a6a; }
+      .policy-card .detail-list li { color: #c0b4a8; }
+      .policy-card .detail-list li strong { color: #e0d4c8; }
+      .table-wrapper { background: #1a1410; border-color: #3a2c24; }
+      th { background: #221c18; color: #e0d4c8; border-bottom-color: #4a3a2e; }
+      td { border-bottom-color: #2a241e; color: #c0b4a8; }
+      tr:hover td { background: #2a241e; }
+      .sidebar { background: rgba(20, 16, 12, 0.92); border-color: #3a2c24; }
+      .sidebar-brand { border-bottom-color: #4a3a2e; }
+      .sidebar-brand h3 { color: #d08a6a; }
+      .sidebar nav ul li a { color: #c0b4a8; }
+      .sidebar nav ul li a:hover { background: #3a2c24; color: white; }
+      .info-tip { background: #1a1410; border-left-color: #c07a5a; color: #c0b4a8; }
+      .banner-card { background:linear-gradient(135deg,#1a1410,#2a241e); }
+      .banner-card p { color: #c0b4a8; }
+      .page-header h1 { background:linear-gradient(135deg,#f0c8b0,#d08a6a); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#2a241e; border-color:#4a3a2e; color:#b8a89c; }
+      .arch-layer { background:#1a1410; border-color:#3a2c24; }
+      .arch-layer:hover { background:#2a1e16; border-color:#5a4a3e; }
+      .arch-layer .layer-label { border-right-color:#3a2c24; color:#e0d4c8; }
+      .arch-block { background:#1a1410; border-color:#3a2c24; color:#c0b4a8; }
+      .arch-block:hover { background:#3a2c24; border-color:#c07a5a; }
+      .arch-layer.inner-layer { background:linear-gradient(135deg,#1a1410,#2a1e16); border-color:#5a3a2a; }
+      .arch-layer.outer-layer { background:linear-gradient(135deg,#141a12,#1a2618); border-color:#2a4a2a; }
+      .arch-layer.outer-layer .layer-label { border-right-color:#2a4a2a; color:#8aba8a; }
+      .arch-layer.outer-layer .layer-label i { color:#5a9a6a; }
+      .arch-layer.outer-layer .arch-block { border-color:#2a4a2a; color:#a0c8a0; }
+      .arch-layer.outer-layer .arch-block:hover { border-color:#5a9a6a; background:#1a2a1a; }
+      .arch-layer.ultimate-layer { background:linear-gradient(135deg,#1a1410,#221c18); border-color:#4a3a2e; }
+      .arch-layer.ultimate-layer .layer-label { border-right-color:#4a3a2e; color:#c8b0a0; }
+      .arch-layer.ultimate-layer .layer-label i { color:#a08070; }
+      .arch-layer.ultimate-layer .arch-block { border-color:#4a3a2e; color:#c8b8a8; }
+      .arch-layer.ultimate-layer .arch-block:hover { border-color:#a08070; background:#2a241e; }
+      .text-block { background:#1a1410; border-color:#3a2c24; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-copilot" aria-hidden="true"></i>
+      <h3>Copilot 中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-cubes"></i> 全域标准定义</a></li>
+        <li><a href="#s1"><i class="fas fa-layer-group"></i> 八大特征</a></li>
+        <li><a href="#s2"><i class="fas fa-database"></i> 知识体系</a></li>
+        <li><a href="#s3"><i class="fas fa-project-diagram"></i> CopilotGraph</a></li>
+        <li><a href="#s4"><i class="fas fa-sitemap"></i> 六大架构</a></li>
+        <li><a href="#s5"><i class="fas fa-puzzle-piece"></i> 功能模块</a></li>
+        <li><a href="#s6"><i class="fas fa-chart-line"></i> 指标体系</a></li>
+        <li><a href="#s7"><i class="fas fa-boxes"></i> 资产体系</a></li>
+        <li><a href="#s8"><i class="fas fa-share-alt"></i> 协同关系</a></li>
+        <li><a href="#s9"><i class="fas fa-flag"></i> 核心价值</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-copilot"></i> Copilot 中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-copilot"></i> 企业级 Copilot 中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> 全域智能副驾驶统一底座</span>
+    </header>
+
+    <!-- S0 -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> Copilot 中台全域标准定义</h2>
+        <span class="badge-count">多端协同 + Agent 编排 + CopilotGraph 自治演进版</span>
+      </div>
+      <div class="card-body">
+        <div class="arch-diagram">
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-microchip"></i> 底层依赖 <span class="sub">算力/Embedding/RAG/Agent</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-microchip"></i> 算力中台</span>
+              <span class="arch-block"><i class="fas fa-vector-square"></i> Embedding</span>
+              <span class="arch-block"><i class="fas fa-database"></i> 向量库</span>
+              <span class="arch-block"><i class="fas fa-search"></i> RAG</span>
+              <span class="arch-block"><i class="fas fa-comment"></i> Prompt</span>
+              <span class="arch-block"><i class="fas fa-key"></i> Token</span>
+              <span class="arch-block"><i class="fas fa-cog"></i> Skill</span>
+              <span class="arch-block"><i class="fas fa-robot"></i> Agent</span>
+              <span class="arch-block"><i class="fas fa-cloud"></i> MaaS</span>
+              <span class="arch-block"><i class="fas fa-broom"></i> 数据预处理</span>
+              <span class="arch-block"><i class="fas fa-book"></i> 知识库</span>
+            </div>
+          </div>
+          <div class="arch-layer outer-layer">
+            <div class="layer-label"><i class="fas fa-cogs"></i> 核心能力 <span class="sub">多端/Agent/MCP/图谱</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block highlight-block"><i class="fas fa-copilot"></i> 多端接入</span>
+              <span class="arch-block"><i class="fas fa-memory"></i> 分层记忆</span>
+              <span class="arch-block"><i class="fas fa-project-diagram"></i> Agent 编排</span>
+              <span class="arch-block"><i class="fas fa-plug"></i> MCP 工具</span>
+              <span class="arch-block"><i class="fas fa-chart-bar"></i> 对话评测</span>
+              <span class="arch-block"><i class="fas fa-shield-alt"></i> 权限管控</span>
+            </div>
+          </div>
+          <div class="arch-layer ultimate-layer">
+            <div class="layer-label"><i class="fas fa-rocket"></i> 上层赋能 <span class="sub">IDE/办公/业务系统</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-desktop"></i> 桌面端</span>
+              <span class="arch-block"><i class="fas fa-globe"></i> Web</span>
+              <span class="arch-block"><i class="fab fa-weixin"></i> 企微/钉钉</span>
+              <span class="arch-block"><i class="fas fa-code"></i> IDE</span>
+              <span class="arch-block"><i class="fas fa-building"></i> ERP/CRM</span>
+            </div>
+          </div>
+        </div>
+        <div class="info-tip"><i class="fas fa-scroll"></i> Copilot 中台（全域智能副驾驶中台 / 企业统一 Copilot Studio），是面向办公、研发、财务、风控、运维、客服、生产全业务域，提供多端统一交互、Agent 任务编排、工具技能 MCP 集成、分层记忆管理、行业 Copilot 模板、对话评测、权限管控、CopilotGraph 智能副驾驶知识图谱、全链路自治迭代的企业级统一智能副驾驶生产与运营中台。</div>
+
+        <div class="content-section" style="margin-top:1.2rem;">
+          <h3>1.1 权威标准定义</h3>
+          <div class="text-block">
+            <p>向下统一对接算力、Embedding、向量库、RAG、Prompt、Token、Skill、Agent、MaaS、数据预处理、知识库全 AI 底层中台；向上输出桌面端、Web、企微 / 钉钉、IDE、业务系统嵌入式标准化 Copilot 副驾驶服务。</p>
+            <p>遵循「四层 Copilot 资产、多端统一接入、长短分层记忆、Agent 自主任务链、MCP 全域工具互联、CopilotGraph 副驾驶知识图谱、人机协同评测、多租户隔离、数据驱动自治调优」九大核心建设理念。</p>
+            <p>核心解决行业痛点：各业务独立开发零散 Copilot，能力割裂；记忆无统一分层管理；工具硬编码无法复用；无标准化行业模板；对话效果无统一评测；用户行为、任务执行经验无法沉淀；Token / 算力成本无分部门计量；上线无灰度、风险无拦截；多端交互逻辑重复开发。</p>
+            <p>实现企业智能副驾驶从 "单点零散插件、定制化开发" 升级为全域标准化 Copilot 资产池、零代码编排、跨系统工具协同、图谱驱动智能推荐、全链路可控自治迭代的统一人机协同业务底座。</p>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h3>1.2 Copilot 中台核心定位与层级边界</h3>
+          <div class="text-block">
+            <p><strong>战略定位：</strong>企业全域多端 Copilot 统一资产沉淀中心、Agent 任务编排中枢、MCP 工具集成平台、分层记忆调度引擎、CopilotGraph 副驾驶知识推理平台、人机协同自动化评测中心、多租户成本计量运营中枢、全行业智能副驾驶自治迭代底座。</p>
+            <p><strong>层级边界：</strong></p>
+            <p><strong>底层依赖层：</strong>算力、Embedding、向量库、RAG、Prompt、Token、Skill、Agent、MaaS、MCP、知识库、数据预处理、对象存储、消息队列；</p>
+            <p><strong>核心能力层：</strong>专注多端接入、Copilot 资产管理、记忆引擎、Agent 任务链、MCP 工具编排、图谱推理、对话评测、安全管控，不承载底层模型训练、原始业务数据存储；</p>
+            <p><strong>上层赋能层：</strong>向 IDE、办公套件、CRM、ERP、运维平台、企微 / 钉钉、Web 门户输出标准化嵌入式 Copilot 副驾驶服务。</p>
+            <p><strong>全域上下游标准分层链路：</strong>算力 / Embedding / 知识库 / RAG → MCP 中台 → Copilot 中台 → 各业务 SaaS/IDE/ 办公终端</p>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h3>1.3 Copilot 中台八大核心特征（统一中台标准）</h3>
+          <div class="grid-2">
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-layer-group"></i></span><h4>四层分层 Copilot 资产体系</h4><ul class="detail-list"><li>基础通用副驾驶、行业标准 Copilot、定制业务副驾驶、Agent 任务模板四层全域复用</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-desktop"></i></span><h4>全终端统一接入引擎</h4><ul class="detail-list"><li>IDE / 桌面 / Web/IM/ 业务系统嵌入式一套编排逻辑多端分发</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-memory"></i></span><h4>长短时分层记忆双引擎</h4><ul class="detail-list"><li>短期对话上下文、长期用户 / 项目记忆自动分离、向量持久化</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-plug"></i></span><h4>MCP 标准全域工具互联</h4><ul class="detail-list"><li>统一集成数据库、API、文件、流程、运维等所有系统技能</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>Agent 自主链式任务规划</h4><ul class="detail-list"><li>复杂多步骤业务自动拆解执行、失败自动重试兜底</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-brain"></i></span><h4>CopilotGraph 专属智能副驾驶知识图谱</h4><ul class="detail-list"><li>沉淀用户意图、工具、任务、效果关联经验</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-flask"></i></span><h4>人机协同全自动 A/B 评测</h4><ul class="detail-list"><li>量化完成率、准确率、人工替代率、幻觉率</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-calculator"></i></span><h4>多租户算力 / Token 精细化计量</h4><ul class="detail-list"><li>全链路风险拦截、数据驱动自治调参迭代</li></ul></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S1 -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-layer-group"></i> 八大核心特征</h2>
+        <span class="badge-count">四层 · 多端 · 记忆 · Agent · MCP · 图谱</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-layer-group"></i></span><h4>四层分层 Copilot 资产体系</h4><ul class="detail-list"><li>基础通用副驾驶、行业标准 Copilot、定制业务副驾驶、Agent 任务模板四层全域复用</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-desktop"></i></span><h4>全终端统一接入引擎</h4><ul class="detail-list"><li>IDE / 桌面 / Web/IM/ 业务系统嵌入式一套编排逻辑多端分发</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-memory"></i></span><h4>长短时分层记忆双引擎</h4><ul class="detail-list"><li>短期对话上下文、长期用户 / 项目记忆自动分离、向量持久化</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-plug"></i></span><h4>MCP 标准全域工具互联</h4><ul class="detail-list"><li>统一集成数据库、API、文件、流程、运维等所有系统技能</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>Agent 自主链式任务规划</h4><ul class="detail-list"><li>复杂多步骤业务自动拆解执行、失败自动重试兜底</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-brain"></i></span><h4>CopilotGraph 专属智能副驾驶知识图谱</h4><ul class="detail-list"><li>沉淀用户意图、工具、任务、效果关联经验</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-flask"></i></span><h4>人机协同全自动 A/B 评测</h4><ul class="detail-list"><li>量化完成率、准确率、人工替代率、幻觉率</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-calculator"></i></span><h4>多租户算力 / Token 精细化计量</h4><ul class="detail-list"><li>全链路风险拦截、数据驱动自治调参迭代</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S2 -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-database"></i> Copilot 中台专属完整知识体系</h2>
+        <span class="badge-count">十大完整知识域全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="content-section">
+          <p style="margin-bottom:1rem; font-weight:500; color:var(--color-primary-dark);">Copilot 中台知识体系是多端交互、记忆管理、Agent 任务编排、MCP 工具集成、评测、图谱推理、行业落地、安全合规、运营复盘、前沿演进的标准化、结构化、可推理、可复用、自进化专业知识合集。</p>
+        </div>
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sitemap"></i></span><h4>2.1 Copilot 顶层架构与全域规划知识域</h4><ul class="detail-list"><li>企业 AI 全链路分层架构（算力 - Embedding-RAG-MCP-Copilot）顶层设计</li><li>四层 Copilot 资产分层建设标准、跨业务资产共享规范</li><li>Copilot 与 Agent/RAG/Token/MCP 跨中台协同权责、对接标准</li><li>企业人机协同成熟度评估、零散单点 Copilot 改造方法论</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-comments"></i></span><h4>2.2 多端交互与分层记忆知识域</h4><ul class="detail-list"><li>IDE / 办公 / IM / 业务系统多端交互协议、上下文透传标准</li><li>短期会话记忆滑动窗口、上下文压缩裁剪</li><li>长期用户 / 项目 / 客户记忆分块向量化、冷热分层存储</li><li>记忆检索融合 RAG 知识库、意图匹配调度</li><li>记忆时效自动过期、隐私脱敏落地 SOP</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>2.3 Agent 链式任务编排知识域</h4><ul class="detail-list"><li>自然语言意图分层拆解、多步骤任务自动规划</li><li>顺序 / 并行 / 分支 / 循环 / 人工复核标准化节点</li><li>任务失败重试、降级兜底、断点续执行机制</li><li>复杂长业务多 Agent 协同调度、冲突消解</li><li>任务模板资产化、行业一键复用方法</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-plug"></i></span><h4>2.4 MCP 工具集成与调度知识域</h4><ul class="detail-list"><li>Model Context Protocol 标准工具统一接入规范</li><li>数据库、文件、审批、运维、查询类工具分类封装</li><li>工具权限、参数校验、调用限流管控</li><li>工具向量检索、意图自动匹配最优技能</li><li>工具批量编排、复合任务组装工程知识</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-brain"></i></span><h4>2.5 CopilotGraph 图谱推理知识域</h4><ul class="detail-list"><li>用户意图、Copilot、工具、任务、指标、故障三元组抽取标准</li><li>意图 - 工具 - 任务关联建模，人机交互经验入库</li><li>用户提问自动推荐最优 Copilot 与任务链路</li><li>对话效果劣化一键分层根因溯源（记忆 / 工具 / Agent）</li><li>每日交互日志增量更新图谱权重自校准</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-bar"></i></span><h4>2.6 人机协同自动化评测知识域</h4><ul class="detail-list"><li>核心指标：任务完成率、工具调用正确率、幻觉率、人工替代率</li><li>离线批量仿真、线上灰度 A/B 分流对照</li><li>LLM 裁判 + 人工复审双层打分机制</li><li>行业评测数据集沉淀、上线准入阈值</li><li>评测数据驱动记忆 / Agent 优化闭环流程</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-briefcase"></i></span><h4>2.7 行业 Copilot 落地知识域</h4><ul class="detail-list"><li>研发 IDE Copilot：代码生成、查 bug、文档、单元测试</li><li>办公 Copilot：PPT/Excel/ 周报、合同摘要、会议纪要</li><li>财务 Copilot：发票、报销、财报、税务查询</li><li>运维 Copilot：日志分析、故障定位、巡检工单</li><li>客服 Copilot：客户问答、工单自动处理落地 SOP</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-shield-alt"></i></span><h4>2.8 多租户安全与合规知识域</h4><ul class="detail-list"><li>企业 / 部门 / 项目三级 RBAC，Copilot / 工具访问隔离</li><li>记忆数据、业务文档自动脱敏</li><li>高危工具、敏感指令多层拦截</li><li>Token/GPU 算力分租户计量、预算预警</li><li>全对话、工具调用日志永久审计、满足等保 / 财务监管</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-pie"></i></span><h4>2.9 Copilot 资产运营复盘知识域</h4><ul class="detail-list"><li>行业模板复用率、人机协同提效多维度复盘</li><li>Token / 算力成本月度分摊核算</li><li>A/B 实验成果沉淀、低效 Copilot 识别</li><li>模板扩充、工具资产完善激励机制</li><li>人机替代收益量化评估方法</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-rocket"></i></span><h4>2.10 Copilot 前沿演进知识域</h4><ul class="detail-list"><li>零代码意图自动生成全新 Copilot</li><li>端侧轻量化离线副驾驶</li><li>联邦企业间工具安全共享</li><li>记忆 - 图谱 - Agent 原生一体化 Copilot 架构演进路线</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S3 -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-brain"></i> Copilot 中台专属知识图谱（CopilotGraph）体系</h2>
+        <span class="badge-count">核心实体 · 关联 · 智能能力</span>
+      </div>
+      <div class="card-body">
+        <div class="content-section">
+          <p style="margin-bottom:1rem;">CopilotGraph 智能副驾驶知识图谱，是用户意图、四层 Copilot 资产、MCP 工具、Agent 任务、对话指标、交互故障、优化策略、租户的人机协同智能关联网络，解决各业务 Copilot 经验零散、工具匹配依赖人工、对话劣化无法定位痛点，实现用户提问自动推荐最优副驾驶 + 任务链路、人机效果劣化一键根因、工具 / 记忆优化智能推送、交互经验自治沉淀。</p>
+        </div>
+        <div class="grid-2" style="margin-bottom:1.5rem;">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-circle"></i></span><h4>3.1 CopilotGraph 核心实体体系</h4><ul class="detail-list"><li><strong>意图实体：</strong>代码编写、周报生成、故障排查、发票解析等用户需求</li><li><strong>Copilot 资产实体：</strong>通用 / 行业 / 定制三层智能副驾驶</li><li><strong>工具实体：</strong>SQL 查询、文件读取、审批提交、日志检索 MCP 技能</li><li><strong>Agent 任务实体：</strong>单步工具、多链式复合业务流程</li><li><strong>记忆实体：</strong>短期会话、长期用户 / 项目向量记忆</li><li><strong>指标实体：</strong>任务完成率、工具正确率、幻觉率、人工替代率</li><li><strong>故障实体：</strong>工具调用失败、记忆召回缺失、任务中断、高幻觉</li><li><strong>优化策略实体：</strong>新增工具、扩充记忆、调整 Agent 分支</li><li><strong>租户实体：</strong>企业、部门、业务项目组</li><li><strong>资产模板实体：</strong>行业标准化 Copilot 包</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-link"></i></span><h4>3.2 CopilotGraph 核心关联关系</h4><ul class="detail-list"><li><strong>意图 ↔ Copilot：</strong>财务需求匹配财务专用副驾驶</li><li><strong>Copilot ↔ 工具：</strong>财报 Copilot 绑定发票、数据库工具</li><li><strong>意图 ↔ Agent：</strong>多步骤报销自动生成链式任务</li><li><strong>故障 ↔ 诱因：</strong>工具报错多因权限缺失</li><li><strong>故障 ↔ 优化：</strong>记忆召回低→扩充长期记忆分块</li><li><strong>租户 ↔ Copilot：</strong>研发部门仅可见 IDE 副驾驶</li><li>每日对话、任务日志自动抽取三元组增量更新</li><li><strong>工具 ↔ 指标：</strong>工具齐全则任务完成率提升</li><li><strong>记忆 ↔ 幻觉：</strong>长期记忆充足可降低事实幻觉</li><li><strong>行业 ↔ 模板：</strong>运维场景专属故障排查 Copilot 包</li></ul></div>
+        </div>
+        <h3 style="color:var(--color-primary-dark); margin-bottom:0.8rem;">3.3 CopilotGraph 八大核心智能能力</h3>
+        <div class="grid-3">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-magic"></i></span><h4>智能能力</h4><ul class="detail-list"><li>人机交互、工具编排、副驾驶调优经验自动结构化入库</li><li>用户自然提问自动推演最优 Copilot + 完整任务链路</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-search"></i></span><h4>智能能力</h4><ul class="detail-list"><li>任务失败、高幻觉一键分层根因（记忆 / 工具 / Agent 三层溯源）</li><li>自动推送新增工具、扩充记忆、调整任务分支优化方案</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-broom"></i></span><h4>智能能力</h4><ul class="detail-list"><li>同行业成熟 Copilot 模板智能复用推荐</li><li>每日交互数据自动校准图谱匹配权重</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sync-alt"></i></span><h4>智能能力</h4><ul class="detail-list"><li>低效副驾驶自动识别、生成优化工单</li><li>Copilot 开发运维新人快速检索同类落地案例</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S4 -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> Copilot 中台六大完整架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span>
+      </div>
+      <div class="card-body">
+        <div class="content-section">
+          <h3>4.1 产品架构（九层分层全景架构）</h3>
+          <div class="policy-card" style="margin-bottom:1rem;"><span class="policy-icon"><i class="fas fa-cubes"></i></span><h4>整体分层</h4><ul class="detail-list"><li>多端统一接入层 → 四层 Copilot 资产池层 → 长短记忆引擎层 → Agent 任务编排层 → MCP 工具集成层 → CopilotGraph 图谱推理层 → 人机评测层 → 多租户安全计量层 → 自治迭代层</li><li><strong>多端接入层：</strong>IDE/Web/IM/ 业务系统嵌入式统一网关</li><li><strong>四层资产池层：</strong>通用 / 行业 / 定制 / Agent 模板分层管控</li><li><strong>记忆引擎层：</strong>短期会话、长期用户记忆向量存储检索</li><li><strong>Agent 编排层：</strong>拖拽式多步骤任务、分支循环、人工节点</li><li><strong>MCP 集成层：</strong>标准化工具接入、权限调度</li><li><strong>CopilotGraph 图谱层：</strong>三元组抽取、意图匹配、故障溯源</li><li><strong>人机评测层：</strong>离线仿真、线上 A/B、LLM 裁判打分</li><li><strong>安全计量层：</strong>RBAC、Token/GPU 配额、全链路审计</li><li><strong>自治迭代层：</strong>交互日志回流、自动生成优化工单</li></ul></div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.2 业务架构（三层全域业务架构 + 八大标准业务域）</h3>
+          <div class="grid-2" style="margin-bottom:1rem;">
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-building"></i></span><h4>三层全域业务架构</h4><ul class="detail-list"><li><strong>底层底座层：</strong>算力、Embedding、RAG、MCP、知识库提供 AI 底层能力</li><li><strong>中层 Copilot 核心能力层：</strong>资产、记忆、Agent、MCP、图谱、评测六大原子服务</li><li><strong>上层赋能层：</strong>多端标准化 Copilot 服务输出至各业务终端</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-briefcase"></i></span><h4>八大标准业务域</h4><ul class="detail-list"><li>四层 Copilot 资产全生命周期业务域</li><li>长短分层记忆管理业务域</li><li>Agent 链式任务编排业务域</li><li>MCP 标准化工具集成业务域</li><li>CopilotGraph 意图推理与故障溯源业务域</li><li>人机协同 A/B 评测业务域</li><li>多租户权限、算力 Token 计量业务域</li><li>Copilot 自治调优迭代业务域</li></ul></div>
+          </div>
+          <div class="text-block">
+            <p><strong>核心业务闭环：</strong>多端用户请求接入 → 意图解析 + CopilotGraph 匹配对应副驾驶 → 读取长短记忆 + 执行 Agent 任务链 + 调用 MCP 工具 → RAG 知识库增强生成回复 → 交互日志回流图谱 → 评测自动计算完成率 / 幻觉 → 劣化自动推送工具 / 记忆优化工单。</p>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.3 数据架构（七层 Copilot 专属数据架构）</h3>
+          <div class="policy-card" style="margin-bottom:1rem;"><span class="policy-icon"><i class="fas fa-database"></i></span><h4>七层数据架构</h4><ul class="detail-list"><li><strong>COP-ODS 原始接入层：</strong>多端对话、工具调用、Agent 任务、评测、算力 Token 原始日志</li><li><strong>COP-DWD 明细清洗层：</strong>对话脱敏、时序对齐、无效测试数据剔除</li><li><strong>COP-DWB 全域宽表层：</strong>意图、Copilot、工具、记忆、租户、指标全维度宽表</li><li><strong>COP-DWA 知识关联层：</strong>自动抽取三元组构建 CopilotGraph 图谱</li><li><strong>COP-DWS 主题汇总层：</strong>资产、记忆、工具、评测、成本五大主题聚合</li><li><strong>COP-ADS 指标应用层：</strong>任务完成率、幻觉率、人工替代率核心指标</li><li><strong>COP-OPT 自主优化层：</strong>工具缺失、记忆不足沉淀优化任务</li></ul></div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.4 技术架构（记忆向量 + 图双引擎七层技术架构）</h3>
+          <div class="policy-card" style="margin-bottom:1rem;"><span class="policy-icon"><i class="fas fa-microchip"></i></span><h4>七层技术架构</h4><ul class="detail-list"><li><strong>多端接入网关层：</strong>统一协议、鉴权、流量限流</li><li><strong>分布式存储层：</strong>会话缓存、长期向量库、图数据库、对象存储</li><li><strong>记忆 & Agent 核心引擎：</strong>记忆检索、任务规划、MCP 调度</li><li><strong>CopilotGraph 图推理引擎：</strong>三元组抽取、多跳意图匹配</li><li><strong>人机评测引擎：</strong>批量仿真、A/B 指标计算</li><li><strong>安全计量引擎：</strong>RBAC、算力 Token 统计告警</li><li><strong>管理前端：</strong>Copilot 编排、图谱可视化、运营大屏</li></ul></div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.5 应用架构（八大全域赋能应用）</h3>
+          <div class="grid-2">
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-rocket"></i></span><h4>八大全域赋能应用</h4><ul class="detail-list"><li>四层 Copilot 资产集市应用：行业副驾驶模板检索复用</li><li>可视化 Agent 任务编排应用：拖拽搭建多步骤业务流程</li><li>长短记忆配置平台：用户记忆分块、时效管控</li><li>MCP 工具集成工作台：一键接入业务系统 API</li><li>CopilotGraph 智能溯源应用：任务失败一键根因</li><li>人机协同 A/B 实验平台：新旧副驾驶效果对照</li><li>多租户成本账单应用：分部门 Token/GPU 报表</li><li>自治优化运营应用：低效 Copilot 自动预警</li></ul></div>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.6 治理架构（六大全域 Copilot 治理体系）</h3>
+          <div class="grid-2">
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-balance-scale"></i></span><h4>六大全域 Copilot 治理体系</h4><ul class="detail-list"><li>四层 Copilot 资产全生命周期治理</li><li>长短记忆标准化治理</li><li>Agent 任务编排常态化治理</li><li>MCP 工具权限闭环治理</li><li>CopilotGraph 每日增量图谱治理</li><li>人机评测与安全审计治理</li></ul></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S5 -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> Copilot 中台全量产品功能模块</h2>
+        <span class="badge-count">全覆盖无遗漏</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-layer-group"></i></span><h4>模块 1：四层 Copilot 资产池模块</h4><ul class="detail-list"><li>通用基础副驾驶：通用问答、文档摘要</li><li>行业标准 Copilot：研发 / 财务 / 运维 / 客服成套模板</li><li>定制业务副驾驶：企业专属流程副驾驶</li><li>Agent 复合任务模板：多步骤业务流程资产</li><li>资产版本、灰度流量、一键回滚</li><li>低复用 Copilot 自动标记归档</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-memory"></i></span><h4>模块 2：长短分层记忆引擎模块</h4><ul class="detail-list"><li>短期会话记忆：上下文滑动、自动压缩裁剪</li><li>长期记忆：用户 / 项目 / 客户分块 Embedding 入库</li><li>记忆时效自动过期、隐私脱敏过滤</li><li>记忆 + RAG 知识库联合多路检索</li><li>记忆仿真预览、召回效果调试</li><li>冷热记忆自动分层存储降本</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>模块 3：Agent 链式任务编排模块</h4><ul class="detail-list"><li>标准化拖拽节点：工具调用、RAG、分支、循环、人工审核</li><li>自然语言自动拆解多步骤任务</li><li>任务失败重试、降级兜底、断点续执行</li><li>多 Agent 并行 / 串行协同调度</li><li>编排模板保存、行业一键复用</li><li>仿真预运行、单步调试</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-plug"></i></span><h4>模块 4：MCP 标准工具集成模块</h4><ul class="detail-list"><li>遵循 Model Context Protocol 统一接入</li><li>数据库、文件、审批、运维、API 工具统一封装</li><li>工具参数校验、调用频次限流</li><li>工具权限分级、敏感操作白名单</li><li>工具向量检索、意图自动匹配</li><li>批量工具复合组装</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-brain"></i></span><h4>模块 5：CopilotGraph 知识图谱模块</h4><ul class="detail-list"><li>每日对话、任务日志自动抽取三元组入库</li><li>图谱可视化意图 - Copilot - 工具拓扑</li><li>用户提问自动推荐最优副驾驶与任务</li><li>任务失败、高幻觉一键分层根因</li><li>自动推送新增工具、扩充记忆优化工单</li><li>每日交互数据自校准图谱权重</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-bar"></i></span><h4>模块 6：人机协同自动化评测模块</h4><ul class="detail-list"><li>离线批量仿真测试集自动打分</li><li>线上灰度 A/B 流量百分比对照</li><li>LLM 裁判 + 人工双层复审机制</li><li>核心指标自动计算：完成率 / 幻觉 / 人工替代</li><li>劣化 Copilot 自动预警、一键切回旧版</li><li>评测报告自动生成归档</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-shield-alt"></i></span><h4>模块 7：多租户安全计量模块</h4><ul class="detail-list"><li>企业 / 部门三级 RBAC：Copilot / 工具访问隔离</li><li>对话、记忆数据自动脱敏</li><li>Token/GPU 算力分租户精准计量</li><li>租户预算阈值、超支梯度限流</li><li>高危指令、敏感工具多层拦截</li><li>全链路对话、工具日志永久审计</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sync-alt"></i></span><h4>模块 8：自治迭代运营模块</h4><ul class="detail-list"><li>交互日志自动回流 CopilotGraph</li><li>低完成率、高幻觉 Copilot 自动识别</li><li>自动生成新增工具、扩充记忆工单</li><li>月度人机协同提效复盘报表</li><li>行业模板扩充建议</li><li>低效资产批量清理</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S6 -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> Copilot 中台全套指标体系</h2>
+        <span class="badge-count">资产 · 记忆 · Agent · 工具 · 图谱 · 人机评测</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Copilot 资产治理指标</strong></td><td>四层资产标准化覆盖率 100%；行业模板复用率 ≥84%；闲置低效 Copilot 占比 ≤9%；资产版本规范率 100%；灰度切换成功率 100%；资产盘点闭环率 100%</td></tr>
+              <tr><td><strong>记忆引擎效能指标</strong></td><td>长期记忆召回 Recall@5 ≥86%；会话上下文压缩 Token 降幅 ≥30%；记忆过期清理及时率 100%；记忆检索 P95 延迟 ≤40ms；冷热分层存储成本降幅 ≥28%；记忆脱敏覆盖率 100%</td></tr>
+              <tr><td><strong>Agent 任务核心指标</strong></td><td>任务整体完成率 ≥92%；单工具调用正确率 ≥94%；任务失败自愈率 ≥99%；断点续执行恢复率 100%；多 Agent 协同冲突消解率 100%；编排仿真通过率 ≥98.5%</td></tr>
+              <tr><td><strong>CopilotGraph 图谱专项指标</strong></td><td>全行业业务意图知识覆盖率 100%；三元组完整率 ≥99.6%；Copilot 推荐准确率 ≥95%；任务故障根因推理准确率 ≥97%；图谱日增量更新及时率 ≥99.5%；图谱赋能优化贡献率 ≥35%</td></tr>
+              <tr><td><strong>人机评测业务指标</strong></td><td>任务事实幻觉率 ≤5%；业务人工替代率提升幅度；A/B 实验指标差值计算精准率 100%；上线劣化识别及时率 100%；评测样本覆盖率 100%；人工复审闭环率 100%</td></tr>
+              <tr><td><strong>多租户安全计量指标</strong></td><td>租户资产隔离合规率 100%；Token/GPU 计量误差趋近 0；高危工具拦截率 100%；全对话审计日志留存率 100%；预算限流执行率 100%；安全整改闭环率 100%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- S7 -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> Copilot 中台完整内容资产体系</h2>
+        <span class="badge-count">6大资产包</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sitemap"></i></span><h4>7.1 顶层规划资产</h4><ul class="detail-list"><li>Copilot 中台建设白皮书</li><li>分阶段落地实施路线图</li><li>企业人机协同成熟度评估报告</li><li>Copilot-MCP-Agent 协同长效方案</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-book"></i></span><h4>7.2 全域标准规范资产</h4><ul class="detail-list"><li>四层 Copilot 资产分层标准</li><li>长短记忆管理统一规范</li><li>Agent 任务编排节点标准</li><li>MCP 工具接入规范</li><li>CopilotGraph 三元组抽取标准</li><li>人机评测指标管理规范</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-database"></i></span><h4>7.3 Copilot 核心数字资产</h4><ul class="detail-list"><li>全行业标准化 Copilot 模板资产库</li><li>Agent 复合任务流程模板包</li><li>MCP 工具配置资产库</li><li>CopilotGraph 副驾驶知识图谱资产包</li><li>人机评测行业标准数据集</li><li>记忆分块调度策略库</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-tools"></i></span><h4>7.4 落地工程资产</h4><ul class="detail-list"><li>Copilot 中台部署实施手册</li><li>Agent 编排工作台操作指南</li><li>CopilotGraph 可视化运维手册</li><li>MCP 跨中台对接 API 文档</li><li>上线验收指标评估模板</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-pie"></i></span><h4>7.5 运营复盘资产</h4><ul class="detail-list"><li>月度人机协同 & 算力成本分析报告</li><li>A/B 实验专项复盘报告</li><li>行业 Copilot 落地提效成果</li><li>安全审计月度台账</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-shield-alt"></i></span><h4>7.6 应急保障资产</h4><ul class="detail-list"><li>多端并发流量雪崩应急预案</li><li>记忆向量库故障恢复方案</li><li>MCP 工具调用大规模失败处置手册</li><li>CopilotGraph 图谱损坏恢复预案</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S8 -->
+    <section id="s8" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-share-alt"></i> Copilot 中台与全中台全域协同关系</h2>
+        <span class="badge-count">14 大中台协同</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-3">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-microchip"></i></span><h4>算力中台</h4><ul class="detail-list"><li>提供 LLM 推理、Embedding 记忆向量弹性 GPU/CPU 算力</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-vector-square"></i></span><h4>Embedding 中台</h4><ul class="detail-list"><li>用户 / 文档记忆批量向量化供给</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-database"></i></span><h4>向量库中台</h4><ul class="detail-list"><li>长期记忆向量存储与相似度检索</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-search"></i></span><h4>RAG 中台</h4><ul class="detail-list"><li>企业知识库作为 Copilot 补充上下文</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-comment"></i></span><h4>Prompt 中台</h4><ul class="detail-list"><li>分层人设、任务提示词统一托管</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-key"></i></span><h4>Token 中台</h4><ul class="detail-list"><li>全对话、工具调用 Token 统一计量管控</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-cog"></i></span><h4>Skill 中台</h4><ul class="detail-list"><li>底层业务技能封装为 MCP 工具</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-robot"></i></span><h4>Agent 中台</h4><ul class="detail-list"><li>复杂长流程智能体作为 Copilot 任务单元</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-cloud"></i></span><h4>MaaS 中台</h4><ul class="detail-list"><li>通用 / 行业大模型推理服务</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-plug"></i></span><h4>MCP 中台</h4><ul class="detail-list"><li>标准化工具能力统一网关</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-book"></i></span><h4>知识库中台</h4><ul class="detail-list"><li>政策、合同、产品知识供给 RAG</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-broom"></i></span><h4>数据预处理</h4><ul class="detail-list"><li>对话、文档数据清洗脱敏</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-tachometer-alt"></i></span><h4>效能中台</h4><ul class="detail-list"><li>采集 Copilot 算力、Token、提效指标做 ROI 分析</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-layer-group"></i></span><h4>场景中台</h4><ul class="detail-list"><li>行业业务场景内置专属 Copilot</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S9 -->
+    <section id="s9" class="card banner-card">
+      <div class="card-body">
+        <div class="icon-big"><i class="fas fa-flag"></i></div>
+        <h2>Copilot 中台 · 核心价值总结</h2>
+        <p>企业全域统一智能副驾驶底座，消除各业务零散独立 Copilot 插件，一套平台覆盖研发 / 财务 / 运维 / 办公全场景，开发人力下降 70% 以上；<br>多端统一一套编排逻辑，IDE / 企微 / Web / 业务系统快速接入，避免重复开发；<br>长短分层记忆 + MCP 全域工具互联，可自动完成多步骤复杂业务，大幅减少人工操作；<br>CopilotGraph 沉淀人机交互、工具匹配经验，用户提问自动推荐最优副驾驶，任务故障一键分层溯源；<br>全自动 A/B 人机评测，量化幻觉、人工替代率，上线灰度可控，规避业务质量风险；<br>多租户精细化算力 / Token 分摊，各部门 AI 副驾驶成本可核算、可管控；<br>无缝打通 Embedding/RAG/Agent/MCP 全 AI 链路，是面向终端用户、实现人机协同提效的上层标准化应用中台。</p>
+        <div class="footer-note">Copilot 中台 · 全域智能副驾驶统一底座 · 全链路对齐算力 / Embedding/RAG/Agent 全中台标准架构范式</div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

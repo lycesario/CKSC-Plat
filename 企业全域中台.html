@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>企业级全域中台完整体系说明书</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ===== 设计系统 Token ===== */
+    :root {
+      --color-primary: #7a2e1a;
+      --color-primary-light: #fce9e0;
+      --color-primary-dark: #4d1c0e;
+      --color-accent: #b85c3a;
+      --color-accent-soft: #f0c8b8;
+      --color-neutral-50: #fcf9f7;
+      --color-neutral-100: #f5ede8;
+      --color-neutral-200: #e5d7ce;
+      --color-neutral-300: #cbb8ab;
+      --color-neutral-400: #a68b7a;
+      --color-neutral-600: #6f5544;
+      --color-neutral-700: #4f3a2e;
+      --color-neutral-800: #34241c;
+      --color-neutral-900: #1e140f;
+      --color-gold: #c29a4a;
+      --color-gold-light: #f3e1b0;
+      --font-base: 1rem;
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --radius-sm: 0.75rem;
+      --radius-md: 1.25rem;
+      --radius-card: 2rem;
+      --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(60, 30, 10, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(60, 30, 10, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(60, 30, 10, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(255, 249, 245, 0.88);
+      backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(255, 235, 220, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); }
+    .sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+    .sidebar nav ul { list-style:none; padding:0; margin:0; }
+    .sidebar nav ul li { margin-bottom:0.1rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:12px;
+      padding:0.55rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.85rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+    }
+    .sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+    .sidebar nav ul li a:hover { background:var(--color-primary-light); color:var(--color-primary-dark); transform:translateX(4px); }
+    .sidebar-footer { margin-top:24px; padding:12px; text-align:center; font-size:0.7rem; color:var(--color-neutral-600); border-top:1px solid var(--color-neutral-200); }
+
+    /* ===== 主内容 ===== */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex; align-items:center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem); font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+    .page-header .header-meta { font-size:0.9rem; color:var(--color-neutral-600); background:var(--color-neutral-100); padding:0.4rem 1.2rem; border-radius:var(--radius-pill); border:1px solid var(--color-neutral-200); }
+
+    /* ===== 卡片 ===== */
+    .card {
+      background:rgba(255,252,248,0.92); backdrop-filter: blur(4px);
+      border-radius:var(--radius-card); box-shadow:var(--shadow-card); margin-bottom:var(--space-6);
+      border:1px solid rgba(255, 235, 220, 0.5); overflow:hidden; transition: box-shadow var(--transition-default), transform 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6); background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft); display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 { font-size:clamp(1.2rem, 2.2vw, 1.6rem); font-weight:700; color:var(--color-primary-dark); display:flex; align-items:center; gap:12px; }
+    .card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+    .card-header .badge-count { margin-left:auto; background:var(--color-accent); color:white; border-radius:var(--radius-pill); padding:0.15rem 0.9rem; font-size:0.7rem; font-weight:600; }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* ===== 网格 ===== */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3 { grid-template-columns:1fr; } .sidebar { display:none; } .layout { padding:0.5rem; } .card-body { padding:1.25rem var(--space-4); } }
+
+    /* ===== 知识卡片 ===== */
+    .gov-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md); padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200); transition: all var(--transition-default);
+      position:relative; overflow:hidden; border-left: 4px solid var(--color-accent);
+    }
+    .gov-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft)); opacity:0; transition: opacity var(--transition-default); }
+    .gov-card:hover::before { opacity:1; }
+    .gov-card:hover { border-color:var(--color-accent-soft); box-shadow: 0 8px 24px -8px rgba(184,92,58,0.15); transform:translateY(-3px); }
+    .gov-card .gov-icon { font-size:1.8rem; color:var(--color-primary); display:inline-block; margin-right:6px; background: var(--color-primary-light); padding:0.2rem 0.6rem; border-radius:12px; }
+    .gov-card h4 { color:var(--color-primary-dark); font-size:1.05rem; margin-bottom:0.4rem; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .gov-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+    .gov-card .detail-list { padding-left:0; margin:0.4rem 0 0 0; list-style:none; }
+    .gov-card .detail-list li { margin-bottom:0.25rem; padding-left:1.2rem; position:relative; font-size:0.85rem; color:var(--color-neutral-700); }
+    .gov-card .detail-list li::before { content:'▹'; position:absolute; left:0; color:var(--color-accent); font-weight:600; }
+    .gov-card .detail-list li strong { color:var(--color-neutral-800); }
+
+    /* ===== 架构层 ===== */
+    .arch-diagram { display:flex; flex-direction:column; gap:0.6rem; padding:0.5rem 0; }
+    .arch-layer {
+      display:flex; align-items:stretch; gap:0.75rem; background:var(--color-neutral-50);
+      border-radius:var(--radius-md); padding:0.6rem 1rem; border:1px solid var(--color-neutral-200); transition: var(--transition-default);
+    }
+    .arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+    .arch-layer .layer-label { display:flex; flex-direction:column; justify-content:center; min-width:120px; padding-right:1rem; border-right:2px solid var(--color-neutral-200); font-weight:700; font-size:0.8rem; color:var(--color-primary-dark); }
+    .arch-layer .layer-label i { font-size:1.1rem; color:var(--color-accent); margin-bottom:0.1rem; }
+    .arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+    .arch-layer .layer-blocks { display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem; flex:1; padding:0.2rem 0; }
+    .arch-block { background:white; border-radius:var(--radius-sm); padding:0.3rem 0.9rem; border:1px solid var(--color-neutral-200); font-size:0.75rem; font-weight:500; color:var(--color-neutral-700); transition: var(--transition-default); }
+    .arch-block:hover { border-color:var(--color-accent); background:var(--color-primary-light); color:var(--color-primary-dark); transform:translateY(-1px); }
+    .arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+
+    /* ===== 表格 ===== */
+    .table-wrapper { overflow-x:auto; border-radius:var(--radius-md); border:1px solid var(--color-neutral-200); background:white; }
+    table { width:100%; border-collapse:collapse; font-size:0.78rem; }
+    th { background:var(--color-neutral-100); padding:12px 10px; font-weight:600; color:var(--color-primary-dark); text-align:left; border-bottom:2px solid var(--color-neutral-200); font-size:0.7rem; text-transform:uppercase; }
+    td { padding:10px 10px; border-bottom:1px solid var(--color-neutral-200); vertical-align:middle; color:var(--color-neutral-700); }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--color-neutral-50); }
+
+    /* ===== 文本 ===== */
+    .content-text { font-size: 0.95rem; color: var(--color-neutral-700); line-height: 1.8; margin-bottom: 1rem; }
+    .content-text strong { color: var(--color-primary-dark); }
+    .section-title { font-size: 1.2rem; font-weight: 700; color: var(--color-primary-dark); margin: 1.5rem 0 1rem 0; border-bottom: 2px solid var(--color-primary-light); padding-bottom: 0.5rem; }
+    .subsection-title { font-size: 1.05rem; font-weight: 600; color: var(--color-neutral-800); margin: 1.2rem 0 0.8rem 0; }
+    .normal-list { padding-left: 1.5rem; margin-bottom: 1rem; color: var(--color-neutral-700); font-size: 0.9rem; line-height: 1.7; }
+    .normal-list li { margin-bottom: 0.3rem; }
+    .normal-list li strong { color: var(--color-neutral-800); }
+    .info-tip { background:var(--color-neutral-50); border-radius:var(--radius-md); padding:0.7rem 1.5rem; border-left:5px solid var(--color-accent); margin-top:var(--space-4); display:flex; align-items:center; gap:0.8rem; font-size:0.9rem; color:var(--color-neutral-700); }
+    .info-tip i { color:var(--color-accent); font-size:1rem; }
+
+    /* ===== 价值 ===== */
+    .value-header { text-align: center; margin-bottom: 2rem; }
+    .value-header .icon-big { font-size: 2.8rem; color: var(--color-primary); opacity: 0.8; margin-bottom: 0.5rem; }
+    .value-header h2 { font-size: clamp(1.6rem, 2.8vw, 2.2rem); color: var(--color-primary-dark); margin-bottom: 0.25rem; }
+    .value-subtitle { font-size: 1rem; color: var(--color-neutral-600); letter-spacing: 2px; font-weight: 300; }
+    .value-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin: 1.5rem 0 2rem 0; }
+    .value-item { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(4px); padding: 1.2rem 1.4rem; border-radius: var(--radius-md); border: 1px solid rgba(255, 235, 220, 0.5); transition: all 0.3s ease; }
+    .value-item:hover { transform: translateY(-3px); box-shadow: var(--shadow-card-hover); border-color: var(--color-accent-soft); background: rgba(255, 255, 255, 0.85); }
+    .value-item .value-icon { flex-shrink: 0; width: 2.8rem; height: 2.8rem; display: flex; align-items: center; justify-content: center; background: var(--color-primary-light); border-radius: 50%; color: var(--color-accent); font-size: 1.2rem; }
+    .value-item .value-content h4 { font-size: 1rem; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 0.3rem; line-height: 1.3; }
+    .value-item .value-content p { font-size: 0.9rem; color: var(--color-neutral-700); line-height: 1.6; margin: 0; }
+    .value-item.full-width { grid-column: 1 / -1; }
+    @media (max-width: 768px) { .value-grid { grid-template-columns: 1fr; gap: 1rem; } }
+
+    /* ===== 暗色 ===== */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #1a1410; --color-neutral-100: #221c18; --color-neutral-200: #3a2c24; --color-neutral-700: #d0c4b8; --color-neutral-800: #e8dcd0; --color-neutral-900: #f5ede6;
+        --color-primary-light: #3a2a20; --color-accent-soft: #6a4a3a; --color-primary: #d08a6a; --color-primary-dark: #f0c8b0; --color-accent: #c07a5a; --color-gold: #c29a4a; --color-gold-light: #4a3a20;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6); --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #120e0a; }
+      .card { background: #1a1410; border-color: #3a2c24; }
+      .card-header { background: #1a1410; border-bottom-color: #4a3a2e; }
+      .gov-card { background: #1a1410; border-color: #3a2c24; }
+      .gov-card .gov-icon { background: #2a1e16; color: #d08a6a; }
+      .gov-card .detail-list li { color: #c0b4a8; }
+      .table-wrapper { background: #1a1410; border-color: #3a2c24; }
+      th { background: #221c18; color: #e0d4c8; border-bottom-color: #4a3a2e; }
+      td { border-bottom-color: #2a241e; color: #c0b4a8; }
+      .sidebar { background: rgba(20, 16, 12, 0.92); border-color: #3a2c24; }
+      .sidebar-brand { border-bottom-color: #4a3a2e; }
+      .sidebar nav ul li a { color: #c0b4a8; }
+      .sidebar nav ul li a:hover { background: #3a2c24; color: white; }
+      .info-tip { background: #1a1410; border-left-color: #c07a5a; color: #c0b4a8; }
+      .page-header h1 { background:linear-gradient(135deg,#f0c8b0,#d08a6a); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#2a241e; border-color:#4a3a2e; color:#b8a89c; }
+      .arch-layer { background:#1a1410; border-color:#3a2c24; }
+      .arch-layer .layer-label { border-right-color:#3a2c24; color:#e0d4c8; }
+      .arch-block { background:#1a1410; border-color:#3a2c24; color:#c0b4a8; }
+      .value-item { background: rgba(30, 24, 20, 0.7); border-color: var(--color-neutral-200); }
+      .value-item:hover { background: rgba(40, 32, 26, 0.9); border-color: var(--color-accent-soft); }
+      .value-item .value-content p { color: var(--color-neutral-600); }
+      .value-subtitle { color: var(--color-neutral-400); }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-sitemap" aria-hidden="true"></i>
+      <h3>全域中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-book-open"></i> 全域中台定义</a></li>
+        <li><a href="#s1"><i class="fas fa-book"></i> 知识体系+图谱</a></li>
+        <li><a href="#s2"><i class="fas fa-sitemap"></i> 六大核心架构</a></li>
+        <li><a href="#s3"><i class="fas fa-puzzle-piece"></i> 产品功能模块</a></li>
+        <li><a href="#s4"><i class="fas fa-chart-line"></i> 全套指标体系</a></li>
+        <li><a href="#s5"><i class="fas fa-boxes"></i> 完整内容体系</a></li>
+        <li><a href="#s6"><i class="fas fa-share-alt"></i> 协同关系总结</a></li>
+        <li><a href="#s7"><i class="fas fa-flag"></i> 核心价值总结</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-sitemap"></i> 全域中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-sitemap"></i> 企业级全域中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> 全结构化完整版</span>
+    </header>
+
+    <!-- ===== S0 全域中台定义 ===== -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> 企业全域中台完整定义</h2>
+        <span class="badge-count">通用总述</span>
+      </div>
+      <div class="card-body">
+        <div class="section-title">1.1 标准官方定义</div>
+        <div class="content-text">
+          企业全域中台是企业数字化转型的核心能力中枢与全域资产复用底座，是基于领域驱动设计、资产化沉淀、服务化封装、智能化赋能、全域化治理思想，整合企业底层技术资源、全域数据资产、通用业务能力、智能模型知识、全域运营能力，通过标准化、模块化、组件化、知识化、可编排的体系化建设，将企业零散、重复、烟囱式、定制化的技术、数据、业务、AI、运营能力统一沉淀为可复用、可迭代、可自动化、可治理的企业数字资产，为前台所有业务场景、创新应用、全域经营提供统一支撑的企业级全域能力复用平台与数智化赋能中枢。
+        </div>
+        <div class="content-text">
+          企业全域中台并非单一系统，而是由技术中台、数据中台、业务中台、AI中台、运营中台五大核心中台构成的完整全域中台矩阵，彻底解决企业系统烟囱、能力重复建设、数据割裂、业务标准化不足、运营碎片化、智能能力无法落地、经验无法沉淀、治理无体系等数字化痛点，实现一次建设、全域复用、场景快速创新、资产持续沉淀、能力持续迭代、经营闭环增长的企业数智化终极架构。
+        </div>
+        
+        <div class="section-title">1.2 核心本质与定位</div>
+        <div class="content-text">
+          企业全域中台是衔接底层基础设施与前台创新场景的中间核心层，是企业数字化、智能化、精细化、规模化经营的统一载体，核心本质是企业通用能力资产化、专属能力标准化、创新场景轻量化、全域体系治理化。
+        </div>
+        <ol class="normal-list">
+          <li><strong>战略定位：</strong>企业数智化转型核心底座、全域数字资产沉淀中心、通用能力复用中心、场景创新赋能中心、全域统一治理中心、智能经营决策中心；</li>
+          <li><strong>核心本质：</strong>打破部门、系统、业务线壁垒，将企业所有通用技术、数据、业务、智能、运营能力拆解为原子化组件，沉淀为可复用数字资产，支撑前台低成本、高效率、快速试错、持续创新；</li>
+          <li><strong>核心特征：</strong>全域统一、解耦复用、组件化拼装、标准化输出、数据驱动、智能赋能、知识沉淀、全链路治理、可持续迭代；</li>
+          <li><strong>五大子中台精准边界与协同关系</strong><br>
+          - 技术中台：管底层技术底座、研发运维、云原生资源，解决「系统稳、迭代快、架构统一」；<br>
+          - 数据中台：管全域数据治理、数据资产、指标体系，解决「数据可信、数据统一、数据价值释放」；<br>
+          - 业务中台：管通用业务实体、业务流程、业务规则，解决「业务标准化、业务复用、前台业务快速落地」；<br>
+          - AI中台：管算力、模型、特征、知识推理、智能决策，解决「业务智能化、场景智慧化、AI能力资产化」；<br>
+          - 运营中台：管用户、内容、活动、渠道、策略、自动化运营，解决「运营标准化、精细化、自动化、经营可量化」。</li>
+        </ol>
+        
+        <div class="section-title">1.3 建设核心目标</div>
+        <ol class="normal-list">
+          <li>打破企业系统烟囱、数据孤岛、业务壁垒、运营割裂，构建全域统一的数智化中台架构；</li>
+          <li>统一沉淀技术、数据、业务、AI、运营五大类企业核心数字资产，实现全域能力复用，杜绝重复建设；</li>
+          <li>实现企业研发、数据、业务、智能、运营全流程标准化、组件化、自动化、智能化，大幅降低数字化成本；</li>
+          <li>轻量化赋能前台创新场景，支持新业务、新场景、新模式快速落地、灵活试错、快速迭代；</li>
+          <li>构建企业全域中台知识体系与全域中台知识图谱，沉淀企业数字化建设经验、业务打法、数据方法论、运营策略；</li>
+          <li>形成「技术底座支撑、数据原料供给、业务标准承载、AI智能赋能、运营落地增收」的全域数智化闭环；</li>
+          <li>建立全域统一的中台治理体系，实现资产可控、流程可控、数据可控、合规可控、效果可量化；</li>
+          <li>支撑企业从信息化、数字化向智能化、知识化、精细化、规模化高阶数智化转型。</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== S1 知识体系+图谱 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book"></i> 企业全域中台完整知识体系 + 全域中台专属知识图谱体系</h2>
+        <span class="badge-count">知识域+图谱体系</span>
+      </div>
+      <div class="card-body">
+        <div class="content-text" style="margin-bottom: 1.5rem;">企业全域中台知识体系是以中台架构方法论、领域驱动建模、数字资产工程、数据治理工程、业务标准化工程、智能知识工程、精细化运营工程、全域治理工程为核心底层，覆盖五大子中台全领域知识，形成10大核心知识域，并配套企业全域中台知识图谱，实现企业数字化建设经验、架构规范、落地打法、问题解决方案结构化沉淀、关联推理、智能复用、持续迭代。</div>
+        
+        <div class="subsection-title">2.1 中台战略与架构规划知识域</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>核心内容</h4><ul class="detail-list"><li>企业数智化转型战略拆解、全域中台建设顶层规划、中台演进路线方法论</li><li>烟囱式系统改造思路、系统解耦、能力拆分、资产沉淀、前台中台后台分层设计</li><li>五大中台协同架构、分层解耦规范、全域能力拓扑规划、中台成熟度评估体系</li><li>大中小微企业中台建设差异化方案、轻量化中台与全域中台落地方法论</li><li>中台建设ROI评估、成本管控、价值落地、数字化资产增值方法论</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">2.2 中台领域建模知识域（核心基础）</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>核心内容</h4><ul class="detail-list"><li>DDD领域驱动设计、全域业务域拆分、技术域/数据域/业务域/AI域/运营域建模规范</li><li>中台实体建模、行为建模、流程建模、资产建模、服务建模标准化体系</li><li>全域对象生命周期建模：数据生命周期、业务生命周期、模型生命周期、运营资产生命周期</li><li>中台原子能力拆解、组件封装、服务编排、能力复用最佳实践</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">2.3 技术中台专项知识域</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>核心内容</h4><ul class="detail-list"><li>云原生架构、容器化部署、微服务拆分、服务治理、DevOps研发运维一体化</li><li>分布式架构、高并发高可用、缓存、消息队列、网关、中间件技术体系</li><li>系统权限、租户体系、多端适配、跨系统集成、接口标准化、技术合规</li><li>技术资产沉淀、技术组件复用、技术架构迭代、故障运维闭环方法论</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">2.4 数据中台专项知识域</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>核心内容</h4><ul class="detail-list"><li>全域数据采集、多源数据融合、数据分层、数据清洗、数据质量治理体系</li><li>数据资产目录、数据标签、数据指标、数据血缘、数据服务、数据安全规范</li><li>OneData统一口径、数据建模、主题域建设、数据归因、数据洞察方法论</li><li>数据资产复用、数据价值挖掘、数据驱动业务与运营迭代体系</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">2.5 业务中台专项知识域</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>核心内容</h4><ul class="detail-list"><li>通用业务域梳理、核心业务实体标准化、业务流程固化、业务规则统一</li><li>业务组件封装、业务服务输出、业务场景拼装、前台业务快速创新</li><li>业务数据联动、业务异常风控、业务版本迭代、业务资产沉淀体系</li><li>多业态、多场景、多租户差异化业务适配与通用能力复用平衡方法论</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">2.6 AI中台专项知识域</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-brain"></i></span><h4>核心内容</h4><ul class="detail-list"><li>算力调度、模型管理、特征工程、样本管理、模型训练、模型部署体系</li><li>智能人群、智能推荐、智能预测、智能风控、智能决策落地方法论</li><li>知识抽取、知识建模、知识关联、知识推理、智能问答知识工程体系</li><li>AI能力资产化、模型迭代、智能场景落地、AI与业务/运营融合体系</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">2.7 运营中台专项知识域</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bullhorn"></i></span><h4>核心内容</h4><ul class="detail-list"><li>用户全生命周期、内容、活动、渠道、会员、触达全域精细化运营方法论</li><li>运营自动化编排、智能运营调度、运营场景模板化、运营资产沉淀体系</li><li>运营数据归因、运营复盘、运营策略迭代、经营提效增收方法论</li><li>运营合规、运营治理、运营效率优化、全域经营闭环体系</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">2.8 中台自动化与编排知识域</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cogs"></i></span><h4>核心内容</h4><ul class="detail-list"><li>中台能力低代码编排、跨中台能力串联、场景化拼装、自动化任务调度</li><li>技术、数据、业务、AI、运营多能力联动、事件触发、定时调度、流程闭环</li><li>人工+中台协同、中台能力自动化落地、全链路提效迭代方法论</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">2.9 中台全域治理知识域</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>核心内容</h4><ul class="detail-list"><li>资产治理、流程治理、权限治理、合规治理、数据治理、模型治理、运营治理</li><li>中台版本迭代、变更管控、操作审计、风险预警、故障闭环体系</li><li>中台成本治理、效率治理、质量治理、价值评估全域治理方法论</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">2.10 企业全域中台专属知识图谱体系（专项核心）</div>
+        <div class="content-text" style="margin-bottom: 1.5rem;">企业全域中台知识图谱是企业数智化建设经验、中台架构规范、落地打法、资产关系、场景适配、问题解决方案的结构化知识核心载体。基于知识工程与全域中台领域建模，将五大中台零散的架构经验、建设规范、组件能力、资产关系、场景适配、故障方案、迭代经验抽取为标准化实体与关系，构建全域关联的知识网络，实现中台建设可传承、可检索、可推理、可复用、可迭代，支撑企业中台持续优化与新场景极速落地。</div>
+        
+        <div class="subsection-title">1. 全域中台知识图谱核心构成维度</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>技术中台知识图谱</h4><ul class="detail-list"><li>技术组件、中间件特性、服务关系、部署规范、故障类型、运维方案、架构适配场景</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>数据中台知识图谱</h4><ul class="detail-list"><li>数据域、数据模型、指标实体、数据血缘、数据质量问题、治理规则、数据服务适配场景</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>业务中台知识图谱</h4><ul class="detail-list"><li>业务实体、业务流程、业务规则、业务组件、场景适配、业务异常、解决方案</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-brain"></i></span><h4>AI中台知识图谱</h4><ul class="detail-list"><li>模型实体、特征、样本、算力资源、智能能力、推理规则、适配业务运营场景</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bullhorn"></i></span><h4>运营中台知识图谱</h4><ul class="detail-list"><li>用户/内容/活动/渠道资产、运营策略、运营场景、转化链路、复盘经验、优化方案</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-network-wired"></i></span><h4>全域协同知识图谱</h4><ul class="detail-list"><li>五大中台能力关联关系、跨中台调用链路、场景能力组合、冲突规避规则、全域落地案例</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">2. 全域中台知识图谱核心能力</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>全域中台经验结构化建模</h4><ul class="detail-list"><li>自动抽取各中台实体、属性、三元组关系，构建统一知识网络</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-search"></i></span><h4>中台知识智能检索复用</h4><ul class="detail-list"><li>支持架构规范、组件能力、故障方案、场景落地案例快速检索</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-magic"></i></span><h4>场景智能能力匹配</h4><ul class="detail-list"><li>根据新业务/新运营场景，自动匹配最优中台能力组合、组件、流程、策略</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-stethoscope"></i></span><h4>中台架构问题智能诊断</h4><ul class="detail-list"><li>推理架构冗余、能力缺失、数据断点、流程卡点、运营低效问题</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>全域中台资产智能联动</h4><ul class="detail-list"><li>实现技术、数据、业务、AI、运营资产关联匹配、协同赋能</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>知识自动迭代更新</h4><ul class="detail-list"><li>基于中台迭代、故障复盘、场景落地经验，持续更新知识体系</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3. 全域中台知识图谱应用价值</div>
+        <div class="content-text">解决企业中台建设「经验零散、规范不统一、新人上手慢、场景复刻难、架构迭代无依据、问题排查效率低、资产无法联动复用」的核心痛点，实现中台建设标准化、架构经验资产化、场景落地智能化、全域数智化体系可持续演进。</div>
+      </div>
+    </section>
+
+    <!-- ===== S2 六大核心架构 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> 企业全域中台六大核心架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span>
+      </div>
+      <div class="card-body">
+        <div class="subsection-title">3.1 产品架构（全域中台分层全景）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">整体分层：基础设施层 → 技术底座层 → 全域数据资产层 → 通用业务能力层 → AI智能赋能层 → 全域运营能力层 → 中台开放服务层 → 分析决策层 → 全域治理管控层</div>
+        <div class="arch-diagram" style="margin-bottom: 2rem;">
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-server"></i> 基础设施层</div><div class="layer-blocks"><span class="arch-block">服务器、存储、网络、算力资源、云平台基础设施</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-cubes"></i> 技术底座层</div><div class="layer-blocks"><span class="arch-block">云原生、微服务、网关、中间件、DevOps、权限租户、运维监控体系</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-database"></i> 全域数据资产层</div><div class="layer-blocks"><span class="arch-block">数据采集、数据分层、数据治理、数据资产、指标体系、数据服务</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-box"></i> 通用业务能力层</div><div class="layer-blocks"><span class="arch-block">全域通用业务组件、业务流程、业务规则、业务服务封装</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-brain"></i> AI智能赋能层</div><div class="layer-blocks"><span class="arch-block">算力、模型、特征、知识图谱、智能推理、智能决策服务</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-bullhorn"></i> 全域运营能力层</div><div class="layer-blocks"><span class="arch-block">用户、内容、活动、渠道、自动化运营、精细化经营能力</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-store"></i> 中台开放服务层</div><div class="layer-blocks"><span class="arch-block">统一中台网关、能力市场、服务注册、授权调用、跨中台调度</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-pie"></i> 分析决策层</div><div class="layer-blocks"><span class="arch-block">全域数据看板、归因分析、经营复盘、智能诊断、决策建议</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-sync-alt"></i> 全域治理管控层</div><div class="layer-blocks"><span class="arch-block">资产、数据、业务、模型、运营、权限、合规、成本全域治理</span></div></div>
+        </div>
+        
+        <div class="subsection-title">3.2 业务架构（全域中台三层业务域架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">上层：前台创新场景层 | 中层：五大中台核心能力层（全域通用技术、数据、业务、AI、运营原子能力与资产） | 下层：基础设施支撑层（硬件、云资源、基础软件）</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>技术支撑域</h4><ul class="detail-list"><li>系统部署、服务治理、研发运维、权限管控、集成适配</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>数据资产域</h4><ul class="detail-list"><li>数据采集、治理、建模、指标、服务、数据安全</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>通用业务域</h4><ul class="detail-list"><li>用户、订单、商品、会员、支付、审批、档案通用业务</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-brain"></i></span><h4>智能赋能域</h4><ul class="detail-list"><li>智能识别、智能预测、智能推荐、智能风控、知识推理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bullhorn"></i></span><h4>全域运营域</h4><ul class="detail-list"><li>用户、内容、活动、渠道、触达、自动化、经营复盘</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>中台治理域</h4><ul class="detail-list"><li>资产治理、合规治理、权限审计、成本效率、迭代管控</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.2.3 全域中台核心业务流转</div>
+        <div class="content-text" style="margin-bottom: 2rem;">前台场景发起业务/运营需求 → 中台统一网关鉴权校验 → 联动调用技术底座、数据资产、业务组件、AI智能、运营能力 → 多中台能力协同编排执行 → 业务/运营结果输出 → 全域数据回传沉淀 → 知识图谱迭代更新 → 效果复盘与策略优化 → 全链路审计留存。</div>
+        
+        <div class="subsection-title">3.3 数据架构（全域中台统一七层数据架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">全域中台统一复用OneData七层分层架构，打通五大中台数据壁垒，实现全域数据统一标准、统一分层、统一口径、统一资产，支撑业务、AI、运营全场景数据应用。</div>
+        <div class="arch-diagram" style="margin-bottom: 2rem;">
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-database"></i> ODS</div><div class="layer-blocks"><span class="arch-block">原始数据层：采集前台场景、业务系统、设备、渠道、用户行为、模型输出、运营日志全量原始数据</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-filter"></i> DWD</div><div class="layer-blocks"><span class="arch-block">明细清洗层：全域数据清洗、去重、降噪、补全、标准化，生成各域标准明细数据</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-table"></i> DWB</div><div class="layer-blocks"><span class="arch-block">标签宽表层：整合用户、业务、内容、渠道、模型、运营多维特征，生成全域标签宽表</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-project-diagram"></i> DWM</div><div class="layer-blocks"><span class="arch-block">知识关联层：构建全域数据三元组、知识实体、关联关系，支撑中台知识图谱建设</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-bar"></i> DWS</div><div class="layer-blocks"><span class="arch-block">主题汇总层：按技术、数据、业务、AI、运营五大主题域聚合统计数据</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-line"></i> ADS</div><div class="layer-blocks"><span class="arch-block">应用指标层：输出全域标准化指标、报表、诊断数据、复盘结果，支撑决策</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-sync-alt"></i> AI-OPS</div><div class="layer-blocks"><span class="arch-block">智能数据层：沉淀模型预测数据、智能推理数据、策略优化数据，支撑智能化赋能</span></div></div>
+        </div>
+        
+        <div class="subsection-title">全域中台核心数据模型体系</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cogs"></i></span><h4>技术运维数据模型</h4><ul class="detail-list"><li>服务稳定性、性能、故障、运维日志模型</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>全域基础数据模型</h4><ul class="detail-list"><li>主数据、字典数据、配置数据、标准规范数据模型</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>业务交易数据模型</h4><ul class="detail-list"><li>用户、订单、商品、权益、流程业务明细模型</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-brain"></i></span><h4>智能算法数据模型</h4><ul class="detail-list"><li>特征、样本、模型输出、预测结果、推理记录模型</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bullhorn"></i></span><h4>运营行为数据模型</h4><ul class="detail-list"><li>曝光、点击、互动、转化、触达、活动参与模型</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>全域知识图谱数据模型</h4><ul class="detail-list"><li>多中台实体、属性、跨域关系、场景关联三元组模型</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.4 技术架构（全域中台云原生统一技术架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">全域中台采用统一云原生微服务架构，五大中台共用底层技术底座，差异化叠加专属引擎能力，实现技术统一、能力分层、全域协同。</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>分层1：基础设施层</h4><ul class="detail-list"><li>云服务器、容器集群、对象存储、网络、算力集群</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>分层2：基础中间件层</h4><ul class="detail-list"><li>数据库、缓存、消息队列、网关、注册中心、配置中心</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-code-branch"></i></span><h4>分层3：研发运维层</h4><ul class="detail-list"><li>DevOps、CI/CD、容器编排、监控告警、日志分析、链路追踪</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-lock"></i></span><h4>分层4：统一权限与安全层</h4><ul class="detail-list"><li>统一账号、鉴权授权、租户隔离、数据加密、安全风控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cogs"></i></span><h4>分层5：中台专属引擎层</h4><ul class="detail-list"><li>数据计算引擎、业务流程引擎、AI推理引擎、运营编排引擎、知识计算引擎</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>分层6：能力服务封装层</h4><ul class="detail-list"><li>各中台原子能力封装、服务注册、API开放、跨中台调度</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-desktop"></i></span><h4>分层7：应用与可观测层</h4><ul class="detail-list"><li>场景应用支撑、全域数据可视化、故障排查、版本迭代运维</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">横向贯穿三大体系</div>
+        <div class="grid-3" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-code"></i></span><h4>全域技术规范体系</h4><ul class="detail-list"><li>五大中台统一开发、部署、迭代、集成规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>全域安全合规体系</h4><ul class="detail-list"><li>数据安全、业务合规、运营合规、隐私合规、审计溯源</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tools"></i></span><h4>全域运维保障体系</h4><ul class="detail-list"><li>统一监控、统一告警、故障闭环、版本管控、容灾备份</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.5 应用架构（全域中台全场景赋能应用体系）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">企业所有前台场景、业务系统、运营平台、创新应用100%基于全域中台能力搭建与赋能，无重复底层建设，分为六大应用场景体系：</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shopping-cart"></i></span><h4>业务经营类应用</h4><ul class="detail-list"><li>交易业务、会员服务、审批流程、商户管理、供应链管理等通用业务场景</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>数据决策类应用</h4><ul class="detail-list"><li>数据报表、经营看板、指标监控、归因分析、数据自助查询</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-brain"></i></span><h4>智能赋能类应用</h4><ul class="detail-list"><li>智能推荐、智能风控、智能预测、智能问答、智能诊断</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bullhorn"></i></span><h4>全域运营类应用</h4><ul class="detail-list"><li>用户拉新留存、内容种草、活动营销、渠道拓客、私域经营</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-robot"></i></span><h4>自动化场景应用</h4><ul class="detail-list"><li>业务流程自动化、运营任务自动化、智能策略自动迭代</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>治理管控类应用</h4><ul class="detail-list"><li>资产治理、权限审计、合规自查、成本管控、风险预警</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">统一中台应用访问链路</div>
+        <div class="content-text" style="margin-bottom: 2rem;">前台应用/第三方系统 → 全域中台统一网关 → 安全&权限校验 → 跨中台能力协同调用 → 场景自动化执行 → 数据回传沉淀 → 知识图谱迭代 → 效果输出与审计留存。</div>
+        
+        <div class="subsection-title">3.6 治理架构（全域中台七大统一治理体系）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">聚焦全域中台全维度管控，形成资产治理、数据治理、业务治理、模型治理、运营治理、权限合规治理、成本效率治理七大闭环治理域，统一管控五大中台所有能力与资产。</div>
+        <div class="grid-3">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>全域资产治理</h4><ul class="detail-list"><li>技术组件、数据资产、业务组件、AI模型、运营资产统一台账、复用率、生命周期管控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-line"></i></span><h4>全域数据治理</h4><ul class="detail-list"><li>数据质量、数据口径、数据血缘、数据安全、数据时效全域管控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>全域业务治理</h4><ul class="detail-list"><li>业务流程标准化、规则统一、版本迭代、异常风控、场景适配治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-brain"></i></span><h4>AI模型治理</h4><ul class="detail-list"><li>模型版本、模型效果、模型迭代、模型风险、算力资源治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bullhorn"></i></span><h4>全域运营治理</h4><ul class="detail-list"><li>运营合规、策略管控、内容风控、效果复盘、迭代优化治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-user-lock"></i></span><h4>权限合规治理</h4><ul class="detail-list"><li>全中台权限分级、操作审计、变更溯源、合规自查、风险拦截</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-dollar-sign"></i></span><h4>成本效率治理</h4><ul class="detail-list"><li>研发成本、算力成本、存储成本、运营成本、全域ROI管控</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S3 产品功能模块 ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> 企业全域中台完整产品功能模块</h2>
+        <span class="badge-count">全维度全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>模块1：全域技术底座核心模块（技术中台）</h4><ul class="detail-list"><li>云原生容器管理；微服务治理；统一网关模块；研发运维一体化；统一权限租户；系统监控运维</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>模块2：全域数据资产核心模块（数据中台）</h4><ul class="detail-list"><li>多源数据采集；数据分层治理；数据资产目录；标签与指标体系；数据服务开放；数据质量与安全</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>模块3：通用业务能力核心模块（业务中台）</h4><ul class="detail-list"><li>用户中心模块；商品与资源模块；订单交易模块；会员权益模块；流程审批模块；通用配置模块</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-brain"></i></span><h4>模块4：AI智能赋能核心模块（AI中台）</h4><ul class="detail-list"><li>算力资源调度；模型全生命周期管理；特征与样本管理；智能能力引擎；知识图谱核心模块；AI服务开放</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bullhorn"></i></span><h4>模块5：全域精细化运营核心模块（运营中台）</h4><ul class="detail-list"><li>用户资产运营；内容资产运营；活动营销运营；渠道资源运营；精准触达运营；自动化智能编排</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>模块6：全域中台知识图谱与知识库专项模块</h4><ul class="detail-list"><li>全域知识源统一接入；跨中台知识抽取；全域知识网络构建；企业中台知识库管理；智能知识检索与问答；跨中台知识推理；全域知识自动迭代</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-network-wired"></i></span><h4>模块7：全域中台开放与治理模块</h4><ul class="detail-list"><li>中台统一网关；中台能力市场；服务授权管控；全域资产治理；全域告警预警；全链路审计溯源</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S4 全套指标体系 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> 企业全域中台全套指标体系</h2>
+        <span class="badge-count">稳定+资产+效能+质量+知识+经营</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>中台服务稳定SLA指标</strong></td><td>全域中台整体可用率≥99.99%；中台服务调用成功率≥99.95%；核心接口P95响应耗时≤200ms；自动化任务执行成功率≥99.9%；中台故障MTTR平均恢复时间≤5分钟；系统容灾成功率100%、核心数据零丢失</td></tr>
+              <tr><td><strong>中台资产复用核心指标</strong></td><td>技术组件复用率≥95%；数据资产复用率≥93%；业务组件复用率≥92%；AI模型与智能能力复用率≥90%；运营资产与模板复用率≥95%；新场景中台能力覆盖率≥98%；企业重复建设率≤3%；僵尸无效资产占比≤2%</td></tr>
+              <tr><td><strong>中台建设效能指标</strong></td><td>新场景落地周期缩短率≥85%；业务研发效率提升率≥80%；数据产出效率提升率≥75%；运营自动化率≥90%；中台流程标准化率100%；问题复盘闭环率100%</td></tr>
+              <tr><td><strong>全域质量与合规指标</strong></td><td>数据准确率≥99.9%、数据完整率≥99.9%；业务流程合规率100%、营销内容合规率100%；用户隐私合规覆盖率100%、审计日志完整率100%；模型风险异常率为0、策略冲突率为0；全域风险拦截率100%</td></tr>
+              <tr><td><strong>企业经营价值指标</strong></td><td>企业数字化建设成本下降比例≥30%；业务迭代速度提升倍数≥3倍；全域运营效率提升率≥70%；用户活跃、转化、复购、营收稳步提升；全域经营ROI持续优化提升</td></tr>
+              <tr><td><strong>全域中台知识图谱专项指标</strong></td><td>中台建设场景知识覆盖率≥98%；知识三元组完整率≥99%、知识更新及时率≥98%；知识检索使用率、知识复用次数、场景复刻成功率持续提升；架构问题智能诊断准确率≥95%、方案推荐准确率≥93%；全域知识迭代闭环率100%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S5 完整内容体系 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> 企业全域中台完整内容体系</h2>
+        <span class="badge-count">交付物+标准+资产+文档全集</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>6.1 顶层规划类内容</h4><ul class="detail-list"><li>企业全域中台建设总体方案、数智化转型架构白皮书；五大中台协同架构规划、全域能力图谱、中台建设路线图；中台成熟度评估报告、建设清单、分阶段落地计划、ROI评估报告；企业全域数字化标准化总则、中台解耦复用整体规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>6.2 全域标准规范类内容</h4><ul class="detail-list"><li>技术中台开发、部署、运维、服务治理标准化规范；数据中台数据分层、建模、指标、治理、服务统一规范；业务中台领域建模、组件封装、流程配置、业务规则规范；AI中台模型训练、特征建设、知识图谱、智能推理规范；运营中台全场景运营、内容、活动、触达、自动化规范；全域中台知识图谱构建、知识沉淀、知识迭代、知识应用规范；全域中台权限、合规、审计、成本、治理统一规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>6.3 全域中台核心资产内容</h4><ul class="detail-list"><li>技术资产库：通用技术组件、中间件配置、部署模板、运维方案；数据资产库：全域数据模型、指标体系、标签体系、数据服务资产；业务资产库：通用业务组件、流程模板、业务规则、场景模板；AI智能资产库：特征资产、模型资产、知识图谱资产、智能策略资产；运营资产库：用户/内容/活动/渠道资产、运营模板、打法案例；全域中台知识资产包：五大中台融合知识图谱、全域建设经验库、问题解决方案库、落地案例库；全域中台能力拓扑图、资产矩阵、场景-能力映射表</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tools"></i></span><h4>6.4 中台落地工程内容</h4><ul class="detail-list"><li>全域中台场景快速搭建指南、轻量化落地实施手册；五大中台接入规范、前后端对接文档、服务调用手册；中台各模块配置操作手册、自动化编排落地指南；全域知识图谱维护、更新、应用、迭代操作手册；中台验收标准、场景上线评审模板、效果评估模板</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>6.5 中台治理运营类内容</h4><ul class="detail-list"><li>月度/季度全域中台资产运营报告、资产复用分析报告；中台效率、成本、ROI专项分析与优化复盘报告；中台问题诊断台账、架构迭代台账、知识优化台账；中台故障复盘报告、全域数智化建设效果评估报告；中台合规自查报告、全链路审计归档日志</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>6.6 运维保障类文档</h4><ul class="detail-list"><li>全域中台运维手册、故障排查FAQ、容灾备份预案；中台版本迭代发布手册、服务回滚、策略回滚预案；前台场景接入中台标准化流程、实施落地指南；全域知识图谱迭代运维、知识审核、知识更新保障手册</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S6 协同关系总结 ===== -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-share-alt"></i> 五大中台全域协同关系总结</h2>
+        <span class="badge-count">5大中台协同</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>1. 技术中台（底座层）</h4><ul class="detail-list"><li>提供稳定、统一、可扩展的云原生技术底座，支撑所有中台与前台场景稳定运行</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>2. 数据中台（原料层）</h4><ul class="detail-list"><li>汇聚治理全域数据，输出可信数据资产与指标，为业务、AI、运营提供数据原料</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>3. 业务中台（标准层）</h4><ul class="detail-list"><li>固化企业通用业务标准与流程，实现业务能力复用，支撑前台业务快速创新</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-brain"></i></span><h4>4. AI中台（智能层）</h4><ul class="detail-list"><li>基于数据与业务资产，沉淀智能模型与知识能力，实现业务与运营智能化升级</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bullhorn"></i></span><h4>5. 运营中台（落地层）</h4><ul class="detail-list"><li>基于技术、数据、业务、AI能力，落地全域精细化、自动化、智能化经营动作，实现增收提效</li></ul></div>
+        </div>
+        <div class="info-tip" style="margin-top: 1.5rem;"><i class="fas fa-info-circle"></i> 全域闭环逻辑：技术筑基、数据赋能、业务标准化、AI智能化、运营价值化，五大中台层层支撑、闭环联动，构成企业完整、统一、可迭代、可增长的全域数智化中台体系。</div>
+      </div>
+    </section>
+
+    <!-- ===== S7 核心价值总结 ===== -->
+    <section id="s7" class="card banner-card">
+        <div class="card-body">
+            <div class="value-header">
+                <div class="icon-big"><i class="fas fa-flag"></i></div>
+                <h2>企业全域中台核心价值总结</h2>
+                <p class="value-subtitle">六大维度 · 重塑企业全域数智化体系</p>
+            </div>
+            <div class="value-grid">
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-unlink"></i></div>
+                    <div class="value-content">
+                        <h4>破壁垒，统一全域架构</h4>
+                        <p>彻底打破系统、数据、业务、运营烟囱，构建企业唯一、统一的数智化中台架构，解决数字化建设散乱无序问题。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-cubes"></i></div>
+                    <div class="value-content">
+                        <h4>沉资产，能力全域复用</h4>
+                        <p>沉淀技术、数据、业务、AI、运营五大核心数字资产，实现一次建设、全域复用，杜绝重复建设、降低试错成本。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-rocket"></i></div>
+                    <div class="value-content">
+                        <h4>提效率，场景极速创新</h4>
+                        <p>组件化、模板化、自动化赋能前台，新业务新场景快速落地、灵活试错，大幅提升企业创新迭代效率。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div class="value-content">
+                        <h4>塑标准，全域治理可控</h4>
+                        <p>统一技术、数据、业务、运营、合规标准，建立全域治理体系，实现全过程可控、可量化、可溯源、可迭代。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-brain"></i></div>
+                    <div class="value-content">
+                        <h4>赋智能，经验资产增值</h4>
+                        <p>通过全域中台知识图谱沉淀企业数字化建设经验与经营打法，实现经验结构化、智能推理、持续迭代，让企业数字资产持续增值。</p>
+                    </div>
+                </div>
+                <div class="value-item full-width">
+                    <div class="value-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="value-content">
+                        <h4>促增长，数智驱动经营</h4>
+                        <p>以数据驱动、智能赋能、精细运营为核心，实现企业降本、提效、提质、增收、增值的全域数智化长效增长。</p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-note" style="margin-top: 2rem; font-size:0.8rem; color:var(--color-primary);">全域中台 · 企业数智化转型核心底座与统一能力中枢</div>
+        </div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>

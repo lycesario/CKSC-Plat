@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>企业级全域中台完整体系说明书</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ===== 设计系统 Token ===== */
+    :root {
+      --color-primary: #7a2e1a;
+      --color-primary-light: #fce9e0;
+      --color-primary-dark: #4d1c0e;
+      --color-accent: #b85c3a;
+      --color-accent-soft: #f0c8b8;
+      --color-neutral-50: #fcf9f7;
+      --color-neutral-100: #f5ede8;
+      --color-neutral-200: #e5d7ce;
+      --color-neutral-300: #cbb8ab;
+      --color-neutral-400: #a68b7a;
+      --color-neutral-600: #6f5544;
+      --color-neutral-700: #4f3a2e;
+      --color-neutral-800: #34241c;
+      --color-neutral-900: #1e140f;
+      --color-gold: #c29a4a;
+      --color-gold-light: #f3e1b0;
+      --font-base: 1rem;
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --radius-sm: 0.75rem;
+      --radius-md: 1.25rem;
+      --radius-card: 2rem;
+      --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(60, 30, 10, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(60, 30, 10, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(60, 30, 10, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(255, 249, 245, 0.88);
+      backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(255, 235, 220, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); }
+    .sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+    .sidebar nav ul { list-style:none; padding:0; margin:0; }
+    .sidebar nav ul li { margin-bottom:0.1rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:12px;
+      padding:0.55rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.85rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+    }
+    .sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+    .sidebar nav ul li a:hover { background:var(--color-primary-light); color:var(--color-primary-dark); transform:translateX(4px); }
+    .sidebar-footer { margin-top:24px; padding:12px; text-align:center; font-size:0.7rem; color:var(--color-neutral-600); border-top:1px solid var(--color-neutral-200); }
+
+    /* ===== 主内容 ===== */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex; align-items:center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem); font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+    .page-header .header-meta { font-size:0.9rem; color:var(--color-neutral-600); background:var(--color-neutral-100); padding:0.4rem 1.2rem; border-radius:var(--radius-pill); border:1px solid var(--color-neutral-200); }
+
+    /* ===== 卡片 ===== */
+    .card {
+      background:rgba(255,252,248,0.92); backdrop-filter: blur(4px);
+      border-radius:var(--radius-card); box-shadow:var(--shadow-card); margin-bottom:var(--space-6);
+      border:1px solid rgba(255, 235, 220, 0.5); overflow:hidden; transition: box-shadow var(--transition-default), transform 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6); background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft); display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 { font-size:clamp(1.2rem, 2.2vw, 1.6rem); font-weight:700; color:var(--color-primary-dark); display:flex; align-items:center; gap:12px; }
+    .card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+    .card-header .badge-count { margin-left:auto; background:var(--color-accent); color:white; border-radius:var(--radius-pill); padding:0.15rem 0.9rem; font-size:0.7rem; font-weight:600; }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* ===== 网格 ===== */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3 { grid-template-columns:1fr; } .sidebar { display:none; } .layout { padding:0.5rem; } .card-body { padding:1.25rem var(--space-4); } }
+
+    /* ===== 知识卡片 ===== */
+    .gov-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md); padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200); transition: all var(--transition-default);
+      position:relative; overflow:hidden; border-left: 4px solid var(--color-accent);
+    }
+    .gov-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft)); opacity:0; transition: opacity var(--transition-default); }
+    .gov-card:hover::before { opacity:1; }
+    .gov-card:hover { border-color:var(--color-accent-soft); box-shadow: 0 8px 24px -8px rgba(184,92,58,0.15); transform:translateY(-3px); }
+    .gov-card .gov-icon { font-size:1.8rem; color:var(--color-primary); display:inline-block; margin-right:6px; background: var(--color-primary-light); padding:0.2rem 0.6rem; border-radius:12px; }
+    .gov-card h4 { color:var(--color-primary-dark); font-size:1.05rem; margin-bottom:0.4rem; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .gov-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+    .gov-card .detail-list { padding-left:0; margin:0.4rem 0 0 0; list-style:none; }
+    .gov-card .detail-list li { margin-bottom:0.25rem; padding-left:1.2rem; position:relative; font-size:0.85rem; color:var(--color-neutral-700); }
+    .gov-card .detail-list li::before { content:'▹'; position:absolute; left:0; color:var(--color-accent); font-weight:600; }
+    .gov-card .detail-list li strong { color:var(--color-neutral-800); }
+
+    /* ===== 架构层 ===== */
+    .arch-diagram { display:flex; flex-direction:column; gap:0.6rem; padding:0.5rem 0; }
+    .arch-layer {
+      display:flex; align-items:stretch; gap:0.75rem; background:var(--color-neutral-50);
+      border-radius:var(--radius-md); padding:0.6rem 1rem; border:1px solid var(--color-neutral-200); transition: var(--transition-default);
+    }
+    .arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+    .arch-layer .layer-label { display:flex; flex-direction:column; justify-content:center; min-width:120px; padding-right:1rem; border-right:2px solid var(--color-neutral-200); font-weight:700; font-size:0.8rem; color:var(--color-primary-dark); }
+    .arch-layer .layer-label i { font-size:1.1rem; color:var(--color-accent); margin-bottom:0.1rem; }
+    .arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+    .arch-layer .layer-blocks { display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem; flex:1; padding:0.2rem 0; }
+    .arch-block { background:white; border-radius:var(--radius-sm); padding:0.3rem 0.9rem; border:1px solid var(--color-neutral-200); font-size:0.75rem; font-weight:500; color:var(--color-neutral-700); transition: var(--transition-default); }
+    .arch-block:hover { border-color:var(--color-accent); background:var(--color-primary-light); color:var(--color-primary-dark); transform:translateY(-1px); }
+    .arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+
+    /* ===== 表格 ===== */
+    .table-wrapper { overflow-x:auto; border-radius:var(--radius-md); border:1px solid var(--color-neutral-200); background:white; }
+    table { width:100%; border-collapse:collapse; font-size:0.78rem; }
+    th { background:var(--color-neutral-100); padding:12px 10px; font-weight:600; color:var(--color-primary-dark); text-align:left; border-bottom:2px solid var(--color-neutral-200); font-size:0.7rem; text-transform:uppercase; }
+    td { padding:10px 10px; border-bottom:1px solid var(--color-neutral-200); vertical-align:middle; color:var(--color-neutral-700); }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--color-neutral-50); }
+
+    /* ===== 文本 ===== */
+    .content-text { font-size: 0.95rem; color: var(--color-neutral-700); line-height: 1.8; margin-bottom: 1rem; }
+    .content-text strong { color: var(--color-primary-dark); }
+    .section-title { font-size: 1.2rem; font-weight: 700; color: var(--color-primary-dark); margin: 1.5rem 0 1rem 0; border-bottom: 2px solid var(--color-primary-light); padding-bottom: 0.5rem; }
+    .subsection-title { font-size: 1.05rem; font-weight: 600; color: var(--color-neutral-800); margin: 1.2rem 0 0.8rem 0; }
+    .normal-list { padding-left: 1.5rem; margin-bottom: 1rem; color: var(--color-neutral-700); font-size: 0.9rem; line-height: 1.7; }
+    .normal-list li { margin-bottom: 0.3rem; }
+    .normal-list li strong { color: var(--color-neutral-800); }
+    .info-tip { background:var(--color-neutral-50); border-radius:var(--radius-md); padding:0.7rem 1.5rem; border-left:5px solid var(--color-accent); margin-top:var(--space-4); display:flex; align-items:center; gap:0.8rem; font-size:0.9rem; color:var(--color-neutral-700); }
+    .info-tip i { color:var(--color-accent); font-size:1rem; }
+
+    /* ===== 价值 ===== */
+    .value-header { text-align: center; margin-bottom: 2rem; }
+    .value-header .icon-big { font-size: 2.8rem; color: var(--color-primary); opacity: 0.8; margin-bottom: 0.5rem; }
+    .value-header h2 { font-size: clamp(1.6rem, 2.8vw, 2.2rem); color: var(--color-primary-dark); margin-bottom: 0.25rem; }
+    .value-subtitle { font-size: 1rem; color: var(--color-neutral-600); letter-spacing: 2px; font-weight: 300; }
+    .value-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin: 1.5rem 0 2rem 0; }
+    .value-item { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(4px); padding: 1.2rem 1.4rem; border-radius: var(--radius-md); border: 1px solid rgba(255, 235, 220, 0.5); transition: all 0.3s ease; }
+    .value-item:hover { transform: translateY(-3px); box-shadow: var(--shadow-card-hover); border-color: var(--color-accent-soft); background: rgba(255, 255, 255, 0.85); }
+    .value-item .value-icon { flex-shrink: 0; width: 2.8rem; height: 2.8rem; display: flex; align-items: center; justify-content: center; background: var(--color-primary-light); border-radius: 50%; color: var(--color-accent); font-size: 1.2rem; }
+    .value-item .value-content h4 { font-size: 1rem; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 0.3rem; line-height: 1.3; }
+    .value-item .value-content p { font-size: 0.9rem; color: var(--color-neutral-700); line-height: 1.6; margin: 0; }
+    .value-item.full-width { grid-column: 1 / -1; }
+    @media (max-width: 768px) { .value-grid { grid-template-columns: 1fr; gap: 1rem; } }
+
+    /* ===== 暗色 ===== */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #1a1410; --color-neutral-100: #221c18; --color-neutral-200: #3a2c24; --color-neutral-700: #d0c4b8; --color-neutral-800: #e8dcd0; --color-neutral-900: #f5ede6;
+        --color-primary-light: #3a2a20; --color-accent-soft: #6a4a3a; --color-primary: #d08a6a; --color-primary-dark: #f0c8b0; --color-accent: #c07a5a; --color-gold: #c29a4a; --color-gold-light: #4a3a20;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6); --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #120e0a; }
+      .card { background: #1a1410; border-color: #3a2c24; }
+      .card-header { background: #1a1410; border-bottom-color: #4a3a2e; }
+      .gov-card { background: #1a1410; border-color: #3a2c24; }
+      .gov-card .gov-icon { background: #2a1e16; color: #d08a6a; }
+      .gov-card .detail-list li { color: #c0b4a8; }
+      .table-wrapper { background: #1a1410; border-color: #3a2c24; }
+      th { background: #221c18; color: #e0d4c8; border-bottom-color: #4a3a2e; }
+      td { border-bottom-color: #2a241e; color: #c0b4a8; }
+      .sidebar { background: rgba(20, 16, 12, 0.92); border-color: #3a2c24; }
+      .sidebar-brand { border-bottom-color: #4a3a2e; }
+      .sidebar nav ul li a { color: #c0b4a8; }
+      .sidebar nav ul li a:hover { background: #3a2c24; color: white; }
+      .info-tip { background: #1a1410; border-left-color: #c07a5a; color: #c0b4a8; }
+      .page-header h1 { background:linear-gradient(135deg,#f0c8b0,#d08a6a); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#2a241e; border-color:#4a3a2e; color:#b8a89c; }
+      .arch-layer { background:#1a1410; border-color:#3a2c24; }
+      .arch-layer .layer-label { border-right-color:#3a2c24; color:#e0d4c8; }
+      .arch-block { background:#1a1410; border-color:#3a2c24; color:#c0b4a8; }
+      .value-item { background: rgba(30, 24, 20, 0.7); border-color: var(--color-neutral-200); }
+      .value-item:hover { background: rgba(40, 32, 26, 0.9); border-color: var(--color-accent-soft); }
+      .value-item .value-content p { color: var(--color-neutral-600); }
+      .value-subtitle { color: var(--color-neutral-400); }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-sitemap" aria-hidden="true"></i>
+      <h3>全域中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-book-open"></i> 全域中台定义</a></li>
+        <li><a href="#s1"><i class="fas fa-microchip"></i> 模型中台专项</a></li>
+        <li><a href="#s2"><i class="fas fa-book"></i> 知识体系+图谱</a></li>
+        <li><a href="#s3"><i class="fas fa-sitemap"></i> 六大核心架构</a></li>
+        <li><a href="#s4"><i class="fas fa-puzzle-piece"></i> 产品功能模块</a></li>
+        <li><a href="#s5"><i class="fas fa-chart-line"></i> 全套指标体系</a></li>
+        <li><a href="#s6"><i class="fas fa-boxes"></i> 完整内容体系</a></li>
+        <li><a href="#s7"><i class="fas fa-share-alt"></i> 协同关系总结</a></li>
+        <li><a href="#s8"><i class="fas fa-flag"></i> 核心价值总结</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-sitemap"></i> 全域中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-sitemap"></i> 企业级全域中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> 全结构化完整版</span>
+    </header>
+
+    <!-- ===== S0 全域中台定义 ===== -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> 企业全域中台完整定义</h2>
+        <span class="badge-count">通用总述</span>
+      </div>
+      <div class="card-body">
+        <div class="section-title">1.1 标准官方定义</div>
+        <div class="content-text">
+          企业全域中台是企业数字化转型的核心能力中枢与全域资产复用底座，是基于领域驱动设计、资产化沉淀、服务化封装、智能化赋能、全域化治理思想，整合企业底层技术资源、全域数据资产、通用业务能力、智能模型知识、全域运营能力，通过标准化、模块化、组件化、知识化、可编排的体系化建设，将企业零散、重复、烟囱式、定制化的技术、数据、业务、AI、运营能力统一沉淀为可复用、可迭代、可自动化、可治理的企业数字资产，为前台所有业务场景、创新应用、全域经营提供统一支撑的企业级全域能力复用平台与数智化赋能中枢。
+        </div>
+        <div class="content-text">
+          企业全域中台并非单一系统，而是由技术中台、数据中台、业务中台、AI中台、运营中台、模型中台六大核心中台构成的完整全域中台矩阵，彻底解决企业系统烟囱、能力重复建设、数据割裂、业务标准化不足、运营碎片化、智能模型无法工程化落地、AI能力无法沉淀复用、经验无法固化、智能治理无体系等数字化、智能化痛点，实现一次建设、全域复用、智能场景快速创新、模型资产持续沉淀、AI能力持续迭代、数智经营闭环增长的企业高阶数智化终极架构。
+        </div>
+        
+        <div class="section-title">1.2 核心本质与定位</div>
+        <div class="content-text">
+          企业全域中台是衔接底层基础设施与前台创新场景的中间核心层，是企业数字化、智能化、精细化、规模化经营的统一载体，核心本质是企业通用能力资产化、专属能力标准化、创新场景轻量化、全域体系治理化。
+        </div>
+        <ol class="normal-list">
+          <li><strong>战略定位：</strong>企业数智化转型核心底座、全域数字资产沉淀中心、通用能力复用中心、场景创新赋能中心、全域统一治理中心、智能经营决策中心；</li>
+          <li><strong>核心本质：</strong>打破部门、系统、业务线壁垒，将企业所有通用技术、数据、业务、智能模型、运营能力拆解为原子化组件，沉淀为可复用数字资产，支撑前台低成本、高效率、快速试错、持续创新；</li>
+          <li><strong>核心特征：</strong>全域统一、解耦复用、组件化拼装、标准化输出、数据驱动、智能赋能、知识沉淀、模型工程化、全链路治理、可持续迭代；</li>
+          <li><strong>六大子中台精准边界与协同关系</strong><br>
+          - 技术中台：管底层技术底座、研发运维、云原生资源，解决「系统稳、迭代快、架构统一」；<br>
+          - 数据中台：管全域数据治理、数据资产、指标体系，解决「数据可信、数据统一、数据价值释放」；<br>
+          - 业务中台：管通用业务实体、业务流程、业务规则，解决「业务标准化、业务复用、前台业务快速落地」；<br>
+          - AI中台：管顶层智能能力、知识推理、智能决策编排，解决「场景智能化、知识赋能业务」；<br>
+          - 运营中台：管用户、内容、活动、渠道、策略、自动化运营，解决「运营标准化、精细化、自动化、经营可量化」；<br>
+          - 模型中台（新增核心）：管算力资源、模型全生命周期、特征工程、样本资产、模型服务化、模型治理迭代，解决「AI模型零散、落地难、不可控、不可复用、无法持续优化」的工程化痛点，是企业AI能力工业化落地的核心工程底座。</li>
+        </ol>
+        
+        <div class="section-title">1.3 建设核心目标</div>
+        <ol class="normal-list">
+          <li>打破企业系统烟囱、数据孤岛、业务壁垒、运营割裂、AI模型碎片化，构建全域统一的数智化中台架构；</li>
+          <li>统一沉淀技术、数据、业务、AI、运营、模型六大类企业核心数字资产，实现全域能力复用，杜绝重复建设；</li>
+          <li>实现企业研发、数据、业务、智能、运营、模型全流程标准化、组件化、自动化、智能化，大幅降低数字化与AI落地成本；</li>
+          <li>轻量化赋能前台创新场景，支持新业务、新场景、新模式、新AI应用快速落地、灵活试错、快速迭代；</li>
+          <li>构建企业全域中台知识体系、全域中台知识图谱与模型专项知识体系、模型知识图谱，沉淀企业数字化、AI建模、模型落地、智能迭代全量经验；</li>
+          <li>形成「技术底座支撑、数据原料供给、业务标准承载、模型工程落地、AI智能赋能、运营落地增收」的全域数智化闭环；</li>
+          <li>建立全域统一的中台治理体系，实现资产可控、流程可控、数据可控、模型可控、合规可控、效果可量化；</li>
+          <li>支撑企业从信息化、数字化向智能化、知识化、模型化、精细化、规模化高阶数智化转型。</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== S1 模型中台专项 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-microchip"></i> 模型中台专项完整定义</h2>
+        <span class="badge-count">核心专项</span>
+      </div>
+      <div class="card-body">
+        <div class="section-title">2.1 模型中台标准定义</div>
+        <div class="content-text">
+          模型中台是企业AI工业化落地的核心工程底座与模型资产全域复用中枢，隶属于企业全域中台核心能力层，承接数据中台高质量数据资产、业务中台标准化业务场景、AI中台智能能力需求，基于机器学习、深度学习、大模型微调、知识工程、MLOps工程体系，实现企业所有算法模型、大模型、行业定制模型、智能特征、样本资源、算力资源的统一纳管、统一训练、统一评测、统一部署、统一服务、统一治理、统一迭代。
+        </div>
+        <div class="content-text">
+          模型中台彻底解决传统AI建设「模型零散、项目孤岛、算力浪费、标准混乱、无法复用、上线周期长、模型效果不可控、模型漂移无治理、AI落地成本高、经验无法沉淀」的核心痛点，将企业AI建模能力、模型资产、训练流程、部署规范、迭代经验沉淀为标准化、可复用、可编排、可自动化的企业智能数字资产，为全域业务、运营、智能场景提供稳定、高效、可持续迭代的模型服务支撑，是企业AI从「单点实验」走向「规模化工程落地」的核心载体。
+        </div>
+        
+        <div class="section-title">2.2 模型中台核心本质与定位</div>
+        <div class="content-text">
+          <strong>战略定位：</strong>企业AI工程化唯一底座、全域模型资产沉淀中心、AI能力复用中心、智能场景落地支撑中心、模型全生命周期治理中心、企业数智化高阶升级核心引擎。
+        </div>
+        <div class="content-text">
+          <strong>核心本质：</strong>AI能力工程化、模型资产标准化、建模流程自动化、智能落地规模化、模型迭代闭环化。
+        </div>
+        <div class="content-text">
+          <strong>核心边界：</strong>上承AI中台智能场景需求、下接数据中台数据与特征资产、依托技术中台云原生算力底座、服务于业务与运营中台全场景，聚焦「模型生产、模型服务、模型治理、模型迭代」全工程链路，不替代AI中台的场景智能编排，专注AI能力工业化落地。
+        </div>
+        
+        <div class="section-title">2.3 模型中台核心特征</div>
+        <ol class="normal-list">
+          <li><strong>全域统一纳管：</strong>统一管理传统算法模型、深度学习模型、行业模型、大模型微调版本、第三方模型，实现模型资产唯一归口；</li>
+          <li><strong>全生命周期工程化：</strong>覆盖样本、特征、实验、训练、评测、部署、推理、监控、迭代、下线完整MLOps闭环；</li>
+          <li><strong>资产可复用：</strong>模型、特征、样本、训练流水线、评测规则全部资产化，支持跨项目、跨业务、跨场景复用；</li>
+          <li><strong>自动化与低代码：</strong>标准化建模流水线、自动调参、自动评测、自动部署、自动迭代，降低AI落地门槛；</li>
+          <li><strong>可观测可治理：</strong>模型效果、模型漂移、算力消耗、调用质量、风险问题全链路监控与治理；</li>
+          <li><strong>知识可沉淀：</strong>沉淀建模经验、场景适配规则、模型故障方案、迭代方法论，形成模型专项知识体系与知识图谱。</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== S2 知识体系+图谱 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book"></i> 模型中台专属完整知识体系 + 模型中台知识图谱体系</h2>
+        <span class="badge-count">知识域+图谱体系</span>
+      </div>
+      <div class="card-body">
+        <div class="subsection-title">3.1 模型中台十大核心知识域</div>
+        <div class="content-text" style="margin-bottom: 1.5rem;">模型中台知识体系是企业AI工程化落地的标准化知识集合，以MLOps工程体系、模型资产工程、特征工程、样本工程、模型评测工程、模型治理工程、大模型微调工程、模型服务化工程、算力调度工程、智能场景适配工程为核心底层，覆盖模型从生产到迭代的全链路知识，形成可传承、可复用、可迭代的标准化知识体系。</div>
+        
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>3.1.1 AI工程化战略与规划知识域</h4><ul class="detail-list"><li>企业AI规模化落地顶层规划、模型中台建设路线、AI能力分层建设方法论；模型孤岛改造思路、AI能力解耦、模型资产沉淀、场景轻量化落地规范；模型中台成熟度评估、AI建设ROI评估、算力成本管控、模型价值落地方法论；通用模型、行业模型、大模型微调的差异化建设方案与落地适配知识</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>3.1.2 模型领域建模知识域</h4><ul class="detail-list"><li>业务场景建模、智能任务建模、模型输入输出标准化建模规范；模型实体建模、特征实体建模、样本实体建模、算力资源实体建模体系；模型生命周期、特征生命周期、样本生命周期全流程建模知识；原子模型能力拆分、模型组合编排、多模型协同适配场景的建模实践</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>3.1.3 样本工程专项知识域</h4><ul class="detail-list"><li>全域样本采集、样本清洗、样本去重、样本降噪、样本标注标准化体系；正负样本均衡、样本分层、样本脱敏、样本安全合规规范；样本库管理、样本版本迭代、样本复用、样本质量评估方法论；大模型SFT微调样本、RAG知识库样本、行业专属样本构建知识</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sliders-h"></i></span><h4>3.1.4 特征工程专项知识域</h4><ul class="detail-list"><li>基础特征、统计特征、时序特征、行为特征、语义特征、向量特征构建体系；特征筛选、特征归一化、特征交叉、特征 embedding、特征存储与服务化；特征资产沉淀、特征复用、特征漂移检测、特征迭代优化方法论；结构化数据、非结构化文本、图像、语音多模态特征工程知识</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-flask"></i></span><h4>3.1.5 模型训练与实验知识域</h4><ul class="detail-list"><li>传统机器学习、深度学习、大模型微调、多模态模型训练方法论；实验追踪、参数调优、对比实验、模型收敛优化、训练资源适配知识；离线训练、增量训练、在线微调、小样本训练、冷启动建模体系；训练流水线编排、自动化训练、定时重训、触发式迭代落地知识</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-star-half-alt"></i></span><h4>3.1.6 模型评测与优选知识域</h4><ul class="detail-list"><li>分类、回归、聚类、推荐、风控、大模型生成类任务评测指标体系；准确率、召回率、F1、AUC、MAE、幻觉率、语义匹配度评测规范；模型泛化能力、稳定性、鲁棒性、时效性、适配性评估方法论；多版本模型对比、自动优选、灰度评测、上线准入标准体系</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-rocket"></i></span><h4>3.1.7 模型部署与推理知识域</h4><ul class="detail-list"><li>模型容器化部署、GPU/CPU混合部署、弹性推理、批量推理、实时推理体系；模型量化、蒸馏、压缩、加速、低资源适配优化知识；模型API服务封装、负载均衡、熔断限流、跨场景调用适配；离线批量服务、在线实时服务、异步推理服务落地规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>3.1.8 算力调度与资源知识域</h4><ul class="detail-list"><li>算力集群管理、显存资源调度、任务排队、资源配额、弹性扩缩容体系；训练算力、推理算力资源拆分、成本优化、算力复用方法论；多租户算力隔离、资源监控、闲置资源回收、算力预警知识</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-eye"></i></span><h4>3.1.9 模型治理与可观测知识域</h4><ul class="detail-list"><li>模型版本治理、模型血缘、模型漂移、模型风险、模型合规治理体系；模型调用监控、效果监控、性能监控、异常预警、故障闭环方法论；僵尸模型清理、模型生命周期管控、模型资产台账管理知识</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cogs"></i></span><h4>3.1.10 模型场景适配知识域</h4><ul class="detail-list"><li>智能推荐、智能风控、智能预测、智能营销、智能问答、内容生成场景模型适配；业务场景与模型能力匹配、多模型组合编排、模型策略迭代知识；模型与数据、业务、运营、知识图谱联动赋能的落地体系</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.2 模型中台专属知识图谱体系（核心专项）</div>
+        <div class="content-text" style="margin-bottom: 1.5rem;">模型中台知识图谱是企业AI建模经验、模型资产关系、训练规范、落地场景、故障方案、迭代打法的结构化知识核心载体。基于知识工程与MLOps领域建模，将企业零散的模型训练经验、特征规范、样本标准、部署方案、治理规则、场景适配关系抽取为标准化实体与三元组关系，构建全域模型知识网络，实现AI建设可传承、可检索、可推理、可复用、可自动迭代，解决企业AI落地「经验零散、新人上手慢、场景复刻难、模型问题排查低效、迭代无依据」的核心痛点。</div>
+        
+        <div class="subsection-title">3.2.1 模型知识图谱核心实体体系</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-microchip"></i></span><h4>模型实体</h4><ul class="detail-list"><li>模型类型、模型版本、模型参数、适用场景、精度指标、算力消耗、上线状态、生命周期阶段</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sliders-h"></i></span><h4>特征实体</h4><ul class="detail-list"><li>特征名称、特征类型、来源数据源、更新周期、适用模型、漂移阈值、质量等级</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>样本实体</h4><ul class="detail-list"><li>样本类型、样本量级、标注标准、适用任务、版本信息、合规等级</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>算力实体</h4><ul class="detail-list"><li>GPU/CPU资源、算力配额、任务类型、调度规则、资源占用特征</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-lightbulb"></i></span><h4>场景实体</h4><ul class="detail-list"><li>业务场景、智能任务、适配模型组合、调用链路、效果标准</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tools"></i></span><h4>问题方案实体</h4><ul class="detail-list"><li>模型欠拟合/过拟合、漂移、推理超时、精度下降、训练失败等问题与对应解决方案</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.2.2 模型知识图谱核心关联关系</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>模型-特征关联</h4><ul class="detail-list"><li>模型依赖特征、特征适配模型、特征更新影响模型效果</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>模型-样本关联</h4><ul class="detail-list"><li>模型训练依赖样本、样本质量影响模型精度、样本迭代驱动模型升级</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>模型-算力关联</h4><ul class="detail-list"><li>模型训练/推理适配算力规格、算力不足引发任务异常</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>模型-场景关联</h4><ul class="detail-list"><li>模型适配场景、场景需求驱动模型微调、多模型协同支撑复杂场景</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>模型-问题关联</h4><ul class="detail-list"><li>模型异常对应根因、故障匹配修复方案、迭代优化路径关联</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.2.3 模型知识图谱核心能力与价值</div>
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-archive"></i></span><h4>AI经验结构化沉淀</h4><ul class="detail-list"><li>将零散建模经验、调参技巧、落地规范结构化入库，形成企业专属AI知识库</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-search"></i></span><h4>智能检索复用</h4><ul class="detail-list"><li>支持模型选型、训练报错、部署问题、场景适配方案快速检索复用</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-magic"></i></span><h4>场景智能匹配</h4><ul class="detail-list"><li>根据新智能场景需求，自动匹配最优模型版本、特征组合、样本标准、算力配置</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-stethoscope"></i></span><h4>模型问题智能诊断</h4><ul class="detail-list"><li>自动推理模型漂移、精度下降、推理异常、训练失败根因并输出优化方案</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>模型资产联动迭代</h4><ul class="detail-list"><li>实现模型、特征、样本、算力、场景资产联动更新，保障AI能力持续进化</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-graduation-cap"></i></span><h4>AI能力标准化传承</h4><ul class="detail-list"><li>实现企业AI建设不依赖个人经验，形成体系化、可复制、可规模化的AI工程能力</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S3 六大核心架构 ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> 模型中台六大核心架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span>
+      </div>
+      <div class="card-body">
+        <div class="subsection-title">4.1 产品架构（模型中台分层全景）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">整体分层：算力基础设施层 → 模型技术底座层 → 样本与特征资产层 → 模型生产训练层 → 模型评测优选层 → 模型服务部署层 → 模型开放赋能层 → 场景智能应用层 → 模型全域治理层</div>
+        <div class="arch-diagram" style="margin-bottom: 2rem;">
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-server"></i> 算力基础设施层</div><div class="layer-blocks"><span class="arch-block">GPU/CPU算力集群、存储资源、网络资源、云算力底座</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-cogs"></i> 模型技术底座层</div><div class="layer-blocks"><span class="arch-block">容器调度、推理引擎、训练框架、向量引擎、MLOps基础组件</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-database"></i> 样本与特征资产层</div><div class="layer-blocks"><span class="arch-block">样本库、特征库、向量库、数据预处理、特征资产沉淀</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-flask"></i> 模型生产训练层</div><div class="layer-blocks"><span class="arch-block">实验管理、模型训练、自动调参、增量训练、大模型微调</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-star-half-alt"></i> 模型评测优选层</div><div class="layer-blocks"><span class="arch-block">多维度评测、模型对比、自动优选、灰度准入、版本管理</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-rocket"></i> 模型服务部署层</div><div class="layer-blocks"><span class="arch-block">统一部署、弹性推理、批量服务、模型加速、服务封装</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-store"></i> 模型开放赋能层</div><div class="layer-blocks"><span class="arch-block">模型API市场、服务授权、调用管控、跨中台能力调度</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-lightbulb"></i> 场景智能应用层</div><div class="layer-blocks"><span class="arch-block">支撑业务、运营、风控、推荐、问答等全前台智能场景</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-sync-alt"></i> 模型全域治理层</div><div class="layer-blocks"><span class="arch-block">模型版本、效果、漂移、算力、合规、权限、资产全维度治理</span></div></div>
+        </div>
+        
+        <div class="subsection-title">4.2 业务架构（模型中台三层业务域架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">上层：前台智能场景层 | 中层：模型中台核心能力层（样本、特征、模型、算力、推理、治理原子能力） | 下层：全域支撑底座层（技术中台算力运维、数据中台数据资产、业务中台场景标准）</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>算力资源调度域</h4><ul class="detail-list"><li>算力分配、任务调度、资源监控、弹性扩缩容、成本管控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>样本资产工程域</h4><ul class="detail-list"><li>样本采集、清洗、标注、版本管理、样本复用</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sliders-h"></i></span><h4>特征资产工程域</h4><ul class="detail-list"><li>特征构建、存储、服务、漂移检测、特征迭代</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-flask"></i></span><h4>模型生产实验域</h4><ul class="detail-list"><li>实验管理、模型训练、调参、微调、增量迭代</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-star-half-alt"></i></span><h4>模型评测发布域</h4><ul class="detail-list"><li>效果评测、版本对比、灰度发布、上线准入</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tachometer-alt"></i></span><h4>模型服务推理域</h4><ul class="detail-list"><li>实时推理、批量推理、服务监控、性能优化</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>模型知识与治理域</h4><ul class="detail-list"><li>模型知识沉淀、知识图谱迭代、模型全维度治理</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.2.3 模型中台核心业务流转</div>
+        <div class="content-text" style="margin-bottom: 2rem;">前台智能场景提出AI需求 → 数据中台输出高质量样本与特征数据 → 模型中台调度算力资源 → 执行模型训练/微调实验 → 多维度评测优选最优模型版本 → 灰度上线验证 → 正式服务化封装输出API能力 → 前台场景调用赋能 → 推理数据与效果数据回传沉淀 → 模型知识图谱迭代更新 → 监控模型漂移与效果变化 → 自动触发迭代优化 → 全链路审计留存。</div>
+        
+        <div class="subsection-title">4.3 数据架构（模型中台专属七层数据架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">模型中台依托全域中台统一数据底座，搭建适配AI工程化的专属七层数据分层架构，打通数据、特征、样本、模型、推理、知识全链路数据闭环，支撑模型生产、评测、服务、迭代全流程数据驱动。</div>
+        <div class="arch-diagram" style="margin-bottom: 2rem;">
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-database"></i> AI-ODS</div><div class="layer-blocks"><span class="arch-block">原始数据源层：业务行为数据、运营数据、多模态原始数据、知识库原始素材</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-filter"></i> AI-DWD</div><div class="layer-blocks"><span class="arch-block">样本清洗层：清洗、去重、降噪、脱敏、标准化，生成高质量建模明细样本数据</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-table"></i> AI-DWB</div><div class="layer-blocks"><span class="arch-block">特征宽表层：整合全域维度特征，生成模型训练专属特征宽表、时序特征、语义向量特征</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-project-diagram"></i> AI-DWM</div><div class="layer-blocks"><span class="arch-block">模型知识关联层：构建模型、特征、样本、场景、问题方案三元组数据，支撑模型知识图谱构建</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-bar"></i> AI-DWS</div><div class="layer-blocks"><span class="arch-block">模型主题汇总层：按训练主题、评测主题、推理主题、迭代主题聚合统计数据</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-line"></i> AI-ADS</div><div class="layer-blocks"><span class="arch-block">模型指标应用层：输出模型精度、稳定性、算力消耗、调用质量、漂移程度标准化指标</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-sync-alt"></i> AI-OPS</div><div class="layer-blocks"><span class="arch-block">模型迭代智能层：沉淀模型效果归因数据、优化策略数据、迭代方案数据，支撑模型自动优化</span></div></div>
+        </div>
+        
+        <div class="subsection-title">模型中台核心数据模型体系</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>样本数据模型</h4><ul class="detail-list"><li>样本基础信息、标注信息、质量信息、版本信息、适配场景模型</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sliders-h"></i></span><h4>特征数据模型</h4><ul class="detail-list"><li>特征元数据、特征取值、更新周期、依赖关系、漂移监控模型</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-flask"></i></span><h4>模型实验数据模型</h4><ul class="detail-list"><li>实验参数、训练日志、收敛数据、评测结果、版本对比模型</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tachometer-alt"></i></span><h4>模型服务数据模型</h4><ul class="detail-list"><li>调用量、响应时延、成功率、报错类型、资源消耗模型</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-wave-square"></i></span><h4>模型漂移数据模型</h4><ul class="detail-list"><li>特征漂移、数据漂移、效果漂移、时序变化监控模型</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>模型知识图谱数据模型</h4><ul class="detail-list"><li>模型实体、特征实体、样本实体、场景关联三元组模型</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.4 技术架构（模型中台云原生AI工程架构）</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>分层1：AI算力基础设施层</h4><ul class="detail-list"><li>GPU/CPU集群、算力调度平台、分布式存储、高速网络、云弹性算力</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>分层2：基础中间件层</h4><ul class="detail-list"><li>数据库、缓存、消息队列、对象存储、向量数据库、日志组件</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-code-branch"></i></span><h4>分层3：AI研发运维层</h4><ul class="detail-list"><li>MLOps流水线、CI/CD模型发布、容器编排、训练任务调度、可观测监控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-lock"></i></span><h4>分层4：统一安全权限层</h4><ul class="detail-list"><li>多租户隔离、模型权限、数据脱敏、算力权限、操作审计</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cogs"></i></span><h4>分层5：模型专属引擎层</h4><ul class="detail-list"><li>训练引擎、微调引擎、特征引擎、向量检索引擎、推理加速引擎、知识计算引擎</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>分层6：模型服务封装层</h4><ul class="detail-list"><li>模型服务注册、API封装、负载均衡、熔断限流、跨中台调度</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-desktop"></i></span><h4>分层7：模型应用与迭代层</h4><ul class="detail-list"><li>智能场景支撑、模型效果可视化、问题诊断、自动迭代</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">横向贯穿三大体系</div>
+        <div class="grid-3" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-code"></i></span><h4>AI技术规范体系</h4><ul class="detail-list"><li>模型训练、特征建设、部署发布、迭代优化统一技术规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>AI安全合规体系</h4><ul class="detail-list"><li>样本合规、模型合规、隐私保护、内容风控、审计溯源</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tools"></i></span><h4>AI运维保障体系</h4><ul class="detail-list"><li>算力监控、模型服务监控、故障闭环、版本容灾、迭代保障</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.5 应用架构（模型中台全场景赋能应用体系）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">企业所有前台AI智能场景、智能应用、智能决策系统全部基于模型中台标准化模型能力搭建，杜绝AI模型重复建设，分为七大应用场景体系：</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>智能风控类应用</h4><ul class="detail-list"><li>风险识别、反欺诈、异常检测、合规风控、风险预警</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-line"></i></span><h4>智能经营类应用</h4><ul class="detail-list"><li>销量预测、客流预测、转化预测、成本预测、经营趋势研判</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-thumbs-up"></i></span><h4>智能推荐类应用</h4><ul class="detail-list"><li>内容推荐、商品推荐、千人千面、个性化匹配、智能排序</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-file-alt"></i></span><h4>智能内容类应用</h4><ul class="detail-list"><li>文本生成、摘要提取、语义理解、智能问答、多模态内容处理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bullhorn"></i></span><h4>智能运营类应用</h4><ul class="detail-list"><li>用户分群、流失预测、复购预测、智能触达、策略优选</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-lightbulb"></i></span><h4>智能决策类应用</h4><ul class="detail-list"><li>数据智能归因、问题智能诊断、方案智能推荐、辅助经营决策</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>模型治理类应用</h4><ul class="detail-list"><li>模型资产盘点、效果监控、漂移预警、迭代管理、知识查询</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">模型中台统一应用访问链路</div>
+        <div class="content-text" style="margin-bottom: 2rem;">前台智能场景应用 → 全域中台统一网关 → 权限与合规校验 → 调用模型中台标准化服务 → 模型推理计算输出结果 → 场景业务执行落地 → 效果数据回传模型中台 → 模型知识图谱更新沉淀 → 模型效果监控与迭代优化 → 全链路审计留存。</div>
+        
+        <div class="subsection-title">4.6 治理架构（模型中台六大统一治理体系）</div>
+        <div class="grid-3">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-microchip"></i></span><h4>模型资产治理</h4><ul class="detail-list"><li>模型台账、版本管控、资产复用、僵尸模型清理、模型生命周期管控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>样本特征治理</h4><ul class="detail-list"><li>样本质量、特征质量、数据合规、漂移监控、资产迭代治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>算力资源治理</h4><ul class="detail-list"><li>算力配额、资源利用率、成本管控、任务优先级、闲置资源治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-line"></i></span><h4>模型效果治理</h4><ul class="detail-list"><li>精度管控、稳定性管控、模型漂移预警、效果归因、迭代优化治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>安全合规治理</h4><ul class="detail-list"><li>模型访问权限、数据脱敏、输出风控、操作审计、隐私合规治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>知识迭代治理</h4><ul class="detail-list"><li>模型知识入库、审核、更新、复用、沉淀闭环、知识质量管控</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S4 产品功能模块 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> 模型中台完整产品功能模块</h2>
+        <span class="badge-count">全维度全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>模块1：AI算力资源调度模块</h4><ul class="detail-list"><li>算力集群纳管；智能任务调度；弹性扩缩容；多租户资源隔离；算力成本统计；算力异常预警</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>模块2：样本工程管理模块</h4><ul class="detail-list"><li>多源样本接入；样本预处理；样本标注管理；样本版本管理；样本质量评估；样本资产复用</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sliders-h"></i></span><h4>模块3：特征工程管理模块</h4><ul class="detail-list"><li>全域特征构建；特征仓库管理；特征加工调度；特征质量监控；特征服务化输出；特征资产沉淀</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-flask"></i></span><h4>模块4：模型实验与训练模块</h4><ul class="detail-list"><li>实验项目管理；多框架训练适配；自动化调参；多模式训练；训练流水线编排；训练过程监控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-star-half-alt"></i></span><h4>模块5：模型评测与优选模块</h4><ul class="detail-list"><li>多任务适配评测；全方位指标评测；模型稳定性评测；多版本模型对比；自动模型优选；上线准入管控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-rocket"></i></span><h4>模块6：模型部署与推理服务模块</h4><ul class="detail-list"><li>多模式部署；模型优化加速；服务封装发布；灰度发布与回滚；弹性推理服务；批量离线推理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-eye"></i></span><h4>模块7：模型监控与可观测模块</h4><ul class="detail-list"><li>模型服务监控；模型效果监控；模型漂移监控；资源消耗监控；全链路日志追踪；异常告警自愈</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>模块8：模型知识图谱与AI知识库专项模块</h4><ul class="detail-list"><li>模型知识源统一入库；模型知识三元组抽取；模型知识网络构建；AI知识库管理；智能知识问答；模型智能推理诊断；知识自动迭代更新</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-network-wired"></i></span><h4>模块9：模型资产与开放治理模块</h4><ul class="detail-list"><li>模型资产台账；模型能力市场；服务授权管控；模型生命周期治理；僵尸资产清理；全链路审计溯源</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S5 全套指标体系 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> 模型中台全套指标体系</h2>
+        <span class="badge-count">算力+资产+效果+服务+知识+治理</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>算力资源稳定与效率指标</strong></td><td>算力集群整体可用率≥99.95%；训练任务执行成功率≥99.9%；推理服务任务成功率≥99.95%；算力资源平均利用率60%-85%（最优区间）；任务平均排队时长≤30s、超时任务占比≤0.5%；算力故障MTTR平均恢复时间≤3分钟</td></tr>
+              <tr><td><strong>模型资产复用核心指标</strong></td><td>模型资产复用率≥90%；特征资产复用率≥92%；样本资产复用率≥88%；训练流水线模板复用率≥95%；新AI场景模型能力覆盖率≥98%；AI重复建设率≤2%；僵尸模型资产占比≤2%</td></tr>
+              <tr><td><strong>模型服务SLA指标</strong></td><td>模型服务整体可用率≥99.99%；模型接口P95响应时延≤100ms（轻量模型）、≤500ms（大模型）；服务报错率≤0.05%；灰度发布成功率100%；模型回滚成功率100%</td></tr>
+              <tr><td><strong>模型效果质量指标</strong></td><td>常规业务模型准确率/召回率≥95%；风控模型AUC≥0.92；大模型问答幻觉率≤3%、语义匹配准确率≥96%；模型月度漂移发生率≤2%；模型迭代后效果提升率≥3%；模型在线稳定性达标率100%</td></tr>
+              <tr><td><strong>AI工程效能指标</strong></td><td>模型从训练到上线周期缩短率≥80%；自动化训练任务占比≥90%；自动评测覆盖率100%；模型问题复盘闭环率100%；AI人工干预成本下降≥70%</td></tr>
+              <tr><td><strong>模型知识图谱专项指标</strong></td><td>模型落地场景知识覆盖率≥99%；模型知识三元组完整率≥99.5%；模型知识更新及时率≥99%；模型问题智能诊断准确率≥96%；知识复用场景落地成功率≥95%；模型知识迭代闭环率100%</td></tr>
+              <tr><td><strong>合规与治理指标</strong></td><td>样本与模型合规率100%；模型操作审计完整率100%；模型风险拦截率100%；数据脱敏覆盖率100%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S6 完整内容体系 ===== -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> 模型中台完整内容体系</h2>
+        <span class="badge-count">交付物+标准+资产+文档全集</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>7.1 顶层规划类内容</h4><ul class="detail-list"><li>企业模型中台建设总体方案、AI规模化落地白皮书；模型中台全域架构规划、AI能力建设路线图、算力资源规划；模型中台成熟度评估报告、分阶段落地清单、AI建设ROI评估报告；企业AI工程化统一总则、模型资产复用整体规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>7.2 全域标准规范类内容</h4><ul class="detail-list"><li>算力调度、资源使用、集群运维标准化规范；样本采集、标注、清洗、版本管理标准化规范；特征工程构建、服务、漂移监控、迭代优化规范；模型训练、实验、调参、评测、准入上线规范；模型部署、推理、灰度、回滚、服务输出规范；模型知识图谱构建、知识沉淀、知识迭代、智能应用规范；模型安全、合规、权限、审计、治理统一规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>7.3 模型中台核心资产内容</h4><ul class="detail-list"><li>算力资产库：算力资源台账、调度模板、最优资源配置方案；样本资产库：全域标准样本集、样本版本资产、行业专属样本包；特征资产库：通用特征、行业特征、向量特征、特征服务资产；模型资产库：通用算法模型、行业模型、微调大模型、模型版本全集；流水线资产库：训练流水线、评测流水线、部署流水线模板资产；模型知识资产包：模型知识图谱、AI落地经验库、故障解决方案库、场景适配案例库；模型能力拓扑图、模型-场景-特征-样本映射矩阵</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tools"></i></span><h4>7.4 模型中台落地工程内容</h4><ul class="detail-list"><li>模型中台快速落地实施手册、AI场景轻量化搭建指南；模型训练、评测、部署、接入全流程操作手册；模型API对接文档、前台场景接入规范、服务调用手册；模型知识图谱维护、更新、问答应用、迭代运维手册；模型上线验收标准、效果评估模板、迭代评审模板</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>7.5 模型中台治理运营类内容</h4><ul class="detail-list"><li>月度/季度模型资产运营报告、模型复用率与算力效率分析报告；模型效果复盘报告、漂移分析报告、迭代优化方案；AI算力成本分析、ROI优化台账、模型资产优化台账；模型故障复盘报告、AI落地效果全域评估报告；模型合规自查报告、全链路审计归档日志</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>7.6 运维保障类文档</h4><ul class="detail-list"><li>模型中台运维手册、训练/推理故障排查FAQ；算力集群容灾预案、模型版本容灾回滚预案；模型迭代发布流程、灰度上线保障手册；模型知识图谱持续迭代、知识审核与质量保障手册</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S7 协同关系总结 ===== -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-share-alt"></i> 模型中台与五大中台全域协同关系总结</h2>
+        <span class="badge-count">6大中台协同</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>1. 技术中台</h4><ul class="detail-list"><li>提供云原生集群、容器调度、运维监控、服务治理基础能力，保障模型中台算力与系统稳定运行</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>2. 数据中台</h4><ul class="detail-list"><li>提供高质量、标准化、全域统一的数据资产，为样本构建、特征生产提供核心数据原料</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>3. 业务中台</h4><ul class="detail-list"><li>提供标准化业务场景、业务规则、业务实体，为模型训练提供真实业务标签与场景约束</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-microchip"></i></span><h4>4. 模型中台</h4><ul class="detail-list"><li>承接数据与业务资产，完成模型工业化生产、服务化输出、持续迭代，是AI能力从理论到落地的唯一工程载体</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-brain"></i></span><h4>5. AI中台</h4><ul class="detail-list"><li>基于模型中台标准化模型服务，进行多模型智能编排、知识推理、场景智能赋能</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bullhorn"></i></span><h4>6. 运营中台</h4><ul class="detail-list"><li>调用模型智能能力，实现智能运营、精准营销、风险管控、经营优化，完成AI价值闭环落地</li></ul></div>
+        </div>
+        <div class="info-tip" style="margin-top: 1.5rem;"><i class="fas fa-info-circle"></i> 全域六维闭环逻辑：技术筑基、数据供料、业务定标、模型造能、AI赋能、运营变现，六大中台深度联动，构建企业完整、可工业化、可规模化、可持续增值的全域数智化、智能化闭环体系。</div>
+      </div>
+    </section>
+
+    <!-- ===== S8 核心价值总结 ===== -->
+    <section id="s8" class="card banner-card">
+        <div class="card-body">
+            <div class="value-header">
+                <div class="icon-big"><i class="fas fa-flag"></i></div>
+                <h2>模型中台核心价值总结</h2>
+                <p class="value-subtitle">六大维度 · 重塑企业全域AI工程化与模型工业化体系</p>
+            </div>
+            <div class="value-grid">
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-unlink"></i></div>
+                    <div class="value-content">
+                        <h4>破AI孤岛，实现模型全域统一管控</h4>
+                        <p>彻底打破企业AI项目零散、模型孤岛、标准混乱问题，构建企业唯一的模型资产与AI工程底座。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-cubes"></i></div>
+                    <div class="value-content">
+                        <h4>资产沉淀，实现AI能力全域复用</h4>
+                        <p>将模型、特征、样本、流水线、经验全部资产化，一次建设、全域复用，大幅降低AI落地成本。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-robot"></i></div>
+                    <div class="value-content">
+                        <h4>工程提效，实现AI规模化落地</h4>
+                        <p>通过自动化训练、评测、部署、迭代，将AI从单点实验转化为工业化量产，极速支撑智能场景创新。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div class="value-content">
+                        <h4>可控可治，实现AI全链路标准化</h4>
+                        <p>建立模型全生命周期治理体系，解决模型效果不可控、漂移无治理、风险无拦截的行业痛点。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="value-content">
+                        <h4>知识赋能，实现AI经验持续增值</h4>
+                        <p>通过模型专属知识体系与知识图谱，沉淀企业专属AI建模经验与落地打法，实现AI能力可传承、可迭代、可进化。</p>
+                    </div>
+                </div>
+                <div class="value-item full-width">
+                    <div class="value-icon"><i class="fas fa-sync-alt"></i></div>
+                    <div class="value-content">
+                        <h4>数智升级，驱动企业智能经营增长</h4>
+                        <p>为全域业务、运营、决策提供稳定、高质量、可持续迭代的智能模型能力，支撑企业从数字化全面迈向智能化、知识化、模型化高阶数智时代。</p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-note" style="margin-top: 2rem; font-size:0.8rem; color:var(--color-primary);">模型中台 · 企业全域数智化AI工业化落地的核心工程底座</div>
+        </div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>

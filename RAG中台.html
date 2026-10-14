@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>RAG中台 · 企业级完整体系 · 高保真架构</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ===== 设计系统 Token（完全继承参考样式） ===== */
+    :root {
+      --color-primary: #7a2e1a;
+      --color-primary-light: #fce9e0;
+      --color-primary-dark: #4d1c0e;
+      --color-accent: #b85c3a;
+      --color-accent-soft: #f0c8b8;
+      --color-accent-glow: rgba(184, 92, 58, 0.10);
+      --color-neutral-50: #fcf9f7;
+      --color-neutral-100: #f5ede8;
+      --color-neutral-200: #e5d7ce;
+      --color-neutral-300: #cbb8ab;
+      --color-neutral-400: #a68b7a;
+      --color-neutral-600: #6f5544;
+      --color-neutral-700: #4f3a2e;
+      --color-neutral-800: #34241c;
+      --color-neutral-900: #1e140f;
+      --color-gold: #c29a4a;
+      --color-gold-light: #f3e1b0;
+      --color-jade: #3b7a5e;
+      --color-jade-light: #d4ede0;
+      --color-success: #1f6e4a;
+      --color-warning: #a86b2c;
+      --color-error: #b13a2a;
+      --font-base: 1rem;
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-12: 3rem;
+      --radius-sm: 0.75rem;
+      --radius-md: 1.25rem;
+      --radius-card: 2rem;
+      --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(60, 30, 10, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(60, 30, 10, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(60, 30, 10, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+      --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ===== 重置 & 基础 ===== */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    /* ===== 布局 ===== */
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(255, 249, 245, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(255, 235, 220, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); letter-spacing:-0.01em; }
+    .sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+    .sidebar nav ul { list-style:none; padding:0; margin:0; }
+    .sidebar nav ul li { margin-bottom:0.1rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:12px;
+      padding:0.55rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.85rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+    }
+    .sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+    .sidebar nav ul li a:hover,
+    .sidebar nav ul li a:focus-visible {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateX(4px);
+    }
+    .sidebar-footer {
+      margin-top:24px; padding:12px; text-align:center;
+      font-size:0.7rem; color:var(--color-neutral-600);
+      border-top:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 主内容 ===== */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+    /* ===== 页面头部 ===== */
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+      font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+    .page-header .header-meta {
+      font-size:0.9rem; color:var(--color-neutral-600);
+      background:var(--color-neutral-100);
+      padding:0.4rem 1.2rem;
+      border-radius:var(--radius-pill);
+      border:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 卡片系统 ===== */
+    .card {
+      background:rgba(255,252,248,0.92);
+      backdrop-filter: blur(4px);
+      border-radius:var(--radius-card);
+      box-shadow:var(--shadow-card);
+      margin-bottom:var(--space-6);
+      border:1px solid rgba(255, 235, 220, 0.5);
+      overflow:hidden;
+      transition: box-shadow var(--transition-default), transform 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6);
+      background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft);
+      display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 {
+      font-size:clamp(1.2rem, 2.2vw, 1.6rem);
+      font-weight:700; color:var(--color-primary-dark);
+      display:flex; align-items:center; gap:12px;
+      letter-spacing:-0.01em;
+    }
+    .card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+    .card-header .badge-count {
+      margin-left:auto;
+      background:var(--color-accent);
+      color:white;
+      border-radius:var(--radius-pill);
+      padding:0.15rem 0.9rem;
+      font-size:0.7rem;
+      font-weight:600;
+      letter-spacing:0.3px;
+    }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* ===== 网格 & 卡片（RAG卡片风格） ===== */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } .grid-4 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; } }
+
+    /* RAG卡片 (复用九字卡片) */
+    .rag-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md);
+      padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: all var(--transition-default);
+      position:relative;
+      overflow:hidden;
+      border-left: 4px solid var(--color-accent);
+    }
+    .rag-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft));
+      opacity:0;
+      transition: opacity var(--transition-default);
+    }
+    .rag-card:hover::before { opacity:1; }
+    .rag-card:hover {
+      border-color:var(--color-accent-soft);
+      box-shadow: 0 8px 24px -8px rgba(184,92,58,0.15);
+      transform:translateY(-3px);
+    }
+    .rag-card .rag-icon {
+      font-size:1.8rem;
+      color:var(--color-primary);
+      display:inline-block;
+      margin-right:6px;
+      background: var(--color-primary-light);
+      padding:0.2rem 0.6rem;
+      border-radius:12px;
+    }
+    .rag-card h4 {
+      color:var(--color-primary-dark);
+      font-size:1.05rem;
+      margin-bottom:0.4rem;
+      display:flex; align-items:center; gap:8px;
+      flex-wrap:wrap;
+    }
+    .rag-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+    .rag-card .detail-list {
+      padding-left:0; margin:0.4rem 0 0 0;
+      list-style:none;
+    }
+    .rag-card .detail-list li {
+      margin-bottom:0.25rem;
+      padding-left:1.2rem;
+      position:relative;
+      font-size:0.85rem;
+      color:var(--color-neutral-700);
+    }
+    .rag-card .detail-list li::before {
+      content:'▹'; position:absolute; left:0;
+      color:var(--color-accent);
+      font-weight:600;
+    }
+    .rag-card .detail-list li strong { color:var(--color-neutral-800); }
+    .rag-card .tag-layer {
+      display:inline-block;
+      background:var(--color-gold-light);
+      color:var(--color-primary-dark);
+      border-radius:20px;
+      padding:0.05rem 0.8rem;
+      font-size:0.6rem;
+      font-weight:700;
+      letter-spacing:0.3px;
+      margin-left:0.5rem;
+    }
+
+    /* ===== 架构层（继承九层闭环） ===== */
+    .arch-diagram {
+      display:flex;
+      flex-direction:column;
+      gap:0.6rem;
+      padding:0.5rem 0;
+    }
+    .arch-layer {
+      display:flex;
+      align-items:stretch;
+      gap:0.75rem;
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.6rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: var(--transition-default);
+    }
+    .arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+    .arch-layer .layer-label {
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      min-width:120px;
+      padding-right:1rem;
+      border-right:2px solid var(--color-neutral-200);
+      font-weight:700;
+      font-size:0.8rem;
+      color:var(--color-primary-dark);
+      letter-spacing:0.3px;
+    }
+    .arch-layer .layer-label i {
+      font-size:1.1rem;
+      color:var(--color-accent);
+      margin-bottom:0.1rem;
+    }
+    .arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+    .arch-layer .layer-blocks {
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:0.5rem;
+      flex:1;
+      padding:0.2rem 0;
+    }
+    .arch-block {
+      background:white;
+      border-radius:var(--radius-sm);
+      padding:0.3rem 0.9rem;
+      border:1px solid var(--color-neutral-200);
+      font-size:0.75rem;
+      font-weight:500;
+      color:var(--color-neutral-700);
+      transition: var(--transition-default);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .arch-block:hover {
+      border-color:var(--color-accent);
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateY(-1px);
+    }
+    .arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+    .arch-block.highlight-block {
+      background:var(--color-accent);
+      color:white;
+      border-color:var(--color-accent);
+    }
+    .arch-block.highlight-block i { color:white; }
+    .arch-layer.inner-layer { background:linear-gradient(135deg, #f5efe8, #f0e4da); border-color:var(--color-accent-soft); }
+    .arch-layer.outer-layer { background:linear-gradient(135deg, #f0f2ed, #e6ece2); border-color:#b8c8aa; }
+    .arch-layer.outer-layer .layer-label { border-right-color:#b8c8aa; color:#2d5a3a; }
+    .arch-layer.outer-layer .layer-label i { color:#3b7a5e; }
+    .arch-layer.outer-layer .arch-block { border-color:#c8d8b8; }
+    .arch-layer.outer-layer .arch-block:hover { border-color:#3b7a5e; background:#e0ede0; }
+    .arch-layer.ultimate-layer { background:linear-gradient(135deg, #f0ede8, #e8e0d8); border-color:#c8b8a8; }
+    .arch-layer.ultimate-layer .layer-label { border-right-color:#c8b8a8; color:#6a4a3a; }
+    .arch-layer.ultimate-layer .layer-label i { color:#8a6a5a; }
+    .arch-layer.ultimate-layer .arch-block { border-color:#d8c8b8; }
+    .arch-layer.ultimate-layer .arch-block:hover { border-color:#8a6a5a; background:#ede0d8; }
+
+    /* ===== 表格 ===== */
+    .table-wrapper {
+      overflow-x:auto;
+      border-radius:var(--radius-md);
+      border:1px solid var(--color-neutral-200);
+      background:white;
+    }
+    table {
+      width:100%; border-collapse:collapse; font-size:0.78rem;
+    }
+    th {
+      background:var(--color-neutral-100);
+      padding:12px 10px;
+      font-weight:600;
+      color:var(--color-primary-dark);
+      text-align:left;
+      border-bottom:2px solid var(--color-neutral-200);
+      font-size:0.7rem;
+      text-transform:uppercase;
+      letter-spacing:0.4px;
+    }
+    td {
+      padding:10px 10px;
+      border-bottom:1px solid var(--color-neutral-200);
+      vertical-align:middle;
+      color:var(--color-neutral-700);
+    }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--color-neutral-50); }
+    .level-tag {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      border-radius:var(--radius-pill);
+      padding:0.05rem 0.7rem;
+      font-size:0.65rem;
+      font-weight:600;
+      display:inline-block;
+    }
+
+    /* ===== 信息提示 ===== */
+    .info-tip {
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.7rem 1.5rem;
+      border-left:5px solid var(--color-accent);
+      margin-top:var(--space-4);
+      display:flex; align-items:center; gap:0.8rem;
+      font-size:0.9rem;
+      color:var(--color-neutral-700);
+    }
+    .info-tip i { color:var(--color-accent); font-size:1rem; }
+
+    /* ===== 横幅 ===== */
+    .banner-card {
+      background: linear-gradient(135deg, #f5ede6, #e8dcd2);
+      text-align:center;
+      border-color:var(--color-accent-soft);
+    }
+    .banner-card .card-body { padding:2.5rem var(--space-6); }
+    .banner-card .icon-big { font-size:3rem; color:var(--color-primary); opacity:0.7; margin-bottom:var(--space-3); }
+    .banner-card h2 { color:var(--color-primary-dark); font-size:clamp(1.4rem, 2.5vw, 1.9rem); margin-bottom:var(--space-2); }
+    .banner-card p { max-width:680px; margin:0 auto; color:var(--color-neutral-700); font-size:1rem; }
+    .banner-card .footer-note { margin-top:var(--space-6); font-size:0.8rem; color:var(--color-primary); }
+
+    /* ===== 响应式 ===== */
+    @media (max-width:1024px) { .sidebar { width:220px; } }
+    @media (max-width:760px) {
+      .sidebar { display:none; }
+      .layout { padding:0.5rem; }
+      .main-content { padding:0; }
+      .card-body { padding:1.25rem var(--space-4); }
+      .card-header { padding:1rem var(--space-4); }
+      .page-header { flex-direction:column; align-items:flex-start; }
+    }
+
+    /* ===== 暗色 ===== */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #1a1410;
+        --color-neutral-100: #221c18;
+        --color-neutral-200: #3a2c24;
+        --color-neutral-300: #5a4a3e;
+        --color-neutral-400: #8a7a6e;
+        --color-neutral-600: #b8a89c;
+        --color-neutral-700: #d0c4b8;
+        --color-neutral-800: #e8dcd0;
+        --color-neutral-900: #f5ede6;
+        --color-primary-light: #3a2a20;
+        --color-accent-soft: #6a4a3a;
+        --color-primary: #d08a6a;
+        --color-primary-dark: #f0c8b0;
+        --color-accent: #c07a5a;
+        --color-gold: #c29a4a;
+        --color-gold-light: #4a3a20;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6);
+        --shadow-card-hover: 0 20px 48px -12px rgba(0,0,0,0.7);
+        --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #120e0a; }
+      .card { background: #1a1410; border-color: #3a2c24; }
+      .card-header { background: #1a1410; border-bottom-color: #4a3a2e; }
+      .rag-card { background: #1a1410; border-color: #3a2c24; }
+      .rag-card .rag-icon { background: #2a1e16; color: #d08a6a; }
+      .rag-card .detail-list li { color: #c0b4a8; }
+      .rag-card .detail-list li strong { color: #e0d4c8; }
+      .table-wrapper { background: #1a1410; border-color: #3a2c24; }
+      th { background: #221c18; color: #e0d4c8; border-bottom-color: #4a3a2e; }
+      td { border-bottom-color: #2a241e; color: #c0b4a8; }
+      tr:hover td { background: #2a241e; }
+      .sidebar { background: rgba(20, 16, 12, 0.92); border-color: #3a2c24; }
+      .sidebar-brand { border-bottom-color: #4a3a2e; }
+      .sidebar-brand h3 { color: #d08a6a; }
+      .sidebar nav ul li a { color: #c0b4a8; }
+      .sidebar nav ul li a:hover { background: #3a2c24; color: white; }
+      .info-tip { background: #1a1410; border-left-color: #c07a5a; color: #c0b4a8; }
+      .banner-card { background:linear-gradient(135deg,#1a1410,#2a241e); }
+      .banner-card p { color: #c0b4a8; }
+      .page-header h1 { background:linear-gradient(135deg,#f0c8b0,#d08a6a); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#2a241e; border-color:#4a3a2e; color:#b8a89c; }
+      .arch-layer { background:#1a1410; border-color:#3a2c24; }
+      .arch-layer:hover { background:#2a1e16; border-color:#5a4a3e; }
+      .arch-layer .layer-label { border-right-color:#3a2c24; color:#e0d4c8; }
+      .arch-block { background:#1a1410; border-color:#3a2c24; color:#c0b4a8; }
+      .arch-block:hover { background:#3a2c24; border-color:#c07a5a; }
+      .arch-layer.inner-layer { background:linear-gradient(135deg,#1a1410,#2a1e16); border-color:#5a3a2a; }
+      .arch-layer.outer-layer { background:linear-gradient(135deg,#141a12,#1a2618); border-color:#2a4a2a; }
+      .arch-layer.outer-layer .layer-label { border-right-color:#2a4a2a; color:#8aba8a; }
+      .arch-layer.outer-layer .layer-label i { color:#5a9a6a; }
+      .arch-layer.outer-layer .arch-block { border-color:#2a4a2a; color:#a0c8a0; }
+      .arch-layer.outer-layer .arch-block:hover { border-color:#5a9a6a; background:#1a2a1a; }
+      .arch-layer.ultimate-layer { background:linear-gradient(135deg,#1a1410,#221c18); border-color:#4a3a2e; }
+      .arch-layer.ultimate-layer .layer-label { border-right-color:#4a3a2e; color:#c8b0a0; }
+      .arch-layer.ultimate-layer .layer-label i { color:#a08070; }
+      .arch-layer.ultimate-layer .arch-block { border-color:#4a3a2e; color:#c8b8a8; }
+      .arch-layer.ultimate-layer .arch-block:hover { border-color:#a08070; background:#2a241e; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-magnifying-glass-chart" aria-hidden="true"></i>
+      <h3>RAG中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-cubes"></i> 全域标准定义</a></li>
+        <li><a href="#s1"><i class="fas fa-layer-group"></i> 八大特征</a></li>
+        <li><a href="#s2"><i class="fas fa-book"></i> 知识体系</a></li>
+        <li><a href="#s3"><i class="fas fa-project-diagram"></i> RAGGraph</a></li>
+        <li><a href="#s4"><i class="fas fa-sitemap"></i> 六大架构</a></li>
+        <li><a href="#s5"><i class="fas fa-puzzle-piece"></i> 功能模块</a></li>
+        <li><a href="#s6"><i class="fas fa-chart-line"></i> 指标体系</a></li>
+        <li><a href="#s7"><i class="fas fa-boxes"></i> 资产体系</a></li>
+        <li><a href="#s8"><i class="fas fa-share-alt"></i> 协同关系</a></li>
+        <li><a href="#s9"><i class="fas fa-flag"></i> 核心价值</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-magnifying-glass-chart"></i> RAG中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-magnifying-glass-chart"></i> 企业级 RAG 中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> 检索增强生成全域知识中台</span>
+    </header>
+
+    <!-- ===== S0 全域标准定义 ===== -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> RAG 中台全域标准定义</h2>
+        <span class="badge-count">当下落地 + GraphRAG 多跳推理 AI 原生演进</span>
+      </div>
+      <div class="card-body">
+        <div class="arch-diagram">
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-database"></i> 底层依赖 <span class="sub">算力/IaaS/数据中台</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-microchip"></i> 算力中台</span>
+              <span class="arch-block"><i class="fas fa-cloud"></i> IaaS/PaaS</span>
+              <span class="arch-block"><i class="fas fa-database"></i> 数据中台</span>
+              <span class="arch-block"><i class="fas fa-hdd"></i> 对象存储</span>
+              <span class="arch-block"><i class="fas fa-vector-square"></i> 向量库</span>
+              <span class="arch-block"><i class="fas fa-project-diagram"></i> 图数据库</span>
+            </div>
+          </div>
+          <div class="arch-layer outer-layer">
+            <div class="layer-label"><i class="fas fa-cogs"></i> 核心能力 <span class="sub">摄入/分块/检索/图谱/校验</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block highlight-block"><i class="fas fa-file-import"></i> 多源摄入</span>
+              <span class="arch-block"><i class="fas fa-cut"></i> 语义分块</span>
+              <span class="arch-block"><i class="fas fa-search"></i> 混合检索</span>
+              <span class="arch-block"><i class="fas fa-project-diagram"></i> GraphRAG</span>
+              <span class="arch-block"><i class="fas fa-shield-alt"></i> 事实校验</span>
+              <span class="arch-block"><i class="fas fa-lock"></i> 多租户</span>
+            </div>
+          </div>
+          <div class="arch-layer ultimate-layer">
+            <div class="layer-label"><i class="fas fa-rocket"></i> 上层赋能 <span class="sub">Prompt/Token/Agent/MaaS</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-message"></i> Prompt</span>
+              <span class="arch-block"><i class="fas fa-coins"></i> Token</span>
+              <span class="arch-block"><i class="fas fa-toolbox"></i> Skill</span>
+              <span class="arch-block"><i class="fas fa-robot"></i> Agent</span>
+              <span class="arch-block"><i class="fas fa-cloud"></i> MaaS</span>
+            </div>
+          </div>
+        </div>
+        <div class="info-tip"><i class="fas fa-scroll"></i> RAG 中台（检索增强生成中台 / 全域知识资产中台），是企业全域结构化、半结构化、非结构化多模态知识统一治理、向量化存储、混合检索、知识图谱推理、上下文增强、生成校验、全生命周期运营的核心 AI 底层知识中台，属于 AI 原生基础支撑型中台。</div>
+        <div style="margin-top:0.8rem; font-size:0.9rem; color:var(--color-neutral-600);">
+          <p><strong>战略定位：</strong>企业全域多模态知识统一资产沉淀中心、混合检索调度中枢、GraphRAG 多跳推理平台、检索增强上下文供给引擎、RAG 知识图谱推理平台、知识全生命周期运营中心、AI 幻觉防控核心底座、多租户知识隔离管控平台。</p>
+          <p><strong>层级边界：</strong>底层依赖层（IaaS 硬件、算力中台向量 / 图计算弹性算力、PaaS 云原生集群、数据中台业务数据源、向量数据库、图数据库、对象存储）；核心能力层（专注知识摄入、分块向量化、混合检索、Graph 多跳推理、事实校验、知识版本、安全权限、评测运营）；上层赋能层（统一为 Prompt 中台提供可信上下文素材，供给 Token、Skill、Agent、MaaS、各类行业 AI 应用、SaaS 内置 Copilot）。</p>
+          <p><strong>全域上下游固定分层链路：</strong>IaaS / 算力 / PaaS / 数据中台 → RAG 中台 → Prompt 中台 → Token 中台 → Skill 中台 → Agent 中台 → MaaS 大模型</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S1 八大核心特征 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-layer-group"></i> 八大核心特征</h2>
+        <span class="badge-count">全模态 · 三层资产 · 三路检索 · GraphRAG</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-file-import"></i></span><h4>全模态全域知识摄入</h4><ul class="detail-list"><li>文档、表格、图像、音频、数据库、API、工单一站式接入解析</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-layer-group"></i></span><h4>三层知识资产分层</h4><ul class="detail-list"><li>原始文档层、向量片段层、Graph实体关系层隔离、独立版本管控</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-search"></i></span><h4>三路混合检索</h4><ul class="detail-list"><li>稠密向量 + 稀疏全文 + 图谱多跳推理三路融合召回</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-arrows-spin"></i></span><h4>意图驱动动态增强</h4><ul class="detail-list"><li>根据用户问题自动调整检索策略、召回数量、重排规则</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-shield-alt"></i></span><h4>事实双层校验</h4><ul class="detail-list"><li>检索片段溯源校验 + 生成结果事实比对双重幻觉拦截</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-brain"></i></span><h4>三重智能推理</h4><ul class="detail-list"><li>规则 + LLM + RAGGraph 实体关系图谱联合精准召回</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-lock"></i></span><h4>多租户细粒度隔离</h4><ul class="detail-list"><li>企业/部门/项目三级知识库权限、文档可见性隔离</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-sync-alt"></i></span><h4>数据驱动自治迭代</h4><ul class="detail-list"><li>检索/问答/幻觉数据回流RAGGraph，自动优化分块/嵌入/检索策略</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S2 十大知识域 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book"></i> RAG 中台专属知识体系</h2>
+        <span class="badge-count">十大完整知识域</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-3">
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-sitemap"></i></span><h4>顶层架构与知识工程规划</h4><ul class="detail-list"><li>全域知识分层架构；多租户隔离规范；跨中台协同标准；改造方法论</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-file-import"></i></span><h4>多源知识摄入与解析</h4><ul class="detail-list"><li>全格式解析；结构化抽取；增量同步；去重清洗；异构系统对接</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-cut"></i></span><h4>语义分块与向量化</h4><ul class="detail-list"><li>三种分块算法；重叠窗口；嵌入模型选型；索引构建；冷热分层</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-search"></i></span><h4>三路混合检索</h4><ul class="detail-list"><li>稠密向量；稀疏全文；GraphRAG多跳；融合重排；差异化调度</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-project-diagram"></i></span><h4>GraphRAG 图谱构建</h4><ul class="detail-list"><li>三元组抽取；实体消歧；多跳查询；图谱向量联动；行业模板</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-shield-alt"></i></span><h4>事实校验与幻觉防控</h4><ul class="detail-list"><li>溯源绑定；事实比对；强幻觉拦截；兜底回复；指标监控</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-lock"></i></span><h4>版本与多租户安全</h4><ul class="detail-list"><li>快照/版本/回滚；RBAC权限；脱敏隔离；全链路审计</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-flask"></i></span><h4>自动化评测体系</h4><ul class="detail-list"><li>检索指标；生成指标；离线批量；在线A/B；迭代闭环</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-industry"></i></span><h4>行业 RAG 落地</h4><ul class="detail-list"><li>政务/财务/风控/研发/客服方案；多智能体协同；端侧轻量化</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-rocket"></i></span><h4>前沿演进</h4><ul class="detail-list"><li>自治分块；联邦RAG；原生多模态GraphR；端到端自优化</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S3 RAGGraph ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-project-diagram"></i> RAGGraph 检索增强知识图谱</h2>
+        <span class="badge-count">核心实体 · 关联 · 智能能力</span>
+      </div>
+      <div class="card-body">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+          <div><h4 style="color:var(--color-primary-dark);"><i class="fas fa-circle"></i> 核心实体体系</h4><ul class="detail-list" style="list-style:none; padding-left:0;"><li>知识块、实体对象、关系实体、意图、租户、检索策略、故障、指标、资产模板、迭代任务</li></ul></div>
+          <div><h4 style="color:var(--color-primary-dark);"><i class="fas fa-link"></i> 核心关联关系</h4><ul class="detail-list" style="list-style:none; padding-left:0;"><li>块↔实体；实体↔实体；意图↔策略；意图↔块；故障↔诱因；租户↔库；日志↔图谱</li></ul></div>
+        </div>
+        <div style="margin-top:1rem; display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.8rem;">
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-magic"></i></span><h4>智能能力</h4><ul class="detail-list"><li>经验自动沉淀</li><li>多跳路径推演</li><li>一键根因溯源</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-broom"></i></span><h4>智能能力</h4><ul class="detail-list"><li>检索策略推荐</li><li>优化方案生成</li><li>行业方案复用</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-shield-alt"></i></span><h4>智能能力</h4><ul class="detail-list"><li>增量自主更新</li><li>新人快速赋能</li><li>知识经验复用</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S4 六大架构 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> 六大完整架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-cubes"></i></span><h4>产品架构（九层）</h4><ul class="detail-list"><li>多源摄入 → 三层资产 → 分块嵌入 → 混合检索 → RAGGraph → 事实校验 → 权限 → 评测 → 自治迭代</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-briefcase"></i></span><h4>业务架构</h4><ul class="detail-list"><li>底层底座：算力/IaaS/PaaS/数据；中层核心：摄入/分块/检索/图谱/校验/权限/评测；上层赋能：Prompt/Token/Agent/MaaS</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-database"></i></span><h4>数据架构（七层）</h4><ul class="detail-list"><li>RG-ODS → RG-DWD → RG-DWB → RG-DWA → RG-DWS → RG-ADS → RG-OPT</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-microchip"></i></span><h4>技术架构（七层）</h4><ul class="detail-list"><li>多源网关 → 存储底座 → 核心引擎 → 事实校验 → 权限调度 → 可观测评测 → 管理前端</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-rocket"></i></span><h4>应用架构（八大应用）</h4><ul class="detail-list"><li>导入工作台、资产管理、调试平台、图谱运维、幻觉管控、权限管理、评测实验、自治运营</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-balance-scale"></i></span><h4>治理架构（六大体系）</h4><ul class="detail-list"><li>资产生命周期、向量与图谱标准化、检索调度治理、幻觉风险闭环、安全合规、图谱迭代</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S5 功能模块 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> 全量产品功能模块</h2>
+        <span class="badge-count">八大模块全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-file-import"></i></span><h4>多源知识摄入</h4><ul class="detail-list"><li>文档/数据库/API/音视频解析；CDC增量；OCR图文抽取；去重清洗</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-layer-group"></i></span><h4>三层知识资产管控</h4><ul class="detail-list"><li>原始文档、向量片段、Graph关系库；版本快照；资产隔离</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-cut"></i></span><h4>自适应分块与嵌入</h4><ul class="detail-list"><li>三种分块算法；重叠窗口；多模态嵌入切换；增量向量化；低质过滤</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-search"></i></span><h4>三路混合检索</h4><ul class="detail-list"><li>稠密向量；稀疏全文；Graph多跳；融合重排；意图驱动调度</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-project-diagram"></i></span><h4>RAGGraph 推理</h4><ul class="detail-list"><li>三元组抽取；实体消歧；多跳查询；图谱向量联动；增量更新</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-shield-alt"></i></span><h4>事实校验与幻觉防控</h4><ul class="detail-list"><li>溯源绑定；事实比对；强幻觉拦截；兜底话术；实时告警</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-lock"></i></span><h4>多租户安全权限</h4><ul class="detail-list"><li>三级RBAC；文档脱敏；白名单管控；全链路审计；合规报表</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-sync-alt"></i></span><h4>评测与自治迭代</h4><ul class="detail-list"><li>离线/在线评测；低召回识别；优化工单；效能复盘；闭环跟踪</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S6 指标体系 ===== -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> 全套指标体系</h2>
+        <span class="badge-count">资产 · 检索 · 图谱 · 幻觉 · 安全 · 图谱专项</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>知识资产治理</strong></td><td>解析成功率≥95% · 分块覆盖率100% · 闲置占比≤8% · 版本规范率100% · 盘点闭环率100%</td></tr>
+              <tr><td><strong>混合检索效能</strong></td><td>Recall@5≥85% · Precision@5≥82% · MRR≥0.8 · P95≤40ms · 意图匹配≥94%</td></tr>
+              <tr><td><strong>GraphRAG 图谱</strong></td><td>实体完整率≥90% · 三元组完整率≥92% · 多跳召回提升≥30% · 联动覆盖率100%</td></tr>
+              <tr><td><strong>幻觉防控</strong></td><td>幻觉率≤5% · 拦截率100% · 忠实度≥4.3/5 · 整改闭环率100% · 溯源绑定率100%</td></tr>
+              <tr><td><strong>多租户安全合规</strong></td><td>隔离合规率100% · 脱敏覆盖率100% · 日志留存率100% · 拦截率100%</td></tr>
+              <tr><td><strong>RAGGraph 专项</strong></td><td>场景覆盖率100% · 三元组完整率≥99.6% · 根因准确率≥97% · 推荐准确率≥95%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S7 资产体系 ===== -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> 完整内容资产体系</h2>
+        <span class="badge-count">6大资产包</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-sitemap"></i></span><h4>顶层规划资产</h4><ul class="detail-list"><li>建设白皮书 · 转型方案 · 路线图 · 成熟度评估 · GraphRAG指南</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-book"></i></span><h4>全域标准规范</h4><ul class="detail-list"><li>摄入规范 · 分块标准 · 检索配置规范 · 图谱抽取标准 · 权限规范</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-database"></i></span><h4>核心数字资产</h4><ul class="detail-list"><li>分块模板库 · 检索策略模板 · 图谱抽取模板 · 兜底话术库 · 评测数据集</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-tools"></i></span><h4>落地工程资产</h4><ul class="detail-list"><li>部署手册 · 数据源集成文档 · 运维手册 · API文档 · 验收模板</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-chart-pie"></i></span><h4>运营复盘资产</h4><ul class="detail-list"><li>月度效能报告 · 召回幻觉复盘 · 行业成果分析 · 合规台账</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-shield-alt"></i></span><h4>应急保障资产</h4><ul class="detail-list"><li>向量故障预案 · 图谱恢复预案 · 幻觉风险处置 · 数据丢失恢复</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S8 协同关系 ===== -->
+    <section id="s8" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-share-alt"></i> 全中台全域协同关系</h2>
+        <span class="badge-count">9 大中台协同</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-3">
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-microchip"></i></span><h4>算力中台</h4><ul class="detail-list"><li>提供向量编码、图计算、检索推理弹性算力</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-cloud"></i></span><h4>IaaS/PaaS</h4><ul class="detail-list"><li>承载对象、向量、图数据库云原生集群</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-table"></i></span><h4>数据中台</h4><ul class="detail-list"><li>输出结构化业务库作为增量同步数据源</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-code"></i></span><h4>MCP 中台</h4><ul class="detail-list"><li>RAG检索能力封装标准MCP Resource</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-message"></i></span><h4>Prompt 中台</h4><ul class="detail-list"><li>输出可信知识片段作为动态上下文素材</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-coins"></i></span><h4>Token 中台</h4><ul class="detail-list"><li>控制检索片段长度，削减冗余Token消耗</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-toolbox"></i></span><h4>Skill 中台</h4><ul class="detail-list"><li>知识库查询封装标准Skill技能</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-robot"></i></span><h4>Agent 中台</h4><ul class="detail-list"><li>多智能体多跳任务依赖RAGGraph深度推理</li></ul></div>
+          <div class="rag-card"><span class="rag-icon"><i class="fas fa-cloud"></i></span><h4>MaaS 中台</h4><ul class="detail-list"><li>接收RAG增强上下文执行生成，大幅降低幻觉</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S9 核心价值 ===== -->
+    <section id="s9" class="card banner-card">
+      <div class="card-body">
+        <div class="icon-big"><i class="fas fa-flag"></i></div>
+        <h2>RAG 中台 · 核心价值总结</h2>
+        <p>统一全域企业知识资产底座，终结各业务线零散独立知识库，实现文档、数据库、多媒体知识统一纳管、资产复用；<br>三路混合检索 + Graph 多跳推理，解决传统单向量检索无法处理复杂关联业务问题，问答准确率提升 30% 以上；<br>双层事实校验全链路溯源，强力抑制大模型幻觉，输出答案全部绑定原始文档来源，满足财务、政务、风控等强合规场景；<br>三层知识分层 + 多租户细粒度隔离，兼顾公共知识与部门私有涉密文档，安全合规可审计；<br>RAGGraph 知识图谱沉淀企业业务实体关系经验，自动优化检索策略，实现知识库自治迭代，大幅降低人工调优成本；<br>标准化 MCP 资源输出，无缝对接 Prompt/Token/Skill/Agent/MaaS 全 AI 链路，作为所有大模型应用统一可信知识供给层；<br>支撑企业 AI 从 “无依据生成” 升级为 “有私有事实支撑的可信智能”，是全域 AI 体系不可或缺的底层知识支撑中台。</p>
+        <div class="footer-note">RAG 中台 · 检索增强生成全域知识中台 · 对齐算力 / MaaS/Agent/Prompt/Token 统一架构范式</div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

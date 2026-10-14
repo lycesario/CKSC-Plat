@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Embedding 中台 · 企业级完整体系 · 高保真架构</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      --color-primary: #7a2e1a;
+      --color-primary-light: #fce9e0;
+      --color-primary-dark: #4d1c0e;
+      --color-accent: #b85c3a;
+      --color-accent-soft: #f0c8b8;
+      --color-neutral-50: #fcf9f7;
+      --color-neutral-100: #f5ede8;
+      --color-neutral-200: #e5d7ce;
+      --color-neutral-300: #cbb8ab;
+      --color-neutral-400: #a68b7a;
+      --color-neutral-600: #6f5544;
+      --color-neutral-700: #4f3a2e;
+      --color-neutral-800: #34241c;
+      --color-neutral-900: #1e140f;
+      --color-gold: #c29a4a;
+      --color-gold-light: #f3e1b0;
+      --color-jade: #3b7a5e;
+      --color-success: #1f6e4a;
+      --color-warning: #a86b2c;
+      --color-error: #b13a2a;
+      --font-base: 1rem;
+      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem;
+      --space-4: 1rem; --space-6: 1.5rem; --space-8: 2rem; --space-12: 3rem;
+      --radius-sm: 0.75rem; --radius-md: 1.25rem; --radius-card: 2rem; --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(60, 30, 10, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(60, 30, 10, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(60, 30, 10, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* Sidebar */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(255, 249, 245, 0.88);
+      backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(255, 235, 220, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); }
+    .sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+    .sidebar nav ul { list-style:none; }
+    .sidebar nav ul li { margin-bottom:0.1rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:12px;
+      padding:0.55rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.85rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+    }
+    .sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+    .sidebar nav ul li a:hover { background:var(--color-primary-light); color:var(--color-primary-dark); transform:translateX(4px); }
+    .sidebar-footer { margin-top:24px; padding:12px; text-align:center; font-size:0.7rem; color:var(--color-neutral-600); border-top:1px solid var(--color-neutral-200); }
+
+    /* Main */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+      font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+    .page-header .header-meta {
+      font-size:0.9rem; color:var(--color-neutral-600);
+      background:var(--color-neutral-100); padding:0.4rem 1.2rem;
+      border-radius:var(--radius-pill); border:1px solid var(--color-neutral-200);
+    }
+
+    /* Card */
+    .card {
+      background:rgba(255,252,248,0.92); backdrop-filter: blur(4px);
+      border-radius:var(--radius-card); box-shadow:var(--shadow-card);
+      margin-bottom:var(--space-6); border:1px solid rgba(255, 235, 220, 0.5);
+      overflow:hidden; transition: box-shadow var(--transition-default), transform 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6);
+      background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft);
+      display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 { font-size:clamp(1.2rem, 2.2vw, 1.6rem); font-weight:700; color:var(--color-primary-dark); display:flex; align-items:center; gap:12px; }
+    .card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+    .card-header .badge-count { margin-left:auto; background:var(--color-accent); color:white; border-radius:var(--radius-pill); padding:0.15rem 0.9rem; font-size:0.7rem; font-weight:600; }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* Grid & Policy Card */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3 { grid-template-columns:1fr; } .sidebar { display:none; } .layout { padding:0.5rem; } .card-body { padding:1.25rem 1rem; } }
+
+    .policy-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md); padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200); transition: all var(--transition-default);
+      position:relative; overflow:hidden; border-left: 4px solid var(--color-accent);
+    }
+    .policy-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft)); opacity:0; transition: opacity var(--transition-default); }
+    .policy-card:hover::before { opacity:1; }
+    .policy-card:hover { border-color:var(--color-accent-soft); box-shadow: 0 8px 24px -8px rgba(184,92,58,0.15); transform:translateY(-3px); }
+    .policy-card .policy-icon { font-size:1.8rem; color:var(--color-primary); display:inline-block; margin-right:6px; background: var(--color-primary-light); padding:0.2rem 0.6rem; border-radius:12px; }
+    .policy-card h4 { color:var(--color-primary-dark); font-size:1.05rem; margin-bottom:0.4rem; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .policy-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+    .policy-card .detail-list { padding-left:0; margin:0.4rem 0 0 0; list-style:none; }
+    .policy-card .detail-list li { margin-bottom:0.25rem; padding-left:1.2rem; position:relative; font-size:0.85rem; color:var(--color-neutral-700); }
+    .policy-card .detail-list li::before { content:'▹'; position:absolute; left:0; color:var(--color-accent); font-weight:600; }
+    .policy-card .detail-list li strong { color:var(--color-neutral-800); }
+
+    /* Arch Diagram */
+    .arch-diagram { display:flex; flex-direction:column; gap:0.6rem; padding:0.5rem 0; }
+    .arch-layer { display:flex; align-items:stretch; gap:0.75rem; background:var(--color-neutral-50); border-radius:var(--radius-md); padding:0.6rem 1rem; border:1px solid var(--color-neutral-200); transition: var(--transition-default); }
+    .arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+    .arch-layer .layer-label { display:flex; flex-direction:column; justify-content:center; min-width:120px; padding-right:1rem; border-right:2px solid var(--color-neutral-200); font-weight:700; font-size:0.8rem; color:var(--color-primary-dark); letter-spacing:0.3px; }
+    .arch-layer .layer-label i { font-size:1.1rem; color:var(--color-accent); margin-bottom:0.1rem; }
+    .arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+    .arch-layer .layer-blocks { display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem; flex:1; padding:0.2rem 0; }
+    .arch-block { background:white; border-radius:var(--radius-sm); padding:0.3rem 0.9rem; border:1px solid var(--color-neutral-200); font-size:0.75rem; font-weight:500; color:var(--color-neutral-700); transition: var(--transition-default); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    .arch-block:hover { border-color:var(--color-accent); background:var(--color-primary-light); color:var(--color-primary-dark); transform:translateY(-1px); }
+    .arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+    .arch-block.highlight-block { background:var(--color-accent); color:white; border-color:var(--color-accent); }
+    .arch-block.highlight-block i { color:white; }
+    .arch-layer.inner-layer { background:linear-gradient(135deg, #f5efe8, #f0e4da); border-color:var(--color-accent-soft); }
+    .arch-layer.outer-layer { background:linear-gradient(135deg, #f0f2ed, #e6ece2); border-color:#b8c8aa; }
+    .arch-layer.outer-layer .layer-label { border-right-color:#b8c8aa; color:#2d5a3a; }
+    .arch-layer.outer-layer .layer-label i { color:#3b7a5e; }
+    .arch-layer.outer-layer .arch-block { border-color:#c8d8b8; }
+    .arch-layer.outer-layer .arch-block:hover { border-color:#3b7a5e; background:#e0ede0; }
+    .arch-layer.ultimate-layer { background:linear-gradient(135deg, #f0ede8, #e8e0d8); border-color:#c8b8a8; }
+    .arch-layer.ultimate-layer .layer-label { border-right-color:#c8b8a8; color:#6a4a3a; }
+    .arch-layer.ultimate-layer .layer-label i { color:#8a6a5a; }
+    .arch-layer.ultimate-layer .arch-block { border-color:#d8c8b8; }
+    .arch-layer.ultimate-layer .arch-block:hover { border-color:#8a6a5a; background:#ede0d8; }
+
+    /* Table */
+    .table-wrapper { overflow-x:auto; border-radius:var(--radius-md); border:1px solid var(--color-neutral-200); background:white; }
+    table { width:100%; border-collapse:collapse; font-size:0.78rem; }
+    th { background:var(--color-neutral-100); padding:12px 10px; font-weight:600; color:var(--color-primary-dark); text-align:left; border-bottom:2px solid var(--color-neutral-200); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.4px; }
+    td { padding:10px 10px; border-bottom:1px solid var(--color-neutral-200); vertical-align:middle; color:var(--color-neutral-700); }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--color-neutral-50); }
+
+    /* Tip & Banner */
+    .info-tip { background:var(--color-neutral-50); border-radius:var(--radius-md); padding:0.7rem 1.5rem; border-left:5px solid var(--color-accent); margin-top:var(--space-4); display:flex; align-items:center; gap:0.8rem; font-size:0.9rem; color:var(--color-neutral-700); }
+    .info-tip i { color:var(--color-accent); font-size:1rem; }
+    .banner-card { background: linear-gradient(135deg, #f5ede6, #e8dcd2); text-align:center; border-color:var(--color-accent-soft); }
+    .banner-card .card-body { padding:2.5rem var(--space-6); }
+    .banner-card .icon-big { font-size:3rem; color:var(--color-primary); opacity:0.7; margin-bottom:var(--space-3); }
+    .banner-card h2 { color:var(--color-primary-dark); font-size:clamp(1.4rem, 2.5vw, 1.9rem); margin-bottom:var(--space-2); }
+    .banner-card p { max-width:680px; margin:0 auto; color:var(--color-neutral-700); font-size:1rem; }
+    .banner-card .footer-note { margin-top:var(--space-6); font-size:0.8rem; color:var(--color-primary); }
+
+    /* Content Typography */
+    .content-section { margin-bottom:1.2rem; }
+    .content-section h3 { color:var(--color-primary-dark); font-size:1.1rem; margin-bottom:0.5rem; font-weight:700; }
+    .content-section h4 { color:var(--color-primary-dark); font-size:1rem; margin-bottom:0.4rem; font-weight:600; }
+    .content-section p { margin-bottom:0.6rem; font-size:0.9rem; color:var(--color-neutral-700); }
+    .content-section ul { padding-left:1.2rem; margin-bottom:0.6rem; }
+    .content-section li { margin-bottom:0.3rem; font-size:0.88rem; color:var(--color-neutral-700); }
+    .content-section strong { color:var(--color-neutral-800); }
+    .text-block { background:var(--color-neutral-50); border-radius:var(--radius-sm); padding:1rem 1.2rem; border:1px solid var(--color-neutral-200); margin-bottom:0.8rem; }
+
+    /* Dark Mode */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #1a1410; --color-neutral-100: #221c18; --color-neutral-200: #3a2c24;
+        --color-neutral-400: #8a7a6e; --color-neutral-600: #b8a89c; --color-neutral-700: #d0c4b8;
+        --color-neutral-800: #e8dcd0; --color-neutral-900: #f5ede6;
+        --color-primary-light: #3a2a20; --color-accent-soft: #6a4a3a;
+        --color-primary: #d08a6a; --color-primary-dark: #f0c8b0; --color-accent: #c07a5a;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6); --shadow-card-hover: 0 20px 48px -12px rgba(0,0,0,0.7); --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #120e0a; }
+      .card { background: #1a1410; border-color: #3a2c24; }
+      .card-header { background: #1a1410; border-bottom-color: #4a3a2e; }
+      .policy-card { background: #1a1410; border-color: #3a2c24; }
+      .policy-card .policy-icon { background: #2a1e16; color: #d08a6a; }
+      .policy-card .detail-list li { color: #c0b4a8; }
+      .policy-card .detail-list li strong { color: #e0d4c8; }
+      .table-wrapper { background: #1a1410; border-color: #3a2c24; }
+      th { background: #221c18; color: #e0d4c8; border-bottom-color: #4a3a2e; }
+      td { border-bottom-color: #2a241e; color: #c0b4a8; }
+      tr:hover td { background: #2a241e; }
+      .sidebar { background: rgba(20, 16, 12, 0.92); border-color: #3a2c24; }
+      .sidebar-brand { border-bottom-color: #4a3a2e; }
+      .sidebar-brand h3 { color: #d08a6a; }
+      .sidebar nav ul li a { color: #c0b4a8; }
+      .sidebar nav ul li a:hover { background: #3a2c24; color: white; }
+      .info-tip { background: #1a1410; border-left-color: #c07a5a; color: #c0b4a8; }
+      .banner-card { background:linear-gradient(135deg,#1a1410,#2a241e); }
+      .banner-card p { color: #c0b4a8; }
+      .page-header h1 { background:linear-gradient(135deg,#f0c8b0,#d08a6a); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#2a241e; border-color:#4a3a2e; color:#b8a89c; }
+      .arch-layer { background:#1a1410; border-color:#3a2c24; }
+      .arch-layer:hover { background:#2a1e16; border-color:#5a4a3e; }
+      .arch-layer .layer-label { border-right-color:#3a2c24; color:#e0d4c8; }
+      .arch-block { background:#1a1410; border-color:#3a2c24; color:#c0b4a8; }
+      .arch-block:hover { background:#3a2c24; border-color:#c07a5a; }
+      .arch-layer.inner-layer { background:linear-gradient(135deg,#1a1410,#2a1e16); border-color:#5a3a2a; }
+      .arch-layer.outer-layer { background:linear-gradient(135deg,#141a12,#1a2618); border-color:#2a4a2a; }
+      .arch-layer.outer-layer .layer-label { border-right-color:#2a4a2a; color:#8aba8a; }
+      .arch-layer.outer-layer .layer-label i { color:#5a9a6a; }
+      .arch-layer.outer-layer .arch-block { border-color:#2a4a2a; color:#a0c8a0; }
+      .arch-layer.outer-layer .arch-block:hover { border-color:#5a9a6a; background:#1a2a1a; }
+      .arch-layer.ultimate-layer { background:linear-gradient(135deg,#1a1410,#221c18); border-color:#4a3a2e; }
+      .arch-layer.ultimate-layer .layer-label { border-right-color:#4a3a2e; color:#c8b0a0; }
+      .arch-layer.ultimate-layer .layer-label i { color:#a08070; }
+      .arch-layer.ultimate-layer .arch-block { border-color:#4a3a2e; color:#c8b8a8; }
+      .arch-layer.ultimate-layer .arch-block:hover { border-color:#a08070; background:#2a241e; }
+      .text-block { background:#1a1410; border-color:#3a2c24; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-vector-square" aria-hidden="true"></i>
+      <h3>Embedding 中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-cubes"></i> 全域标准定义</a></li>
+        <li><a href="#s1"><i class="fas fa-layer-group"></i> 八大特征</a></li>
+        <li><a href="#s2"><i class="fas fa-database"></i> 知识体系</a></li>
+        <li><a href="#s3"><i class="fas fa-project-diagram"></i> EmbGraph</a></li>
+        <li><a href="#s4"><i class="fas fa-sitemap"></i> 六大架构</a></li>
+        <li><a href="#s5"><i class="fas fa-puzzle-piece"></i> 功能模块</a></li>
+        <li><a href="#s6"><i class="fas fa-chart-line"></i> 指标体系</a></li>
+        <li><a href="#s7"><i class="fas fa-boxes"></i> 资产体系</a></li>
+        <li><a href="#s8"><i class="fas fa-share-alt"></i> 协同关系</a></li>
+        <li><a href="#s9"><i class="fas fa-flag"></i> 核心价值</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-vector-square"></i> Embedding 中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-vector-square"></i> 企业级 Embedding 中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> 多模态向量统一生产底座</span>
+    </header>
+
+    <!-- S0 -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> Embedding 中台全域标准定义</h2>
+        <span class="badge-count">多模态嵌入 + 向量图谱自治演进版</span>
+      </div>
+      <div class="card-body">
+        <div class="arch-diagram">
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-microchip"></i> 底层依赖 <span class="sub">算力/数据/训练/混淆</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-microchip"></i> 算力中台</span>
+              <span class="arch-block"><i class="fas fa-broom"></i> 数据预处理</span>
+              <span class="arch-block"><i class="fas fa-brain"></i> 训练中台</span>
+              <span class="arch-block"><i class="fas fa-th"></i> 混淆矩阵</span>
+              <span class="arch-block"><i class="fas fa-database"></i> 数据湖仓</span>
+            </div>
+          </div>
+          <div class="arch-layer outer-layer">
+            <div class="layer-label"><i class="fas fa-cogs"></i> 核心能力 <span class="sub">嵌入/索引/图谱/评测</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block highlight-block"><i class="fas fa-vector-square"></i> 多模态嵌入</span>
+              <span class="arch-block"><i class="fas fa-random"></i> 批量+实时调度</span>
+              <span class="arch-block"><i class="fas fa-project-diagram"></i> EmbGraph</span>
+              <span class="arch-block"><i class="fas fa-chart-bar"></i> 质量评测</span>
+              <span class="arch-block"><i class="fas fa-calculator"></i> 算力计量</span>
+            </div>
+          </div>
+          <div class="arch-layer ultimate-layer">
+            <div class="layer-label"><i class="fas fa-rocket"></i> 上层赋能 <span class="sub">向量库/RAG/Agent</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-database"></i> 向量库</span>
+              <span class="arch-block"><i class="fas fa-book"></i> 知识库</span>
+              <span class="arch-block"><i class="fas fa-search"></i> RAG</span>
+              <span class="arch-block"><i class="fas fa-comment"></i> Prompt</span>
+              <span class="arch-block"><i class="fas fa-robot"></i> Agent</span>
+              <span class="arch-block"><i class="fas fa-layer-group"></i> 场景中台</span>
+            </div>
+          </div>
+        </div>
+        <div class="info-tip"><i class="fas fa-scroll"></i> Embedding 中台（向量化中台 / 嵌入中台），是企业全域文本、图像、音频、视频、表格、实体、工具描述、对话记忆统一嵌入模型调度、批量 / 实时向量化、混合索引构建、向量知识图谱（EmbGraph）、向量质量评测、多租户算力计量、向量资产全生命周期、MCP 标准化输出的底层语义向量统一生产基础设施中台。</div>
+
+        <div class="content-section" style="margin-top:1.2rem;">
+          <h3>1.1 权威标准定义</h3>
+          <div class="text-block">
+            <p>向下对接算力、数据预处理、训练、混淆矩阵、数据湖仓；向上统一输出稠密 / 稀疏向量供给向量库、知识库、RAG、Prompt、Agent、场景、具身智能全链路 AI 中台。</p>
+            <p>遵循「四层向量资产、多模态统一嵌入引擎、批量 + 实时双调度、混合 ANN 索引、EmbGraph 向量知识图谱、向量漂移自动检测、自动化质量评测、自治调参迭代」八大核心建设理念。</p>
+            <p>核心解决行业痛点：各业务独立部署 Embedding 服务、模型版本杂乱、实时 / 批量向量逻辑割裂、文本 / 图像多模态无法统一调度、向量质量无统一评测、语义漂移无法自动发现、向量算力成本无分摊、向量资产无统一仓库、检索效果调参依赖人工、向量与实体关系无图谱沉淀。</p>
+            <p>实现企业语义向量生产从 "业务零散 API、单机脚本" 升级为全域多模态嵌入统一资产、弹性算力调度、图谱驱动智能调优、自动化质量巡检、多租户成本可控的标准化向量生产底座。</p>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h3>1.2 Embedding 中台核心定位与层级边界</h3>
+          <div class="text-block">
+            <p><strong>战略定位：</strong>企业全域多模态向量统一生产中心、嵌入模型分布式调度中枢、批量 / 实时双向量化引擎、EmbGraph 向量知识推理平台、向量质量自动化评测中心、向量算力多租户计量运营中枢、全 AI 链路标准化向量供给底座。</p>
+            <p><strong>层级边界：</strong></p>
+            <p><strong>底层依赖层：</strong>算力中台 GPU/CPU 弹性集群、数据预处理、训练中台、混淆矩阵、数据湖仓、对象存储、消息队列 Kafka；</p>
+            <p><strong>核心能力层：</strong>专注多模态嵌入推理、向量生成、索引构建、向量图谱、漂移检测、质量评测、算力计量，不承载大模型生成、业务流程执行；</p>
+            <p><strong>上层赋能层：</strong>通过 MCP 统一输出稠密 / 稀疏向量供给向量库、RAG、Agent、场景等所有 AI 中台。</p>
+            <p><strong>全域上下游标准分层链路：</strong>算力 / 数据预处理 → Embedding 中台 → MCP 中台 → 向量库 / 知识库 / RAG/Prompt/Agent/ 场景中台</p>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h3>1.3 Embedding 中台八大核心特征（统一中台标准）</h3>
+          <div class="grid-2">
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-layer-group"></i></span><h4>四层向量分层资产体系</h4><ul class="detail-list"><li>嵌入模型资产、多模态向量片段、ANN 索引、行业向量化流水线四层隔离复用</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-th-large"></i></span><h4>多模态一体化嵌入引擎</h4><ul class="detail-list"><li>文本 / 图文 / 音频 / 视频 / 实体一套调度框架</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-random"></i></span><h4>批量离线 + 实时流式双任务统一调度</h4><ul class="detail-list"><li>弹性算力错峰降本</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>EmbGraph 向量专属知识图谱</h4><ul class="detail-list"><li>沉淀模型 - 数据 - 向量质量关联经验</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-line"></i></span><h4>向量语义漂移自动检测</h4><ul class="detail-list"><li>KS/PSI 分布监控</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-code-branch"></i></span><h4>稠密 + 稀疏混合向量统一生产</h4><ul class="detail-list"><li>适配多路 RAG 检索</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-flask"></i></span><h4>全自动向量质量 A/B 对照</h4><ul class="detail-list"><li>召回 / 相似度统一口径评测</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-sync-alt"></i></span><h4>数据驱动自治迭代</h4><ul class="detail-list"><li>漂移日志回流自动切换嵌入模型与分块策略</li></ul></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S1 -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-layer-group"></i> 八大核心特征</h2>
+        <span class="badge-count">四层 · 多模态 · EmbGraph · 双调度</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-layer-group"></i></span><h4>四层向量分层资产体系</h4><ul class="detail-list"><li>嵌入模型资产、多模态向量片段、ANN 索引、行业向量化流水线四层隔离复用</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-th-large"></i></span><h4>多模态一体化嵌入引擎</h4><ul class="detail-list"><li>文本 / 图文 / 音频 / 视频 / 实体一套调度框架</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-random"></i></span><h4>批量离线 + 实时流式双任务统一调度</h4><ul class="detail-list"><li>弹性算力错峰降本</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>EmbGraph 向量专属知识图谱</h4><ul class="detail-list"><li>沉淀模型 - 数据 - 向量质量关联经验</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-line"></i></span><h4>向量语义漂移自动检测</h4><ul class="detail-list"><li>KS/PSI 分布监控</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-code-branch"></i></span><h4>稠密 + 稀疏混合向量统一生产</h4><ul class="detail-list"><li>适配多路 RAG 检索</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-flask"></i></span><h4>全自动向量质量 A/B 对照</h4><ul class="detail-list"><li>召回 / 相似度统一口径评测</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sync-alt"></i></span><h4>数据驱动自治迭代</h4><ul class="detail-list"><li>漂移日志回流自动切换嵌入模型与分块策略</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S2 -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-database"></i> Embedding 中台专属完整知识体系</h2>
+        <span class="badge-count">十大完整知识域全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="content-section">
+          <p style="margin-bottom:1rem; font-weight:500; color:var(--color-primary-dark);">Embedding 中台知识体系是多模态嵌入、向量生成、索引、漂移、图谱、评测、行业落地、运营复盘的标准化、结构化、可推理、可复用、自进化专业知识合集。</p>
+        </div>
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sitemap"></i></span><h4>2.1 Embedding 顶层架构与全域规划知识域</h4><ul class="detail-list"><li>企业 AI 全链路向量分层架构（算力 - Embedding-MCP - 向量库 - RAG）顶层设计</li><li>四层向量资产分层建设标准、跨业务资产共享规范</li><li>Embedding 与训练 / RAG / 向量库跨中台协同权责、对接标准</li><li>企业向量生产成熟度评估、零散嵌入脚本资产化改造方法论</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-cogs"></i></span><h4>2.2 多模态嵌入模型工程知识域</h4><ul class="detail-list"><li>文本通用 / 行业 Embedding（BGE/M3/LLaMA-Embed）选型、量化压缩</li><li>图文 CLIP、音频 Wav2Vec、视频时序嵌入推理技术</li><li>实体 KGE 知识图谱嵌入、工具描述向量训练规范</li><li>稠密向量、稀疏 BM25 词向量双生成方案</li><li>批量大文件、实时对话差异化算力调度 SOP</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-random"></i></span><h4>2.3 批量 & 实时向量调度知识域</h4><ul class="detail-list"><li>离线海量文档批量分布式向量化、断点续跑</li><li>Kafka 实时流增量嵌入、CDC 数据同步触发向量更新</li><li>高低峰算力错峰调度、闲置 GPU 自动缩容</li><li>分片并行、负载均衡、失败自动重试机制</li><li>冷热数据分批次调度降本方法</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sort-amount-up"></i></span><h4>2.4 向量预处理与 ANN 索引知识域</h4><ul class="detail-list"><li>向量归一、L2 标准化、PQ 量化压缩工程</li><li>HNSW/IVF_FLAT/IVF_PQ 多索引自动择优</li><li>文本语义分块 + 向量联动策略</li><li>向量库批量索引构建、增量更新流程</li><li>索引内存与召回率平衡调参知识</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-line"></i></span><h4>2.5 向量漂移与质量评测知识域</h4><ul class="detail-list"><li>PSI/KS 分布漂移计算、时序监控规则</li><li>召回 Recall@K、相似度 MRR 统一指标口径</li><li>离线基准数据集批量向量评测</li><li>新旧嵌入模型 A/B 对照实验流程</li><li>漂移触发自动切换模型 / 分块策略方案</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>2.6 EmbGraph 向量知识图谱推理知识域</h4><ul class="detail-list"><li>模型 - 数据源 - 向量质量三元组抽取标准化流程</li><li>业务场景、嵌入模型、召回效果关联建模</li><li>向量漂移根因多跳溯源（数据 / 模型 / 分块）</li><li>新业务自动推荐最优嵌入模型与调度方案</li><li>每日向量日志增量更新图谱权重自校准</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-users"></i></span><h4>2.7 多租户算力计量与安全知识域</h4><ul class="detail-list"><li>企业 / 部门 / 项目四级向量算力分摊规则</li><li>批量 / 实时任务 GPU 时耗精准计量</li><li>私有知识库向量隔离、敏感文本嵌入脱敏</li><li>向量生产全链路操作审计日志</li><li>算力超支梯度限流规范</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-industry"></i></span><h4>2.8 行业向量落地知识域</h4><ul class="detail-list"><li>金融：合同、财报、客户实体向量</li><li>政务：政策多模态图文嵌入</li><li>研发：代码、文档、知识库批量向量化</li><li>客服：对话实时记忆向量落地 SOP</li><li>多模态图文检索统一嵌入方案</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-pie"></i></span><h4>2.9 向量资产运营复盘知识域</h4><ul class="detail-list"><li>嵌入模型复用率、算力成本多维度复盘</li><li>高漂移业务自动识别、优化流程</li><li>A/B 实验成果沉淀行业嵌入模板</li><li>闲置向量批量归档、算力释放机制</li><li>向量生产人力成本量化评估</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-rocket"></i></span><h4>2.10 Embedding 前沿演进知识域</h4><ul class="detail-list"><li>自治式自适应嵌入、零人工调参</li><li>联邦隐私向量生产、跨企业数据不出域</li><li>端侧轻量化 ONNX 嵌入离线调度</li><li>向量 - 图谱联合原生嵌入统一架构</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S3 -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-project-diagram"></i> Embedding 中台专属知识图谱（EmbGraph）体系</h2>
+        <span class="badge-count">核心实体 · 关联 · 智能能力</span>
+      </div>
+      <div class="card-body">
+        <div class="content-section">
+          <p style="margin-bottom:1rem;">EmbGraph 向量知识图谱，是嵌入模型、数据源、向量片段、索引、业务场景、向量漂移、优化策略、租户的语义向量智能关联网络，解决嵌入选型依赖人工、向量漂移无法定位、算力浪费痛点，实现业务自动推荐嵌入方案、漂移一键分层根因、算力优化智能推送、向量经验自治沉淀。</p>
+        </div>
+        <div class="grid-2" style="margin-bottom:1.5rem;">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-circle"></i></span><h4>3.1 EmbGraph 核心实体体系</h4><ul class="detail-list"><li><strong>嵌入模型实体：</strong>通用文本、图文、音频、KGE 实体嵌入</li><li><strong>数据源实体：</strong>PDF、对话、数据库、图片、工单</li><li><strong>向量资产实体：</strong>稠密向量、稀疏词向量、ANN 索引</li><li><strong>任务实体：</strong>批量离线、实时流式增量嵌入</li><li><strong>场景实体：</strong>金融 / 政务 / 客服知识库 RAG</li><li><strong>故障实体：</strong>向量漂移、召回下降、算力过载</li><li><strong>优化策略实体：</strong>更换模型、调整分块、错峰调度</li><li><strong>租户实体：</strong>企业、部门、项目</li><li><strong>指标实体：</strong>Recall@5、PSI 漂移值、GPU 时耗</li><li><strong>资产模板实体：</strong>行业嵌入流水线配置包</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-link"></i></span><h4>3.2 EmbGraph 核心关联关系</h4><ul class="detail-list"><li><strong>场景 ↔ 模型：</strong>金融财报适配行业文本 Embedding</li><li><strong>数据源 ↔ 任务：</strong>实时对话走流式嵌入</li><li><strong>模型 ↔ 指标：</strong>大维度模型召回更高、算力消耗更大</li><li><strong>故障 ↔ 诱因：</strong>PSI 漂移多因业务文档变更</li><li><strong>故障 ↔ 优化：</strong>漂移→切换微调嵌入模型</li><li><strong>租户 ↔ 算力：</strong>部门批量任务占用 GPU 配额</li><li>每日向量生产日志自动抽取三元组增量更新</li><li><strong>向量资产 ↔ 索引：</strong>海量数据自动选择 IVF_PQ</li><li><strong>任务 ↔ 成本：</strong>离线批量错峰降低算力单价</li><li><strong>场景 ↔ 流水线：</strong>客服对话专属实时嵌入模板</li></ul></div>
+        </div>
+        <h3 style="color:var(--color-primary-dark); margin-bottom:0.8rem;">3.3 EmbGraph 八大核心智能能力</h3>
+        <div class="grid-3">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-magic"></i></span><h4>智能能力</h4><ul class="detail-list"><li>嵌入选型、向量调参经验自动结构化入库</li><li>输入业务场景自动推荐最优嵌入模型 + 调度方案</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-search"></i></span><h4>智能能力</h4><ul class="detail-list"><li>向量漂移、召回下跌一键分层根因溯源（数据 / 模型 / 分块）</li><li>高算力消耗业务自动推送错峰调度方案</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-broom"></i></span><h4>智能能力</h4><ul class="detail-list"><li>同行业嵌入流水线模板智能复用推荐</li><li>A/B 实验数据自动校准图谱关联权重</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sync-alt"></i></span><h4>智能能力</h4><ul class="detail-list"><li>每日向量数据自治迭代优化推荐</li><li>向量开发新人快速检索同类落地案例</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S4 -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> Embedding 中台六大完整架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span>
+      </div>
+      <div class="card-body">
+        <div class="content-section">
+          <h3>4.1 产品架构（九层分层全景架构）</h3>
+          <div class="policy-card" style="margin-bottom:1rem;"><span class="policy-icon"><i class="fas fa-cubes"></i></span><h4>整体分层</h4><ul class="detail-list"><li>多租户接入层 → 四层向量资产池层 → 多模态嵌入引擎层 → 批量 & 实时双调度层 → EmbGraph 向量图谱层 → 向量质量评测层 → 算力计量层 → MCP 输出层 → 自治迭代层</li><li><strong>多租户接入层：</strong>文件批量 / 实时 Kafka/API 统一接入、租户鉴权</li><li><strong>四层资产池层：</strong>嵌入模型、向量片段、ANN 索引、流水线模板分层管控</li><li><strong>多模态嵌入引擎层：</strong>文本 / 图文 / 音频 / 稠密稀疏双生成</li><li><strong>批量实时调度层：</strong>分布式离线、流式增量弹性算力</li><li><strong>EmbGraph 图谱层：</strong>三元组抽取、漂移根因、方案推荐</li><li><strong>质量评测层：</strong>PSI 漂移、召回 MRR 批量计算、A/B 对照</li><li><strong>算力计量层：</strong>四级租户 GPU 时耗分摊、配额限流</li><li><strong>MCP 输出层：</strong>标准化稠密 / 稀疏向量 Resource 对外供给</li><li><strong>自治迭代层：</strong>漂移日志回流自动生成调参工单</li></ul></div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.2 业务架构（三层全域业务架构 + 八大标准业务域）</h3>
+          <div class="grid-2" style="margin-bottom:1rem;">
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-building"></i></span><h4>三层全域业务架构</h4><ul class="detail-list"><li><strong>底层底座层：</strong>算力、数据预处理、数据湖仓提供算力与原始数据</li><li><strong>中层 Embedding 核心能力层：</strong>嵌入、调度、图谱、评测、计量七大原子服务</li><li><strong>上层向量赋能层：</strong>MCP 输出向量供给向量库 / RAG/Agent</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-briefcase"></i></span><h4>八大标准业务域</h4><ul class="detail-list"><li>四层向量资产全生命周期业务域</li><li>多模态嵌入生产业务域</li><li>批量 & 实时向量调度业务域</li><li>EmbGraph 向量图谱推理业务域</li><li>向量漂移与质量评测业务域</li><li>多租户算力计量分摊业务域</li><li>MCP 向量标准化输出业务域</li><li>向量自治调参迭代业务域</li></ul></div>
+          </div>
+          <div class="text-block">
+            <p><strong>核心业务闭环：</strong>原始多源数据流入 → 匹配行业嵌入流水线 → 批量 / 实时弹性算力生成稠密稀疏向量 → 构建 ANN 索引存入资产池 → 向量质量 + 漂移自动评测 → 日志回流 EmbGraph → 图谱识别漂移 / 高算力任务 → 自动推送更换模型、错峰调度优化工单。</p>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.3 数据架构（七层 Embedding 专属数据架构）</h3>
+          <div class="policy-card" style="margin-bottom:1rem;"><span class="policy-icon"><i class="fas fa-database"></i></span><h4>七层数据架构</h4><ul class="detail-list"><li><strong>EMB-ODS 原始接入层：</strong>批量文件、实时流、嵌入任务、算力消耗、漂移告警原始日志</li><li><strong>EMB-DWD 明细清洗层：</strong>文本脱敏、时序对齐、任务标签标准化</li><li><strong>EMB-DWB 全域宽表层：</strong>模型、数据源、向量、租户、漂移指标全维度宽表</li><li><strong>EMB-DWA 知识关联层：</strong>自动抽取三元组构建 EmbGraph 向量图谱</li><li><strong>EMB-DWS 主题汇总层：</strong>嵌入资产、调度效能、向量质量、算力成本四大主题</li><li><strong>EMB-ADS 指标应用层：</strong>Recall@5、PSI、GPU 时耗核心指标</li><li><strong>EMB-OPT 自主优化层：</strong>漂移、高算力任务沉淀生成调参工单</li></ul></div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.4 技术架构（多模态嵌入 + 图双引擎七层技术架构）</h3>
+          <div class="policy-card" style="margin-bottom:1rem;"><span class="policy-icon"><i class="fas fa-microchip"></i></span><h4>七层技术架构</h4><ul class="detail-list"><li><strong>接入网关层：</strong>文件上传、Kafka 消费、API 租户鉴权</li><li><strong>分布式算力调度层：</strong>K8s 弹性 GPU 集群、任务队列</li><li><strong>多模态嵌入核心引擎层：</strong>文本 / CLIP / 音频 / 稀疏向量推理</li><li><strong>EmbGraph 图推理引擎：</strong>三元组抽取、多跳故障溯源</li><li><strong>向量质量评测引擎：</strong>PSI、召回批量计算、A/B 统计</li><li><strong>算力计量 & 安全引擎：</strong>时耗统计、脱敏审计</li><li><strong>管理前端：</strong>嵌入工作台、EmbGraph 可视化、算力大屏</li></ul></div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.5 应用架构（八大全域赋能应用）</h3>
+          <div class="grid-2">
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-rocket"></i></span><h4>八大全域赋能应用</h4><ul class="detail-list"><li>四层向量资产集市应用：嵌入模型、流水线模板检索复用</li><li>多模态嵌入调度平台：批量 / 实时任务可视化配置</li><li>EmbGraph 智能溯源应用：向量漂移一键根因</li><li>向量质量 A/B 评测平台：新旧模型召回对照</li><li>多租户算力账单应用：分部门 GPU 成本导出</li><li>MCP 向量开放平台：标准化向量 API 接入</li><li>向量漂移监控应用：PSI 实时告警</li><li>自治优化运营应用：自动生成调参工单</li></ul></div>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.6 治理架构（六大全域 Embedding 治理体系）</h3>
+          <div class="grid-2">
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-balance-scale"></i></span><h4>六大全域 Embedding 治理体系</h4><ul class="detail-list"><li>四层向量资产全生命周期治理</li><li>多模态嵌入标准化治理</li><li>批量 / 实时调度常态化算力治理</li><li>EmbGraph 每日增量图谱治理</li><li>向量质量漂移闭环治理</li><li>多租户算力计量合规治理</li></ul></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S5 -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> Embedding 中台全量产品功能模块</h2>
+        <span class="badge-count">全覆盖无遗漏</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-layer-group"></i></span><h4>模块 1：四层向量资产池模块</h4><ul class="detail-list"><li>嵌入模型仓库：通用 / 行业 / 图文 / 音频 / 量化版本管理</li><li>向量片段资产：稠密、稀疏、实体 KGE 向量分层存储</li><li>ANN 索引资产：HNSW/IVF 批量构建、增量更新</li><li>行业嵌入流水线模板一键保存复用</li><li>资产版本、快照、一键回滚</li><li>低复用流水线自动标记归档</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-vector-square"></i></span><h4>模块 2：多模态嵌入引擎模块</h4><ul class="detail-list"><li>文本通用 / 行业嵌入推理、INT8 量化加速</li><li>CLIP 图文联合向量、Wav2Vec 音频嵌入</li><li>KGE 实体关系知识向量生成</li><li>稠密向量 + BM25 稀疏词向量双输出</li><li>向量 L2 归一、PQ 压缩自动配置</li><li>嵌入仿真、向量预览调试</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-random"></i></span><h4>模块 3：批量 & 实时双调度模块</h4><ul class="detail-list"><li>离线海量文档分布式分片向量化</li><li>Kafka 实时数据流增量嵌入、CDC 触发更新</li><li>高低峰错峰调度、夜间自动扩容</li><li>GPU 负载均衡、任务断点续跑</li><li>批量任务定时周期配置</li><li>任务失败自动重试、算力释放</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>模块 4：EmbGraph 向量知识图谱模块</h4><ul class="detail-list"><li>每日向量生产日志自动抽取三元组入库</li><li>图谱可视化展示场景 - 模型 - 漂移拓扑</li><li>业务场景自动推荐最优嵌入流水线</li><li>PSI 漂移、召回下跌一键分层根因溯源</li><li>高算力任务推送错峰优化方案</li><li>每日数据自动校准图谱权重</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-line"></i></span><h4>模块 5：向量质量与漂移评测模块</h4><ul class="detail-list"><li>PSI/KS 分布漂移实时计算、时序监控</li><li>离线基准集自动计算 Recall@5、MRR</li><li>新旧嵌入模型 A/B 并行对照</li><li>漂移分级告警（预警 / 阻断）</li><li>批量向量质量报告自动生成</li><li>劣化嵌入任务自动标记</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-calculator"></i></span><h4>模块 6：多租户算力计量模块</h4><ul class="detail-list"><li>企业 / 部门 / 项目四级 GPU 时耗统计</li><li>批量 / 实时任务分开核算成本</li><li>租户算力配额、超支梯度限流</li><li>月度成本账单 Excel 自动导出</li><li>跨部门算力调拨成本转移</li><li>算力审计日志永久留存</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-code"></i></span><h4>模块 7：MCP 标准化输出模块</h4><ul class="detail-list"><li>MCP Resource 统一封装稠密 / 稀疏向量接口</li><li>多租户鉴权、QPS 限流</li><li>批量向量批量拉取、实时单条查询</li><li>向量格式标准化（数组 / Base64）</li><li>下游 RAG/Agent 对接 SDK</li><li>MCP 调用日志埋点统计</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sync-alt"></i></span><h4>模块 8：向量自治迭代模块</h4><ul class="detail-list"><li>漂移、低召回日志自动回流 EmbGraph</li><li>自动推送更换嵌入模型工单</li><li>高峰算力任务生成错峰调度任务</li><li>低效流水线批量清理</li><li>月度向量质量复盘报表</li><li>优化效果前后算力对比看板</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S6 -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> Embedding 中台全套指标体系</h2>
+        <span class="badge-count">资产 · 调度 · 向量 · 图谱 · 质量 · 算力</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>向量资产治理指标</strong></td><td>四层资产标准化覆盖率 100%；行业嵌入流水线复用率 ≥83%；闲置低效流水线占比 ≤9%；嵌入模型版本规范率 100%；资产盘点闭环率 100%</td></tr>
+              <tr><td><strong>调度效能指标</strong></td><td>批量任务 GPU 利用率 ≥75%；实时嵌入 P99 延迟 ≤60ms；任务断点续恢复成功率 100%；错峰算力成本降幅 ≥30%；任务故障自愈率 100%</td></tr>
+              <tr><td><strong>向量检索质量指标</strong></td><td>Recall@5 ≥86；MRR ≥0.80；向量漂移 PSI 阈值＜0.2（正常）；稀疏稠密融合召回提升 ≥25%；向量归一合规率 100%</td></tr>
+              <tr><td><strong>EmbGraph 图谱专项指标</strong></td><td>全行业向量场景覆盖率 100%；三元组完整率 ≥99.6%；嵌入方案推荐准确率 ≥95%；漂移根因推理准确率 ≥97%；图谱日增量更新及时率 ≥99.5%；图谱赋能算力降本贡献率 ≥33%</td></tr>
+              <tr><td><strong>向量漂移评测指标</strong></td><td>漂移告警及时率 100%；劣化任务识别准确率 ≥98%；A/B 实验对比精准率 100%；漂移优化整改闭环率 100%</td></tr>
+              <tr><td><strong>多租户算力安全指标</strong></td><td>租户算力隔离合规率 100%；GPU 时耗计量误差趋近 0；配额限流执行率 100%；向量文本脱敏覆盖率 100%；审计日志留存率 100%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- S7 -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> Embedding 中台完整内容资产体系</h2>
+        <span class="badge-count">6大资产包</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sitemap"></i></span><h4>7.1 顶层规划资产</h4><ul class="detail-list"><li>Embedding 中台建设白皮书</li><li>分阶段向量生产落地路线图</li><li>企业向量成熟度评估报告</li><li>Embedding - 向量库 - RAG 协同长效方案</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-book"></i></span><h4>7.2 全域标准规范资产</h4><ul class="detail-list"><li>四层向量资产分层标准</li><li>多模态嵌入推理统一规范</li><li>批量实时调度算力规范</li><li>EmbGraph 三元组抽取标准</li><li>PSI 漂移 & 召回评测指标标准</li><li>MCP 向量输出对接规范</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-database"></i></span><h4>7.3 Embedding 核心数字资产</h4><ul class="detail-list"><li>全行业嵌入流水线模板资产库</li><li>多模态嵌入模型配置包</li><li>ANN 索引自动择优模板</li><li>EmbGraph 向量知识图谱资产包</li><li>向量漂移优化策略库</li><li>离线评测基准数据集</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-tools"></i></span><h4>7.4 落地工程资产</h4><ul class="detail-list"><li>Embedding 中台部署实施手册</li><li>嵌入调度工作台操作指南</li><li>EmbGraph 可视化运维手册</li><li>MCP 下游对接 API 文档</li><li>上线验收指标评估模板</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-pie"></i></span><h4>7.5 运营复盘资产</h4><ul class="detail-list"><li>月度向量质量 & 算力成本分析报告</li><li>向量漂移专项复盘报告</li><li>行业嵌入落地成果分析</li><li>多租户算力成本台账</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-shield-alt"></i></span><h4>7.6 应急保障资产</h4><ul class="detail-list"><li>批量嵌入算力雪崩应急预案</li><li>实时流嵌入中断恢复方案</li><li>大规模向量漂移处置手册</li><li>EmbGraph 图谱损坏恢复预案</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S8 -->
+    <section id="s8" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-share-alt"></i> Embedding 中台与全中台全域协同关系</h2>
+        <span class="badge-count">14 大中台协同</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-3">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-microchip"></i></span><h4>算力中台</h4><ul class="detail-list"><li>供给异构 GPU/CPU 弹性嵌入推理算力，接收调度扩缩容指令</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-broom"></i></span><h4>数据预处理</h4><ul class="detail-list"><li>输出清洗分块多模态原始数据作为嵌入输入</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-brain"></i></span><h4>训练中台</h4><ul class="detail-list"><li>输出微调行业 Embedding 模型包</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-th"></i></span><h4>混淆矩阵</h4><ul class="detail-list"><li>提供文本分类评测用于嵌入效果对照</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-database"></i></span><h4>数据湖仓</h4><ul class="detail-list"><li>批量文档、工单、图片数据源</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-code"></i></span><h4>MCP 中台</h4><ul class="detail-list"><li>嵌入能力标准化封装为 MCP Resource</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-database"></i></span><h4>向量库中台</h4><ul class="detail-list"><li>接收稠密 / 稀疏向量入库、构建索引</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-book"></i></span><h4>知识库中台</h4><ul class="detail-list"><li>文档向量供给知识库语义检索</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-search"></i></span><h4>RAG 中台</h4><ul class="detail-list"><li>RAG 检索唯一向量供给源</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-comment"></i></span><h4>Prompt 中台</h4><ul class="detail-list"><li>检索向量对应文本片段注入提示</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-robot"></i></span><h4>Agent 中台</h4><ul class="detail-list"><li>工具、记忆向量统一由 Embedding 生产</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-layer-group"></i></span><h4>场景中台</h4><ul class="detail-list"><li>行业知识库场景调用向量服务</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-tachometer-alt"></i></span><h4>效能中台</h4><ul class="detail-list"><li>采集 GPU 算力、向量质量指标做 ROI 分析</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S9 -->
+    <section id="s9" class="card banner-card">
+      <div class="card-body">
+        <div class="icon-big"><i class="fas fa-flag"></i></div>
+        <h2>Embedding 中台 · 核心价值总结</h2>
+        <p>企业全域多模态向量统一生产底座，消除各业务独立嵌入服务烟囱，一套平台兼容文本 / 图文 / 音频稠密稀疏向量，向量开发人力下降 70% 以上；<br>批量离线 + 实时流式双引擎一体化，错峰调度大幅降低 GPU 算力成本；<br>EmbGraph 向量知识图谱沉淀嵌入选型与漂移经验，向量漂移一键分层溯源，自动推送优化方案；<br>PSI 漂移 + 召回双维度自动化质量巡检，提前规避 RAG 检索效果劣化；<br>多租户四级算力精准分摊，各业务 AI 向量成本可核算、可控；<br>标准化 MCP 向量输出，无缝打通向量库、RAG、Agent 全 AI 链路，是所有语义检索、智能体底层向量统一生产基础设施。</p>
+        <div class="footer-note">Embedding 中台 · 多模态向量统一生产底座 · 全链路对齐算力 / 训练 / RAG 全中台标准架构范式</div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

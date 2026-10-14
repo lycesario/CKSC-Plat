@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>企业级运营中台完整体系 · 高保真架构</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ===== 设计系统 Token（运营中台配色微调） ===== */
+    :root {
+      --color-primary: #1a6a5e;
+      --color-primary-light: #dcefeb;
+      --color-primary-dark: #0d3a34;
+      --color-accent: #2a8a7a;
+      --color-accent-soft: #a8d4cc;
+      --color-accent-glow: rgba(42, 138, 122, 0.10);
+      --color-neutral-50: #f5faf8;
+      --color-neutral-100: #e8f0ee;
+      --color-neutral-200: #c8d8d4;
+      --color-neutral-300: #a8b8b4;
+      --color-neutral-400: #7a8a86;
+      --color-neutral-600: #4a5a56;
+      --color-neutral-700: #2a3a36;
+      --color-neutral-800: #1a2622;
+      --color-neutral-900: #0a1410;
+      --color-gold: #b88a3a;
+      --color-gold-light: #f0e1b0;
+      --color-jade: #2a7a5e;
+      --color-jade-light: #d0ede0;
+      --color-success: #1f6e4a;
+      --color-warning: #a86b2c;
+      --color-error: #b13a2a;
+      --font-base: 1rem;
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-12: 3rem;
+      --radius-sm: 0.75rem;
+      --radius-md: 1.25rem;
+      --radius-card: 2rem;
+      --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(20, 50, 40, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(20, 50, 40, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(20, 50, 40, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+      --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ===== 重置 & 基础 ===== */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    /* ===== 布局 ===== */
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(245, 250, 248, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(180, 200, 190, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); letter-spacing:-0.01em; }
+    .sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+    .sidebar nav ul { list-style:none; padding:0; margin:0; }
+    .sidebar nav ul li { margin-bottom:0.1rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:12px;
+      padding:0.55rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.85rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+    }
+    .sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+    .sidebar nav ul li a:hover,
+    .sidebar nav ul li a:focus-visible {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateX(4px);
+    }
+    .sidebar-footer {
+      margin-top:24px; padding:12px; text-align:center;
+      font-size:0.7rem; color:var(--color-neutral-600);
+      border-top:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 主内容 ===== */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+    /* ===== 页面头部 ===== */
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+      font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+    .page-header .header-meta {
+      font-size:0.9rem; color:var(--color-neutral-600);
+      background:var(--color-neutral-100);
+      padding:0.4rem 1.2rem;
+      border-radius:var(--radius-pill);
+      border:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 卡片系统 ===== */
+    .card {
+      background:rgba(255,252,248,0.92);
+      backdrop-filter: blur(4px);
+      border-radius:var(--radius-card);
+      box-shadow:var(--shadow-card);
+      margin-bottom:var(--space-6);
+      border:1px solid rgba(180, 200, 190, 0.5);
+      overflow:hidden;
+      transition: box-shadow var(--transition-default), transform 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6);
+      background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft);
+      display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 {
+      font-size:clamp(1.2rem, 2.2vw, 1.6rem);
+      font-weight:700; color:var(--color-primary-dark);
+      display:flex; align-items:center; gap:12px;
+      letter-spacing:-0.01em;
+    }
+    .card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+    .card-header .badge-count {
+      margin-left:auto;
+      background:var(--color-accent);
+      color:white;
+      border-radius:var(--radius-pill);
+      padding:0.15rem 0.9rem;
+      font-size:0.7rem;
+      font-weight:600;
+      letter-spacing:0.3px;
+    }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* ===== 网格 & 卡片（策略卡片风格） ===== */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } .grid-4 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; } }
+
+    /* 策略卡片 (复用九字卡片) */
+    .policy-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md);
+      padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: all var(--transition-default);
+      position:relative;
+      overflow:hidden;
+      border-left: 4px solid var(--color-accent);
+    }
+    .policy-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft));
+      opacity:0;
+      transition: opacity var(--transition-default);
+    }
+    .policy-card:hover::before { opacity:1; }
+    .policy-card:hover {
+      border-color:var(--color-accent-soft);
+      box-shadow: 0 8px 24px -8px rgba(42,138,122,0.15);
+      transform:translateY(-3px);
+    }
+    .policy-card .policy-icon {
+      font-size:1.8rem;
+      color:var(--color-primary);
+      display:inline-block;
+      margin-right:6px;
+      background: var(--color-primary-light);
+      padding:0.2rem 0.6rem;
+      border-radius:12px;
+    }
+    .policy-card h4 {
+      color:var(--color-primary-dark);
+      font-size:1.05rem;
+      margin-bottom:0.4rem;
+      display:flex; align-items:center; gap:8px;
+      flex-wrap:wrap;
+    }
+    .policy-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+    .policy-card .detail-list {
+      padding-left:0; margin:0.4rem 0 0 0;
+      list-style:none;
+    }
+    .policy-card .detail-list li {
+      margin-bottom:0.25rem;
+      padding-left:1.2rem;
+      position:relative;
+      font-size:0.85rem;
+      color:var(--color-neutral-700);
+    }
+    .policy-card .detail-list li::before {
+      content:'▹'; position:absolute; left:0;
+      color:var(--color-accent);
+      font-weight:600;
+    }
+    .policy-card .detail-list li strong { color:var(--color-neutral-800); }
+    .policy-card .tag-layer {
+      display:inline-block;
+      background:var(--color-gold-light);
+      color:var(--color-primary-dark);
+      border-radius:20px;
+      padding:0.05rem 0.8rem;
+      font-size:0.6rem;
+      font-weight:700;
+      letter-spacing:0.3px;
+      margin-left:0.5rem;
+    }
+
+    /* ===== 架构层（继承九层闭环） ===== */
+    .arch-diagram {
+      display:flex;
+      flex-direction:column;
+      gap:0.6rem;
+      padding:0.5rem 0;
+    }
+    .arch-layer {
+      display:flex;
+      align-items:stretch;
+      gap:0.75rem;
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.6rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: var(--transition-default);
+    }
+    .arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+    .arch-layer .layer-label {
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      min-width:120px;
+      padding-right:1rem;
+      border-right:2px solid var(--color-neutral-200);
+      font-weight:700;
+      font-size:0.8rem;
+      color:var(--color-primary-dark);
+      letter-spacing:0.3px;
+    }
+    .arch-layer .layer-label i {
+      font-size:1.1rem;
+      color:var(--color-accent);
+      margin-bottom:0.1rem;
+    }
+    .arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+    .arch-layer .layer-blocks {
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:0.5rem;
+      flex:1;
+      padding:0.2rem 0;
+    }
+    .arch-block {
+      background:white;
+      border-radius:var(--radius-sm);
+      padding:0.3rem 0.9rem;
+      border:1px solid var(--color-neutral-200);
+      font-size:0.75rem;
+      font-weight:500;
+      color:var(--color-neutral-700);
+      transition: var(--transition-default);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .arch-block:hover {
+      border-color:var(--color-accent);
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateY(-1px);
+    }
+    .arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+    .arch-block.highlight-block {
+      background:var(--color-accent);
+      color:white;
+      border-color:var(--color-accent);
+    }
+    .arch-block.highlight-block i { color:white; }
+    .arch-layer.inner-layer { background:linear-gradient(135deg, #e8f0ee, #dce8e4); border-color:var(--color-accent-soft); }
+    .arch-layer.outer-layer { background:linear-gradient(135deg, #edf2ed, #e2ece2); border-color:#b0c8b0; }
+    .arch-layer.outer-layer .layer-label { border-right-color:#b0c8b0; color:#2a5a3a; }
+    .arch-layer.outer-layer .layer-label i { color:#3a7a5e; }
+    .arch-layer.outer-layer .arch-block { border-color:#c0d8c0; }
+    .arch-layer.outer-layer .arch-block:hover { border-color:#3a7a5e; background:#d8e8d8; }
+    .arch-layer.ultimate-layer { background:linear-gradient(135deg, #f0eee8, #e8e0d8); border-color:#c8b8a8; }
+    .arch-layer.ultimate-layer .layer-label { border-right-color:#c8b8a8; color:#6a4a3a; }
+    .arch-layer.ultimate-layer .layer-label i { color:#8a6a5a; }
+    .arch-layer.ultimate-layer .arch-block { border-color:#d8c8b8; }
+    .arch-layer.ultimate-layer .arch-block:hover { border-color:#8a6a5a; background:#ede0d8; }
+
+    /* ===== 表格 ===== */
+    .table-wrapper {
+      overflow-x:auto;
+      border-radius:var(--radius-md);
+      border:1px solid var(--color-neutral-200);
+      background:white;
+    }
+    table {
+      width:100%; border-collapse:collapse; font-size:0.78rem;
+    }
+    th {
+      background:var(--color-neutral-100);
+      padding:12px 10px;
+      font-weight:600;
+      color:var(--color-primary-dark);
+      text-align:left;
+      border-bottom:2px solid var(--color-neutral-200);
+      font-size:0.7rem;
+      text-transform:uppercase;
+      letter-spacing:0.4px;
+    }
+    td {
+      padding:10px 10px;
+      border-bottom:1px solid var(--color-neutral-200);
+      vertical-align:middle;
+      color:var(--color-neutral-700);
+    }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--color-neutral-50); }
+    .level-tag {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      border-radius:var(--radius-pill);
+      padding:0.05rem 0.7rem;
+      font-size:0.65rem;
+      font-weight:600;
+      display:inline-block;
+    }
+
+    /* ===== 信息提示 ===== */
+    .info-tip {
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.7rem 1.5rem;
+      border-left:5px solid var(--color-accent);
+      margin-top:var(--space-4);
+      display:flex; align-items:center; gap:0.8rem;
+      font-size:0.9rem;
+      color:var(--color-neutral-700);
+    }
+    .info-tip i { color:var(--color-accent); font-size:1rem; }
+
+    /* ===== 横幅 ===== */
+    .banner-card {
+      background: linear-gradient(135deg, #e8f0ee, #dce8e4);
+      text-align:center;
+      border-color:var(--color-accent-soft);
+    }
+    .banner-card .card-body { padding:2.5rem var(--space-6); }
+    .banner-card .icon-big { font-size:3rem; color:var(--color-primary); opacity:0.7; margin-bottom:var(--space-3); }
+    .banner-card h2 { color:var(--color-primary-dark); font-size:clamp(1.4rem, 2.5vw, 1.9rem); margin-bottom:var(--space-2); }
+    .banner-card p { max-width:680px; margin:0 auto; color:var(--color-neutral-700); font-size:1rem; }
+    .banner-card .footer-note { margin-top:var(--space-6); font-size:0.8rem; color:var(--color-primary); }
+
+    /* ===== 响应式 ===== */
+    @media (max-width:1024px) { .sidebar { width:220px; } }
+    @media (max-width:760px) {
+      .sidebar { display:none; }
+      .layout { padding:0.5rem; }
+      .main-content { padding:0; }
+      .card-body { padding:1.25rem var(--space-4); }
+      .card-header { padding:1rem var(--space-4); }
+      .page-header { flex-direction:column; align-items:flex-start; }
+    }
+
+    /* ===== 暗色 ===== */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #141a18;
+        --color-neutral-100: #1c2622;
+        --color-neutral-200: #2c3a36;
+        --color-neutral-300: #4a5a56;
+        --color-neutral-400: #7a8a86;
+        --color-neutral-600: #b0c0bc;
+        --color-neutral-700: #d0dcd8;
+        --color-neutral-800: #e8eee8;
+        --color-neutral-900: #f5faf5;
+        --color-primary-light: #1a2e2a;
+        --color-accent-soft: #3a5a56;
+        --color-primary: #5aaea0;
+        --color-primary-dark: #b0d8d0;
+        --color-accent: #3a8a7a;
+        --color-gold: #b88a3a;
+        --color-gold-light: #2a2a1a;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6);
+        --shadow-card-hover: 0 20px 48px -12px rgba(0,0,0,0.7);
+        --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #0c1410; }
+      .card { background: #141a18; border-color: #2c3a36; }
+      .card-header { background: #141a18; border-bottom-color: #3a4a46; }
+      .policy-card { background: #141a18; border-color: #2c3a36; }
+      .policy-card .policy-icon { background: #1a2a26; color: #5aaea0; }
+      .policy-card .detail-list li { color: #b0c0bc; }
+      .policy-card .detail-list li strong { color: #d0dcd8; }
+      .table-wrapper { background: #141a18; border-color: #2c3a36; }
+      th { background: #1c2622; color: #d0dcd8; border-bottom-color: #3a4a46; }
+      td { border-bottom-color: #1a2622; color: #b0c0bc; }
+      tr:hover td { background: #1a2a26; }
+      .sidebar { background: rgba(12, 20, 16, 0.92); border-color: #2c3a36; }
+      .sidebar-brand { border-bottom-color: #3a4a46; }
+      .sidebar-brand h3 { color: #5aaea0; }
+      .sidebar nav ul li a { color: #b0c0bc; }
+      .sidebar nav ul li a:hover { background: #2c3a36; color: white; }
+      .info-tip { background: #141a18; border-left-color: #3a8a7a; color: #b0c0bc; }
+      .banner-card { background:linear-gradient(135deg,#141a18,#1a2a26); }
+      .banner-card p { color: #b0c0bc; }
+      .page-header h1 { background:linear-gradient(135deg,#b0d8d0,#5aaea0); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#1c2622; border-color:#3a4a46; color:#a0b0ac; }
+      .arch-layer { background:#141a18; border-color:#2c3a36; }
+      .arch-layer:hover { background:#1a2a26; border-color:#4a5a56; }
+      .arch-layer .layer-label { border-right-color:#2c3a36; color:#d0dcd8; }
+      .arch-block { background:#141a18; border-color:#2c3a36; color:#b0c0bc; }
+      .arch-block:hover { background:#2c3a36; border-color:#3a8a7a; }
+      .arch-layer.inner-layer { background:linear-gradient(135deg,#141a18,#1a2a26); border-color:#3a5a56; }
+      .arch-layer.outer-layer { background:linear-gradient(135deg,#141a18,#1a261a); border-color:#2a4a3a; }
+      .arch-layer.outer-layer .layer-label { border-right-color:#2a4a3a; color:#8aba8a; }
+      .arch-layer.outer-layer .layer-label i { color:#5a9a6a; }
+      .arch-layer.outer-layer .arch-block { border-color:#2a4a3a; color:#a0c8a0; }
+      .arch-layer.outer-layer .arch-block:hover { border-color:#5a9a6a; background:#1a2a1a; }
+      .arch-layer.ultimate-layer { background:linear-gradient(135deg,#141a18,#1c2622); border-color:#3a4a46; }
+      .arch-layer.ultimate-layer .layer-label { border-right-color:#3a4a46; color:#c8b0a0; }
+      .arch-layer.ultimate-layer .layer-label i { color:#a08070; }
+      .arch-layer.ultimate-layer .arch-block { border-color:#3a4a46; color:#c8b8a8; }
+      .arch-layer.ultimate-layer .arch-block:hover { border-color:#a08070; background:#2a2420; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-bullseye" aria-hidden="true"></i>
+      <h3>运营中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-cubes"></i> 完整定义</a></li>
+        <li><a href="#s1"><i class="fas fa-database"></i> 知识体系</a></li>
+        <li><a href="#s2"><i class="fas fa-project-diagram"></i> 专属知识图谱</a></li>
+        <li><a href="#s3"><i class="fas fa-sitemap"></i> 六大核心架构</a></li>
+        <li><a href="#s4"><i class="fas fa-puzzle-piece"></i> 功能模块</a></li>
+        <li><a href="#s5"><i class="fas fa-chart-line"></i> 指标体系</a></li>
+        <li><a href="#s6"><i class="fas fa-boxes"></i> 内容体系</a></li>
+        <li><a href="#s7"><i class="fas fa-share-alt"></i> 五大中台对照</a></li>
+        <li><a href="#s8"><i class="fas fa-flag"></i> 核心价值</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-bullseye"></i> 运营中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-bullseye"></i> 企业级运营中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> 用户 · 内容 · 活动 · 渠道 · 策略 · 自动化</span>
+    </header>
+
+    <!-- ===== S0 完整定义 ===== -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> 运营中台完整定义</h2>
+        <span class="badge-count">标准定义 · 本质 · 核心目标</span>
+      </div>
+      <div class="card-body">
+        <div class="arch-diagram">
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-database"></i> 底层依赖 <span class="sub">技术/数据/业务/AI底座</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-microchip"></i> 技术中台</span>
+              <span class="arch-block"><i class="fas fa-database"></i> 数据中台</span>
+              <span class="arch-block"><i class="fas fa-cogs"></i> 业务中台</span>
+              <span class="arch-block"><i class="fas fa-brain"></i> AI中台</span>
+              <span class="arch-block"><i class="fas fa-cloud"></i> 云原生</span>
+            </div>
+          </div>
+          <div class="arch-layer outer-layer">
+            <div class="layer-label"><i class="fas fa-bullseye"></i> 核心能力 <span class="sub">运营资产/编排/知识/治理</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block highlight-block"><i class="fas fa-layer-group"></i> 五大资产</span>
+              <span class="arch-block"><i class="fas fa-code-branch"></i> 自动化编排</span>
+              <span class="arch-block"><i class="fas fa-project-diagram"></i> 运营知识图谱</span>
+              <span class="arch-block"><i class="fas fa-flask"></i> 智能运营</span>
+              <span class="arch-block"><i class="fas fa-lock"></i> 多租户</span>
+              <span class="arch-block"><i class="fas fa-history"></i> 审计治理</span>
+            </div>
+          </div>
+          <div class="arch-layer ultimate-layer">
+            <div class="layer-label"><i class="fas fa-rocket"></i> 上层赋能 <span class="sub">经营场景 / 全域运营</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-user"></i> 用户运营</span>
+              <span class="arch-block"><i class="fas fa-file-alt"></i> 内容运营</span>
+              <span class="arch-block"><i class="fas fa-gift"></i> 活动营销</span>
+              <span class="arch-block"><i class="fas fa-route"></i> 渠道运营</span>
+              <span class="arch-block"><i class="fas fa-robot"></i> 自动化运营</span>
+              <span class="arch-block"><i class="fas fa-chart-pie"></i> 数据运营</span>
+            </div>
+          </div>
+        </div>
+        <div class="info-tip"><i class="fas fa-scroll"></i> 运营中台（Operation Middle Platform）是企业级全域运营能力标准化、流程化、资产化、智能化、可复用的运营核心中枢。基于全域运营域建模、流程工程、内容工程、用户运营、活动运营、渠道运营、数据运营、智能运营编排思想，统一整合企业用户资产、内容资产、活动资产、渠道资源、运营规则、运营流程、运营策略与运营数据，通过标准化封装、全生命周期管控、场景化编排赋能、知识化沉淀复用，彻底解决企业运营碎片化、多线重复运营、策略不统一、资源浪费、运营落地低效、资产不可沉淀、运营无治理、运营无标准等核心问题，实现一次沉淀、全域复用、策略快速迭代、运营资产化、运营流程自动化、运营效果可量化闭环的企业数字化运营核心中台。</div>
+        <div style="margin-top:0.8rem; font-size:0.9rem; color:var(--color-neutral-600);">
+          <p><strong>核心本质与定位：</strong>运营中台是承接前台全域经营场景、中层业务/数据/AI中台、底层技术中台底座的企业标准化运营能力中间层与智能赋能层，聚焦「运营能力沉淀、运营流程标准化、运营资产结构化、运营策略智能化、全域运营统一治理」，承载企业所有通用用户运营、内容运营、活动运营、渠道运营、数据运营、智能运营能力，为全业态、全渠道、全场景经营业务提供标准化、自动化、智能化运营赋能，是企业数字化精细化运营、全域经营提效增收的核心载体。</p>
+          <p><strong>战略定位：</strong>企业全域运营能力沉淀中心、运营资产统一管理中心、运营策略迭代中心、自动化运营调度中心、精细化运营治理管控中枢。<br>
+          <strong>核心本质：</strong>将零散、定制化、人工化、碎片化的运营动作与运营策略，沉淀为标准化、流程化、可编排、可迭代、可自动化、可量化、可治理的企业运营数字资产。<br>
+          <strong>核心特征：</strong>全域运营统一、运营资产复用、流程自动化、策略可配置、场景可拼装、数据可归因、运营可迭代、智能可赋能、全域可治理。</p>
+          <p><strong>五大中台精准边界区分：</strong><br>
+          技术中台：管技术底座、云原生、研发运维，解决「系统稳定、高效迭代、资源支撑」；<br>
+          数据中台：管原始数据、数据治理、数据资产、指标体系，解决「数据可信、数据复用、数据价值挖掘」；<br>
+          业务中台：管核心业务能力、业务流程、业务实体，解决「业务标准化、业务复用、前台业务快速创新」；<br>
+          AI中台：管算力、模型、特征、知识、智能推理、智能决策，解决「业务智能化、场景智慧化、AI能力资产化落地」；<br>
+          运营中台：管用户、内容、活动、渠道、策略、流程、运营资产、运营治理，解决「运营标准化、运营自动化、运营精细化、运营资产化、经营效果可量化」。</p>
+          <p><strong>建设核心目标：</strong><br>
+          1. 统一企业全域运营口径、运营流程、运营标准，消除多业务线运营混乱、规则不统一问题；<br>
+          2. 统一沉淀用户、内容、活动、渠道、策略五大运营资产，实现运营能力全域复用、避免重复运营建设；<br>
+          3. 实现运营流程可视化、配置化、自动化，大幅降低人工运营成本，提升全域运营效率；<br>
+          4. 标准化运营场景拼装能力，支持营销、留存、促活、转化、召回等运营场景快速落地；<br>
+          5. 构建企业专属运营知识体系与运营知识图谱，沉淀运营经验、运营策略、场景打法，实现运营经验可传承、可复用、可迭代；<br>
+          6. 打通数据中台、业务中台、AI中台能力，实现「数据洞察→策略配置→运营执行→效果归因→策略迭代」全链路运营闭环；<br>
+          7. 建立完整全域运营治理体系，实现运营合规、流程可控、效果可量化、问题可溯源、策略可迭代；<br>
+          8. 实现运营能力与前台场景解耦、运营策略与业务解耦，支撑企业精细化、规模化、智能化全域经营。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S1 知识体系 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-database"></i> 运营中台完整知识体系</h2>
+        <span class="badge-count">9大核心知识域</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sitemap"></i></span><h4>企业运营战略与架构规划</h4><ul class="detail-list"><li>全域经营战略拆解、全渠道运营场景盘点、全域运营能力图谱规划</li><li>运营架构方法论、多业务线运营统一标准与差异化运营设计</li><li>运营成熟度评估、运营中台演进路线、运营资产沉淀规划</li><li>运营分层架构设计、协同解耦原则、精细化运营方法论</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-cubes"></i></span><h4>运营领域建模</h4><ul class="detail-list"><li>DDD领域驱动运营设计、全域运营域拆分、运营实体与运营行为建模</li><li>用户域、内容域、活动域、渠道域、策略域、数据域、风控域建模规范</li><li>运营对象生命周期建模：用户/内容/活动/渠道生命周期</li><li>运营行为标准化、运营动作原子化、运营流程模块化拆解</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-user"></i></span><h4>用户全生命周期运营</h4><ul class="detail-list"><li>拉新、激活、留存、促活、转化、复购、召回、流失预警全链路方法论</li><li>用户分层、分群、画像、标签体系、价值分层运营</li><li>精细化用户触达、个性化运营、千人千面策略、节点运营</li><li>用户资产沉淀、行为归因、效果复盘、策略迭代体系</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-file-alt"></i></span><h4>内容全域运营</h4><ul class="detail-list"><li>图文、视频、海报、话术、素材、资讯、教程全域内容生产与规范体系</li><li>内容审核、分级、分发、种草、转化、复盘方法论</li><li>内容标签、画像、热度、质量、价值评估体系</li><li>内容资产沉淀、复用、迭代、爆款规律沉淀与复制</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-gift"></i></span><h4>活动与营销运营</h4><ul class="detail-list"><li>优惠券、秒杀、拼团、满减、抽奖、积分、会员、裂变全域玩法体系</li><li>活动策划、配置、预热、上线、风控、复盘全流程</li><li>营销节奏规划、节点营销、日常营销、专题营销、裂变营销</li><li>效果归因、转化链路分析、策略优化、模板沉淀复用</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-route"></i></span><h4>渠道全域运营</h4><ul class="detail-list"><li>公域、私域、线下、第三方平台全域渠道盘点与分层运营</li><li>渠道引流、转化、留存、ROI核算、质量评估</li><li>渠道资源管理、规则配置、差异化策略、联动运营</li><li>渠道资产沉淀、打法复用、风险管控、迭代优化</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-code-branch"></i></span><h4>自动化与智能运营编排</h4><ul class="detail-list"><li>运营流程低代码编排、自动化任务调度、定时/事件触发运营</li><li>多运营动作串联并联组合、用户触发策略、场景智能匹配</li><li>AI+运营融合：智能人群圈选、智能内容推荐、智能触达时机、智能策略调优</li><li>自动化闭环、人工+智能协同、运营效率优化方法论</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-pie"></i></span><h4>数据运营与指标归因</h4><ul class="detail-list"><li>全域运营指标体系搭建、指标口径统一、血缘、监控、预警</li><li>运营数据采集、清洗、聚合、分析、归因、复盘、迭代完整方法论</li><li>流量、转化、留存、营收、成本、ROI全域经营数据分析体系</li><li>问题诊断、瓶颈分析、策略优化、数据驱动运营迭代闭环</li></ul></div>
+          <div class="policy-card" style="grid-column: span 2;"><span class="policy-icon"><i class="fas fa-balance-scale"></i></span><h4>运营合规与全域治理</h4><ul class="detail-list"><li>运营内容合规、营销合规、用户触达合规、隐私合规、广告合规规范</li><li>运营权限治理、操作审计、变更管控、风险预警</li><li>运营资源治理、成本治理、效率治理、质量治理</li><li>运营版本治理、策略治理、资产治理、故障复盘与合规自查体系</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S2 专属知识图谱 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-project-diagram"></i> 运营专属知识图谱体系</h2>
+        <span class="badge-count">核心构成 · 能力 · 价值</span>
+      </div>
+      <div class="card-body">
+        <div class="info-tip"><i class="fas fa-project-diagram"></i> 运营知识图谱是运营中台企业全域结构化运营经验与运营资产核心载体，基于知识工程与运营领域建模技术，将企业零散的运营场景、运营打法、用户规律、内容规则、活动策略、渠道特性、转化链路、复盘经验构建为结构化、可关联、可检索、可推理、可迭代的运营知识网络，为自动化运营、智能策略推荐、运营场景快速复刻、经营问题智能诊断提供底层知识支撑，是企业运营从「人工经验运营」走向「结构化知识运营、智能化精准运营」的核心底座。</div>
+        <div style="margin-top:1rem; display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.5rem;">
+          <div><h4 style="color:var(--color-primary-dark);"><i class="fas fa-circle"></i> 核心构成维度</h4><ul class="detail-list" style="list-style:none; padding-left:0;"><li>用户运营知识图谱</li><li>内容运营知识图谱</li><li>活动运营知识图谱</li><li>渠道运营知识图谱</li><li>运营策略知识图谱</li><li>运营场景知识图谱</li></ul></div>
+          <div><h4 style="color:var(--color-primary-dark);"><i class="fas fa-magic"></i> 核心能力</h4><ul class="detail-list" style="list-style:none; padding-left:0;"><li>全域运营经验结构化建模</li><li>运营知识智能检索与复用</li><li>智能运营策略推荐</li><li>运营链路推理与诊断</li><li>运营资产智能匹配</li><li>运营知识自动迭代</li></ul></div>
+          <div><h4 style="color:var(--color-primary-dark);"><i class="fas fa-share-alt"></i> 应用价值</h4><ul class="detail-list" style="list-style:none; padding-left:0;"><li>解决经验零散、无法沉淀</li><li>新人上手慢、场景复刻难</li><li>策略凭感觉、运营无标准</li><li>迭代无依据等核心痛点</li><li>实现运营经验资产化</li><li>运营策略智能化、场景标准化</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S3 六大核心架构 ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> 六大核心架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-cubes"></i></span><h4>产品架构（分层全景）</h4><ul class="detail-list"><li>底层技术&数据底座层 → 运营资产沉淀层 → 全域运营能力层 → 运营智能编排层 → 运营服务开放层 → 运营分析运营层 → 运营治理管控层</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-briefcase"></i></span><h4>业务架构</h4><ul class="detail-list"><li>上层：前台经营场景消费层；中层：运营中台核心能力层；下层：基础底座支撑层</li><li>全域运营域：用户运营、内容运营、活动营销、渠道运营、会员权益、触达运营、自动化运营、智能运营、运营分析、运营治理</li><li>核心业务流转：前台需求 → 运营网关 → 调用资产/能力 → 编排+策略 → 自动化执行 → 数据回传 → 归因复盘 → 知识沉淀 → 策略迭代</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-database"></i></span><h4>数据架构（七层）</h4><ul class="detail-list"><li>ODS运营原始数据源层 → DWD运营明细清洗层 → DWB运营标签宽表层 → DWM运营知识关联层 → DWS运营主题汇总层 → ADS运营应用指标层 → OPS-AI智能运营数据层</li><li>核心数据模型：用户运营、内容运营、活动运营、渠道运营、运营策略、运营知识图谱数据模型</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-microchip"></i></span><h4>技术架构（七层）</h4><ul class="detail-list"><li>基础设施与底座层 → 运营核心中间件层 → 运营网关与权限层 → 运营数据与标签层 → 运营能力编排层 → 运营知识与智能层 → 运营可观测运维层</li><li>横向贯穿：运营技术规范体系、运营安全合规体系、运营运维保障体系</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-rocket"></i></span><h4>应用架构</h4><ul class="detail-list"><li>用户经营类应用、内容经营类应用、营销活动类应用、渠道经营类应用、智能自动化运营应用</li><li>统一访问链路：前台/第三方 → 运营网关 → 权限校验 → 调用能力 → 执行 → 数据回传 → 知识迭代 → 输出结果</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-balance-scale"></i></span><h4>治理架构</h4><ul class="detail-list"><li>运营资产治理、运营流程治理、运营策略治理、运营内容合规治理、运营数据指标治理、运营权限审计治理、运营成本效率治理</li><li>七大治理域形成闭环全域运营治理体系</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S4 功能模块 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> 全量产品功能模块</h2>
+        <span class="badge-count">10大模块全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-user"></i></span><h4>全域用户资产与用户运营</h4><ul class="detail-list"><li>用户全域汇聚、用户标签体系、智能人群圈选、用户生命周期运营、用户画像分析、用户资产治理</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-file-alt"></i></span><h4>全域内容资产与内容运营</h4><ul class="detail-list"><li>多类型内容管理、内容审核风控、内容标签与画像、内容分发配置、内容效果分析、优质内容资产沉淀</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-gift"></i></span><h4>活动营销与权益运营</h4><ul class="detail-list"><li>通用活动模板、可视化活动配置、活动节奏管理、权益发放管控、活动风控防刷、活动效果复盘</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-route"></i></span><h4>全域渠道运营与资源管理</h4><ul class="detail-list"><li>渠道统一纳管、渠道分层分级、渠道差异化运营、渠道数据统计、渠道资源管控、渠道迭代优化</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-crown"></i></span><h4>会员积分与权益精细化运营</h4><ul class="detail-list"><li>会员体系配置、积分全流程管理、会员精细化运营、会员专属权益、会员效果分析</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-bell"></i></span><h4>触达运营与精准推送</h4><ul class="detail-list"><li>多渠道触达、精准触达配置、个性化触达、触达风控管控、触达效果复盘</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-code-branch"></i></span><h4>运营自动化与智能编排</h4><ul class="detail-list"><li>可视化流程编排、自动化任务调度、智能策略引擎、AI智能运营赋能、场景模板复用</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>运营知识图谱与运营知识库</h4><ul class="detail-list"><li>运营知识源接入、智能抽取、图谱构建、知识库管理、检索问答、推理、经验迭代</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-pie"></i></span><h4>全域运营分析与复盘</h4><ul class="detail-list"><li>全域数据看板、全链路归因分析、运营问题诊断、ROI成本核算、自动化复盘报告</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-cloud"></i></span><h4>运营网关、开放服务与治理</h4><ul class="detail-list"><li>运营统一网关、运营能力市场、服务授权管控、全域运营治理、运营告警预警</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S5 指标体系 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> 全套指标体系</h2>
+        <span class="badge-count">7大维度</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>运营服务稳定与SLA</strong></td><td>整体可用率≥99.99% · 配置执行成功率≥99.95% · 数据计算P95≤200ms · 自动化任务成功率≥99.9% · MTTR≤5min · 规则执行一致性≥99.9%</td></tr>
+              <tr><td><strong>运营资产复用</strong></td><td>活动模板复用率≥95% · 优质内容复用率≥90% · 策略模板复用率≥92% · 新场景资产复用覆盖率≥90% · 重复建设率≤5% · 知识资产复用率≥93% · 无效资产占比≤2%</td></tr>
+              <tr><td><strong>运营效能与自动化</strong></td><td>场景落地周期缩短率≥80% · 任务自动化率≥90% · 人工操作下降≥75% · 流程标准化率100% · 策略迭代效率提升≥60% · 问题复盘闭环率100%</td></tr>
+              <tr><td><strong>全域运营质量</strong></td><td>用户：新增转化率、活跃度、留存率、复购率、流失率；内容：曝光率、互动率、点击率、转化率、优质占比；活动：参与率、核销率、转化率、ROI；渠道：获客成本、用户质量、转化效率、ROI；触达：到达率、打开率、点击率、转化率、投诉率趋近0</td></tr>
+              <tr><td><strong>运营合规与治理</strong></td><td>内容合规率100% · 违规检出拦截率100% · 营销合规达标率100% · 隐私合规覆盖率100% · 审计日志完整率100% · 资产台账完整率100% · 策略冲突率0 · 无效策略占比≤3%</td></tr>
+              <tr><td><strong>企业经营价值收益</strong></td><td>用户规模增长比例 · 活跃用户增长 · 整体转化率提升 · 客单价提升 · 复购提升 · 运营成本下降 · 单客成本下降 · 营收提升贡献 · ROI提升 · 人效提升</td></tr>
+              <tr><td><strong>运营知识图谱专项</strong></td><td>场景知识覆盖率 · 打法知识完整率 · 三元组完整率 · 知识更新及时率≥98% · 检索使用率 · 复用次数 · 场景复刻成功率 · 方案推荐准确率 · 诊断准确率 · 经验沉淀数量 · 迭代闭环率100%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S6 内容体系 ===== -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> 完整内容体系</h2>
+        <span class="badge-count">6大资产包</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sitemap"></i></span><h4>顶层规划类</h4><ul class="detail-list"><li>运营中台整体建设方案、全域精细化运营架构白皮书</li><li>全渠道运营场景盘点、全域运营能力图谱规划文档</li><li>分阶段落地路线图、建设清单、运营ROI评估报告</li><li>全域运营标准化总则、精细化运营解耦与复用规范</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-book"></i></span><h4>标准规范类</h4><ul class="detail-list"><li>用户运营标准、用户标签规范、人群圈选与分层运营标准</li><li>内容生产、审核、分发、质量评估、合规运营规范</li><li>活动配置、营销玩法、权益发放、活动风控、复盘标准</li><li>渠道运营、评级、成本、ROI核算规范</li><li>运营流程编排、自动化任务、策略配置标准化规范</li><li>运营知识图谱构建、沉淀、迭代、应用规范</li><li>运营数据指标口径、归因、合规审计统一规范</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-database"></i></span><h4>运营核心资产内容</h4><ul class="detail-list"><li>全域用户资产库、用户标签体系、用户分层运营模板</li><li>优质内容资产库、内容模板库、爆款内容案例资产</li><li>标准化活动模板资产库、营销玩法资产、权益配置模板</li><li>渠道运营资产库、优质渠道台账、差异化运营打法</li><li>运营策略资产库、场景策略模板、自动化运营流程模板</li><li>运营知识图谱资产包：实体、关系三元组、场景案例、打法、解决方案知识库</li><li>全域运营能力拓扑图、运营资产矩阵、场景-能力映射表</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-tools"></i></span><h4>运营落地工程</h4><ul class="detail-list"><li>全域运营场景快速搭建模板、精细化运营落地指南</li><li>运营能力接入文档、前台经营场景对接中台规范</li><li>用户/内容/活动/渠道运营配置操作手册</li><li>运营自动化编排落地手册、智能运营策略配置指南</li><li>运营知识图谱维护、更新、应用落地手册</li><li>运营验收标准、场景上线评审模板、效果评估模板</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-pie"></i></span><h4>运营治理运营类</h4><ul class="detail-list"><li>月度/季度全域运营资产运营报告、资产复用分析报告</li><li>运营效率、成本、ROI专项分析与优化复盘报告</li><li>运营问题诊断台账、策略迭代台账、知识优化台账</li><li>运营故障复盘报告、经营效果评估与优化方案</li><li>运营合规自查报告、运营审计归档日志</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-shield-alt"></i></span><h4>运维手册与落地文档</h4><ul class="detail-list"><li>运营中台运维手册、功能/数据故障排查FAQ</li><li>运营版本迭代发布手册、策略回滚、服务回滚预案</li><li>前台经营场景接入中台标准化流程、实施落地指南</li><li>运营知识图谱迭代更新、知识审核、知识运维操作手册</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S7 五大中台全域对照 ===== -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-share-alt"></i> 五大中台全域精准对照</h2>
+        <span class="badge-count">技术 · 数据 · 业务 · AI · 运营</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-microchip"></i></span><h4>技术中台</h4><ul class="detail-list"><li>底层技术底座、云原生、研发运维、资源支撑</li><li>解决「系统稳、迭代快、架构可控」</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-database"></i></span><h4>数据中台</h4><ul class="detail-list"><li>原始数据治理、数据资产、指标体系</li><li>解决「数据可信、数据沉淀、数据价值释放」</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-cogs"></i></span><h4>业务中台</h4><ul class="detail-list"><li>通用业务能力、流程规则、业务资产</li><li>解决「业务标准化、业务复用、前台业务快速创新」</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-brain"></i></span><h4>AI中台</h4><ul class="detail-list"><li>算力、模型、特征、知识、智能推理、智能决策</li><li>解决「业务智能化、场景智慧化、AI能力资产化落地」</li></ul></div>
+          <div class="policy-card" style="grid-column: span 2;"><span class="policy-icon"><i class="fas fa-bullseye"></i></span><h4>运营中台</h4><ul class="detail-list"><li>用户、内容、活动、渠道、策略、运营知识、自动化运营</li><li>解决「运营标准化、运营自动化、运营精细化、经营效果可量化可迭代」</li></ul></div>
+        </div>
+        <div class="info-tip"><i class="fas fa-link"></i> 全域协同关系：技术中台做底座、数据中台做原料、业务中台做业务标准、AI中台做智能赋能、运营中台做经营落地，五大中台层层解耦、相互支撑、闭环联动，构成企业完整数字化+智能化+精细化经营的全域架构体系。</div>
+      </div>
+    </section>
+
+    <!-- ===== S8 核心价值 ===== -->
+    <section id="s8" class="card banner-card">
+      <div class="card-body">
+        <div class="icon-big"><i class="fas fa-flag"></i></div>
+        <h2>运营中台 · 五大核心价值</h2>
+        <p><strong>降本：</strong>大幅降低全域运营成本，统一沉淀运营资产、复用运营模板、实现运营自动化，杜绝多线重复运营、人工低效操作，大幅降低企业人力运营成本、营销成本、试错成本；<br>
+        <strong>提效：</strong>规模化极速落地运营场景，标准化资产+低代码编排+自动化调度，新运营场景从数周落地缩短至数天，支撑企业全域经营快速迭代、灵活试错；<br>
+        <strong>提质：</strong>实现精细化标准化运营，统一运营标准、统一指标口径、统一策略规范，解决运营混乱、策略随意、效果不稳定、无法量化的问题；<br>
+        <strong>资产化：</strong>沉淀企业专属经营资产，通过运营知识图谱、用户/内容/活动/渠道资产结构化沉淀企业独有经营经验与运营打法，实现运营能力可积累、可传承、可复刻、可迭代；<br>
+        <strong>增收：</strong>数据驱动经营持续增长，通过全链路归因、智能策略优化、精细化分层运营，持续提升转化、留存、复购、营收，实现企业全域经营长效增长。</p>
+        <div class="footer-note">运营中台 · 用户/内容/活动/渠道/策略/自动化一体化 · 企业精细化经营核心中枢</div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

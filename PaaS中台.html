@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>PaaS中台 · 企业级完整体系 · 高保真架构</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ===== 设计系统 Token（完全继承参考样式） ===== */
+    :root {
+      --color-primary: #7a2e1a;
+      --color-primary-light: #fce9e0;
+      --color-primary-dark: #4d1c0e;
+      --color-accent: #b85c3a;
+      --color-accent-soft: #f0c8b8;
+      --color-accent-glow: rgba(184, 92, 58, 0.10);
+      --color-neutral-50: #fcf9f7;
+      --color-neutral-100: #f5ede8;
+      --color-neutral-200: #e5d7ce;
+      --color-neutral-300: #cbb8ab;
+      --color-neutral-400: #a68b7a;
+      --color-neutral-600: #6f5544;
+      --color-neutral-700: #4f3a2e;
+      --color-neutral-800: #34241c;
+      --color-neutral-900: #1e140f;
+      --color-gold: #c29a4a;
+      --color-gold-light: #f3e1b0;
+      --color-jade: #3b7a5e;
+      --color-jade-light: #d4ede0;
+      --color-success: #1f6e4a;
+      --color-warning: #a86b2c;
+      --color-error: #b13a2a;
+      --font-base: 1rem;
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-12: 3rem;
+      --radius-sm: 0.75rem;
+      --radius-md: 1.25rem;
+      --radius-card: 2rem;
+      --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(60, 30, 10, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(60, 30, 10, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(60, 30, 10, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+      --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ===== 重置 & 基础 ===== */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    /* ===== 布局 ===== */
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(255, 249, 245, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(255, 235, 220, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); letter-spacing:-0.01em; }
+    .sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+    .sidebar nav ul { list-style:none; padding:0; margin:0; }
+    .sidebar nav ul li { margin-bottom:0.1rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:12px;
+      padding:0.55rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.85rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+    }
+    .sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+    .sidebar nav ul li a:hover,
+    .sidebar nav ul li a:focus-visible {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateX(4px);
+    }
+    .sidebar-footer {
+      margin-top:24px; padding:12px; text-align:center;
+      font-size:0.7rem; color:var(--color-neutral-600);
+      border-top:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 主内容 ===== */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+    /* ===== 页面头部 ===== */
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+      font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+    .page-header .header-meta {
+      font-size:0.9rem; color:var(--color-neutral-600);
+      background:var(--color-neutral-100);
+      padding:0.4rem 1.2rem;
+      border-radius:var(--radius-pill);
+      border:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 卡片系统 ===== */
+    .card {
+      background:rgba(255,252,248,0.92);
+      backdrop-filter: blur(4px);
+      border-radius:var(--radius-card);
+      box-shadow:var(--shadow-card);
+      margin-bottom:var(--space-6);
+      border:1px solid rgba(255, 235, 220, 0.5);
+      overflow:hidden;
+      transition: box-shadow var(--transition-default), transform 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6);
+      background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft);
+      display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 {
+      font-size:clamp(1.2rem, 2.2vw, 1.6rem);
+      font-weight:700; color:var(--color-primary-dark);
+      display:flex; align-items:center; gap:12px;
+      letter-spacing:-0.01em;
+    }
+    .card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+    .card-header .badge-count {
+      margin-left:auto;
+      background:var(--color-accent);
+      color:white;
+      border-radius:var(--radius-pill);
+      padding:0.15rem 0.9rem;
+      font-size:0.7rem;
+      font-weight:600;
+      letter-spacing:0.3px;
+    }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* ===== 网格 & 卡片（PaaS卡片风格） ===== */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } .grid-4 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; } }
+
+    /* PaaS卡片 (复用九字卡片) */
+    .paas-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md);
+      padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: all var(--transition-default);
+      position:relative;
+      overflow:hidden;
+      border-left: 4px solid var(--color-accent);
+    }
+    .paas-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft));
+      opacity:0;
+      transition: opacity var(--transition-default);
+    }
+    .paas-card:hover::before { opacity:1; }
+    .paas-card:hover {
+      border-color:var(--color-accent-soft);
+      box-shadow: 0 8px 24px -8px rgba(184,92,58,0.15);
+      transform:translateY(-3px);
+    }
+    .paas-card .paas-icon {
+      font-size:1.8rem;
+      color:var(--color-primary);
+      display:inline-block;
+      margin-right:6px;
+      background: var(--color-primary-light);
+      padding:0.2rem 0.6rem;
+      border-radius:12px;
+    }
+    .paas-card h4 {
+      color:var(--color-primary-dark);
+      font-size:1.05rem;
+      margin-bottom:0.4rem;
+      display:flex; align-items:center; gap:8px;
+      flex-wrap:wrap;
+    }
+    .paas-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+    .paas-card .detail-list {
+      padding-left:0; margin:0.4rem 0 0 0;
+      list-style:none;
+    }
+    .paas-card .detail-list li {
+      margin-bottom:0.25rem;
+      padding-left:1.2rem;
+      position:relative;
+      font-size:0.85rem;
+      color:var(--color-neutral-700);
+    }
+    .paas-card .detail-list li::before {
+      content:'▹'; position:absolute; left:0;
+      color:var(--color-accent);
+      font-weight:600;
+    }
+    .paas-card .detail-list li strong { color:var(--color-neutral-800); }
+    .paas-card .tag-layer {
+      display:inline-block;
+      background:var(--color-gold-light);
+      color:var(--color-primary-dark);
+      border-radius:20px;
+      padding:0.05rem 0.8rem;
+      font-size:0.6rem;
+      font-weight:700;
+      letter-spacing:0.3px;
+      margin-left:0.5rem;
+    }
+
+    /* ===== 架构层（继承九层闭环） ===== */
+    .arch-diagram {
+      display:flex;
+      flex-direction:column;
+      gap:0.6rem;
+      padding:0.5rem 0;
+    }
+    .arch-layer {
+      display:flex;
+      align-items:stretch;
+      gap:0.75rem;
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.6rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: var(--transition-default);
+    }
+    .arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+    .arch-layer .layer-label {
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      min-width:120px;
+      padding-right:1rem;
+      border-right:2px solid var(--color-neutral-200);
+      font-weight:700;
+      font-size:0.8rem;
+      color:var(--color-primary-dark);
+      letter-spacing:0.3px;
+    }
+    .arch-layer .layer-label i {
+      font-size:1.1rem;
+      color:var(--color-accent);
+      margin-bottom:0.1rem;
+    }
+    .arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+    .arch-layer .layer-blocks {
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:0.5rem;
+      flex:1;
+      padding:0.2rem 0;
+    }
+    .arch-block {
+      background:white;
+      border-radius:var(--radius-sm);
+      padding:0.3rem 0.9rem;
+      border:1px solid var(--color-neutral-200);
+      font-size:0.75rem;
+      font-weight:500;
+      color:var(--color-neutral-700);
+      transition: var(--transition-default);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .arch-block:hover {
+      border-color:var(--color-accent);
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateY(-1px);
+    }
+    .arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+    .arch-block.highlight-block {
+      background:var(--color-accent);
+      color:white;
+      border-color:var(--color-accent);
+    }
+    .arch-block.highlight-block i { color:white; }
+    .arch-layer.inner-layer { background:linear-gradient(135deg, #f5efe8, #f0e4da); border-color:var(--color-accent-soft); }
+    .arch-layer.outer-layer { background:linear-gradient(135deg, #f0f2ed, #e6ece2); border-color:#b8c8aa; }
+    .arch-layer.outer-layer .layer-label { border-right-color:#b8c8aa; color:#2d5a3a; }
+    .arch-layer.outer-layer .layer-label i { color:#3b7a5e; }
+    .arch-layer.outer-layer .arch-block { border-color:#c8d8b8; }
+    .arch-layer.outer-layer .arch-block:hover { border-color:#3b7a5e; background:#e0ede0; }
+    .arch-layer.ultimate-layer { background:linear-gradient(135deg, #f0ede8, #e8e0d8); border-color:#c8b8a8; }
+    .arch-layer.ultimate-layer .layer-label { border-right-color:#c8b8a8; color:#6a4a3a; }
+    .arch-layer.ultimate-layer .layer-label i { color:#8a6a5a; }
+    .arch-layer.ultimate-layer .arch-block { border-color:#d8c8b8; }
+    .arch-layer.ultimate-layer .arch-block:hover { border-color:#8a6a5a; background:#ede0d8; }
+
+    /* ===== 表格 ===== */
+    .table-wrapper {
+      overflow-x:auto;
+      border-radius:var(--radius-md);
+      border:1px solid var(--color-neutral-200);
+      background:white;
+    }
+    table {
+      width:100%; border-collapse:collapse; font-size:0.78rem;
+    }
+    th {
+      background:var(--color-neutral-100);
+      padding:12px 10px;
+      font-weight:600;
+      color:var(--color-primary-dark);
+      text-align:left;
+      border-bottom:2px solid var(--color-neutral-200);
+      font-size:0.7rem;
+      text-transform:uppercase;
+      letter-spacing:0.4px;
+    }
+    td {
+      padding:10px 10px;
+      border-bottom:1px solid var(--color-neutral-200);
+      vertical-align:middle;
+      color:var(--color-neutral-700);
+    }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--color-neutral-50); }
+    .level-tag {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      border-radius:var(--radius-pill);
+      padding:0.05rem 0.7rem;
+      font-size:0.65rem;
+      font-weight:600;
+      display:inline-block;
+    }
+
+    /* ===== 信息提示 ===== */
+    .info-tip {
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.7rem 1.5rem;
+      border-left:5px solid var(--color-accent);
+      margin-top:var(--space-4);
+      display:flex; align-items:center; gap:0.8rem;
+      font-size:0.9rem;
+      color:var(--color-neutral-700);
+    }
+    .info-tip i { color:var(--color-accent); font-size:1rem; }
+
+    /* ===== 横幅 ===== */
+    .banner-card {
+      background: linear-gradient(135deg, #f5ede6, #e8dcd2);
+      text-align:center;
+      border-color:var(--color-accent-soft);
+    }
+    .banner-card .card-body { padding:2.5rem var(--space-6); }
+    .banner-card .icon-big { font-size:3rem; color:var(--color-primary); opacity:0.7; margin-bottom:var(--space-3); }
+    .banner-card h2 { color:var(--color-primary-dark); font-size:clamp(1.4rem, 2.5vw, 1.9rem); margin-bottom:var(--space-2); }
+    .banner-card p { max-width:680px; margin:0 auto; color:var(--color-neutral-700); font-size:1rem; }
+    .banner-card .footer-note { margin-top:var(--space-6); font-size:0.8rem; color:var(--color-primary); }
+
+    /* ===== 响应式 ===== */
+    @media (max-width:1024px) { .sidebar { width:220px; } }
+    @media (max-width:760px) {
+      .sidebar { display:none; }
+      .layout { padding:0.5rem; }
+      .main-content { padding:0; }
+      .card-body { padding:1.25rem var(--space-4); }
+      .card-header { padding:1rem var(--space-4); }
+      .page-header { flex-direction:column; align-items:flex-start; }
+    }
+
+    /* ===== 暗色 ===== */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #1a1410;
+        --color-neutral-100: #221c18;
+        --color-neutral-200: #3a2c24;
+        --color-neutral-300: #5a4a3e;
+        --color-neutral-400: #8a7a6e;
+        --color-neutral-600: #b8a89c;
+        --color-neutral-700: #d0c4b8;
+        --color-neutral-800: #e8dcd0;
+        --color-neutral-900: #f5ede6;
+        --color-primary-light: #3a2a20;
+        --color-accent-soft: #6a4a3a;
+        --color-primary: #d08a6a;
+        --color-primary-dark: #f0c8b0;
+        --color-accent: #c07a5a;
+        --color-gold: #c29a4a;
+        --color-gold-light: #4a3a20;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6);
+        --shadow-card-hover: 0 20px 48px -12px rgba(0,0,0,0.7);
+        --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #120e0a; }
+      .card { background: #1a1410; border-color: #3a2c24; }
+      .card-header { background: #1a1410; border-bottom-color: #4a3a2e; }
+      .paas-card { background: #1a1410; border-color: #3a2c24; }
+      .paas-card .paas-icon { background: #2a1e16; color: #d08a6a; }
+      .paas-card .detail-list li { color: #c0b4a8; }
+      .paas-card .detail-list li strong { color: #e0d4c8; }
+      .table-wrapper { background: #1a1410; border-color: #3a2c24; }
+      th { background: #221c18; color: #e0d4c8; border-bottom-color: #4a3a2e; }
+      td { border-bottom-color: #2a241e; color: #c0b4a8; }
+      tr:hover td { background: #2a241e; }
+      .sidebar { background: rgba(20, 16, 12, 0.92); border-color: #3a2c24; }
+      .sidebar-brand { border-bottom-color: #4a3a2e; }
+      .sidebar-brand h3 { color: #d08a6a; }
+      .sidebar nav ul li a { color: #c0b4a8; }
+      .sidebar nav ul li a:hover { background: #3a2c24; color: white; }
+      .info-tip { background: #1a1410; border-left-color: #c07a5a; color: #c0b4a8; }
+      .banner-card { background:linear-gradient(135deg,#1a1410,#2a241e); }
+      .banner-card p { color: #c0b4a8; }
+      .page-header h1 { background:linear-gradient(135deg,#f0c8b0,#d08a6a); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#2a241e; border-color:#4a3a2e; color:#b8a89c; }
+      .arch-layer { background:#1a1410; border-color:#3a2c24; }
+      .arch-layer:hover { background:#2a1e16; border-color:#5a4a3e; }
+      .arch-layer .layer-label { border-right-color:#3a2c24; color:#e0d4c8; }
+      .arch-block { background:#1a1410; border-color:#3a2c24; color:#c0b4a8; }
+      .arch-block:hover { background:#3a2c24; border-color:#c07a5a; }
+      .arch-layer.inner-layer { background:linear-gradient(135deg,#1a1410,#2a1e16); border-color:#5a3a2a; }
+      .arch-layer.outer-layer { background:linear-gradient(135deg,#141a12,#1a2618); border-color:#2a4a2a; }
+      .arch-layer.outer-layer .layer-label { border-right-color:#2a4a2a; color:#8aba8a; }
+      .arch-layer.outer-layer .layer-label i { color:#5a9a6a; }
+      .arch-layer.outer-layer .arch-block { border-color:#2a4a2a; color:#a0c8a0; }
+      .arch-layer.outer-layer .arch-block:hover { border-color:#5a9a6a; background:#1a2a1a; }
+      .arch-layer.ultimate-layer { background:linear-gradient(135deg,#1a1410,#221c18); border-color:#4a3a2e; }
+      .arch-layer.ultimate-layer .layer-label { border-right-color:#4a3a2e; color:#c8b0a0; }
+      .arch-layer.ultimate-layer .layer-label i { color:#a08070; }
+      .arch-layer.ultimate-layer .arch-block { border-color:#4a3a2e; color:#c8b8a8; }
+      .arch-layer.ultimate-layer .arch-block:hover { border-color:#a08070; background:#2a241e; }
+    }
+    
+    <!-- ===== 优化新增样式 ===== -->
+<style>
+/* 核心价值区域优化样式 */
+.value-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+.value-header .icon-big {
+    font-size: 2.8rem;
+    color: var(--color-primary);
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
+}
+.value-header h2 {
+    font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+    color: var(--color-primary-dark);
+    margin-bottom: 0.25rem;
+}
+.value-subtitle {
+    font-size: 1rem;
+    color: var(--color-neutral-600);
+    letter-spacing: 2px;
+    font-weight: 300;
+}
+
+/* 价值网格 */
+.value-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin: 1.5rem 0 2rem 0;
+}
+.value-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(4px);
+    padding: 1.2rem 1.4rem;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255, 235, 220, 0.5);
+    transition: all 0.3s ease;
+}
+.value-item:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-card-hover);
+    border-color: var(--color-accent-soft);
+    background: rgba(255, 255, 255, 0.85);
+}
+.value-item .value-icon {
+    flex-shrink: 0;
+    width: 2.8rem;
+    height: 2.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary-light);
+    border-radius: 50%;
+    color: var(--color-accent);
+    font-size: 1.2rem;
+}
+.value-item .value-content h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+    margin-bottom: 0.3rem;
+    line-height: 1.3;
+}
+.value-item .value-content p {
+    font-size: 0.9rem;
+    color: var(--color-neutral-700);
+    line-height: 1.6;
+    margin: 0;
+}
+/* 最后一项占满整行 */
+.value-item.full-width {
+    grid-column: 1 / -1;
+}
+
+/* 暗色主题适配 */
+@media (prefers-color-scheme: dark) {
+    .value-item {
+        background: rgba(30, 24, 20, 0.7);
+        border-color: var(--color-neutral-200);
+    }
+    .value-item:hover {
+        background: rgba(40, 32, 26, 0.9);
+        border-color: var(--color-accent-soft);
+    }
+    .value-item .value-content p {
+        color: var(--color-neutral-600);
+    }
+    .value-subtitle {
+        color: var(--color-neutral-400);
+    }
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+    .value-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    .value-item {
+        padding: 1rem 1.2rem;
+    }
+    .value-item .value-content h4 {
+        font-size: 0.95rem;
+    }
+    .value-item .value-content p {
+        font-size: 0.85rem;
+    }
+}
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-cubes" aria-hidden="true"></i>
+      <h3>PaaS中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-cubes"></i> 全域标准定义</a></li>
+        <li><a href="#s1"><i class="fas fa-layer-group"></i> 核心特征</a></li>
+        <li><a href="#s2"><i class="fas fa-book"></i> 知识体系</a></li>
+        <li><a href="#s3"><i class="fas fa-project-diagram"></i> PaaSGraph</a></li>
+        <li><a href="#s4"><i class="fas fa-sitemap"></i> 六大架构</a></li>
+        <li><a href="#s5"><i class="fas fa-puzzle-piece"></i> 功能模块</a></li>
+        <li><a href="#s6"><i class="fas fa-chart-line"></i> 指标体系</a></li>
+        <li><a href="#s7"><i class="fas fa-boxes"></i> 资产体系</a></li>
+        <li><a href="#s8"><i class="fas fa-share-alt"></i> 协同关系</a></li>
+        <li><a href="#s9"><i class="fas fa-flag"></i> 核心价值</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-cubes"></i> PaaS中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-cubes"></i> 企业级 PaaS 中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> 云原生+AI前沿完整版</span>
+    </header>
+
+    <!-- ===== S0 全域标准定义 ===== -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> PaaS中台全域标准定义</h2>
+        <span class="badge-count">当下落地+未来AI云原生演进</span>
+      </div>
+      <div class="card-body">
+        <div class="arch-diagram">
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-database"></i> 底层依赖 <span class="sub">IaaS/算力/存储/网络/安全</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-server"></i> IaaS</span>
+              <span class="arch-block"><i class="fas fa-microchip"></i> 算力中台</span>
+              <span class="arch-block"><i class="fas fa-database"></i> 存储</span>
+              <span class="arch-block"><i class="fas fa-network-wired"></i> 网络</span>
+              <span class="arch-block"><i class="fas fa-shield-alt"></i> 安全中台</span>
+            </div>
+          </div>
+          <div class="arch-layer outer-layer">
+            <div class="layer-label"><i class="fas fa-cogs"></i> 核心能力 <span class="sub">资源/研发/治理/集成/运维/知识</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block highlight-block"><i class="fas fa-warehouse"></i> 资源调度</span>
+              <span class="arch-block"><i class="fas fa-tasks"></i> DevOps</span>
+              <span class="arch-block"><i class="fas fa-network-wired"></i> 微服务治理</span>
+              <span class="arch-block"><i class="fas fa-plug"></i> 应用集成</span>
+              <span class="arch-block"><i class="fas fa-eye"></i> 可观测运维</span>
+              <span class="arch-block"><i class="fas fa-brain"></i> PaaSGraph</span>
+            </div>
+          </div>
+          <div class="arch-layer ultimate-layer">
+            <div class="layer-label"><i class="fas fa-rocket"></i> 上层赋能 <span class="sub">SaaS/业务/数据/AI/前台应用</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-cloud"></i> SaaS</span>
+              <span class="arch-block"><i class="fas fa-box"></i> 业务中台</span>
+              <span class="arch-block"><i class="fas fa-table"></i> 数据中台</span>
+              <span class="arch-block"><i class="fas fa-cloud"></i> AI中台</span>
+              <span class="arch-block"><i class="fas fa-laptop"></i> 前台应用</span>
+            </div>
+          </div>
+        </div>
+        <div class="info-tip"><i class="fas fa-scroll"></i> PaaS中台（平台即服务中台）是企业全域云原生应用研发、交付、运行、治理、迭代的统一技术能力底座与应用孵化中枢，属于企业十大全域中台体系中的技术赋能核心底座级中台。</div>
+        <div style="margin-top:0.8rem; font-size:0.9rem; color:var(--color-neutral-600);">
+          <p><strong>战略定位：</strong>企业全域云原生统一技术底座、应用全生命周期研发交付中枢、微服务标准化治理中心、技术资源复用调度中心、DevOps工程效能中心、AI应用孵化运行中心、企业技术架构统一迭代中枢。</p>
+          <p><strong>层级边界：</strong>PaaS中台属于全域中台体系的底层技术核心赋能层，向下对接IaaS基础设施、算力中台弹性算力资源、存储与网络底座、安全中台基础安全能力；向上为SaaS中台、业务中台、数据中台、AI中台、前台所有行业应用提供标准化研发、运行、治理、集成的底层平台能力；横向联动全域所有中台实现技术统一、架构归一、资源互通、服务协同。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S1 核心特征 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-layer-group"></i> PaaS中台核心特征</h2>
+        <span class="badge-count">8大核心特征</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-code-branch"></i></span><h4>全域技术归一与标准化管控</h4><ul class="detail-list"><li>统一企业技术栈、研发规范、部署标准、服务协议，彻底解决技术异构、架构混乱、兼容冲突问题</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-warehouse"></i></span><h4>云原生资源池化弹性复用</h4><ul class="detail-list"><li>容器、中间件、算力、存储、网络资源全域池化，按需调度、弹性扩缩容、跨应用复用</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-tasks"></i></span><h4>全流程DevOps自动化交付</h4><ul class="detail-list"><li>覆盖代码管理、构建、测试、部署、发布、灰度、回滚全流程自动化，大幅压缩交付周期</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-network-wired"></i></span><h4>精细化微服务全域治理</h4><ul class="detail-list"><li>实现服务注册、发现、熔断、限流、降级、监控、追踪、容错全链路治理</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-brain"></i></span><h4>标准+AI+知识三重智能赋能</h4><ul class="detail-list"><li>融合云原生标准规范、AI智能运维、PaaS平台知识图谱推理，实现平台自治、故障自愈、架构最优迭代</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-eye"></i></span><h4>全链路可观测可治理可追溯</h4><ul class="detail-list"><li>所有研发行为、服务运行、资源消耗、发布变更、异常故障可量化、可溯源、可复盘、可优化</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-plug"></i></span><h4>全域应用生态自适应扩展</h4><ul class="detail-list"><li>支持单体应用、微服务应用、低代码应用、AI应用、第三方应用统一接入、兼容适配、弹性运行</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-sync-alt"></i></span><h4>技术体系常态化智能迭代</h4><ul class="detail-list"><li>基于研发效能数据、运维故障数据、架构演进趋势，动态迭代技术规范、组件能力、治理策略、交付流程</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S2 知识体系 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book"></i> PaaS中台专属完整知识体系</h2>
+        <span class="badge-count">十大知识域全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-3">
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-sitemap"></i></span><h4>顶层架构与体系建设</h4><ul class="detail-list"><li>顶层规划；转型方法论；建设路线图；成熟度评估；分层分级服务标准</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-cloud"></i></span><h4>云原生核心技术</h4><ul class="detail-list"><li>容器/K8s/服务网格；无服务器架构；中间件体系；云原生安全；多集群管控</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-tasks"></i></span><h4>DevOps工程效能</h4><ul class="detail-list"><li>代码管理/评审；CI/CD/CT；自动化测试；灰度发布；效能评估</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-network-wired"></i></span><h4>微服务与服务治理</h4><ul class="detail-list"><li>拆分原则；注册发现；熔断限流；链路追踪；依赖治理；生命周期</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-warehouse"></i></span><h4>平台资源调度与管控</h4><ul class="detail-list"><li>资源池化；配额管理；集群扩缩容；负载均衡；资源优化</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-plug"></i></span><h4>应用集成与生态治理</h4><ul class="detail-list"><li>统一接入规范；API网关集成；服务互通；入驻审核；兼容治理</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-eye"></i></span><h4>平台可观测与运维</h4><ul class="detail-list"><li>日志/指标/链路/告警；故障识别；根因排查；自愈恢复；性能调优</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-brain"></i></span><h4>AI原生PaaS智能赋能</h4><ul class="detail-list"><li>AI智能研发；AI智能运维；AI服务治理；AI资源管控；无人值守运营</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-chart-line"></i></span><h4>架构复盘与优化</h4><ul class="detail-list"><li>稳定性复盘；效能复盘；资源效能；成本优化；规范迭代</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-rocket"></i></span><h4>前沿演进</h4><ul class="detail-list"><li>平台工程/IDP；AI原生PaaS；云边端一体化；联邦云；零信任安全</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S3 PaaSGraph ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-project-diagram"></i> PaaS平台知识图谱（PaaSGraph）</h2>
+        <span class="badge-count">核心实体 · 关联 · 智能能力</span>
+      </div>
+      <div class="card-body">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+          <div><h4 style="color:var(--color-primary-dark);"><i class="fas fa-circle"></i> 核心实体体系</h4><ul class="detail-list" style="list-style:none; padding-left:0;"><li>资源实体、应用实体、服务实体、研发流程、运行状态、故障问题、治理策略、架构规范、环境实体、效能效果</li></ul></div>
+          <div><h4 style="color:var(--color-primary-dark);"><i class="fas fa-link"></i> 核心关联关系</h4><ul class="detail-list" style="list-style:none; padding-left:0;"><li>资源-应用；应用-服务；服务-流程；服务-故障；资源-状态；故障-策略；应用-环境；规范-应用；流程-效能；策略-效果</li></ul></div>
+        </div>
+        <div style="margin-top:1rem; display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.8rem;">
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-magic"></i></span><h4>智能能力</h4><ul class="detail-list"><li>运维研发经验结构化沉淀</li><li>隐性平台风险智能挖掘</li><li>平台故障因果智能溯源</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-broom"></i></span><h4>智能能力</h4><ul class="detail-list"><li>最优治理策略智能推荐</li><li>研发效能卡点智能预判</li><li>全域架构组合策略推演</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-shield-alt"></i></span><h4>智能能力</h4><ul class="detail-list"><li>平台体系自动迭代优化</li><li>技术团队快速赋能</li><li>知识经验复用</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S4 六大架构 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> PaaS中台六大核心架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-cubes"></i></span><h4>产品架构（九层）</h4><ul class="detail-list"><li>应用接入层→资源池化层→中间件服务层→DevOps交付层→微服务治理层→集成互通层→PaaSGraph推理层→可观测运维层→架构迭代层</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-briefcase"></i></span><h4>业务架构</h4><ul class="detail-list"><li>上层：应用场景赋能层；中层：资源调度/DevOps/微服务治理/集成/运维/知识；下层：全域底座支撑层</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-database"></i></span><h4>数据架构（七层）</h4><ul class="detail-list"><li>PaaS-ODS→PaaS-DWD→PaaS-DWB→PaaS-DWA→PaaS-DWS→PaaS-ADS→PaaS-OPT</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-microchip"></i></span><h4>技术架构（七层）</h4><ul class="detail-list"><li>应用接入层→资源底座层→核心引擎层→策略编排层→管控调度层→可观测运维层→管理前端层</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-rocket"></i></span><h4>应用架构（八大应用）</h4><ul class="detail-list"><li>研发交付；资源调度；微服务治理；可观测运维；生态集成；AI自治运维；跨中台协同；知识赋能</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-balance-scale"></i></span><h4>治理架构（六大体系）</h4><ul class="detail-list"><li>资源全生命周期；DevOps效能；微服务全域；平台稳定性SLA；应用生态集成；知识迭代</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S5 功能模块 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> PaaS中台全量产品功能模块</h2>
+        <span class="badge-count">10大模块全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-warehouse"></i></span><h4>云原生资源调度管控</h4><ul class="detail-list"><li>集群节点管理；容器资源管理；算力调度；存储网络管控；资源配额；闲置治理</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-tasks"></i></span><h4>全流程DevOps工程交付</h4><ul class="detail-list"><li>代码版本管理；持续集成CI；自动化测试；持续部署CD；发布策略；效能统计</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-network-wired"></i></span><h4>微服务全域治理</h4><ul class="detail-list"><li>服务注册发现；配置中心；流量治理；链路追踪；版本治理；依赖治理</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-database"></i></span><h4>核心中间件统一运维</h4><ul class="detail-list"><li>API网关；缓存/消息/数据库中间件；日志/监控中间件</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-plug"></i></span><h4>全域应用集成与生态</h4><ul class="detail-list"><li>多类型应用接入；跨系统互通；生命周期管理；兼容管控；权限管控；链路监控</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-eye"></i></span><h4>全链路可观测与SLA</h4><ul class="detail-list"><li>指标监控；日志检索；链路追踪；智能告警；SLA管控；故障复盘</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-brain"></i></span><h4>PaaS知识图谱智能推理</h4><ul class="detail-list"><li>三元组抽取；可视化展示；风险挖掘；故障溯源；策略推荐；知识迭代</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-robot"></i></span><h4>AI智能自治平台运维</h4><ul class="detail-list"><li>AI资源调度；AI故障自愈；AI研发效能优化；AI性能调优；AI架构巡检；无人值守运维</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-shield-alt"></i></span><h4>平台安全与合规管控</h4><ul class="detail-list"><li>容器镜像安全；访问安全；服务安全；配置安全；操作审计；安全巡检</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-database"></i></span><h4>PaaS知识资产与架构迭代</h4><ul class="detail-list"><li>知识库沉淀；图谱运维；智能问答；团队赋能；最佳实践；体系迭代</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S6 指标体系 ===== -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> PaaS中台全套指标体系</h2>
+        <span class="badge-count">资源+研发+服务+运维+生态+知识</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>云原生资源管控</strong></td><td>CPU/内存利用率 · 闲置资源占比 · 弹性响应时长 · 调度成功率 · 节点可用率 · 闭环率100%</td></tr>
+              <tr><td><strong>DevOps研发效能</strong></td><td>构建成功率 · 部署成功率 · 迭代交付周期 · 上线及时率 · 发布回滚率 · 自动化覆盖率</td></tr>
+              <tr><td><strong>微服务治理质量</strong></td><td>服务可用性 · 接口成功率 · 慢接口占比 · 熔断触发率 · 版本兼容率 · 零重大故障保障率100%</td></tr>
+              <tr><td><strong>平台运维稳定性</strong></td><td>平台可用性≥99.98% · 故障发生率 · 故障自愈成功率 · 故障修复时长 · 告警准确率 · 成本下降率</td></tr>
+              <tr><td><strong>生态集成适配</strong></td><td>应用接入成功率 · 兼容适配率 · 跨系统调用成功率 · 集成故障发生率 · 生态运行稳定率</td></tr>
+              <tr><td><strong>PaaSGraph专项</strong></td><td>场景覆盖率100% · 三元组完整率≥99.8% · 根因准确率≥99% · 推荐准确率≥98% · 赋能贡献率≥45%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S7 资产体系 ===== -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> PaaS中台完整内容资产体系</h2>
+        <span class="badge-count">6大资产包</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-sitemap"></i></span><h4>顶层规划资产</h4><ul class="detail-list"><li>建设方案 · 白皮书 · 转型规划 · 路线图 · 落地清单 · 成熟度评估</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-book"></i></span><h4>全域标准规范资产</h4><ul class="detail-list"><li>总体规范 · 架构标准 · 资源调度标准 · DevOps规范 · 微服务规范 · 集成规范 · 图谱标准 · SLA标准</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-database"></i></span><h4>核心数字资产</h4><ul class="detail-list"><li>资源模板库 · DevOps资产库 · 治理模板库 · 中间件模板 · PaaSGraph资产包 · 全域映射矩阵</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-tools"></i></span><h4>落地工程实施资产</h4><ul class="detail-list"><li>实施手册 · 改造指南 · 运维手册 · 对接手册 · 验收标准 · 迭代模板</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-chart-pie"></i></span><h4>运维效能分析资产</h4><ul class="detail-list"><li>运维报告 · 故障复盘 · 效能复盘 · 成本报告 · 生态报告 · 长效方案</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-shield-alt"></i></span><h4>应急保障资产</h4><ul class="detail-list"><li>平台宕机预案 · 集群故障预案 · 服务雪崩预案 · 中间件失效预案 · 发布事故预案 · 保障方案</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S8 协同关系 ===== -->
+    <section id="s8" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-share-alt"></i> PaaS中台与九大中台全域协同关系</h2>
+        <span class="badge-count">9 大中台协同</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-3">
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-server"></i></span><h4>IaaS基础设施</h4><ul class="detail-list"><li>提供算力、存储、网络硬件底层资源，PaaS进行池化、封装、调度与治理</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-table"></i></span><h4>数据中台</h4><ul class="detail-list"><li>提供云原生运行环境与研发交付底座，反向输出平台运行数据支撑效能优化</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-microchip"></i></span><h4>算力中台</h4><ul class="detail-list"><li>提供弹性算力支撑知识图谱推理、AI智能运维、大规模集群调度</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-cloud"></i></span><h4>AI中台/模型中台</h4><ul class="detail-list"><li>提供AI能力落地智能运维与自愈，同时为AI应用提供孵化运行底座</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-box"></i></span><h4>业务中台</h4><ul class="detail-list"><li>提供研发、部署、运行、治理的底层技术支撑，保障业务能力标准化稳定运行</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-cloud"></i></span><h4>SaaS中台</h4><ul class="detail-list"><li>核心技术运行底座，支撑多租户隔离、组件运行、低代码交付、生态集成</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-chart-pie"></i></span><h4>营销中台</h4><ul class="detail-list"><li>为营销应用、活动服务、用户运营提供稳定运行、迭代交付、弹性扩容底座</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-shield-alt"></i></span><h4>风控中台</h4><ul class="detail-list"><li>提供访问风控、操作风控能力，PaaS提供应用运行环境，双向筑牢安全底座</li></ul></div>
+          <div class="paas-card"><span class="paas-icon"><i class="fas fa-tasks"></i></span><h4>运维中台</h4><ul class="detail-list"><li>统一承接监控数据、故障告警、运维日志，实现全域运维统一管控</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S9 核心价值 ===== -->
+    <!-- ===== S9 核心价值（优化版） ===== -->
+<section id="s9" class="card banner-card">
+    <div class="card-body">
+        <!-- 顶部图标与标题 -->
+        <div class="value-header">
+            <div class="icon-big"><i class="fas fa-flag"></i></div>
+            <h2>PaaS中台核心价值总结</h2>
+            <p class="value-subtitle">七大维度 · 重塑企业云原生技术底座</p>
+        </div>
+
+        <!-- 价值网格 -->
+        <div class="value-grid">
+            <!-- 价值项 1 -->
+            <div class="value-item">
+                <div class="value-icon"><i class="fas fa-code-branch"></i></div>
+                <div class="value-content">
+                    <h4>终结技术异构，构建统一云原生底座</h4>
+                    <p>打破技术栈杂乱、架构不统一、系统兼容差、集成困难的痛点，实现全域技术规范归一、资源统一调度、应用统一运行，搭建企业标准化云原生技术基座。</p>
+                </div>
+            </div>
+            <!-- 价值项 2 -->
+            <div class="value-item">
+                <div class="value-icon"><i class="fas fa-robot"></i></div>
+                <div class="value-content">
+                    <h4>规则+AI+知识，智能自治升级</h4>
+                    <p>通过PaaS知识图谱因果推理与AI智能运维自愈，摆脱人工运维经验依赖，实现故障提前预判、根因精准溯源、资源智能调度、平台自主治理，大幅提升全域系统稳定性。</p>
+                </div>
+            </div>
+            <!-- 价值项 3 -->
+            <div class="value-item">
+                <div class="value-icon"><i class="fas fa-cubes"></i></div>
+                <div class="value-content">
+                    <h4>技术能力资产化，降本增效与架构规模化</h4>
+                    <p>将云原生资源、研发流程、治理策略、中间件能力全部资产化、模板化，跨应用、跨团队、跨场景复用，彻底解决重复造轮子问题，大幅压缩研发交付周期、降低运维成本。</p>
+                </div>
+            </div>
+            <!-- 价值项 4 -->
+            <div class="value-item">
+                <div class="value-icon"><i class="fas fa-balance-scale"></i></div>
+                <div class="value-content">
+                    <h4>三重驱动，平衡标准化与灵活性</h4>
+                    <p>标准化技术规范保障平台统一稳定合规，AI模型适配动态负载与迭代需求，知识图谱沉淀企业专属技术运维经验，实现高标准化、高灵活性、高智能化的现代化云平台体系。</p>
+                </div>
+            </div>
+            <!-- 价值项 5 -->
+            <div class="value-item">
+                <div class="value-icon"><i class="fas fa-eye"></i></div>
+                <div class="value-content">
+                    <h4>全链路可观测，精细化平台治理</h4>
+                    <p>打通资源调度、研发交付、服务运行、故障处置、架构迭代全链路追溯，彻底解决技术运维黑盒、故障盲排、架构粗放问题，实现科学化、精细化技术治理。</p>
+                </div>
+            </div>
+            <!-- 价值项 6 -->
+            <div class="value-item">
+                <div class="value-icon"><i class="fas fa-database"></i></div>
+                <div class="value-content">
+                    <h4>沉淀云原生知识资产，技术架构自主迭代</h4>
+                    <p>通过完整PaaS知识体系与PaaS知识图谱，沉淀企业独家云原生运维规律、架构适配经验、平台治理范式，摆脱外部技术依赖，实现企业IT架构自主进化、持续升级。</p>
+                </div>
+            </div>
+            <!-- 价值项 7 -->
+            <div class="value-item full-width">
+                <div class="value-icon"><i class="fas fa-rocket"></i></div>
+                <div class="value-content">
+                    <h4>护航全域云数智化长期稳健演进</h4>
+                    <p>作为企业十大中台的底层技术核心底座，持续支撑业务云化、应用智能化、研发工程化、平台自治化长效落地，保障企业数智化转型的技术可归一、交付可自动化、运行可稳定化、架构可迭代化长效发展。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部注脚 -->
+        <div class="footer-note">PaaS中台 · 平台即服务中台 · 云原生+AI前沿完整版</div>
+    </div>
+</section>
+  </main>
+</div>
+</body>
+</html>

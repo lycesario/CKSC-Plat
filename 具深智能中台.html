@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>具深智能中台（EDIM）完整体系说明书</title>
+<style>
+:root {
+  --color-primary: #1a4a7a;
+  --color-primary-light: #e8f0fe;
+  --color-primary-dark: #0f2d4a;
+  --color-accent: #2e7db5;
+  --color-accent-soft: #b8d4ea;
+  --color-accent-glow: rgba(46, 125, 181, 0.10);
+  --color-neutral-50: #f7f9fc;
+  --color-neutral-100: #eef3f8;
+  --color-neutral-200: #d6e2ee;
+  --color-neutral-300: #b8c8d8;
+  --color-neutral-400: #8a9faf;
+  --color-neutral-600: #4a6070;
+  --color-neutral-700: #2f4456;
+  --color-neutral-800: #1e2f3d;
+  --color-neutral-900: #0f1a24;
+  --color-gold: #c29a4a;
+  --color-gold-light: #f3e1b0;
+  --color-jade: #3b7a5e;
+  --color-jade-light: #d4ede0;
+  --color-success: #1f6e4a;
+  --color-warning: #a86b2c;
+  --color-error: #b13a2a;
+  --font-base: 1rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --radius-sm: 0.75rem;
+  --radius-md: 1.25rem;
+  --radius-card: 2rem;
+  --radius-pill: 40px;
+  --shadow-card: 0 12px 32px -8px rgba(20, 50, 80, 0.12);
+  --shadow-card-hover: 0 20px 48px -12px rgba(20, 50, 80, 0.20);
+  --shadow-sidebar: 0 16px 40px -8px rgba(20, 50, 80, 0.12);
+  --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+  --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-fade: 0.6s ease-out;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--color-neutral-50);
+  font-family: 'Inter', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
+  color: var(--color-neutral-900);
+  line-height: 1.65;
+  scroll-behavior: smooth;
+  font-size: var(--font-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  animation: fadeInPage var(--transition-fade) both;
+}
+@keyframes fadeInPage { from { opacity:0; } to { opacity:1; } }
+::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+/* ===== 布局 ===== */
+.layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+/* ===== 侧边栏 ===== */
+.sidebar {
+  position:sticky; top:1.5rem; align-self:flex-start;
+  width:280px; flex-shrink:0;
+  background: rgba(247, 250, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sidebar);
+  border:1px solid rgba(220, 235, 250, 0.6);
+  padding:1.6rem 0.8rem;
+  max-height:calc(100vh - 3rem);
+  overflow-y:auto;
+  transition: var(--transition-default);
+  z-index:100;
+}
+.sidebar::-webkit-scrollbar { width:4px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+.sidebar-brand {
+  display:flex; align-items:center; gap:10px;
+  padding:0 1rem 1rem 1rem;
+  border-bottom:2px solid var(--color-primary-light);
+  margin-bottom:1rem;
+}
+.sidebar-brand h3 { font-size:1.1rem; font-weight:700; color:var(--color-primary); letter-spacing:-0.01em; }
+.sidebar-brand .brand-icon {
+  font-size:1.5rem; color:var(--color-accent);
+  background:var(--color-primary-light);
+  width:36px; height:36px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+}
+.sidebar nav ul { list-style:none; padding:0; margin:0; }
+.sidebar nav > ul > li { margin-bottom:0.15rem; }
+.sidebar nav ul li a {
+  display:flex; align-items:center; gap:10px;
+  padding:0.55rem 1rem; border-radius:var(--radius-pill);
+  font-weight:500; font-size:0.85rem;
+  color:var(--color-neutral-700); text-decoration:none;
+  transition: all var(--transition-default);
+}
+.sidebar nav ul li a .nav-icon {
+  width:24px; height:24px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--color-primary-light); border-radius:8px;
+  color:var(--color-accent); font-size:0.75rem;
+}
+.sidebar nav ul li a:hover,
+.sidebar nav ul li a:focus-visible {
+  background:var(--color-primary-light);
+  color:var(--color-primary-dark);
+  transform:translateX(4px);
+}
+.sidebar nav ul li a.active {
+  background:var(--color-accent);
+  color:#fff;
+}
+.sidebar nav ul li a.active .nav-icon {
+  background:rgba(255,255,255,0.2);
+  color:#fff;
+}
+.sidebar .has-sub > a .sub-arrow {
+  margin-left:auto; font-size:0.7rem;
+  transition: transform var(--transition-default);
+}
+.sidebar .has-sub.open > a .sub-arrow { transform:rotate(90deg); }
+.sidebar .sub-menu {
+  list-style:none; padding:0.3rem 0 0.3rem 2.4rem;
+  max-height:0; overflow:hidden;
+  transition: max-height 0.4s ease;
+}
+.sidebar .has-sub.open > .sub-menu { max-height:600px; }
+.sidebar .sub-menu li a {
+  padding:0.4rem 0.8rem; font-size:0.8rem;
+  border-radius:8px;
+}
+.sidebar-footer {
+  margin-top:24px; padding:12px; text-align:center;
+  font-size:0.7rem; color:var(--color-neutral-600);
+  border-top:1px solid var(--color-neutral-200);
+}
+
+/* ===== 主内容 ===== */
+.main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+/* ===== 页面头部 ===== */
+.page-header {
+  margin-bottom: var(--space-6);
+  padding: var(--space-4) 0 var(--space-2) 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+.page-header h1 {
+  font-size: clamp(1.4rem, 2.8vw, 2.2rem);
+  font-weight:800; letter-spacing:-0.025em;
+  background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display:flex; align-items:center; gap:0.5rem;
+}
+.page-header .header-meta {
+  font-size:0.85rem; color:var(--color-neutral-600);
+  background:var(--color-neutral-100);
+  padding:0.4rem 1.2rem;
+  border-radius:var(--radius-pill);
+  border:1px solid var(--color-neutral-200);
+}
+
+/* ===== 卡片系统 ===== */
+.card {
+  background:rgba(255,255,255,0.92);
+  backdrop-filter: blur(4px);
+  border-radius:var(--radius-card);
+  box-shadow:var(--shadow-card);
+  margin-bottom:var(--space-6);
+  border:1px solid rgba(220, 235, 250, 0.5);
+  overflow:hidden;
+  transition: box-shadow var(--transition-default), transform 0.25s;
+  animation: slideUp 0.7s var(--transition-default) both;
+}
+.card:nth-child(odd) { animation-delay: 0.05s; }
+.card:nth-child(even) { animation-delay: 0.15s; }
+@keyframes slideUp {
+  from { opacity:0; transform: translateY(20px); }
+  to { opacity:1; transform: translateY(0); }
+}
+.card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+.card-header {
+  padding:1.2rem var(--space-6);
+  background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+  border-bottom:2px solid var(--color-accent-soft);
+  display:flex; align-items:center; gap:var(--space-3);
+}
+.card-header h2 {
+  font-size:clamp(1.1rem, 2vw, 1.5rem);
+  font-weight:700; color:var(--color-primary-dark);
+  display:flex; align-items:center; gap:10px;
+  letter-spacing:-0.01em;
+}
+.card-header h2 .header-icon {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:32px; height:32px; border-radius:10px;
+  background:var(--color-accent); color:#fff; font-size:0.9rem;
+}
+.card-header .badge-count {
+  margin-left:auto;
+  background:var(--color-accent);
+  color:white;
+  border-radius:var(--radius-pill);
+  padding:0.15rem 0.9rem;
+  font-size:0.7rem;
+  font-weight:600;
+  letter-spacing:0.3px;
+}
+.card-body { padding:1.8rem var(--space-6); }
+
+/* ===== 网格 & 策略卡片 ===== */
+.grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+.grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+@media (max-width:1024px) { .grid-2 { grid-template-columns:repeat(2,1fr); } .grid-3 { grid-template-columns:repeat(2,1fr); } }
+@media (max-width:760px) { .grid-2,.grid-3 { grid-template-columns:1fr; } }
+
+.policy-card {
+  background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+  border-radius:var(--radius-md);
+  padding:1.3rem 1.3rem 1rem;
+  border:1px solid var(--color-neutral-200);
+  transition: all var(--transition-default);
+  position:relative;
+  overflow:hidden;
+  border-left: 4px solid var(--color-accent);
+}
+.policy-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft));
+  opacity:0;
+  transition: opacity var(--transition-default);
+}
+.policy-card:hover::before { opacity:1; }
+.policy-card:hover {
+  border-color:var(--color-accent-soft);
+  box-shadow: 0 8px 24px -8px rgba(46,125,181,0.15);
+  transform:translateY(-3px);
+}
+.policy-card .policy-icon {
+  font-size:1.6rem;
+  color:var(--color-primary);
+  display:inline-flex;
+  margin-bottom:0.5rem;
+  background: var(--color-primary-light);
+  padding:0.3rem 0.7rem;
+  border-radius:12px;
+}
+.policy-card h4 {
+  color:var(--color-primary-dark);
+  font-size:1rem;
+  margin-bottom:0.4rem;
+  display:flex; align-items:center; gap:8px;
+  flex-wrap:wrap;
+}
+.policy-card .detail-list {
+  padding-left:0; margin:0.4rem 0 0 0;
+  list-style:none;
+}
+.policy-card .detail-list li {
+  margin-bottom:0.3rem;
+  padding-left:1.2rem;
+  position:relative;
+  font-size:0.85rem;
+  color:var(--color-neutral-700);
+  line-height:1.6;
+}
+.policy-card .detail-list li::before {
+  content:'▹'; position:absolute; left:0;
+  color:var(--color-accent);
+  font-weight:600;
+}
+.policy-card .detail-list li strong { color:var(--color-neutral-800); }
+
+/* ===== 正文排版 ===== */
+.content-section { margin-bottom:1.2rem; }
+.content-section h3 { color:var(--color-primary-dark); font-size:1.05rem; margin-bottom:0.5rem; font-weight:700; }
+.content-section h4 { color:var(--color-primary-dark); font-size:0.95rem; margin-bottom:0.4rem; font-weight:600; }
+.content-section p { margin-bottom:0.6rem; font-size:0.9rem; color:var(--color-neutral-700); line-height:1.7; }
+.content-section ul { padding-left:1.2rem; margin-bottom:0.6rem; }
+.content-section li { margin-bottom:0.3rem; font-size:0.88rem; color:var(--color-neutral-700); line-height:1.65; }
+.content-section strong { color:var(--color-neutral-800); font-weight:600; }
+.content-section ol { padding-left:1.4rem; margin-bottom:0.6rem; }
+.content-section ol li { margin-bottom:0.35rem; font-size:0.88rem; color:var(--color-neutral-700); line-height:1.65; }
+.text-block { background:var(--color-neutral-50); border-radius:var(--radius-sm); padding:1rem 1.2rem; border:1px solid var(--color-neutral-200); margin-bottom:0.8rem; }
+
+/* ===== 表格 ===== */
+.data-table { width:100%; border-collapse:collapse; margin:0.8rem 0; font-size:0.85rem; }
+.data-table th { background:var(--color-primary-light); color:var(--color-primary-dark); padding:0.7rem 0.9rem; text-align:left; border:1px solid var(--color-neutral-200); font-weight:600; }
+.data-table td { padding:0.7rem 0.9rem; border:1px solid var(--color-neutral-200); color:var(--color-neutral-700); }
+.data-table tr:nth-child(even) td { background:var(--color-neutral-50); }
+
+/* ===== 横幅 ===== */
+.banner-card {
+  background: linear-gradient(135deg, #eef4fc, #dceaf8);
+  text-align:center;
+  border-color:var(--color-accent-soft);
+}
+.banner-card .card-body { padding:2.5rem var(--space-6); }
+.banner-card .icon-big { font-size:3rem; color:var(--color-primary); opacity:0.7; margin-bottom:var(--space-3); }
+.banner-card h2 { color:var(--color-primary-dark); font-size:clamp(1.3rem, 2.4vw, 1.8rem); margin-bottom:var(--space-2); }
+.banner-card p { max-width:720px; margin:0 auto; color:var(--color-neutral-700); font-size:0.95rem; line-height:1.7; }
+.banner-card .footer-note { margin-top:var(--space-6); font-size:0.8rem; color:var(--color-primary); }
+
+/* ===== 响应式 ===== */
+@media (max-width:1024px) { .sidebar { width:220px; } }
+@media (max-width:760px) {
+  .sidebar { display:none; }
+  .layout { padding:0.5rem; }
+  .main-content { padding:0; }
+  .card-body { padding:1.25rem var(--space-4); }
+  .card-header { padding:1rem var(--space-4); }
+  .page-header { flex-direction:column; align-items:flex-start; }
+}
+
+/* ===== 暗色模式 ===== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-neutral-50: #0f1620;
+    --color-neutral-100: #1a2433;
+    --color-neutral-200: #2a3a4d;
+    --color-neutral-300: #4a5a6d;
+    --color-neutral-400: #7a8a9d;
+    --color-neutral-600: #a8b8c8;
+    --color-neutral-700: #c0d0e0;
+    --color-neutral-800: #d8e8f8;
+    --color-neutral-900: #eef5fc;
+    --color-primary-light: #1a2a4a;
+    --color-accent-soft: #2a4a6a;
+    --color-primary: #6a9ac5;
+    --color-primary-dark: #b0d0f0;
+    --color-accent: #4a8ab5;
+    --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6);
+    --shadow-card-hover: 0 20px 48px -12px rgba(0,0,0,0.7);
+    --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+  }
+  body { background: #080d14; }
+  .card { background: #0f1620; border-color: #2a3a4d; }
+  .card-header { background: #0f1620; border-bottom-color: #2a4a6a; }
+  .policy-card { background: #0f1620; border-color: #2a3a4d; }
+  .policy-card .policy-icon { background: #1a2a4a; color: #6a9ac5; }
+  .policy-card .detail-list li { color: #a0b0c0; }
+  .policy-card .detail-list li strong { color: #d0e0f0; }
+  .sidebar { background: rgba(15,22,32,0.92); border-color: #2a3a4d; }
+  .sidebar-brand { border-bottom-color: #2a4a6a; }
+  .sidebar-brand h3 { color: #6a9ac5; }
+  .sidebar nav ul li a { color: #a0b0c0; }
+  .sidebar nav ul li a:hover { background: #1a2a4a; color: #fff; }
+  .sidebar nav ul li a .nav-icon { background:#1a2a4a; }
+  .text-block { background:#0f1620; border-color:#2a3a4d; }
+  .banner-card { background:linear-gradient(135deg,#0f1620,#1a2433); }
+  .banner-card p { color: #a0b0c0; }
+  .page-header h1 { background:linear-gradient(135deg,#b0d0f0,#6a9ac5); -webkit-background-clip:text; background-clip:text; }
+  .page-header .header-meta { background:#1a2433; border-color:#2a3a4d; color:#a8b8c8; }
+  .data-table th { background:#1a2a4a; color:#b0d0f0; border-color:#2a3a4d; }
+  .data-table td { border-color:#2a3a4d; color:#a0b0c0; }
+  .data-table tr:nth-child(even) td { background:#1a2433; }
+}
+
+/* ===== 返回顶部 ===== */
+.back-top {
+  position: fixed;
+  right: 30px;
+  bottom: 30px;
+  background: var(--color-accent);
+  color: #fff;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-card);
+  font-size: 22px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s;
+  z-index:999;
+  border:none;
+}
+.back-top.show { opacity: 1; pointer-events: auto; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ===== 侧边导航 ===== -->
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <div class="brand-icon">⚙</div>
+      <h3>EDIM 中台文档</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#overview"><span class="nav-icon">◆</span> 中台概览</a></li>
+        <li class="has-sub open">
+          <a href="#s1"><span class="nav-icon">◇</span> 中台定义 <span class="sub-arrow">▸</span></a>
+          <ul class="sub-menu">
+            <li><a href="#s1-1">核心定义</a></li>
+            <li><a href="#s1-2">三阶演进定义</a></li>
+            <li><a href="#s1-3">核心本质与关键词</a></li>
+          </ul>
+        </li>
+        <li class="has-sub">
+          <a href="#s2"><span class="nav-icon">◇</span> 知识体系 <span class="sub-arrow">▸</span></a>
+          <ul class="sub-menu">
+            <li><a href="#s2-1">知识域1 国家战略与产业标准</a></li>
+            <li><a href="#s2-2">知识域2 具深智能基础理论</a></li>
+            <li><a href="#s2-3">知识域3 大模型具身认知技术</a></li>
+            <li><a href="#s2-4">知识域4 数字孪生与仿真决策</a></li>
+            <li><a href="#s2-5">知识域5 多智能体协同与端边云</a></li>
+            <li><a href="#s2-6">知识域6 场景自治与智能迭代</a></li>
+          </ul>
+        </li>
+        <li class="has-sub">
+          <a href="#s3"><span class="nav-icon">◇</span> 知识图谱 <span class="sub-arrow">▸</span></a>
+          <ul class="sub-menu">
+            <li><a href="#s3-1">核心实体清单</a></li>
+            <li><a href="#s3-2">核心三元组关系</a></li>
+            <li><a href="#s3-3">图谱核心能力</a></li>
+          </ul>
+        </li>
+        <li class="has-sub">
+          <a href="#s4"><span class="nav-icon">◇</span> 产品架构 <span class="sub-arrow">▸</span></a>
+          <ul class="sub-menu">
+            <li><a href="#s4-1">应用产品层</a></li>
+            <li><a href="#s4-2">核心能力组件层</a></li>
+            <li><a href="#s4-3">基础底座层</a></li>
+          </ul>
+        </li>
+        <li class="has-sub">
+          <a href="#s5"><span class="nav-icon">◇</span> 业务架构 <span class="sub-arrow">▸</span></a>
+          <ul class="sub-menu">
+            <li><a href="#s5-1">战略管理层</a></li>
+            <li><a href="#s5-2">六大核心业务域</a></li>
+            <li><a href="#s5-3">支撑业务域</a></li>
+            <li><a href="#s5-4">外部生态对接域</a></li>
+          </ul>
+        </li>
+        <li><a href="#s6"><span class="nav-icon">◇</span> 数据架构</a></li>
+        <li><a href="#s7"><span class="nav-icon">◇</span> 技术架构</a></li>
+        <li><a href="#s8"><span class="nav-icon">◇</span> 应用架构</a></li>
+        <li><a href="#s9"><span class="nav-icon">◇</span> 产品功能模块</a></li>
+        <li><a href="#s10"><span class="nav-icon">◇</span> 全套指标体系</a></li>
+        <li><a href="#s11"><span class="nav-icon">◇</span> 落地演进三阶段</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer">⚙ EDIM · 具深智能中台 · 全域自治智能底座</div>
+  </aside>
+
+  <!-- ===== 主内容 ===== -->
+  <main class="main-content">
+
+    <header class="page-header">
+      <h1><span style="font-size:1.2em;">⚙</span> 具深智能中台（EDIM）完整体系说明书</h1>
+      <span class="header-meta">→ 融合大模型认知 · 数字孪生 · 云边端协同 · 多智能体协同</span>
+    </header>
+
+    <!-- ===== 概览 ===== -->
+    <section id="overview" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">◆</span> 中台概览</h2>
+        <span class="badge-count">EDIM FULL SPEC</span>
+      </div>
+      <div class="card-body">
+        <div class="text-block">
+          <p style="font-size:1.05rem; font-weight:600; color:var(--color-primary-dark); margin-bottom:0.5rem;">具深智能中台（EDIM）完整体系说明书</p>
+          <p style="margin-bottom:0.5rem;"><span style="background:var(--color-accent);color:#fff;padding:0.2rem 0.8rem;border-radius:var(--radius-pill);font-size:0.78rem;">完全对齐算力中台 · 可信数据中台 · 可信计算中台 · 密钥管理中台统一架构范式</span></p>
+          <p>基于具深智能（Embodied Deep Intelligence）核心理论，融合大模型认知、数字孪生、云边端协同、多智能体协同、虚实闭环交互能力，打通虚拟数字空间与真实物理世界断层，覆盖过去-现在-未来全演进逻辑，系统化输出完整定义、知识体系、知识图谱、五大架构、全量功能模块、指标体系、落地演进路线。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 一、中台详细定义 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">◇</span> 一、中台详细定义</h2>
+        <span class="badge-count">1.1-1.3</span>
+      </div>
+      <div class="card-body">
+
+        <div class="content-section" id="s1-1">
+          <h3>1. 核心定义</h3>
+          <p><strong>具深智能中台（Embodied Deep Intelligence Middle-Platform，EDIM）</strong>：是面向智慧城市、智能制造、智慧交通、智慧物流、城市应急治理等实体产业场景，依托大模型通用认知、数字孪生仿真、云边端一体化算力、多智能体协同技术，构建的物理世界数字神经中枢+全域自主智能决策底座。</p>
+          <p>中台核心打破传统AI"纯虚拟认知、无实体落地"的痛点，实现<strong>感知-认知-决策-仿真-执行-迭代全链路虚实闭环</strong>，解决大模型虚拟智能与物理场景脱节、单点智能落地难、多设备协同低效、场景定制成本高、无法自主进化的产业核心矛盾。</p>
+        </div>
+
+        <div class="content-section" id="s1-2">
+          <h3>2. 三阶演进定义</h3>
+          <div class="grid-2">
+            <div class="policy-card">
+              <div class="policy-icon">📜</div>
+              <h4>过去（实验室原型时代）</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);">以符号规则、单感知智能、单机智能体为主，仅能实现局部单点识别与简单决策，无全域协同、无仿真预演、无自主迭代能力，落地成本极高，仅适配小众高端场景。</p>
+            </div>
+            <div class="policy-card">
+              <div class="policy-icon">🚀</div>
+              <h4>现在（产业落地时代）</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);">依托大模型+云边端协同架构，实现虚实协同闭环，支持多智能体集群作业、数字孪生仿真决策、端侧实时执行，成为数字经济与实体经济深度融合的核心新质生产力底座，规模化赋能工业、交通、城市治理场景。</p>
+            </div>
+            <div class="policy-card" style="grid-column:1/-1;">
+              <div class="policy-icon">🔮</div>
+              <h4>未来（全域自治时代）</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);">依托通用具身大模型，实现场景零样本适配、系统自主数据沉淀、自主模型迭代、全域城市级智能自治，构建可自我进化、全域协同的物理世界通用智能基础设施。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-section" id="s1-3">
+          <h3>3. 核心本质与核心关键词</h3>
+          <p><strong>核心本质：</strong>将离散的感知设备、算力资源、AI模型、智能体能力、仿真能力、场景执行能力中台化汇聚、标准化封装、服务化输出；打通数字虚拟决策与物理实体动作的双向闭环，实现AI从"纸上谈兵"到"知行合一"的产业落地跃迁。</p>
+          <p><strong>核心关键词：</strong>虚实协同闭环、云边端一体化、大模型具身认知、数字孪生预演、多智能体协同、端侧实时决策、场景自主进化、全域自治、实体产业智能赋能</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== 二、六大知识体系 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">◇</span> 二、六大知识体系（完整细分）</h2>
+        <span class="badge-count">知识域1-6</span>
+      </div>
+      <div class="card-body">
+
+        <div class="grid-2">
+          <div class="policy-card" id="s2-1">
+            <div class="policy-icon">📘</div>
+            <h4>知识域1：国家战略与产业标准知识域</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>顶层政策：数字经济发展规划、新质生产力发展政策、新一代人工智能发展规划、交通强国、智慧城市建设规范；</li>
+              <li>产业规范：智能制造数字化改造标准、城市智慧治理技术规范、车路协同协同标准、工业机器人协同作业规范；</li>
+              <li>行业落地准则：实体场景AI落地安全规范、多智能体集群调度标准、数字孪生工程建设标准；</li>
+              <li>未来演进规范：通用具身大模型技术标准、全域自治智能系统建设规范。</li>
+            </ol>
+          </div>
+
+          <div class="policy-card" id="s2-2">
+            <div class="policy-icon">📗</div>
+            <h4>知识域2：具深智能基础理论知识域</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>具身认知理论：物理场景感知、环境交互、场景自适应核心原理；</li>
+              <li>智能演进理论：符号智能→感知智能→认知智能→具深全域智能的迭代逻辑；</li>
+              <li>虚实融合理论：数字空间与物理世界映射、同步、仿真、闭环迭代机制；</li>
+              <li>自主进化理论：交互数据沉淀、模型自优化、场景漏洞自愈原理。</li>
+            </ol>
+          </div>
+
+          <div class="policy-card" id="s2-3">
+            <div class="policy-icon">📙</div>
+            <h4>知识域3：大模型具身认知技术知识域</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>通用大模型场景理解、多模态感知融合、复杂场景推理决策技术；</li>
+              <li>轻量化端侧模型适配、云边分层推理架构、低延迟实时决策技术；</li>
+              <li>零样本/少样本场景适配、通用具身大模型迁移学习技术；</li>
+              <li>自然语言交互、场景意图理解、自主任务拆解与规划技术。</li>
+            </ol>
+          </div>
+
+          <div class="policy-card" id="s2-4">
+            <div class="policy-icon">📕</div>
+            <h4>知识域4：数字孪生与仿真决策知识域</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>物理场景1:1数字建模、实时态势映射、场景动态更新技术；</li>
+              <li>决策预演仿真、风险模拟推演、最优策略迭代计算；</li>
+              <li>虚实数据联动、仿真结果反向赋能物理场景优化；</li>
+              <li>大规模城市场景、工业产线孪生集群建模与调度技术。</li>
+            </ol>
+          </div>
+
+          <div class="policy-card" id="s2-5">
+            <div class="policy-icon">📓</div>
+            <h4>知识域5：多智能体协同与端边云工程知识域</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>多类型智能体（无人机、无人车、工业机器人、服务机器人）协同调度；</li>
+              <li>云边端一体化算力分层、任务分流、离线自治运行机制；</li>
+              <li>端侧实时感知、边缘快速决策、云端复杂认知与全局调度；</li>
+              <li>大规模智能集群作业、冲突规避、路径优化、资源动态调配工程落地。</li>
+            </ol>
+          </div>
+
+          <div class="policy-card" id="s2-6">
+            <div class="policy-icon">📔</div>
+            <h4>知识域6：场景自治与智能迭代知识域</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>物理交互数据自动采集、优质样本沉淀、无人工标注数据治理；</li>
+              <li>模型动态调优、决策策略自主迭代、场景运行漏洞自愈；</li>
+              <li>全域场景自治运行、异常自主处置、资源自主优化配置；</li>
+              <li>跨场景能力复用、通用智能能力沉淀与产业赋能。</li>
+            </ol>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== 三、具深智能知识图谱 ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">◇</span> 三、具深智能知识图谱（EDI-Graph）</h2>
+        <span class="badge-count">3.1-3.3</span>
+      </div>
+      <div class="card-body">
+
+        <div class="text-block">
+          <p style="font-size:0.9rem; color:var(--color-neutral-700);"><strong style="color:var(--color-primary-dark);">核心价值：</strong>打通政策标准-物理场景-感知设备-智能模型-智能体-决策任务-执行动作-风险事件全维度关联，实现场景态势推演、智能能力溯源、协同风险分析、自治能力评估、场景优化推理。</p>
+        </div>
+
+        <div class="content-section" id="s3-1">
+          <h3>1. 核心实体清单</h3>
+          <table class="data-table">
+            <thead>
+              <tr><th>实体类型</th><th>实体示例</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>政策标准实体</td><td>数字经济规划、智能制造标准、智慧城市规范、具身AI技术准则</td></tr>
+              <tr><td>物理场景实体</td><td>工业产线、城市道路、物流园区、应急现场、家居场景</td></tr>
+              <tr><td>感知设备实体</td><td>摄像头、雷达、传感器、无人机、无人车、工业终端</td></tr>
+              <tr><td>智能模型实体</td><td>通用大模型、端侧轻量化模型、检测模型、决策模型、仿真模型</td></tr>
+              <tr><td>智能体实体</td><td>巡检机器人、配送机器人、无人集群、应急智能体、交通调控智能体</td></tr>
+              <tr><td>任务决策实体</td><td>产线巡检任务、车流调控任务、救援规划任务、路径优化任务</td></tr>
+              <tr><td>执行动作实体</td><td>设备启停、路径调整、信号调优、故障修复、集群调度</td></tr>
+              <tr><td>风险事件实体</td><td>场景异常、设备故障、协同冲突、决策偏差、执行失效</td></tr>
+              <tr><td>运维人员实体</td><td>场景管理员、算法运维、集群调度员、应急处置人员</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="content-section" id="s3-2">
+          <h3>2. 核心三元组关系</h3>
+          <ol>
+            <li><strong>政策标准 → 约束 → 物理场景：</strong>智慧城市规范约束城市交通场景智能建设标准；</li>
+            <li><strong>感知设备 → 采集感知 → 物理场景：</strong>雷达设备实时采集道路车流、路况态势；</li>
+            <li><strong>智能模型 → 赋能推理 → 决策任务：</strong>大模型赋能交通态势研判与信号调优决策；</li>
+            <li><strong>决策任务 → 下发驱动 → 智能体：</strong>调度任务驱动无人车集群完成路径优化；</li>
+            <li><strong>智能体 → 执行落地 → 物理场景：</strong>工业机器人执行产线故障修复动作；</li>
+            <li><strong>执行动作 → 反馈迭代 → 智能模型：</strong>物理执行结果反向优化模型决策精度；</li>
+            <li><strong>场景异常 → 触发生成 → 风险事件：</strong>产线数据异常触发设备故障风险告警。</li>
+          </ol>
+        </div>
+
+        <div class="content-section" id="s3-3">
+          <h3>3. 图谱核心能力</h3>
+          <div class="grid-2">
+            <div class="policy-card">
+              <div class="policy-icon">🗺</div>
+              <h4>全域场景全景视图</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);">设备、模型、智能体、任务、态势、风险全域可视化。</p>
+            </div>
+            <div class="policy-card">
+              <div class="policy-icon">🔗</div>
+              <h4>虚实链路推演</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);">从物理感知→认知决策→仿真预演→实体执行全链路溯源。</p>
+            </div>
+            <div class="policy-card">
+              <div class="policy-icon">⚠</div>
+              <h4>协同风险推理</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);">识别多智能体协同冲突、决策偏差、执行失效风险。</p>
+            </div>
+            <div class="policy-card">
+              <div class="policy-icon">📈</div>
+              <h4>场景优化推理</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);">自动推演场景资源配置短板、调度优化空间。</p>
+            </div>
+            <div class="policy-card">
+              <div class="policy-icon">🔍</div>
+              <h4>模型迭代溯源</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);">关联执行效果与模型缺陷，支撑自主进化优化。</p>
+            </div>
+            <div class="policy-card">
+              <div class="policy-icon">✅</div>
+              <h4>场景合规评估</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);">对标产业标准，自动识别场景智能化建设缺口。</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== 四、产品架构 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">◇</span> 四、产品架构（三层标准化架构）</h2>
+        <span class="badge-count">4.1-4.3</span>
+      </div>
+      <div class="card-body">
+
+        <div class="content-section" id="s4-1">
+          <h3>1. 应用产品层（面向业务、运维、调度、管理人员）</h3>
+          <p>全域场景智能工作台、多智能体集群调度平台、数字孪生仿真决策平台、大模型具身认知门户、场景自治运维平台、智能态势驾驶舱、行业场景专属解决方案、智能迭代管理平台。</p>
+        </div>
+
+        <div class="content-section" id="s4-2">
+          <h3>2. 核心能力组件层（中台可复用核心能力、API服务化输出）</h3>
+          <p>多源感知融合组件、大模型具身推理组件、数字孪生仿真组件、多智能体协同调度组件、云边端分层推理组件、EDI-Graph知识图谱引擎、场景风险研判组件、自主数据沉淀组件、模型迭代优化组件、开放集成网关组件。</p>
+        </div>
+
+        <div class="content-section" id="s4-3">
+          <h3>3. 基础底座层</h3>
+          <p>云边端一体化算力底座、多模态数据采集底座、数字孪生渲染底座、租户隔离权限底座、模型仓库底座、任务调度底座、时序数据存储底座、大模型辅助自治底座、离线自治运行底座。</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== 五、业务架构 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">◇</span> 五、业务架构（四层标准化架构）</h2>
+        <span class="badge-count">5.1-5.4</span>
+      </div>
+      <div class="card-body">
+
+        <div class="content-section" id="s5-1">
+          <h3>1. 战略管理层</h3>
+          <p>具深智能建设整体规划、实体产业智能化升级战略、全域场景自治建设目标、多智能体集群运营规划、模型自主迭代体系建设、智能化绩效考核、行业场景落地年度计划。</p>
+        </div>
+
+        <div class="content-section" id="s5-2">
+          <h3>2. 六大核心业务域</h3>
+          <div class="grid-2">
+            <div class="policy-card">
+              <div class="policy-icon">📡</div>
+              <h4>业务域1：全域感知融合业务域</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);">多设备、多模态数据统一采集、清洗融合、态势实时汇聚、物理场景状态全域感知。</p>
+            </div>
+            <div class="policy-card">
+              <div class="policy-icon">🧠</div>
+              <h4>业务域2：大模型具身认知业务域</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);">场景语义理解、复杂态势推理、任务智能拆解、全局决策研判、自然语言交互赋能。</p>
+            </div>
+            <div class="policy-card">
+              <div class="policy-icon">🏙</div>
+              <h4>业务域3：数字孪生仿真决策业务域</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);">场景1:1孪生建模、决策预演、风险仿真、最优策略推演、虚实态势同步。</p>
+            </div>
+            <div class="policy-card">
+              <div class="policy-icon">🤖</div>
+              <h4>业务域4：多智能体协同调度业务域</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);">各类智能体统一纳管、集群任务分配、冲突规避、路径优化、协同作业管控。</p>
+            </div>
+            <div class="policy-card">
+              <div class="policy-icon">⚡</div>
+              <h4>业务域5：虚实闭环执行业务域</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);">决策指令下发、端侧实时执行、执行结果反馈、场景状态更新、全链路闭环管控。</p>
+            </div>
+            <div class="policy-card">
+              <div class="policy-icon">🔄</div>
+              <h4>业务域6：自主进化迭代业务域</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);">交互数据自动沉淀、模型动态调优、策略自主优化、场景漏洞自愈、能力持续迭代。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-section" id="s5-3">
+          <h3>3. 支撑业务域</h3>
+          <p><strong>运维审计域：</strong>全流程任务、决策、执行日志留存审计；<strong>制度人员域：</strong>智能运维岗位职责、场景智能化管理制度；<strong>报告输出域：</strong>场景运行报告、智能优化报告、风险研判报告、产业升级报表。</p>
+        </div>
+
+        <div class="content-section" id="s5-4">
+          <h3>4. 外部生态对接域</h3>
+          <p>对接算力中台、数据中台、可信安全中台体系；对接工业设备、城市IoT终端、无人设备集群；对接行业监管平台、产业数字化平台、第三方AI服务生态。</p>
+          <div class="text-block" style="margin-top:0.8rem;">
+            <p style="font-size:0.9rem;color:var(--color-primary-dark);font-weight:600;">业务闭环链路</p>
+            <p style="font-size:0.88rem;color:var(--color-neutral-700);margin-bottom:0;">物理场景感知 → 多源数据融合 → 大模型认知推理 → 孪生仿真预演 → 智能体协同决策 → 端侧实体执行 → 结果反馈沉淀 → 模型自主迭代 → 场景持续优化</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== 六、数据架构 ===== -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">◇</span> 六、数据架构（五层标准化架构）</h2>
+        <span class="badge-count">6.1-6.5</span>
+      </div>
+      <div class="card-body">
+
+        <div class="content-section">
+          <h3>1. 采集层</h3>
+          <p>IoT传感器数据、音视频图像数据、设备运行数据、智能体作业数据、场景态势数据、决策任务数据、执行反馈数据、政策标准文档、人工运维数据。</p>
+        </div>
+        <div class="content-section">
+          <h3>2. 融合加工层</h3>
+          <p>多模态数据清洗归一化、时序数据对齐、场景态势标签化、决策行为结构化、非结构化政策文档解析、虚实数据联动融合。</p>
+        </div>
+        <div class="content-section">
+          <h3>3. 图谱建模层（EDI-Graph核心）</h3>
+          <p>构建场景-设备-模型-智能体-任务-风险全维度实体与三元组关系，实时更新图谱数据，完成态势推演、风险关联、能力溯源建模。</p>
+        </div>
+        <div class="content-section">
+          <h3>4. 主题指标层</h3>
+          <p>场景态势主题、感知质量主题、认知决策主题、智能体协同主题、仿真执行主题、模型迭代主题、风险治理主题、产业赋能主题。</p>
+        </div>
+        <div class="content-section">
+          <h3>5. 应用输出层</h3>
+          <p>态势大屏指标、场景运行报表、图谱查询API、智能决策接口、迭代优化报告、产业升级分析数据。</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== 七、技术架构 ===== -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">◇</span> 七、技术架构（七层标准化架构）</h2>
+        <span class="badge-count">7层架构</span>
+      </div>
+      <div class="card-body">
+
+        <div class="text-block" style="margin-bottom:1.2rem;">
+          <p style="font-size:0.9rem;color:var(--color-primary-dark);font-weight:600;margin-bottom:0.4rem;">整体分层链路</p>
+          <p style="font-size:0.9rem;color:var(--color-neutral-700);margin-bottom:0;">接入采集层 → 网关服务层 → 业务服务层 → 图谱智能层 → 计算引擎层 → 存储层 → 运维管控层</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="policy-card">
+            <div class="policy-icon">📶</div>
+            <h4>1. 接入采集层</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);">适配全品类IoT终端、无人设备、工业机器人、视频雷达设备，实现多模态数据实时、增量、离线兼容采集。</p>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">🛡</div>
+            <h4>2. 网关服务层</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);">统一API网关、租户隔离、权限鉴权、流量管控、内外服务安全隔离。</p>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">⚙</div>
+            <h4>3. 业务服务层</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);">感知融合、大模型认知、孪生仿真、智能体调度、闭环执行、自主迭代微服务集群。</p>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">🧮</div>
+            <h4>4. 图谱智能层</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);">EDI-Graph知识图谱引擎、场景推理引擎、风险研判引擎、大模型智能辅助分析。</p>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">💻</div>
+            <h4>5. 计算引擎层</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);">云边分层推理引擎、实时流式计算、仿真推演计算、批量模型迭代计算、任务调度引擎。</p>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">💾</div>
+            <h4>6. 存储层</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);">时序数据库（态势数据）、图数据库（知识图谱）、对象存储（模型/文档）、湖仓一体（多模态数据）、离线缓存存储。</p>
+          </div>
+          <div class="policy-card" style="grid-column:1/-1;">
+            <div class="policy-icon">📊</div>
+            <h4>7. 运维管控层</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);">租户管理、设备监控、模型运维、任务告警、版本迭代、集群运维、离线自治管控。</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== 八、应用架构 ===== -->
+    <section id="s8" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">◇</span> 八、应用架构（七大核心落地场景）</h2>
+        <span class="badge-count">场景1-7</span>
+      </div>
+      <div class="card-body">
+
+        <div class="grid-2">
+          <div class="policy-card">
+            <div class="policy-icon">🏙</div>
+            <h4>1. 智慧城市治理场景</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);">城市车流动态调优、异常事件自动处置、全域态势感知、城市资源自主优化配置，实现城市全域智能自治。</p>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">🏭</div>
+            <h4>2. 智能制造场景</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);">工业产线自主巡检、故障预判自愈、机器人集群协同作业、产线参数自适应优化、无人化生产管控。</p>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">🚗</div>
+            <h4>3. 智慧交通场景</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);">车路协同感知、无人车集群调度、路况动态推演、拥堵智能疏导、交通事件快速处置。</p>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">📦</div>
+            <h4>4. 智慧物流场景</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);">仓储机器人协同、无人配送路径动态优化、物流集群调度、仓储状态自主管控、全链路无人作业。</p>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">🚨</div>
+            <h4>5. 城市应急治理场景</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);">灾害现场自主探测、救援路径智能规划、无人机集群协同救援、应急态势实时研判与处置。</p>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">🏠</div>
+            <h4>6. 家庭智慧服务场景</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);">多家居机器人协同、环境自适应优化、自然语言智能交互、个性化家庭服务自治。</p>
+          </div>
+          <div class="policy-card" style="grid-column:1/-1;">
+            <div class="policy-icon">🌐</div>
+            <h4>7. 全域产业数字底座场景</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);">为各类实体产业提供通用具深智能基础设施，低成本赋能产业数字化、智能化升级。</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== 九、详细产品功能模块 ===== -->
+    <section id="s9" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">◇</span> 九、详细产品功能模块（11大核心模块）</h2>
+        <span class="badge-count">模块1-11</span>
+      </div>
+      <div class="card-body">
+
+        <div class="grid-2">
+          <div class="policy-card">
+            <div class="policy-icon">📡</div>
+            <h4>模块1：全域多模态感知融合模块</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>全品类IoT设备、音视频、雷达、传感数据统一接入；</li>
+              <li>多模态数据清洗、对齐、融合归一化；</li>
+              <li>物理场景全域态势实时汇聚；</li>
+              <li>感知质量校验、异常数据过滤、数据时效管控；</li>
+              <li>离线场景数据缓存、上线同步补全。</li>
+            </ol>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">🧠</div>
+            <h4>模块2：大模型具身认知推理模块</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>物理场景语义理解、复杂环境态势研判；</li>
+              <li>智能任务自动拆解、分层规划；</li>
+              <li>多场景通用推理、少样本/零样本适配；</li>
+              <li>自然语言交互、智能问答、场景指令解析；</li>
+              <li>云端复杂认知+端侧轻量推理分层协同。</li>
+            </ol>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">🏙</div>
+            <h4>模块3：数字孪生仿真决策模块</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>物理场景1:1高精度数字建模、实时态势同步；</li>
+              <li>决策方案预演仿真、风险模拟推演；</li>
+              <li>多方案最优策略对比筛选；</li>
+              <li>场景动态更新、孪生模型迭代优化；</li>
+              <li>仿真结果反向赋能物理场景决策。</li>
+            </ol>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">🤖</div>
+            <h4>模块4：多智能体协同调度模块</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>无人机、无人车、工业机器人等多类智能体统一纳管；</li>
+              <li>集群任务智能分配、动态调度；</li>
+              <li>智能体作业冲突规避、路径协同优化；</li>
+              <li>大规模集群并行作业管控；</li>
+              <li>离线自治调度、断点续跑能力。</li>
+            </ol>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">☁</div>
+            <h4>模块5：云边端分层协同模块</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>云端全局认知、边缘快速决策、端侧实时执行分层架构；</li>
+              <li>算力动态分流、任务分层调度；</li>
+              <li>端侧轻量化模型自适应部署；</li>
+              <li>离线场景自治运行、联网数据同步；</li>
+              <li>全域算力资源动态优化配置。</li>
+            </ol>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">🕸</div>
+            <h4>模块6：EDI-Graph具深知识图谱模块</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>全维度实体与关系建模、图谱可视化；</li>
+              <li>虚实全链路推演、场景溯源分析；</li>
+              <li>协同风险推理、决策缺陷识别；</li>
+              <li>场景优化空间智能研判；</li>
+              <li>图谱API开放服务，支撑上层业务。</li>
+            </ol>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">⚡</div>
+            <h4>模块7：虚实闭环执行管控模块</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>仿真最优决策指令标准化下发；</li>
+              <li>端侧设备、智能体执行状态实时监控；</li>
+              <li>执行异常告警、失败重试、应急处置；</li>
+              <li>执行结果全量反馈、场景状态更新；</li>
+              <li>全链路闭环日志留存审计。</li>
+            </ol>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">🔄</div>
+            <h4>模块8：自主数据沉淀与迭代模块</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>物理交互优质数据自动采集、筛选、沉淀；</li>
+              <li>无人工标注数据结构化治理；</li>
+              <li>AI模型动态调优、决策策略自主迭代；</li>
+              <li>场景运行漏洞自动发现、自愈修复；</li>
+              <li>模型版本管理、迭代效果评估。</li>
+            </ol>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">⚠</div>
+            <h4>模块9：智能风险研判与处置模块</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>场景异常、设备故障、协同冲突、决策偏差识别；</li>
+              <li>风险分级分类、态势预判；</li>
+              <li>风险自动处置、人工干预兜底；</li>
+              <li>风险溯源分析、复发防控；</li>
+              <li>全域风险态势可视化监控。</li>
+            </ol>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">📊</div>
+            <h4>模块10：态势驾驶舱与报告模块</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>全域场景智能运行态势总览；</li>
+              <li>感知、认知、决策、执行、迭代全维度指标可视化；</li>
+              <li>产业赋能效果统计分析；</li>
+              <li>自动生成运行报告、优化报告、风险报告；</li>
+              <li>数据大屏自适应多场景展示。</li>
+            </ol>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">🔌</div>
+            <h4>模块11：开放集成网关模块</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>全中台能力API标准化输出；</li>
+              <li>对接算力、数据、安全各类中台底座；</li>
+              <li>适配各类行业业务系统、IoT平台、AI生态；</li>
+              <li>支持二次开发、场景化定制集成。</li>
+            </ol>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== 十、全套指标体系 ===== -->
+    <section id="s10" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">◇</span> 十、全套指标体系（8大维度KPI/验收指标）</h2>
+        <span class="badge-count">维度1-8</span>
+      </div>
+      <div class="card-body">
+
+        <div class="grid-2">
+          <div class="policy-card">
+            <div class="policy-icon">📶</div>
+            <h4>1. 全域感知指标</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>终端设备在线纳管覆盖率；</li>
+              <li>多模态数据采集完整率；</li>
+              <li>感知数据实时性达标率；</li>
+              <li>异常数据过滤准确率。</li>
+            </ol>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">🧠</div>
+            <h4>2. 具身认知决策指标</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>复杂场景推理准确率；</li>
+              <li>智能任务拆解合规率；</li>
+              <li>少样本场景适配成功率；</li>
+              <li>决策方案最优率。</li>
+            </ol>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">🏙</div>
+            <h4>3. 数字孪生仿真指标</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>物理场景孪生还原度；</li>
+              <li>仿真推演准确率；</li>
+              <li>决策预演覆盖率；</li>
+              <li>虚实态势同步时延达标率。</li>
+            </ol>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">🤖</div>
+            <h4>4. 多智能体协同指标</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>智能体集群任务完成率；</li>
+              <li>协同冲突规避成功率；</li>
+              <li>集群调度效率提升率；</li>
+              <li>离线自治运行稳定性。</li>
+            </ol>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">⚡</div>
+            <h4>5. 虚实闭环执行指标</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>决策指令执行成功率；</li>
+              <li>执行异常处置及时率；</li>
+              <li>全链路闭环完成率；</li>
+              <li>场景问题一次性解决率。</li>
+            </ol>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">🔄</div>
+            <h4>6. 自主进化迭代指标</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>优质场景数据自动沉淀率；</li>
+              <li>模型迭代精度提升率；</li>
+              <li>场景漏洞自愈完成率；</li>
+              <li>人工运维工作量下降比例。</li>
+            </ol>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">🕸</div>
+            <h4>7. 知识图谱智能指标</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>EDI-Graph实体完整率；</li>
+              <li>全链路关系匹配完整率；</li>
+              <li>风险传导推理准确率；</li>
+              <li>场景优化研判准确率。</li>
+            </ol>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">🌐</div>
+            <h4>8. 产业赋能综合指标</h4>
+            <ol class="detail-list" style="list-style-type:decimal; padding-left:1rem;">
+              <li>场景无人化作业覆盖率；</li>
+              <li>产业运行效率提升率；</li>
+              <li>智能故障自愈占比；</li>
+              <li>中台服务整体可用性。</li>
+            </ol>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== 十一、中台落地演进三阶段 ===== -->
+    <section id="s11" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">◇</span> 十一、中台落地演进三阶段</h2>
+        <span class="badge-count">阶段一~三</span>
+      </div>
+      <div class="card-body">
+
+        <div class="grid-2">
+          <div class="policy-card">
+            <div class="policy-icon">🟢</div>
+            <h4>阶段一：感知决策筑基阶段（当前）</h4>
+            <p style="font-size:0.88rem;color:var(--color-neutral-700);">完成全域设备感知汇聚、基础大模型认知、简单仿真预演、单智能体作业管控，实现基础感知-决策-执行闭环，满足实体场景基础智能化升级需求。</p>
+          </div>
+          <div class="policy-card">
+            <div class="policy-icon">🔵</div>
+            <h4>阶段二：协同闭环治理阶段（中期）</h4>
+            <p style="font-size:0.88rem;color:var(--color-neutral-700);">EDI-Graph知识图谱全面上线，多智能体集群协同、云边端深度协同、仿真预演全覆盖，实现风险自动研判、闭环处置，完成从单点智能到全域协同智能的升级。</p>
+          </div>
+          <div class="policy-card" style="grid-column:1/-1;">
+            <div class="policy-icon">🟣</div>
+            <h4>阶段三：全域自治进化阶段（未来）</h4>
+            <p style="font-size:0.88rem;color:var(--color-neutral-700);">通用具身大模型落地，实现场景零样本适配、数据自主沉淀、模型自主迭代、全域场景自治运行，建成城市级、产业级通用具深智能基础设施，支撑新质生产力持续释放。</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== 底部总结横幅 ===== -->
+    <section class="card banner-card">
+      <div class="card-body">
+        <div class="icon-big">⚙</div>
+        <h2>EDIM · 具深智能中台</h2>
+        <p>
+          打通虚拟数字空间与真实物理世界断层<br>
+          感知-认知-决策-仿真-执行-迭代全链路虚实闭环<br>
+          从"纸上谈兵"到"知行合一"的产业落地跃迁<br>
+          构建可自我进化、全域协同的物理世界通用智能基础设施
+        </p>
+        <div class="footer-note">EDIM 具深智能中台 · Embodied Deep Intelligence Middle-Platform · 全域自治智能底座</div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ===== 返回顶部按钮 ===== -->
+<button class="back-top" id="backTop" title="返回顶部">↑</button>
+
+<script>
+// 侧边栏折叠交互
+document.querySelectorAll('.sidebar .has-sub > a').forEach(function(a) {
+  a.addEventListener('click', function(e) {
+    e.preventDefault();
+    var li = a.parentElement;
+    li.classList.toggle('open');
+  });
+});
+
+// 平滑滚动
+document.querySelectorAll('.sidebar a[href^="#"]').forEach(function(a) {
+  a.addEventListener('click', function(e) {
+    var href = a.getAttribute('href');
+    if (href === '#') return;
+    e.preventDefault();
+    var target = document.querySelector(href);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+
+// 返回顶部
+var backBtn = document.getElementById('backTop');
+window.addEventListener('scroll', function() {
+  if (window.scrollY > 400) {
+    backBtn.classList.add('show');
+  } else {
+    backBtn.classList.remove('show');
+  }
+});
+backBtn.addEventListener('click', function() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// 当前区域高亮导航
+var sections = document.querySelectorAll('main section[id]');
+var navLinks = document.querySelectorAll('.sidebar nav a[href^="#"]');
+window.addEventListener('scroll', function() {
+  var current = '';
+  sections.forEach(function(section) {
+    var rect = section.getBoundingClientRect();
+    if (rect.top <= 120) {
+      current = section.id;
+    }
+  });
+  navLinks.forEach(function(link) {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === '#' + current) {
+      link.classList.add('active');
+    }
+  });
+});
+</script>
+
+</body>
+</html>

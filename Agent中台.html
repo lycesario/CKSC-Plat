@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Agent中台 · 企业级完整体系 · 高保真架构</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ===== 设计系统 Token（完全继承参考样式） ===== */
+    :root {
+      --color-primary: #7a2e1a;
+      --color-primary-light: #fce9e0;
+      --color-primary-dark: #4d1c0e;
+      --color-accent: #b85c3a;
+      --color-accent-soft: #f0c8b8;
+      --color-accent-glow: rgba(184, 92, 58, 0.10);
+      --color-neutral-50: #fcf9f7;
+      --color-neutral-100: #f5ede8;
+      --color-neutral-200: #e5d7ce;
+      --color-neutral-300: #cbb8ab;
+      --color-neutral-400: #a68b7a;
+      --color-neutral-600: #6f5544;
+      --color-neutral-700: #4f3a2e;
+      --color-neutral-800: #34241c;
+      --color-neutral-900: #1e140f;
+      --color-gold: #c29a4a;
+      --color-gold-light: #f3e1b0;
+      --color-jade: #3b7a5e;
+      --color-jade-light: #d4ede0;
+      --color-success: #1f6e4a;
+      --color-warning: #a86b2c;
+      --color-error: #b13a2a;
+      --font-base: 1rem;
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-12: 3rem;
+      --radius-sm: 0.75rem;
+      --radius-md: 1.25rem;
+      --radius-card: 2rem;
+      --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(60, 30, 10, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(60, 30, 10, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(60, 30, 10, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+      --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ===== 重置 & 基础 ===== */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    /* ===== 布局 ===== */
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(255, 249, 245, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(255, 235, 220, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); letter-spacing:-0.01em; }
+    .sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+    .sidebar nav ul { list-style:none; padding:0; margin:0; }
+    .sidebar nav ul li { margin-bottom:0.1rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:12px;
+      padding:0.55rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.85rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+    }
+    .sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+    .sidebar nav ul li a:hover,
+    .sidebar nav ul li a:focus-visible {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateX(4px);
+    }
+    .sidebar-footer {
+      margin-top:24px; padding:12px; text-align:center;
+      font-size:0.7rem; color:var(--color-neutral-600);
+      border-top:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 主内容 ===== */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+    /* ===== 页面头部 ===== */
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+      font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+    .page-header .header-meta {
+      font-size:0.9rem; color:var(--color-neutral-600);
+      background:var(--color-neutral-100);
+      padding:0.4rem 1.2rem;
+      border-radius:var(--radius-pill);
+      border:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 卡片系统 ===== */
+    .card {
+      background:rgba(255,252,248,0.92);
+      backdrop-filter: blur(4px);
+      border-radius:var(--radius-card);
+      box-shadow:var(--shadow-card);
+      margin-bottom:var(--space-6);
+      border:1px solid rgba(255, 235, 220, 0.5);
+      overflow:hidden;
+      transition: box-shadow var(--transition-default), transform 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6);
+      background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft);
+      display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 {
+      font-size:clamp(1.2rem, 2.2vw, 1.6rem);
+      font-weight:700; color:var(--color-primary-dark);
+      display:flex; align-items:center; gap:12px;
+      letter-spacing:-0.01em;
+    }
+    .card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+    .card-header .badge-count {
+      margin-left:auto;
+      background:var(--color-accent);
+      color:white;
+      border-radius:var(--radius-pill);
+      padding:0.15rem 0.9rem;
+      font-size:0.7rem;
+      font-weight:600;
+      letter-spacing:0.3px;
+    }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* ===== 网格 & 卡片（Agent卡片风格） ===== */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } .grid-4 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; } }
+
+    /* Agent卡片 (复用九字卡片) */
+    .agent-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md);
+      padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: all var(--transition-default);
+      position:relative;
+      overflow:hidden;
+      border-left: 4px solid var(--color-accent);
+    }
+    .agent-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft));
+      opacity:0;
+      transition: opacity var(--transition-default);
+    }
+    .agent-card:hover::before { opacity:1; }
+    .agent-card:hover {
+      border-color:var(--color-accent-soft);
+      box-shadow: 0 8px 24px -8px rgba(184,92,58,0.15);
+      transform:translateY(-3px);
+    }
+    .agent-card .agent-icon {
+      font-size:1.8rem;
+      color:var(--color-primary);
+      display:inline-block;
+      margin-right:6px;
+      background: var(--color-primary-light);
+      padding:0.2rem 0.6rem;
+      border-radius:12px;
+    }
+    .agent-card h4 {
+      color:var(--color-primary-dark);
+      font-size:1.05rem;
+      margin-bottom:0.4rem;
+      display:flex; align-items:center; gap:8px;
+      flex-wrap:wrap;
+    }
+    .agent-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+    .agent-card .detail-list {
+      padding-left:0; margin:0.4rem 0 0 0;
+      list-style:none;
+    }
+    .agent-card .detail-list li {
+      margin-bottom:0.25rem;
+      padding-left:1.2rem;
+      position:relative;
+      font-size:0.85rem;
+      color:var(--color-neutral-700);
+    }
+    .agent-card .detail-list li::before {
+      content:'▹'; position:absolute; left:0;
+      color:var(--color-accent);
+      font-weight:600;
+    }
+    .agent-card .detail-list li strong { color:var(--color-neutral-800); }
+    .agent-card .tag-layer {
+      display:inline-block;
+      background:var(--color-gold-light);
+      color:var(--color-primary-dark);
+      border-radius:20px;
+      padding:0.05rem 0.8rem;
+      font-size:0.6rem;
+      font-weight:700;
+      letter-spacing:0.3px;
+      margin-left:0.5rem;
+    }
+
+    /* ===== 架构层（继承九层闭环） ===== */
+    .arch-diagram {
+      display:flex;
+      flex-direction:column;
+      gap:0.6rem;
+      padding:0.5rem 0;
+    }
+    .arch-layer {
+      display:flex;
+      align-items:stretch;
+      gap:0.75rem;
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.6rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: var(--transition-default);
+    }
+    .arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+    .arch-layer .layer-label {
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      min-width:120px;
+      padding-right:1rem;
+      border-right:2px solid var(--color-neutral-200);
+      font-weight:700;
+      font-size:0.8rem;
+      color:var(--color-primary-dark);
+      letter-spacing:0.3px;
+    }
+    .arch-layer .layer-label i {
+      font-size:1.1rem;
+      color:var(--color-accent);
+      margin-bottom:0.1rem;
+    }
+    .arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+    .arch-layer .layer-blocks {
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:0.5rem;
+      flex:1;
+      padding:0.2rem 0;
+    }
+    .arch-block {
+      background:white;
+      border-radius:var(--radius-sm);
+      padding:0.3rem 0.9rem;
+      border:1px solid var(--color-neutral-200);
+      font-size:0.75rem;
+      font-weight:500;
+      color:var(--color-neutral-700);
+      transition: var(--transition-default);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .arch-block:hover {
+      border-color:var(--color-accent);
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateY(-1px);
+    }
+    .arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+    .arch-block.highlight-block {
+      background:var(--color-accent);
+      color:white;
+      border-color:var(--color-accent);
+    }
+    .arch-block.highlight-block i { color:white; }
+    .arch-layer.inner-layer { background:linear-gradient(135deg, #f5efe8, #f0e4da); border-color:var(--color-accent-soft); }
+    .arch-layer.outer-layer { background:linear-gradient(135deg, #f0f2ed, #e6ece2); border-color:#b8c8aa; }
+    .arch-layer.outer-layer .layer-label { border-right-color:#b8c8aa; color:#2d5a3a; }
+    .arch-layer.outer-layer .layer-label i { color:#3b7a5e; }
+    .arch-layer.outer-layer .arch-block { border-color:#c8d8b8; }
+    .arch-layer.outer-layer .arch-block:hover { border-color:#3b7a5e; background:#e0ede0; }
+    .arch-layer.ultimate-layer { background:linear-gradient(135deg, #f0ede8, #e8e0d8); border-color:#c8b8a8; }
+    .arch-layer.ultimate-layer .layer-label { border-right-color:#c8b8a8; color:#6a4a3a; }
+    .arch-layer.ultimate-layer .layer-label i { color:#8a6a5a; }
+    .arch-layer.ultimate-layer .arch-block { border-color:#d8c8b8; }
+    .arch-layer.ultimate-layer .arch-block:hover { border-color:#8a6a5a; background:#ede0d8; }
+
+    /* ===== 表格 ===== */
+    .table-wrapper {
+      overflow-x:auto;
+      border-radius:var(--radius-md);
+      border:1px solid var(--color-neutral-200);
+      background:white;
+    }
+    table {
+      width:100%; border-collapse:collapse; font-size:0.78rem;
+    }
+    th {
+      background:var(--color-neutral-100);
+      padding:12px 10px;
+      font-weight:600;
+      color:var(--color-primary-dark);
+      text-align:left;
+      border-bottom:2px solid var(--color-neutral-200);
+      font-size:0.7rem;
+      text-transform:uppercase;
+      letter-spacing:0.4px;
+    }
+    td {
+      padding:10px 10px;
+      border-bottom:1px solid var(--color-neutral-200);
+      vertical-align:middle;
+      color:var(--color-neutral-700);
+    }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--color-neutral-50); }
+    .level-tag {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      border-radius:var(--radius-pill);
+      padding:0.05rem 0.7rem;
+      font-size:0.65rem;
+      font-weight:600;
+      display:inline-block;
+    }
+
+    /* ===== 信息提示 ===== */
+    .info-tip {
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.7rem 1.5rem;
+      border-left:5px solid var(--color-accent);
+      margin-top:var(--space-4);
+      display:flex; align-items:center; gap:0.8rem;
+      font-size:0.9rem;
+      color:var(--color-neutral-700);
+    }
+    .info-tip i { color:var(--color-accent); font-size:1rem; }
+
+    /* ===== 横幅 ===== */
+    .banner-card {
+      background: linear-gradient(135deg, #f5ede6, #e8dcd2);
+      text-align:center;
+      border-color:var(--color-accent-soft);
+    }
+    .banner-card .card-body { padding:2.5rem var(--space-6); }
+    .banner-card .icon-big { font-size:3rem; color:var(--color-primary); opacity:0.7; margin-bottom:var(--space-3); }
+    .banner-card h2 { color:var(--color-primary-dark); font-size:clamp(1.4rem, 2.5vw, 1.9rem); margin-bottom:var(--space-2); }
+    .banner-card p { max-width:680px; margin:0 auto; color:var(--color-neutral-700); font-size:1rem; }
+    .banner-card .footer-note { margin-top:var(--space-6); font-size:0.8rem; color:var(--color-primary); }
+
+    /* ===== 响应式 ===== */
+    @media (max-width:1024px) { .sidebar { width:220px; } }
+    @media (max-width:760px) {
+      .sidebar { display:none; }
+      .layout { padding:0.5rem; }
+      .main-content { padding:0; }
+      .card-body { padding:1.25rem var(--space-4); }
+      .card-header { padding:1rem var(--space-4); }
+      .page-header { flex-direction:column; align-items:flex-start; }
+    }
+
+    /* ===== 暗色 ===== */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #1a1410;
+        --color-neutral-100: #221c18;
+        --color-neutral-200: #3a2c24;
+        --color-neutral-300: #5a4a3e;
+        --color-neutral-400: #8a7a6e;
+        --color-neutral-600: #b8a89c;
+        --color-neutral-700: #d0c4b8;
+        --color-neutral-800: #e8dcd0;
+        --color-neutral-900: #f5ede6;
+        --color-primary-light: #3a2a20;
+        --color-accent-soft: #6a4a3a;
+        --color-primary: #d08a6a;
+        --color-primary-dark: #f0c8b0;
+        --color-accent: #c07a5a;
+        --color-gold: #c29a4a;
+        --color-gold-light: #4a3a20;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6);
+        --shadow-card-hover: 0 20px 48px -12px rgba(0,0,0,0.7);
+        --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #120e0a; }
+      .card { background: #1a1410; border-color: #3a2c24; }
+      .card-header { background: #1a1410; border-bottom-color: #4a3a2e; }
+      .agent-card { background: #1a1410; border-color: #3a2c24; }
+      .agent-card .agent-icon { background: #2a1e16; color: #d08a6a; }
+      .agent-card .detail-list li { color: #c0b4a8; }
+      .agent-card .detail-list li strong { color: #e0d4c8; }
+      .table-wrapper { background: #1a1410; border-color: #3a2c24; }
+      th { background: #221c18; color: #e0d4c8; border-bottom-color: #4a3a2e; }
+      td { border-bottom-color: #2a241e; color: #c0b4a8; }
+      tr:hover td { background: #2a241e; }
+      .sidebar { background: rgba(20, 16, 12, 0.92); border-color: #3a2c24; }
+      .sidebar-brand { border-bottom-color: #4a3a2e; }
+      .sidebar-brand h3 { color: #d08a6a; }
+      .sidebar nav ul li a { color: #c0b4a8; }
+      .sidebar nav ul li a:hover { background: #3a2c24; color: white; }
+      .info-tip { background: #1a1410; border-left-color: #c07a5a; color: #c0b4a8; }
+      .banner-card { background:linear-gradient(135deg,#1a1410,#2a241e); }
+      .banner-card p { color: #c0b4a8; }
+      .page-header h1 { background:linear-gradient(135deg,#f0c8b0,#d08a6a); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#2a241e; border-color:#4a3a2e; color:#b8a89c; }
+      .arch-layer { background:#1a1410; border-color:#3a2c24; }
+      .arch-layer:hover { background:#2a1e16; border-color:#5a4a3e; }
+      .arch-layer .layer-label { border-right-color:#3a2c24; color:#e0d4c8; }
+      .arch-block { background:#1a1410; border-color:#3a2c24; color:#c0b4a8; }
+      .arch-block:hover { background:#3a2c24; border-color:#c07a5a; }
+      .arch-layer.inner-layer { background:linear-gradient(135deg,#1a1410,#2a1e16); border-color:#5a3a2a; }
+      .arch-layer.outer-layer { background:linear-gradient(135deg,#141a12,#1a2618); border-color:#2a4a2a; }
+      .arch-layer.outer-layer .layer-label { border-right-color:#2a4a2a; color:#8aba8a; }
+      .arch-layer.outer-layer .layer-label i { color:#5a9a6a; }
+      .arch-layer.outer-layer .arch-block { border-color:#2a4a2a; color:#a0c8a0; }
+      .arch-layer.outer-layer .arch-block:hover { border-color:#5a9a6a; background:#1a2a1a; }
+      .arch-layer.ultimate-layer { background:linear-gradient(135deg,#1a1410,#221c18); border-color:#4a3a2e; }
+      .arch-layer.ultimate-layer .layer-label { border-right-color:#4a3a2e; color:#c8b0a0; }
+      .arch-layer.ultimate-layer .layer-label i { color:#a08070; }
+      .arch-layer.ultimate-layer .arch-block { border-color:#4a3a2e; color:#c8b8a8; }
+      .arch-layer.ultimate-layer .arch-block:hover { border-color:#a08070; background:#2a241e; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-robot" aria-hidden="true"></i>
+      <h3>Agent中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-cubes"></i> 全域标准定义</a></li>
+        <li><a href="#s1"><i class="fas fa-layer-group"></i> 八大特征</a></li>
+        <li><a href="#s2"><i class="fas fa-book"></i> 知识体系</a></li>
+        <li><a href="#s3"><i class="fas fa-project-diagram"></i> AgentGraph</a></li>
+        <li><a href="#s4"><i class="fas fa-sitemap"></i> 六大架构</a></li>
+        <li><a href="#s5"><i class="fas fa-puzzle-piece"></i> 功能模块</a></li>
+        <li><a href="#s6"><i class="fas fa-chart-line"></i> 指标体系</a></li>
+        <li><a href="#s7"><i class="fas fa-boxes"></i> 资产体系</a></li>
+        <li><a href="#s8"><i class="fas fa-share-alt"></i> 协同关系</a></li>
+        <li><a href="#s9"><i class="fas fa-flag"></i> 核心价值</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-robot"></i> Agent中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-robot"></i> 企业级 Agent 中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> AI 智能体原生前沿完整版</span>
+    </header>
+
+    <!-- ===== S0 全域标准定义 ===== -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> Agent 中台全域标准定义</h2>
+        <span class="badge-count">当下落地 + 未来自主智能演进</span>
+      </div>
+      <div class="card-body">
+        <div class="arch-diagram">
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-database"></i> 底层依赖 <span class="sub">算力/MaaS/数据/PaaS/API</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-microchip"></i> 算力中台</span>
+              <span class="arch-block"><i class="fas fa-cloud"></i> MaaS</span>
+              <span class="arch-block"><i class="fas fa-table"></i> 数据中台</span>
+              <span class="arch-block"><i class="fas fa-cubes"></i> PaaS</span>
+              <span class="arch-block"><i class="fas fa-code"></i> API中台</span>
+            </div>
+          </div>
+          <div class="arch-layer outer-layer">
+            <div class="layer-label"><i class="fas fa-cogs"></i> 核心能力 <span class="sub">资产/规划/记忆/工具/协同/图谱/进化</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block highlight-block"><i class="fas fa-robot"></i> 智能体资产</span>
+              <span class="arch-block"><i class="fas fa-tasks"></i> 任务规划</span>
+              <span class="arch-block"><i class="fas fa-brain"></i> 三层记忆</span>
+              <span class="arch-block"><i class="fas fa-toolbox"></i> 工具集市</span>
+              <span class="arch-block"><i class="fas fa-project-diagram"></i> 多智能体协同</span>
+              <span class="arch-block"><i class="fas fa-brain"></i> AgentGraph</span>
+              <span class="arch-block"><i class="fas fa-sync-alt"></i> 自主进化</span>
+            </div>
+          </div>
+          <div class="arch-layer ultimate-layer">
+            <div class="layer-label"><i class="fas fa-rocket"></i> 上层赋能 <span class="sub">数字员工/业务中台/SaaS</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-user-tie"></i> 数字员工</span>
+              <span class="arch-block"><i class="fas fa-box"></i> 业务中台</span>
+              <span class="arch-block"><i class="fas fa-cloud"></i> SaaS</span>
+              <span class="arch-block"><i class="fas fa-chart-pie"></i> 营销</span>
+              <span class="arch-block"><i class="fas fa-shield-alt"></i> 风控</span>
+              <span class="arch-block"><i class="fas fa-file-invoice"></i> 财务</span>
+            </div>
+          </div>
+        </div>
+        <div class="info-tip"><i class="fas fa-scroll"></i> Agent 中台（智能体中台），是企业全域自主 AI 智能体统一生产、编排、调度、治理、资产复用、自主进化的全域智能中枢与自主执行底座，属于企业十大全域中台顶层 AI 原生赋能核心中台。</div>
+        <div style="margin-top:0.8rem; font-size:0.9rem; color:var(--color-neutral-600);">
+          <p><strong>战略定位：</strong>企业全域自主智能体统一生产调度中心、多智能体协同编排中枢、智能体记忆与知识沉淀中心、AI 自主执行管控底座、数字员工规模化交付平台、智能体全生命周期治理中心、AI 自主进化迭代中枢。</p>
+          <p><strong>层级边界：</strong>底层依赖层（依托 IaaS 硬件、算力中台异构 GPU/CPU 算力、MaaS 大模型服务、数据中台标准化数据集、PaaS 容器与微服务、API 中台统一系统网关）；核心能力层（专注智能体构建、任务规划、工具调用、三层记忆、多智能体协同、知识图谱推理、反思自优化、安全合规、资产治理）；上层赋能层（输出标准化智能体服务、数字员工、自主工作流，供给各业务中台、SaaS 应用、行业前台、终端交互场景）。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S1 八大核心特征 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-layer-group"></i> 八大核心特征</h2>
+        <span class="badge-count">原子化资产 · 自主规划 · 三层记忆 · 工具互联</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-cubes"></i></span><h4>全域智能体原子化资产池</h4><ul class="detail-list"><li>通用/行业/工具/多模态智能体统一入库池化，跨业务复用</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-tasks"></i></span><h4>自主任务规划+多智能体协同</h4><ul class="detail-list"><li>单智能自主拆解，主从/平行/链式多智能体组网协同</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-brain"></i></span><h4>三层持久记忆闭环</h4><ul class="detail-list"><li>工作/短期/长期记忆全域持久可检索</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-toolbox"></i></span><h4>工具全域标准化互联</h4><ul class="detail-list"><li>API/RPA/数据库/文件/系统智能体自主调用</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-brain"></i></span><h4>三重智能推理</h4><ul class="detail-list"><li>规则+大模型+AgentGraph深度因果挖掘</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-history"></i></span><h4>全链路可观测可审计</h4><ul class="detail-list"><li>每一步思考/工具调用/决策全链路留痕</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-sync-alt"></i></span><h4>自主反思自进化</h4><ul class="detail-list"><li>任务复盘失败步骤，优化规划/工具/Prompt</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-lock"></i></span><h4>多租户分层隔离</h4><ul class="detail-list"><li>企业/部门/项目三级隔离，权限/资源独立</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S2 十大知识域 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book"></i> Agent 中台专属知识体系</h2>
+        <span class="badge-count">十大完整知识域</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-3">
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-sitemap"></i></span><h4>顶层架构与体系规划</h4><ul class="detail-list"><li>顶层设计；转型路线图；成熟度评估；分层建设标准</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-robot"></i></span><h4>智能体构建与基座大模型</h4><ul class="detail-list"><li>模型选型；Prompt工程；角色配置；多模态融合；幻觉抑制</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-tasks"></i></span><h4>自主任务规划</h4><ul class="detail-list"><li>目标拆解；四类任务引擎；动态规划；断点续执行</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-toolbox"></i></span><h4>全域工具互联</h4><ul class="detail-list"><li>标准化封装；自动检索；智能填参；熔断限流</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-brain"></i></span><h4>三层记忆体系</h4><ul class="detail-list"><li>工作/短期/长期记忆；摘要压缩；权限隔离</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-project-diagram"></i></span><h4>多智能体协同编排</h4><ul class="detail-list"><li>角色分工；四种拓扑；通信协议；冲突消解</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-brain"></i></span><h4>AgentGraph推理</h4><ul class="detail-list"><li>本体设计；三元组抽取；路径推理；增量更新</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-shield-alt"></i></span><h4>安全与合规治理</h4><ul class="detail-list"><li>权限最小化；脱敏；拦截；全链路审计</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-industry"></i></span><h4>场景落地与数字员工</h4><ul class="detail-list"><li>行业智能体SOP；批量分发；人机协同；效果复盘</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-rocket"></i></span><h4>前沿演进</h4><ul class="detail-list"><li>自治式Agent；云边端一体化；联邦多智能体；自主进化</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S3 AgentGraph ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-project-diagram"></i> AgentGraph 智能体知识图谱</h2>
+        <span class="badge-count">核心实体 · 关联 · 智能能力</span>
+      </div>
+      <div class="card-body">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+          <div><h4 style="color:var(--color-primary-dark);"><i class="fas fa-circle"></i> 核心实体体系</h4><ul class="detail-list" style="list-style:none; padding-left:0;"><li>智能体、工具、任务、记忆、场景、故障、策略、合规、指标、资产</li></ul></div>
+          <div><h4 style="color:var(--color-primary-dark);"><i class="fas fa-link"></i> 核心关联关系</h4><ul class="detail-list" style="list-style:none; padding-left:0;"><li>智能体↔工具；智能体↔任务；任务↔记忆；任务↔故障；故障↔策略；智能体↔场景；资产↔智能体；经验↔图谱</li></ul></div>
+        </div>
+        <div style="margin-top:1rem; display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.8rem;">
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-magic"></i></span><h4>智能能力</h4><ul class="detail-list"><li>经验自动沉淀</li><li>场景智能体匹配</li><li>任务路径推演</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-broom"></i></span><h4>智能能力</h4><ul class="detail-list"><li>故障根因溯源</li><li>优化方案推荐</li><li>风险前置预判</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-shield-alt"></i></span><h4>智能能力</h4><ul class="detail-list"><li>协同拓扑生成</li><li>低门槛赋能</li><li>知识经验复用</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S4 六大架构 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> 六大完整架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-cubes"></i></span><h4>产品架构（九层）</h4><ul class="detail-list"><li>接入层→资产池→规划引擎→记忆管理→工具互联→协同编排→AgentGraph→观测管控→自主进化</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-briefcase"></i></span><h4>业务架构</h4><ul class="detail-list"><li>上层：全业务场景赋能；中层：资产/规划/记忆/工具/协同/图谱/进化；下层：算力/MaaS/数据/PaaS/API</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-database"></i></span><h4>数据架构（七层）</h4><ul class="detail-list"><li>AG-ODS → AG-DWD → AG-DWB → AG-DWA → AG-DWS → AG-ADS → AG-OPT</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-microchip"></i></span><h4>技术架构（七层）</h4><ul class="detail-list"><li>交互接入→模型底座→核心引擎→图引擎→编排执行→可观测安全→管理前端</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-rocket"></i></span><h4>应用架构（八大应用）</h4><ul class="detail-list"><li>数字员工交付、自主流程、知识问答、协同作业、低代码搭建、图谱运维、安全管控、自主迭代</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-balance-scale"></i></span><h4>治理架构（六大体系）</h4><ul class="detail-list"><li>资产生命周期；任务流程；工具集市；记忆；安全合规；图谱迭代</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S5 功能模块 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> 全量产品功能模块</h2>
+        <span class="badge-count">10大模块全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-robot"></i></span><h4>多租户与智能体资产管控</h4><ul class="detail-list"><li>租户隔离；模板资产库；可视化搭建；版本管理；权限分级；资产盘点</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-tasks"></i></span><h4>自主任务规划引擎</h4><ul class="detail-list"><li>目标拆解；多分支编排；断点续执行；异常处理；定时任务；快照留存</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-brain"></i></span><h4>三层统一记忆管理</h4><ul class="detail-list"><li>工作/短期/长期记忆；摘要压缩；时效清理；脱敏隔离</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-toolbox"></i></span><h4>全域工具集市互联</h4><ul class="detail-list"><li>多类型接入；元数据生成；智能匹配；熔断限流；热插拔；审计</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-project-diagram"></i></span><h4>多智能体协同编排</h4><ul class="detail-list"><li>拖拽组网；四种拓扑；消息通信；冲突消解；流程复用；链路追踪</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-brain"></i></span><h4>AgentGraph推理</h4><ul class="detail-list"><li>三元组抽取；可视化拓扑；自动推荐；根因溯源；策略推荐；增量更新</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-chart-line"></i></span><h4>全链路观测与告警</h4><ul class="detail-list"><li>实时指标；思考链路查看；分级告警；配额监控；效能大屏；故障台账</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-sync-alt"></i></span><h4>智能体自主进化反思</h4><ul class="detail-list"><li>自动反思；Prompt调优；流程迭代；劣质标记；方案入库；批量迭代</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-shield-alt"></i></span><h4>安全合规与审计</h4><ul class="detail-list"><li>最小权限管控；幻觉拦截；日志留存；脱敏；合规报表；异常拦截</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-user-tie"></i></span><h4>低代码数字员工交付</h4><ul class="detail-list"><li>行业模板；零代码配置；批量开通；效能统计；调度管控；报告生成</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S6 指标体系 ===== -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> 全套指标体系</h2>
+        <span class="badge-count">资产 · 任务 · 工具 · 记忆 · 安全 · 图谱</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>智能体资产</strong></td><td>复用率≥85% · 交付周期缩短≥70% · 闲置≤10% · 版本规范率100% · 盘点完整率100%</td></tr>
+              <tr><td><strong>任务执行核心</strong></td><td>全局完成率≥92% · 复杂任务完成率≥88% · 失败率≤5% · 断点成功率100% · 定时准时率≥99.5%</td></tr>
+              <tr><td><strong>工具调用效能</strong></td><td>成功率≥95% · 熔断率≤3% · 匹配准确率≥90% · 审计完整率100%</td></tr>
+              <tr><td><strong>记忆体系</strong></td><td>检索准确率≥93% · 压缩节省算力≥40% · 脱敏覆盖率100% · 清理达标率100% · 隔离合规率100%</td></tr>
+              <tr><td><strong>安全合规</strong></td><td>脱敏覆盖率100% · 拦截率≥98% · 拦截率100% · 留存率100% · 报表及时率100%</td></tr>
+              <tr><td><strong>AgentGraph图谱</strong></td><td>场景覆盖率100% · 三元组完整率≥99.5% · 根因准确率≥97% · 推荐准确率≥95% · 赋能贡献率≥35%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S7 资产体系 ===== -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> 完整内容资产体系</h2>
+        <span class="badge-count">6大资产包</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-sitemap"></i></span><h4>顶层规划资产</h4><ul class="detail-list"><li>建设白皮书 · 转型方案 · 路线图 · 成熟度评估 · 协同方案</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-book"></i></span><h4>全域标准规范</h4><ul class="detail-list"><li>搭建标准 · Prompt规范 · 流程设计规范 · 工具封装标准 · 记忆管理规范 · 图谱标准 · 安全规范</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-database"></i></span><h4>核心数字资产</h4><ul class="detail-list"><li>模板资产库 · 流程模板库 · 插件资产库 · Prompt模板 · 图谱资产包 · 策略资产库</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-tools"></i></span><h4>落地工程资产</h4><ul class="detail-list"><li>实施手册 · 搭建指南 · 图谱运维手册 · API文档 · 验收模板</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-chart-pie"></i></span><h4>运营复盘资产</h4><ul class="detail-list"><li>月度效能报告 · 故障复盘 · 降本报告 · 合规台账</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-shield-alt"></i></span><h4>应急保障资产</h4><ul class="detail-list"><li>任务雪崩预案 · 模型中断应急 · 风险处置 · 图谱恢复预案</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S8 协同关系 ===== -->
+    <section id="s8" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-share-alt"></i> 全中台全域协同关系</h2>
+        <span class="badge-count">9 大中台协同</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-3">
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-microchip"></i></span><h4>算力中台</h4><ul class="detail-list"><li>提供异构弹性算力，支撑智能体并发与图计算</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-cloud"></i></span><h4>MaaS中台</h4><ul class="detail-list"><li>提供大模型推理服务，作为智能体大脑基座</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-cubes"></i></span><h4>IaaS/PaaS中台</h4><ul class="detail-list"><li>提供容器/集群/存储云原生运行底座</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-table"></i></span><h4>数据治理中台</h4><ul class="detail-list"><li>输出治理数据集与知识库供给长期记忆</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-code"></i></span><h4>API中台</h4><ul class="detail-list"><li>统一系统网关，作为工具统一接入入口</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-box"></i></span><h4>业务中台</h4><ul class="detail-list"><li>输出业务能力，供Agent自主调用完成任务</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-chart-pie"></i></span><h4>营销/风控/财务中台</h4><ul class="detail-list"><li>输出行业能力，搭建垂直数字员工</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-tasks"></i></span><h4>运维中台</h4><ul class="detail-list"><li>承接监控告警、故障工单闭环</li></ul></div>
+          <div class="agent-card"><span class="agent-icon"><i class="fas fa-cloud"></i></span><h4>SaaS中台</h4><ul class="detail-list"><li>嵌入智能体能力，提供内置数字员工</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S9 核心价值 ===== -->
+    <section id="s9" class="card banner-card">
+      <div class="card-body">
+        <div class="icon-big"><i class="fas fa-flag"></i></div>
+        <h2>Agent 中台 · 核心价值总结</h2>
+        <p>打破 AI 烟囱，构建企业统一自主智能底座：终结零散定制智能体、重复开发、跨系统无法自主协同痛点，统一标准化智能体生产与调度；<br>AI 能力范式升级：从被动问答到自主执行进化，依托规划引擎 + 三层记忆 + Agent 图谱，实现 AI 自主拆解、自主执行、自主反思优化；<br>智能体资产化规模化交付，快速批量落地数字员工，大幅降低 AI 开发人力成本；<br>规则 + 大模型 + 知识图谱三重驱动，平衡业务约束、语义推理、因果深度挖掘，大幅降低幻觉；<br>全链路可观测全审计，满足数据安全、隐私合规监管要求，消除 AI 黑盒风险；<br>沉淀企业专属自主智能知识资产，通过 AgentGraph 持续沉淀业务任务经验，实现 AI 自主迭代进化；<br>全域赋能所有业务中台与前台场景，打造企业数字劳动力生产力底座，支撑长期 AI 原生数字化升级。</p>
+        <div class="footer-note">Agent 中台 · AI 智能体原生前沿完整版 · 对标算力 / MaaS/数据/PaaS 统一架构范式</div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

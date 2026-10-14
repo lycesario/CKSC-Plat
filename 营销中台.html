@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>营销中台 · 企业级完整体系 · 高保真架构</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ===== 设计系统 Token（完全继承参考样式） ===== */
+    :root {
+      --color-primary: #7a2e1a;
+      --color-primary-light: #fce9e0;
+      --color-primary-dark: #4d1c0e;
+      --color-accent: #b85c3a;
+      --color-accent-soft: #f0c8b8;
+      --color-accent-glow: rgba(184, 92, 58, 0.10);
+      --color-neutral-50: #fcf9f7;
+      --color-neutral-100: #f5ede8;
+      --color-neutral-200: #e5d7ce;
+      --color-neutral-300: #cbb8ab;
+      --color-neutral-400: #a68b7a;
+      --color-neutral-600: #6f5544;
+      --color-neutral-700: #4f3a2e;
+      --color-neutral-800: #34241c;
+      --color-neutral-900: #1e140f;
+      --color-gold: #c29a4a;
+      --color-gold-light: #f3e1b0;
+      --color-jade: #3b7a5e;
+      --color-jade-light: #d4ede0;
+      --color-success: #1f6e4a;
+      --color-warning: #a86b2c;
+      --color-error: #b13a2a;
+      --font-base: 1rem;
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-12: 3rem;
+      --radius-sm: 0.75rem;
+      --radius-md: 1.25rem;
+      --radius-card: 2rem;
+      --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(60, 30, 10, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(60, 30, 10, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(60, 30, 10, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+      --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ===== 重置 & 基础 ===== */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    /* ===== 布局 ===== */
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(255, 249, 245, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(255, 235, 220, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); letter-spacing:-0.01em; }
+    .sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+    .sidebar nav ul { list-style:none; padding:0; margin:0; }
+    .sidebar nav ul li { margin-bottom:0.1rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:12px;
+      padding:0.55rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.85rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+    }
+    .sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+    .sidebar nav ul li a:hover,
+    .sidebar nav ul li a:focus-visible {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateX(4px);
+    }
+    .sidebar-footer {
+      margin-top:24px; padding:12px; text-align:center;
+      font-size:0.7rem; color:var(--color-neutral-600);
+      border-top:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 主内容 ===== */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+    /* ===== 页面头部 ===== */
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+      font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+    .page-header .header-meta {
+      font-size:0.9rem; color:var(--color-neutral-600);
+      background:var(--color-neutral-100);
+      padding:0.4rem 1.2rem;
+      border-radius:var(--radius-pill);
+      border:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 卡片系统 ===== */
+    .card {
+      background:rgba(255,252,248,0.92);
+      backdrop-filter: blur(4px);
+      border-radius:var(--radius-card);
+      box-shadow:var(--shadow-card);
+      margin-bottom:var(--space-6);
+      border:1px solid rgba(255, 235, 220, 0.5);
+      overflow:hidden;
+      transition: box-shadow var(--transition-default), transform 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6);
+      background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft);
+      display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 {
+      font-size:clamp(1.2rem, 2.2vw, 1.6rem);
+      font-weight:700; color:var(--color-primary-dark);
+      display:flex; align-items:center; gap:12px;
+      letter-spacing:-0.01em;
+    }
+    .card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+    .card-header .badge-count {
+      margin-left:auto;
+      background:var(--color-accent);
+      color:white;
+      border-radius:var(--radius-pill);
+      padding:0.15rem 0.9rem;
+      font-size:0.7rem;
+      font-weight:600;
+      letter-spacing:0.3px;
+    }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* ===== 网格 & 卡片（数据治理卡片风格） ===== */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } .grid-4 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; } }
+
+    /* 数据治理卡片 (复用九字卡片) */
+    .gov-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md);
+      padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: all var(--transition-default);
+      position:relative;
+      overflow:hidden;
+      border-left: 4px solid var(--color-accent);
+    }
+    .gov-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft));
+      opacity:0;
+      transition: opacity var(--transition-default);
+    }
+    .gov-card:hover::before { opacity:1; }
+    .gov-card:hover {
+      border-color:var(--color-accent-soft);
+      box-shadow: 0 8px 24px -8px rgba(184,92,58,0.15);
+      transform:translateY(-3px);
+    }
+    .gov-card .gov-icon {
+      font-size:1.8rem;
+      color:var(--color-primary);
+      display:inline-block;
+      margin-right:6px;
+      background: var(--color-primary-light);
+      padding:0.2rem 0.6rem;
+      border-radius:12px;
+    }
+    .gov-card h4 {
+      color:var(--color-primary-dark);
+      font-size:1.05rem;
+      margin-bottom:0.4rem;
+      display:flex; align-items:center; gap:8px;
+      flex-wrap:wrap;
+    }
+    .gov-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+    .gov-card .detail-list {
+      padding-left:0; margin:0.4rem 0 0 0;
+      list-style:none;
+    }
+    .gov-card .detail-list li {
+      margin-bottom:0.25rem;
+      padding-left:1.2rem;
+      position:relative;
+      font-size:0.85rem;
+      color:var(--color-neutral-700);
+    }
+    .gov-card .detail-list li::before {
+      content:'▹'; position:absolute; left:0;
+      color:var(--color-accent);
+      font-weight:600;
+    }
+    .gov-card .detail-list li strong { color:var(--color-neutral-800); }
+    .gov-card .tag-layer {
+      display:inline-block;
+      background:var(--color-gold-light);
+      color:var(--color-primary-dark);
+      border-radius:20px;
+      padding:0.05rem 0.8rem;
+      font-size:0.6rem;
+      font-weight:700;
+      letter-spacing:0.3px;
+      margin-left:0.5rem;
+    }
+
+    /* ===== 架构层（继承九层闭环） ===== */
+    .arch-diagram {
+      display:flex;
+      flex-direction:column;
+      gap:0.6rem;
+      padding:0.5rem 0;
+    }
+    .arch-layer {
+      display:flex;
+      align-items:stretch;
+      gap:0.75rem;
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.6rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: var(--transition-default);
+    }
+    .arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+    .arch-layer .layer-label {
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      min-width:120px;
+      padding-right:1rem;
+      border-right:2px solid var(--color-neutral-200);
+      font-weight:700;
+      font-size:0.8rem;
+      color:var(--color-primary-dark);
+      letter-spacing:0.3px;
+    }
+    .arch-layer .layer-label i {
+      font-size:1.1rem;
+      color:var(--color-accent);
+      margin-bottom:0.1rem;
+    }
+    .arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+    .arch-layer .layer-blocks {
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:0.5rem;
+      flex:1;
+      padding:0.2rem 0;
+    }
+    .arch-block {
+      background:white;
+      border-radius:var(--radius-sm);
+      padding:0.3rem 0.9rem;
+      border:1px solid var(--color-neutral-200);
+      font-size:0.75rem;
+      font-weight:500;
+      color:var(--color-neutral-700);
+      transition: var(--transition-default);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .arch-block:hover {
+      border-color:var(--color-accent);
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateY(-1px);
+    }
+    .arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+    .arch-block.highlight-block {
+      background:var(--color-accent);
+      color:white;
+      border-color:var(--color-accent);
+    }
+    .arch-block.highlight-block i { color:white; }
+    .arch-layer.inner-layer { background:linear-gradient(135deg, #f5efe8, #f0e4da); border-color:var(--color-accent-soft); }
+    .arch-layer.outer-layer { background:linear-gradient(135deg, #f0f2ed, #e6ece2); border-color:#b8c8aa; }
+    .arch-layer.outer-layer .layer-label { border-right-color:#b8c8aa; color:#2d5a3a; }
+    .arch-layer.outer-layer .layer-label i { color:#3b7a5e; }
+    .arch-layer.outer-layer .arch-block { border-color:#c8d8b8; }
+    .arch-layer.outer-layer .arch-block:hover { border-color:#3b7a5e; background:#e0ede0; }
+    .arch-layer.ultimate-layer { background:linear-gradient(135deg, #f0ede8, #e8e0d8); border-color:#c8b8a8; }
+    .arch-layer.ultimate-layer .layer-label { border-right-color:#c8b8a8; color:#6a4a3a; }
+    .arch-layer.ultimate-layer .layer-label i { color:#8a6a5a; }
+    .arch-layer.ultimate-layer .arch-block { border-color:#d8c8b8; }
+    .arch-layer.ultimate-layer .arch-block:hover { border-color:#8a6a5a; background:#ede0d8; }
+
+    /* ===== 表格 ===== */
+    .table-wrapper {
+      overflow-x:auto;
+      border-radius:var(--radius-md);
+      border:1px solid var(--color-neutral-200);
+      background:white;
+    }
+    table {
+      width:100%; border-collapse:collapse; font-size:0.78rem;
+    }
+    th {
+      background:var(--color-neutral-100);
+      padding:12px 10px;
+      font-weight:600;
+      color:var(--color-primary-dark);
+      text-align:left;
+      border-bottom:2px solid var(--color-neutral-200);
+      font-size:0.7rem;
+      text-transform:uppercase;
+      letter-spacing:0.4px;
+    }
+    td {
+      padding:10px 10px;
+      border-bottom:1px solid var(--color-neutral-200);
+      vertical-align:middle;
+      color:var(--color-neutral-700);
+    }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--color-neutral-50); }
+    .level-tag {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      border-radius:var(--radius-pill);
+      padding:0.05rem 0.7rem;
+      font-size:0.65rem;
+      font-weight:600;
+      display:inline-block;
+    }
+
+    /* ===== 信息提示 ===== */
+    .info-tip {
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.7rem 1.5rem;
+      border-left:5px solid var(--color-accent);
+      margin-top:var(--space-4);
+      display:flex; align-items:center; gap:0.8rem;
+      font-size:0.9rem;
+      color:var(--color-neutral-700);
+    }
+    .info-tip i { color:var(--color-accent); font-size:1rem; }
+
+    /* ===== 横幅 ===== */
+    .banner-card {
+      background: linear-gradient(135deg, #f5ede6, #e8dcd2);
+      text-align:center;
+      border-color:var(--color-accent-soft);
+    }
+    .banner-card .card-body { padding:2.5rem var(--space-6); }
+    .banner-card .icon-big { font-size:3rem; color:var(--color-primary); opacity:0.7; margin-bottom:var(--space-3); }
+    .banner-card h2 { color:var(--color-primary-dark); font-size:clamp(1.4rem, 2.5vw, 1.9rem); margin-bottom:var(--space-2); }
+    .banner-card p { max-width:680px; margin:0 auto; color:var(--color-neutral-700); font-size:1rem; }
+    .banner-card .footer-note { margin-top:var(--space-6); font-size:0.8rem; color:var(--color-primary); }
+
+    /* ===== 响应式 ===== */
+    @media (max-width:1024px) { .sidebar { width:220px; } }
+    @media (max-width:760px) {
+      .sidebar { display:none; }
+      .layout { padding:0.5rem; }
+      .main-content { padding:0; }
+      .card-body { padding:1.25rem var(--space-4); }
+      .card-header { padding:1rem var(--space-4); }
+      .page-header { flex-direction:column; align-items:flex-start; }
+    }
+
+    /* ===== 暗色 ===== */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #1a1410;
+        --color-neutral-100: #221c18;
+        --color-neutral-200: #3a2c24;
+        --color-neutral-300: #5a4a3e;
+        --color-neutral-400: #8a7a6e;
+        --color-neutral-600: #b8a89c;
+        --color-neutral-700: #d0c4b8;
+        --color-neutral-800: #e8dcd0;
+        --color-neutral-900: #f5ede6;
+        --color-primary-light: #3a2a20;
+        --color-accent-soft: #6a4a3a;
+        --color-primary: #d08a6a;
+        --color-primary-dark: #f0c8b0;
+        --color-accent: #c07a5a;
+        --color-gold: #c29a4a;
+        --color-gold-light: #4a3a20;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6);
+        --shadow-card-hover: 0 20px 48px -12px rgba(0,0,0,0.7);
+        --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #120e0a; }
+      .card { background: #1a1410; border-color: #3a2c24; }
+      .card-header { background: #1a1410; border-bottom-color: #4a3a2e; }
+      .gov-card { background: #1a1410; border-color: #3a2c24; }
+      .gov-card .gov-icon { background: #2a1e16; color: #d08a6a; }
+      .gov-card .detail-list li { color: #c0b4a8; }
+      .gov-card .detail-list li strong { color: #e0d4c8; }
+      .table-wrapper { background: #1a1410; border-color: #3a2c24; }
+      th { background: #221c18; color: #e0d4c8; border-bottom-color: #4a3a2e; }
+      td { border-bottom-color: #2a241e; color: #c0b4a8; }
+      tr:hover td { background: #2a241e; }
+      .sidebar { background: rgba(20, 16, 12, 0.92); border-color: #3a2c24; }
+      .sidebar-brand { border-bottom-color: #4a3a2e; }
+      .sidebar-brand h3 { color: #d08a6a; }
+      .sidebar nav ul li a { color: #c0b4a8; }
+      .sidebar nav ul li a:hover { background: #3a2c24; color: white; }
+      .info-tip { background: #1a1410; border-left-color: #c07a5a; color: #c0b4a8; }
+      .banner-card { background:linear-gradient(135deg,#1a1410,#2a241e); }
+      .banner-card p { color: #c0b4a8; }
+      .page-header h1 { background:linear-gradient(135deg,#f0c8b0,#d08a6a); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#2a241e; border-color:#4a3a2e; color:#b8a89c; }
+      .arch-layer { background:#1a1410; border-color:#3a2c24; }
+      .arch-layer:hover { background:#2a1e16; border-color:#5a4a3e; }
+      .arch-layer .layer-label { border-right-color:#3a2c24; color:#e0d4c8; }
+      .arch-block { background:#1a1410; border-color:#3a2c24; color:#c0b4a8; }
+      .arch-block:hover { background:#3a2c24; border-color:#c07a5a; }
+      .arch-layer.inner-layer { background:linear-gradient(135deg,#1a1410,#2a1e16); border-color:#5a3a2a; }
+      .arch-layer.outer-layer { background:linear-gradient(135deg,#141a12,#1a2618); border-color:#2a4a2a; }
+      .arch-layer.outer-layer .layer-label { border-right-color:#2a4a2a; color:#8aba8a; }
+      .arch-layer.outer-layer .layer-label i { color:#5a9a6a; }
+      .arch-layer.outer-layer .arch-block { border-color:#2a4a2a; color:#a0c8a0; }
+      .arch-layer.outer-layer .arch-block:hover { border-color:#5a9a6a; background:#1a2a1a; }
+      .arch-layer.ultimate-layer { background:linear-gradient(135deg,#1a1410,#221c18); border-color:#4a3a2e; }
+      .arch-layer.ultimate-layer .layer-label { border-right-color:#4a3a2e; color:#c8b0a0; }
+      .arch-layer.ultimate-layer .layer-label i { color:#a08070; }
+      .arch-layer.ultimate-layer .arch-block { border-color:#4a3a2e; color:#c8b8a8; }
+      .arch-layer.ultimate-layer .arch-block:hover { border-color:#a08070; background:#2a241e; }
+    }
+    
+    /* ===== 优化新增样式 ===== */
+    /* 核心价值区域优化样式 */
+    .value-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .value-header .icon-big {
+        font-size: 2.8rem;
+        color: var(--color-primary);
+        opacity: 0.8;
+        margin-bottom: 0.5rem;
+    }
+    .value-header h2 {
+        font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+        color: var(--color-primary-dark);
+        margin-bottom: 0.25rem;
+    }
+    .value-subtitle {
+        font-size: 1rem;
+        color: var(--color-neutral-600);
+        letter-spacing: 2px;
+        font-weight: 300;
+    }
+
+    /* 价值网格 */
+    .value-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin: 1.5rem 0 2rem 0;
+    }
+    .value-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(4px);
+        padding: 1.2rem 1.4rem;
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 235, 220, 0.5);
+        transition: all 0.3s ease;
+    }
+    .value-item:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-card-hover);
+        border-color: var(--color-accent-soft);
+        background: rgba(255, 255, 255, 0.85);
+    }
+    .value-item .value-icon {
+        flex-shrink: 0;
+        width: 2.8rem;
+        height: 2.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--color-primary-light);
+        border-radius: 50%;
+        color: var(--color-accent);
+        font-size: 1.2rem;
+    }
+    .value-item .value-content h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--color-primary-dark);
+        margin-bottom: 0.3rem;
+        line-height: 1.3;
+    }
+    .value-item .value-content p {
+        font-size: 0.9rem;
+        color: var(--color-neutral-700);
+        line-height: 1.6;
+        margin: 0;
+    }
+    /* 最后一项占满整行 */
+    .value-item.full-width {
+        grid-column: 1 / -1;
+    }
+
+    /* 暗色主题适配 */
+    @media (prefers-color-scheme: dark) {
+        .value-item {
+            background: rgba(30, 24, 20, 0.7);
+            border-color: var(--color-neutral-200);
+        }
+        .value-item:hover {
+            background: rgba(40, 32, 26, 0.9);
+            border-color: var(--color-accent-soft);
+        }
+        .value-item .value-content p {
+            color: var(--color-neutral-600);
+        }
+        .value-subtitle {
+            color: var(--color-neutral-400);
+        }
+    }
+
+    /* 响应式布局 */
+    @media (max-width: 768px) {
+        .value-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        .value-item {
+            padding: 1rem 1.2rem;
+        }
+        .value-item .value-content h4 {
+            font-size: 0.95rem;
+        }
+        .value-item .value-content p {
+            font-size: 0.85rem;
+        }
+    }
+    
+    /* 正文文本样式补充 */
+    .content-text {
+      font-size: 0.95rem;
+      color: var(--color-neutral-700);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+    .content-text strong {
+      color: var(--color-primary-dark);
+    }
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--color-primary-dark);
+      margin: 1.5rem 0 1rem 0;
+      border-bottom: 2px solid var(--color-primary-light);
+      padding-bottom: 0.5rem;
+    }
+    .subsection-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--color-neutral-800);
+      margin: 1.2rem 0 0.8rem 0;
+    }
+    .normal-list {
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--color-neutral-700);
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+    .normal-list li {
+      margin-bottom: 0.3rem;
+    }
+    .normal-list li strong {
+      color: var(--color-neutral-800);
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-bullhorn" aria-hidden="true"></i>
+      <h3>营销中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-book-open"></i> 全域标准定义</a></li>
+        <li><a href="#s1"><i class="fas fa-layer-group"></i> 核心特征</a></li>
+        <li><a href="#s2"><i class="fas fa-book"></i> 知识体系</a></li>
+        <li><a href="#s3"><i class="fas fa-project-diagram"></i> MarGraph</a></li>
+        <li><a href="#s4"><i class="fas fa-sitemap"></i> 六大架构</a></li>
+        <li><a href="#s5"><i class="fas fa-puzzle-piece"></i> 功能模块</a></li>
+        <li><a href="#s6"><i class="fas fa-chart-line"></i> 指标体系</a></li>
+        <li><a href="#s7"><i class="fas fa-boxes"></i> 资产体系</a></li>
+        <li><a href="#s8"><i class="fas fa-share-alt"></i> 协同关系</a></li>
+        <li><a href="#s9"><i class="fas fa-flag"></i> 核心价值</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-bullhorn"></i> 营销中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-bullhorn"></i> 企业级营销中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> 前沿完整版</span>
+    </header>
+
+    <!-- ===== S0 全域标准定义 ===== -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> 营销中台全域标准定义</h2>
+        <span class="badge-count">当下落地+未来AI演进</span>
+      </div>
+      <div class="card-body">
+        <div class="arch-diagram">
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-database"></i> 底层依赖 <span class="sub">技术/算力/数据/AI底座</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-cubes"></i> 技术中台</span>
+              <span class="arch-block"><i class="fas fa-microchip"></i> 算力中台</span>
+              <span class="arch-block"><i class="fas fa-database"></i> 数据中台</span>
+              <span class="arch-block"><i class="fas fa-cloud"></i> AI中台</span>
+            </div>
+          </div>
+          <div class="arch-layer outer-layer">
+            <div class="layer-label"><i class="fas fa-cogs"></i> 核心能力 <span class="sub">洞察/策略/触达/归因/资产/知识</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block highlight-block"><i class="fas fa-ruler"></i> 用户洞察</span>
+              <span class="arch-block"><i class="fas fa-sitemap"></i> 策略编排</span>
+              <span class="arch-block"><i class="fas fa-bullhorn"></i> 全域触达</span>
+              <span class="arch-block"><i class="fas fa-chart-pie"></i> 效果归因</span>
+              <span class="arch-block"><i class="fas fa-brain"></i> MarGraph</span>
+            </div>
+          </div>
+          <div class="arch-layer ultimate-layer">
+            <div class="layer-label"><i class="fas fa-rocket"></i> 上层赋能 <span class="sub">电商/私域/投放/会员/内容/增长</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-shopping-cart"></i> 电商交易</span>
+              <span class="arch-block"><i class="fas fa-users"></i> 私域运营</span>
+              <span class="arch-block"><i class="fas fa-ad"></i> 广告投放</span>
+              <span class="arch-block"><i class="fas fa-gem"></i> 会员增长</span>
+              <span class="arch-block"><i class="fas fa-photo-video"></i> 内容运营</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section-title">1.1 权威标准定义</div>
+        <div class="content-text">
+          营销中台是企业全域用户增长、流量经营、用户转化、活动运营、内容触达、私域运维、广告投放、客户生命周期管理的全域营销数字化中枢与智能营销资产复用底座，属于企业十大全域中台体系中的业务增长赋能级核心中台。基于「用户全域洞察、策略标准化、营销智能化、触达精准化、活动自动化、效果可量化、资产可沉淀、迭代可持续」的前沿增长治理理念，全域整合企业公域流量、私域用户、行为轨迹、交易转化、内容互动、渠道触点、广告投放、会员权益、活动数据，通过标准化营销资产封装、用户标签体系构建、营销知识图谱沉淀、AI智能策略推理、全渠道自动化触达、营销效果归因复盘、增长策略持续迭代，将企业分散、碎片化、经验化、低效化、不可复用、无法量化的传统营销能力，沉淀为可复用、可编排、可量化、可智能、可自动化、可追溯、可迭代、可全域赋能的企业全域增长数字资产。
+        </div>
+        <div class="content-text">
+          营销中台横向贯通、全域赋能，向上统一支撑前台全域营销场景、电商交易场景、私域运营场景、广告投放场景、会员增长场景、内容运营场景、用户留存转化场景，联动业务中台、数据中台、AI中台、风控中台、服务中台形成完整增长闭环。彻底解决传统企业营销渠道割裂、用户数据孤岛、活动重复建设、营销经验流失、触达粗放低效、转化成本高、效果无法归因、策略无法迭代、增长不可持续的核心痛点，实现企业营销从「人工经验驱动、粗放流量投放、单点零散运营」向用户精准化、策略智能化、运营自动化、渠道全域化、效果可量化、资产可沉淀、增长可持续的未来高阶演进，构建企业数智化经营的全域增长引擎与流量壁垒。
+        </div>
+        
+        <div class="section-title">1.2 营销中台核心定位与层级边界</div>
+        <div class="content-text">
+          <strong>战略定位：</strong>企业全域数智化增长中枢、全渠道营销统一运营底座、用户生命周期管理核心平台、智能营销策略决策中心、营销资产沉淀复用中心、企业降本增效增收中心、全域增长知识迭代中心。
+        </div>
+        <div class="content-text">
+          <strong>层级边界：</strong>营销中台属于全域中台体系的增长赋能层，向下对接数据中台全域用户与行为数据、技术中台系统底座、算力中台智能算力、AI中台算法模型；向上为所有前台营销、交易、用户、内容、私域、投放场景提供标准化增长服务；横向联动风控中台、业务中台、服务中台、财务中台形成「流量获取-精准运营-转化成交-留存复购-风险防控-效果复盘-策略迭代」完整增长闭环，不直接承载交易履约业务，专注用户洞察、策略编排、全域触达、活动运营、转化提升、效果归因、资产沉淀、增长迭代，守住企业流量增长、用户经营、营收增收的核心增长底线。
+        </div>
+        
+        <div class="section-title">1.3 营销中台核心特征（当下落地+未来AI演进）</div>
+        <ol class="normal-list">
+          <li><strong>全域渠道一体化经营：</strong>打通公域投放、私域运维、线下门店、小程序、APP、社群、短信推送全渠道触点，破除渠道孤岛，实现全域用户统一视图与统一运营；</li>
+          <li><strong>营销能力资产化复用：</strong>营销活动模板、触达策略、用户标签、权益体系、SOP流程、投放模型全部资产化、组件化、跨场景复用；</li>
+          <li><strong>用户全生命周期闭环运营：</strong>覆盖拉新、激活、转化、复购、留存、裂变、流失召回、高价值深耕全链路生命周期运营；</li>
+          <li><strong>规则+AI+知识三重智能营销：</strong>融合传统运营规则、机器学习预测、大模型内容生成、营销知识图谱推理，实现从人工运营到智能自主增长；</li>
+          <li><strong>营销效果全量化可归因：</strong>所有流量、活动、触达、转化、成本、收益可量化、可溯源、可归因、可复盘，解决营销模糊化、凭经验决策问题；</li>
+          <li><strong>营销知识结构化可推理：</strong>构建专属营销知识体系与营销知识图谱，沉淀用户行为规律、转化因果、策略适配、增长经验，实现智能策略推荐与经验传承；</li>
+          <li><strong>多场景自适应可编排：</strong>支持电商、零售、金融、教育、本地生活、ToB企业服务等多行业差异化营销策略，支持可视化流程编排与A/B测试；</li>
+          <li><strong>增长策略常态化迭代：</strong>基于实时数据反馈与用户行为变化，动态优化投放、触达、活动、权益策略，实现营销能力持续升级。</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== S1 核心特征 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-layer-group"></i> 营销中台核心特征</h2>
+        <span class="badge-count">8大核心特征</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-globe"></i></span><h4>全域渠道一体化经营</h4><ul class="detail-list"><li>打通公域投放、私域运维、线下门店、小程序、APP、社群、短信推送全渠道触点，破除渠道孤岛，实现全域用户统一视图与统一运营</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>营销能力资产化复用</h4><ul class="detail-list"><li>营销活动模板、触达策略、用户标签、权益体系、SOP流程、投放模型全部资产化、组件化、跨场景复用</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>用户全生命周期闭环运营</h4><ul class="detail-list"><li>覆盖拉新、激活、转化、复购、留存、裂变、流失召回、高价值深耕全链路生命周期运营</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-brain"></i></span><h4>规则+AI+知识三重智能营销</h4><ul class="detail-list"><li>融合传统运营规则、机器学习预测、大模型内容生成、营销知识图谱推理，实现从人工运营到智能自主增长</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-bar"></i></span><h4>营销效果全量化可归因</h4><ul class="detail-list"><li>所有流量、活动、触达、转化、成本、收益可量化、可溯源、可归因、可复盘，解决营销模糊化、凭经验决策问题</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>营销知识结构化可推理</h4><ul class="detail-list"><li>构建专属营销知识体系与营销知识图谱，沉淀用户行为规律、转化因果、策略适配、增长经验，实现智能策略推荐与经验传承</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sliders-h"></i></span><h4>多场景自适应可编排</h4><ul class="detail-list"><li>支持电商、零售、金融、教育、本地生活、ToB企业服务等多行业差异化营销策略，支持可视化流程编排与A/B测试</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>增长策略常态化迭代</h4><ul class="detail-list"><li>基于实时数据反馈与用户行为变化，动态优化投放、触达、活动、权益策略，实现营销能力持续升级</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S2 知识体系 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book"></i> 营销中台专属完整知识体系</h2>
+        <span class="badge-count">十大知识域全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="content-text" style="margin-bottom: 1.5rem;">营销中台知识体系是企业全域数智化增长、智能营销落地、用户长效经营的标准化、可传承、可推理、可迭代的专业知识合集，覆盖营销顶层规划、全域用户运营、全渠道营销、活动增长、智能AI营销、内容私域、投放归因、数据营销、营销资产、营销迭代十大维度，支撑企业从粗放人工营销走向全域智能增长的全链路知识赋能。</div>
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>2.1 营销顶层规划与体系建设</h4><ul class="detail-list"><li>顶层架构规划、数智增长转型方法论、成熟度评估、分层分级运营标准、四级能力迭代建设、跨部门协同治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-users"></i></span><h4>2.2 全域用户生命周期运营</h4><ul class="detail-list"><li>拉新获客、转化成交、留存复购、裂变增长、流失治理、分层分群（RFM模型）</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-broadcast-tower"></i></span><h4>2.3 全渠道营销运营</h4><ul class="detail-list"><li>公域投放运营、私域精细化运营、自有渠道运营、全域触达运营、渠道归因治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-gift"></i></span><h4>2.4 营销活动与权益增长</h4><ul class="detail-list"><li>常规/节点活动运营、裂变活动、会员权益运营、活动风控治理、活动复盘优化</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-robot"></i></span><h4>2.5 智能AI营销</h4><ul class="detail-list"><li>大模型智能营销、用户AI预测建模、智能策略推荐、A/B智能测试、实时智能决策、自动化推理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-photo-video"></i></span><h4>2.6 内容营销与私域增长</h4><ul class="detail-list"><li>内容生产与分发运营、私域用户深耕、内容效果归因、内容策略迭代</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tags"></i></span><h4>2.7 数据营销与用户标签</h4><ul class="detail-list"><li>全域数据融合、标签体系构建、营销特征工程、数据质量治理、数据驱动增长</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-coins"></i></span><h4>2.8 营销投放与ROI经营</h4><ul class="detail-list"><li>公域投放策略、效果归因、预算管控、素材迭代优化、投放风险管控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>2.9 营销资产与运营复盘</h4><ul class="detail-list"><li>营销资产台账、价值量化、资产复用、全域营销复盘</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-rocket"></i></span><h4>2.10 营销迭代与前沿演进</h4><ul class="detail-list"><li>策略增量更新、AI原生智能营销、公私域融合、大模型自主营销演进</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S3 MarGraph ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-project-diagram"></i> 营销中台专属营销知识图谱（MarGraph）体系</h2>
+        <span class="badge-count">核心实体 · 关联 · 智能能力</span>
+      </div>
+      <div class="card-body">
+        <div class="content-text" style="margin-bottom: 1.5rem;">营销知识图谱（MarGraph）是企业全域用户、流量、渠道、内容、活动、权益、转化、策略、增长规律的结构化智能增长知识网络，是营销中台从「规则触发、人工运营」走向「智能推理、因果洞察、自主增长、精准预判」的核心核心支撑。通过抽取营销全链路三元组数据，构建「用户主体-用户行为-营销场景-内容素材-活动权益-渠道触点-转化结果-增长策略-复盘优化」的全域营销知识关联网络，解决传统营销「碎片化运营、无因果分析、凭经验决策、精准度不足、增长无法沉淀、策略盲目迭代」的痛点，实现用户意图智能识别、转化因果推理、最优策略智能匹配、渠道价值挖掘、增长经验自动传承、营销策略精准迭代。</div>
+        
+        <div class="subsection-title">3.1 营销知识图谱核心实体体系</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-user"></i></span><h4>用户主体实体</h4><ul class="detail-list"><li>新客、老客、沉睡用户、流失用户、高价值用户、普通用户、潜在意向用户</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-stream"></i></span><h4>渠道触点实体</h4><ul class="detail-list"><li>抖音、小红书、百度、小程序、APP、社群、短信、推送、线下门店、合作渠道</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-mouse-pointer"></i></span><h4>用户行为实体</h4><ul class="detail-list"><li>浏览、点击、加购、收藏、咨询、下单、支付、复购、分享、沉默、流失</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-file-alt"></i></span><h4>营销内容实体</h4><ul class="detail-list"><li>种草文案、短视频、海报、商品素材、活动文案、私域话术、推广素材</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-theater-masks"></i></span><h4>营销活动实体</h4><ul class="detail-list"><li>满减、秒杀、拼团、抽奖、裂变、新人礼、会员活动、大促活动</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-gift"></i></span><h4>权益资源实体</h4><ul class="detail-list"><li>优惠券、积分、储值、会员特权、满减权益、限时福利、专属福利</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chess"></i></span><h4>营销策略实体</h4><ul class="detail-list"><li>拉新策略、激活策略、转化策略、复购策略、召回策略、裂变策略、留存策略</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-fingerprint"></i></span><h4>用户特征实体</h4><ul class="detail-list"><li>偏好特征、价格敏感特征、活跃时段特征、渠道偏好、消费能力特征</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-line"></i></span><h4>增长结果实体</h4><ul class="detail-list"><li>曝光、引流、点击、转化、成交金额、获客成本、ROI、留存率</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-folder-open"></i></span><h4>营销案例实体</h4><ul class="detail-list"><li>高转化活动案例、爆款内容案例、高效渠道案例、低效策略案例</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.2 营销知识图谱核心关联关系</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>用户-行为关联</h4><ul class="detail-list"><li>用户绑定全域历史行为、互动轨迹、消费行为、活跃规律、流失轨迹</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>行为-场景关联</h4><ul class="detail-list"><li>用户行为归属对应营销场景、生命周期阶段、运营节点</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>行为-内容关联</h4><ul class="detail-list"><li>用户行为匹配偏好内容、爆款素材、适配文案、种草内容类型</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>行为-权益关联</h4><ul class="detail-list"><li>不同用户行为、用户层级适配最优权益、优惠力度、福利类型</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>行为-渠道关联</h4><ul class="detail-list"><li>用户最优触达渠道、高转化渠道、偏好渠道、活跃渠道关联</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>场景-策略关联</h4><ul class="detail-list"><li>不同生命周期场景、用户状态匹配专属增长运营策略</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>策略-结果关联</h4><ul class="detail-list"><li>营销策略对应转化效果、成本收益、留存提升、增长增量</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>用户-特征关联</h4><ul class="detail-list"><li>用户自动匹配多维标签特征、消费偏好、价值等级、活跃属性</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>案例-策略关联</h4><ul class="detail-list"><li>高增长案例反向沉淀最优策略、最优内容、最优渠道组合</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>结果-迭代关联</h4><ul class="detail-list"><li>低效增长结果定位策略短板、反向优化内容、活动、触达策略</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.3 营销知识图谱核心智能能力</div>
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-archive"></i></span><h4>营销经验结构化沉淀</h4><ul class="detail-list"><li>将人工运营、活动策划、投放优化、用户运维的零散经验结构化入库，摆脱经验依赖</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-search"></i></span><h4>用户深层意图智能挖掘</h4><ul class="detail-list"><li>基于多维度行为关联，识别用户潜在意向、购买偏好、流失前兆、潜在需求</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-lightbulb"></i></span><h4>增长因果智能归因</h4><ul class="detail-list"><li>精准定位转化高低、留存波动、成本涨跌的核心根因，解决模糊归因问题</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-magic"></i></span><h4>最优营销策略智能推荐</h4><ul class="detail-list"><li>针对不同用户、不同场景、不同阶段自动匹配最优内容、权益、渠道、触达时机</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exclamation-triangle"></i></span><h4>低效增长风险预警</h4><ul class="detail-list"><li>提前识别低效投放、低转化活动、低质量流量、流失风险用户</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>全域增长组合策略推演</h4><ul class="detail-list"><li>通过知识网络推演「渠道+内容+权益+触达」最优组合方案</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>营销策略自动迭代优化</h4><ul class="detail-list"><li>基于增长结果与知识关联，自动优化素材、活动、投放、触达策略</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-graduation-cap"></i></span><h4>营销新人快速赋能</h4><ul class="detail-list"><li>实现营销知识可查询、可推理、可复用，降低运营与投放门槛</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S4 六大架构 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> 营销中台六大核心架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span>
+      </div>
+      <div class="card-body">
+        <div class="subsection-title">4.1 产品架构（九层分层全景架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">整体分层：全域营销数据接入层 → 用户标签资产层 → 营销规则策略层 → 营销知识推理层 → 智能增长决策层 → 全渠道触达编排层 → 营销效果监控层 → 增长复盘归因层 → 营销资产迭代层</div>
+        <div class="arch-diagram" style="margin-bottom: 2rem;">
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-plug"></i> 接入层</div><div class="layer-blocks"><span class="arch-block">全域营销数据接入</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-tags"></i> 标签资产层</div><div class="layer-blocks"><span class="arch-block">用户全域画像</span><span class="arch-block">标签体系</span><span class="arch-block">用户分群</span><span class="arch-block">价值分层</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chess"></i> 规则策略层</div><div class="layer-blocks"><span class="arch-block">活动规则</span><span class="arch-block">权益规则</span><span class="arch-block">触达规则</span><span class="arch-block">分层运营规则</span><span class="arch-block">裂变规则</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-brain"></i> 知识推理层</div><div class="layer-blocks"><span class="arch-block">MarGraph</span><span class="arch-block">用户意图挖掘</span><span class="arch-block">因果归因</span><span class="arch-block">增长预判</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-sitemap"></i> 决策层</div><div class="layer-blocks"><span class="arch-block">生命周期决策</span><span class="arch-block">渠道自适应</span><span class="arch-block">千人千面策略</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-bullhorn"></i> 触达编排层</div><div class="layer-blocks"><span class="arch-block">全域自动化触达</span><span class="arch-block">用户旅程编排</span><span class="arch-block">活动流程自动化</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-line"></i> 监控层</div><div class="layer-blocks"><span class="arch-block">流量/转化/成本/ROI</span><span class="arch-block">留存/裂变/活动效果</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-clipboard-check"></i> 复盘归因层</div><div class="layer-blocks"><span class="arch-block">全链路归因</span><span class="arch-block">短板定位</span><span class="arch-block">优劣分析</span><span class="arch-block">增长问题复盘</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-sync-alt"></i> 迭代层</div><div class="layer-blocks"><span class="arch-block">活动/内容/策略/标签/案例</span><span class="arch-block">持续沉淀与升级</span></div></div>
+        </div>
+        
+        <div class="subsection-title">4.2 业务架构（三层全域业务架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">上层：前台全场景增长赋能层 | 中层：营销中台核心能力层（数据接入、用户洞察、策略编排、智能推理、全域触达、效果监控、复盘归因、资产迭代八大原子能力） | 下层：全域底座支撑层（技术中台、数据中台、算力中台、AI中台）</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-eye"></i></span><h4>全域用户洞察业务域</h4><ul class="detail-list"><li>用户画像、标签体系、用户分群、价值分层、行为洞察、意向挖掘</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-broadcast-tower"></i></h4><h4>全渠道增长业务域</h4><ul class="detail-list"><li>公域投放、私域运维、自有渠道运营、全域触达、渠道优化</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-gift"></i></span><h4>活动权益运营业务域</h4><ul class="detail-list"><li>活动搭建、权益配置、裂变增长、大促运营、活动风控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-robot"></i></span><h4>智能AI营销业务域</h4><ul class="detail-list"><li>AI内容生成、智能预测、策略推荐、A/B测试、自动化运营</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>用户生命周期业务域</h4><ul class="detail-list"><li>拉新、激活、转化、复购、留存、裂变、流失召回全链路运营</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>效果监控与复盘归因业务域</h4><ul class="detail-list"><li>实时数据监控、增长态势、异常告警、成本监控、全链路归因、策略优劣评估</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>营销知识资产业务域</h4><ul class="detail-list"><li>营销知识沉淀、图谱迭代、案例复用、策略资产、经验传承</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.3 数据架构（七层营销专属数据架构）</div>
+        <div class="arch-diagram" style="margin-bottom: 2rem;">
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-database"></i> MAR-ODS</div><div class="layer-blocks"><span class="arch-block">原始接入层：公域投放、私域互动、用户行为、交易转化、内容互动、渠道流量、活动参与</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-filter"></i> MAR-DWD</div><div class="layer-blocks"><span class="arch-block">明细清洗层：清洗、去重、脱敏、标准化、时序对齐、无效数据剔除</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-table"></i> MAR-DWB</div><div class="layer-blocks"><span class="arch-block">用户宽表层：用户属性+行为轨迹+渠道偏好+消费特征+权益使用+活动参与+转化结果</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-project-diagram"></i> MAR-DWA</div><div class="layer-blocks"><span class="arch-block">知识关联层：三元组抽取、用户-行为-内容-渠道-策略-结果知识网络</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-bar"></i> MAR-DWS</div><div class="layer-blocks"><span class="arch-block">主题汇总层：用户增长、渠道投放、活动转化、内容种草、会员经营、裂变增长六大主题</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-line"></i> MAR-ADS</div><div class="layer-blocks"><span class="arch-block">指标应用层：获客成本、转化率、留存率、ROI、活动GMV、渠道效率、用户价值</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-sync-alt"></i> MAR-OPT</div><div class="layer-blocks"><span class="arch-block">迭代优化层：低效策略、低转化案例、优质增长样本、用户偏好变化沉淀</span></div></div>
+        </div>
+        
+        <div class="subsection-title">4.4 技术架构（云原生+AI智能营销前沿技术架构）</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-plug"></i></span><h4>多源营销数据接入层</h4><ul class="detail-list"><li>公域API数据、私域实时数据流、APP/小程序埋点、交易离线、内容互动数据统一接入</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>数据计算与存储层</h4><ul class="detail-list"><li>Flink实时计算、Spark离线计算、用户画像库、图数据库、时序数据库、缓存集群</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cogs"></i></span><h4>营销核心引擎层</h4><ul class="detail-list"><li>用户标签引擎、规则引擎、AI预测引擎、大模型内容生成引擎、知识推理引擎、旅程编排引擎</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sliders-h"></i></span><h4>智能策略编排层</h4><ul class="detail-list"><li>可视化策略配置、用户旅程编排、场景化策略组合、A/B测试、灰度发布、动态权益调控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bullhorn"></i></span><h4>全渠道触达服务层</h4><ul class="detail-list"><li>推送服务、短信服务、社群触达、私信触达、投放对接、内容分发、权益发放服务</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>效果监控与归因层</h4><ul class="detail-list"><li>全域数据看板、实时告警、全链路归因、增长复盘、策略优劣评估</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.5 应用架构（全域赋能应用体系）</div>
+        <div class="grid-3" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-users"></i></span><h4>全域用户洞察应用</h4><ul class="detail-list"><li>360°用户画像、精准分群、价值分层、意向挖掘、流失预警、偏好分析</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-ad"></i></span><h4>公域智能投放应用</h4><ul class="detail-list"><li>渠道定向、素材优化、预算调控、成本管控、ROI优化、低效投放治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-comments"></i></span><h4>私域精细化运营应用</h4><ul class="detail-list"><li>社群运维、用户分层触达、私域转化、沉睡唤醒、私域裂变增长</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-theater-masks"></i></span><h4>智能活动增长应用</h4><ul class="detail-list"><li>快速搭活动、权益配置、裂变拉新、大促增效、活动防作弊、活动复盘</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-robot"></i></span><h4>AI内容智能营销应用</h4><ul class="detail-list"><li>AI文案、AI海报、AI短视频、AI话术、批量内容生成、个性化内容推送</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>用户生命周期运营应用</h4><ul class="detail-list"><li>全链路自动化运营、新客激活、复购促活、流失召回、高价值深耕</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-gem"></i></span><h4>会员权益经营应用</h4><ul class="detail-list"><li>会员等级、积分体系、专属权益、储值营销、会员留存增收</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-brain"></i></span><h4>知识智能增长应用</h4><ul class="detail-list"><li>用户意图推理、最优策略推荐、增长因果归因、营销经验智能复用</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.6 治理架构（六大全域治理体系）</div>
+        <div class="grid-3">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-user-check"></i></span><h4>用户全生命周期治理</h4><ul class="detail-list"><li>拉新、激活、转化、留存、裂变、流失全链路闭环治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-file-signature"></i></span><h4>营销策略内容治理</h4><ul class="detail-list"><li>策略准入、内容审核、权益规范、活动合规、素材迭代、A/B测试治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>营销数据治理</h4><ul class="detail-list"><li>多源数据标准化、标签治理、数据质量、数据脱敏、营销数据合规治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-stream"></i></span><h4>投放渠道治理</h4><ul class="detail-list"><li>渠道准入、投放规范、成本管控、流量质量筛查、低效渠道淘汰治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-line"></i></span><h4>营销运营治理</h4><ul class="detail-list"><li>增长态势监控、效果复盘、成本优化、增收提效、价值量化治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>营销知识迭代治理</h4><ul class="detail-list"><li>知识入库、图谱更新、案例沉淀、策略优化、增长经验持续迭代</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S5 功能模块 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> 营销中台全量产品功能模块</h2>
+        <span class="badge-count">10大模块全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-plug"></i></span><h4>模块1：全域多源营销数据接入</h4><ul class="detail-list"><li>公域/私域/自有场景/内容/活动数据接入；数据标准化治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tags"></i></span><h4>模块2：用户画像与标签分群</h4><ul class="detail-list"><li>全域OneID统一用户；多维标签体系；自定义分群；RFM价值分层；人群包管理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-gift"></i></span><h4>模块3：营销活动与权益配置</h4><ul class="detail-list"><li>可视化活动搭建；权益体系管理；活动规则编排；活动模板资产库；活动风控防作弊</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-robot"></i></span><h4>模块4：AI智能营销与内容生成</h4><ul class="detail-list"><li>AI营销内容生成；AI用户预测建模；千人千面推荐；A/B测试；智能素材优选</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>模块5：营销知识图谱智能推理</h4><ul class="detail-list"><li>三元组自动抽取；知识图谱可视化；用户意图推理；增长因果归因；最优策略推荐</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-route"></i></span><h4>模块6：用户旅程与全域触达编排</h4><ul class="detail-list"><li>生命周期旅程编排；多渠道统一触达；智能触达时机调控；触达频次管控；批量用户运营</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bullseye"></i></span><h4>模块7：公域投放与渠道优化</h4><ul class="detail-list"><li>多渠道投放对接；投放人群定向；素材投放管理；投放成本管控；投放ROI分析</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-desktop"></i></span><h4>模块8：全域营销效果监控态势</h4><ul class="detail-list"><li>增长态势大屏；实时数据监控；渠道/活动/用户增长监控；异常增长告警</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-clipboard-check"></i></span><h4>模块9：全链路归因与复盘优化</h4><ul class="detail-list"><li>多维度归因模型；增长问题复盘；优质经验沉淀；策略迭代优化；价值量化</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>模块10：营销知识资产与赋能</h4><ul class="detail-list"><li>全域营销知识库；图谱运维；智能问答；新人赋能；行业最佳实践沉淀</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S6 指标体系 ===== -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> 营销中台全套指标体系</h2>
+        <span class="badge-count">增长+效率+渠道+内容+知识+价值</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>用户增长核心</strong></td><td>全域新增用户数/精准占比 · 用户激活率/首单转化率 · 整体复购率 · 留存率(7/30/90日) · 流失率/召回成功率 · LTV/ARPU</td></tr>
+              <tr><td><strong>渠道投放效能</strong></td><td>曝光量/点击量/访客数 · CAC/单客引流成本 · 转化率/ROI · 优质渠道占比/低效淘汰率 · 预算利用率 · 虚假流量识别率</td></tr>
+              <tr><td><strong>活动运营效果</strong></td><td>参与人数/曝光触达人数 · 转化率/GMV贡献 · 权益领取/核销率 · 裂变人数/新增占比 · 作弊率/拦截率 · 投入产出比</td></tr>
+              <tr><td><strong>内容营销效能</strong></td><td>曝光量/完成率 · 互动率(赞评比转) · 引流率/种草转化率 · 爆款内容产出率 · AI内容使用率 · 素材迭代优化率</td></tr>
+              <tr><td><strong>营销运营效率</strong></td><td>活动上线周期缩短率≥60% · 自动化执行占比≥95% · 人工成本下降≥40% · 千人千面触达率≥98% · 策略迭代及时率100% · 整改闭环率100%</td></tr>
+              <tr><td><strong>MarGraph专项</strong></td><td>全域场景知识覆盖率100% · 三元组完整率≥99.5% · 用户意图推理准确率≥97% · 策略推荐准确率≥96% · 知识更新及时率≥99% · 增收贡献率≥30%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S7 资产体系 ===== -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> 营销中台完整内容资产体系</h2>
+        <span class="badge-count">6大资产包</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>顶层规划类资产</h4><ul class="detail-list"><li>整体建设方案 · 数智增长白皮书 · 建设路线图 · 成熟度评估 · 公私域融合增长方案</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>全域标准规范类资产</h4><ul class="detail-list"><li>数据接入标准 · 标签构建标准 · 活动配置规范 · 投放运营标准 · 知识图谱规范 · AI营销标准</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>营销核心数字资产</h4><ul class="detail-list"><li>策略资产库 · 用户标签资产库 · 活动资产库 · 内容素材资产库 · 知识资产包 · 全域映射矩阵</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tools"></i></span><h4>落地工程实施资产</h4><ul class="detail-list"><li>实施手册 · 智能营销搭建指南 · API对接文档 · 全流程操作手册 · 验收标准</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>增长运营分析资产</h4><ul class="detail-list"><li>全域增长运营报告 · 渠道效果分析 · 降本增收成果 · ROI专项分析 · 长效增长优化方案</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>应急保障资产</h4><ul class="detail-list"><li>增长异常应急预案 · 策略失效保障方案 · 活动作弊管控手册 · 知识图谱迭代保障方案</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S8 协同关系 ===== -->
+    <section id="s8" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-share-alt"></i> 营销中台与九大中台全域协同关系</h2>
+        <span class="badge-count">9 大中台协同</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-3">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>技术中台</h4><ul class="detail-list"><li>提供云原生、微服务底座，支撑高并发触达、海量用户运算、大流量活动稳定运行</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>数据中台</h4><ul class="detail-list"><li>提供全域用户、行为、交易标准化数据，营销反向沉淀用户标签与增长数据反哺</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-microchip"></i></span><h4>算力中台</h4><ul class="detail-list"><li>为用户画像计算、AI内容生成、知识图谱推理、批量人群运算提供充足智能算力</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cloud"></i></span><h4>AI/模型/算法中台</h4><ul class="detail-list"><li>提供机器学习、大模型、预测算法能力，营销中台实现AI算法在增长场景的落地验证</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>业务中台</h4><ul class="detail-list"><li>联动订单、会员、商品、权益业务能力，承接营销转化结果，实现引流到履约无缝衔接</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>风控中台</h4><ul class="detail-list"><li>保障营销活动防作弊、防薅羊毛、虚假流量拦截、套利风险管控，守住营销预算安全</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-headset"></i></span><h4>服务中台</h4><ul class="detail-list"><li>承接营销引流后的用户咨询、售后、客诉服务，提升转化体验，降低用户流失</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-file-invoice-dollar"></i></span><h4>财务中台</h4><ul class="detail-list"><li>联动营销预算管控、权益成本核算、投放成本统计、增收收益核算，实现财务闭环</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tasks"></i></span><h4>运维中台</h4><ul class="detail-list"><li>保障营销系统、活动系统、触达系统稳定运维、故障快速处置，保障常态化稳定运行</li></ul></div>
+        </div>
+        <div class="info-tip" style="margin-top: 1.5rem;"><i class="fas fa-info-circle"></i> 全域闭环逻辑：营销中台是企业全域数智化增长核心引擎，承接所有中台的用户与业务能力，对外实现流量获取与用户增长，对内实现资产沉淀与能力复用，联动全中台体系实现「安全可控、合规经营、高效增长、长效增收」的全域增长闭环。</div>
+      </div>
+    </section>
+
+    <!-- ===== S9 核心价值 ===== -->
+    <section id="s9" class="card banner-card">
+        <div class="card-body">
+            <!-- 顶部图标与标题 -->
+            <div class="value-header">
+                <div class="icon-big"><i class="fas fa-flag"></i></div>
+                <h2>营销中台核心价值总结</h2>
+                <p class="value-subtitle">七大维度 · 重塑企业全域增长底座</p>
+            </div>
+
+            <!-- 价值网格 -->
+            <div class="value-grid">
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-bullhorn"></i></div>
+                    <div class="value-content">
+                        <h4>终结碎片化营销，构建企业全域统一增长底座</h4>
+                        <p>彻底打破公域私域割裂、渠道数据孤岛、活动重复建设、运营经验零散的痛点，实现全域用户、渠道、内容、活动、投放一体化增长治理，搭建企业统一的数智化增长底座。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-robot"></i></div>
+                    <div class="value-content">
+                        <h4>实现营销从经验驱动到数据+AI智能驱动的范式升级</h4>
+                        <p>通过营销知识图谱因果推理+AI智能预测，摆脱人工经验盲目运营，实现用户精准洞察、策略智能匹配、效果精准归因、增长主动预判，大幅提升营销效率与转化收益。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-cubes"></i></div>
+                    <div class="value-content">
+                        <h4>营销能力资产化，实现全域复用降本增收</h4>
+                        <p>将活动模板、内容素材、用户标签、增长策略、运营经验全部资产化，跨场景快速复用，避免重复建设，大幅降低投放与运营成本，持续提升企业营收增量。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-balance-scale"></i></div>
+                    <div class="value-content">
+                        <h4>规则+AI+知识三重驱动，平衡增长效率与用户体验</h4>
+                        <p>标准化规则保障营销合规有序，AI模型提升泛化增长能力，知识图谱挖掘深层增长规律，实现高效增长、精准触达、低骚扰、高体验的极致营销效果。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-chart-pie"></i></div>
+                    <div class="value-content">
+                        <h4>构建全链路可量化增长体系，实现精细化经营</h4>
+                        <p>打通从流量获客、触达互动、转化成交到留存复购的全链路量化归因，精准定位增长短板与机会点，实现精细化、科学化增长经营。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-brain"></i></div>
+                    <div class="value-content">
+                        <h4>沉淀企业专属增长知识资产，实现能力自主迭代</h4>
+                        <p>通过完整营销知识体系与营销知识图谱，沉淀企业独家用户增长规律、渠道打法、内容范式、运营经验，摆脱外部依赖，实现增长能力自主进化、持续升级。</p>
+                    </div>
+                </div>
+                <div class="value-item full-width">
+                    <div class="value-icon"><i class="fas fa-rocket"></i></div>
+                    <div class="value-content">
+                        <h4>护航企业全域数智化长期稳健增长</h4>
+                        <p>作为企业十大中台的核心增长引擎，持续为业务拓新、用户增收、流量沉淀、私域资产积累、品牌增长保驾护航，支撑企业数智化转型的高效、长效、稳健、低成本高质量增长。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部注脚 -->
+            <div class="footer-note">营销中台 · 前沿完整版 · 企业全域营销数字化中枢</div>
+        </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

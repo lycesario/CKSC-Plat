@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>中台知识体系大全（48 大中台体系）</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f6f7f9;color:#1a1d21;font:14px/1.6 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+header{background:linear-gradient(135deg,#1b2a4a,#2c4a7c);color:#fff;padding:38px 32px 30px}
+header h1{margin:0 0 8px;font-size:25px;letter-spacing:.5px}
+header p{margin:0;opacity:.85;font-size:14px}
+.stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.stat{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:8px;padding:9px 15px;font-size:13px}
+.stat b{font-size:19px;display:block;line-height:1.25}
+
+.bar{position:sticky;top:0;z-index:20;background:rgba(246,247,249,.94);
+  backdrop-filter:saturate(180%) blur(10px);border-bottom:1px solid #e3e7ec}
+.bar .in{max-width:1320px;margin:0 auto;padding:11px 24px;display:flex;
+  gap:12px;align-items:center;flex-wrap:wrap}
+.search{position:relative;flex:0 0 268px}
+.search input{width:100%;padding:8px 32px 8px 13px;border:1px solid #e3e7ec;
+  border-radius:7px;background:#fff;font-size:13.5px;color:#1a1d21;outline:none}
+.search input:focus{border-color:#2c4a7c;box-shadow:0 0 0 3px rgba(44,74,124,.12)}
+.search .clr{position:absolute;right:7px;top:50%;transform:translateY(-50%);
+  border:0;background:#eceff3;color:#7a8699;border-radius:4px;width:19px;height:19px;
+  line-height:1;cursor:pointer;display:none;font-size:13px}
+.search .clr:hover{background:#dfe4ea}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.chips button{display:flex;align-items:center;gap:6px;border:1px solid #e3e7ec;
+  background:#fff;color:#5a6779;border-radius:20px;padding:5px 12px;font-size:12.5px;
+  cursor:pointer;transition:.15s;font-family:inherit}
+.chips button i{width:7px;height:7px;border-radius:50%;flex:0 0 7px}
+.chips button:hover{border-color:#2c4a7c;color:#2c4a7c}
+.chips button.on{background:#2c4a7c;border-color:#2c4a7c;color:#fff}
+.chips button.on i{box-shadow:0 0 0 1.5px rgba(255,255,255,.75)}
+.count{font-size:12.5px;color:#7a8699;white-space:nowrap}
+
+main{max-width:1320px;margin:0 auto;padding:8px 24px 60px}
+.sec{margin-top:26px}
+.sec>h2{margin:0 0 12px;font-size:14px;font-weight:600;color:#12243f;
+  display:flex;align-items:center;gap:9px}
+.sec>h2 .bar{display:block;width:3px;height:15px;border-radius:2px}
+.sec>h2 em{font-style:normal;font-weight:400;color:#8a95a6;font-size:12.5px}
+.sec .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.card{display:flex;background:#fff;border:1px solid #e3e7ec;border-radius:10px;
+  overflow:hidden;transition:.16s;min-height:126px}
+.card:hover{border-color:var(--fg);box-shadow:0 4px 16px rgba(28,52,94,.10)}
+.card.big{background:linear-gradient(180deg,#fff,#fbfcfe)}
+.idx{flex:0 0 40px;background:var(--bg);color:var(--fg);
+  font:600 14px/1 -apple-system,sans-serif;display:flex;align-items:center;justify-content:center}
+.body{padding:12px 13px 12px;flex:1;min-width:0;display:flex;flex-direction:column}
+.card h3{margin:0 0 5px;font-size:14px;font-weight:600;color:#12243f;line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tag{display:inline-block;vertical-align:middle;margin-left:5px;font-size:10px;
+  font-weight:500;color:#8a5a12;background:#fdf3e2;border:1px solid #f0dcb8;
+  border-radius:4px;padding:0 4px;line-height:15px}
+.sub{font-size:11px;color:#98a2b0;margin-bottom:8px;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:11px}
+.chips span{background:#f2f5f9;border:1px solid #e2e8f0;color:#5a6779;
+  border-radius:5px;padding:2px 6px;font-size:11px;white-space:nowrap}
+.chips b{color:#1b4f9c}
+.links{margin-top:auto;display:flex;gap:8px;flex-wrap:wrap}
+.links a{text-decoration:none;font-size:12.5px;padding:5px 11px;border-radius:6px;
+  border:1px solid #cdd7e4;color:#2c4a7c;transition:.15s}
+.links a:hover{background:#eef3fa}
+.links a.primary{background:#2c4a7c;color:#fff;border-color:#2c4a7c}
+.links a.primary:hover{background:var(--fg);border-color:var(--fg)}
+.empty{display:none;text-align:center;color:#8a95a6;padding:80px 20px;font-size:14px}
+footer{text-align:center;color:#8a95a6;font-size:12.5px;padding:22px 0 30px}
+
+@media(max-width:1180px){.sec .grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){.sec .grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){
+  header{padding:28px 18px 24px}header h1{font-size:20px}
+  .bar .in{padding:10px 16px}.search{flex:1 1 100%}
+  main{padding:6px 16px 40px}
+  .sec .grid{grid-template-columns:1fr}
+}
+</style></head><body>
+<header>
+  <h1>中台知识体系大全 · 企业级中台完整体系说明书导航</h1>
+  <p>按能力域分区罗列 · 每行 4 个体系 · 全部为「企业级 XX 中台完整体系说明书」高保真文档</p>
+  <div class="stats">
+    <div class="stat"><b>48</b>中台体系</div>
+    <div class="stat"><b>4</b>能力域分类</div>
+    <div class="stat"><b>465</b>章节合计</div>
+    <div class="stat"><b>2.8</b>MB 文档量</div>
+  </div>
+</header>
+
+<div class="bar"><div class="in">
+  <div class="search">
+    <input id="q" type="search" placeholder="搜索体系，如：风控 / 数据 / Agent / 运维" autocomplete="off">
+    <button class="clr" id="clr" title="清空">×</button>
+  </div>
+  <div class="chips" id="filters">
+      <button data-f="" class="on">全部 48</button>
+      <button data-f="AI 与智能体"><i style="background:#1b4f9c"></i>AI 与智能体 19</button>
+      <button data-f="数据与知识"><i style="background:#1f6b52"></i>数据与知识 7</button>
+      <button data-f="业务中台"><i style="background:#8a5a12"></i>业务中台 11</button>
+      <button data-f="技术底座"><i style="background:#4a3a8a"></i>技术底座 11</button>
+  </div>
+  <div class="count" id="cnt"></div>
+</div></div>
+
+<main>
+<section class="sec" data-type="AI 与智能体">
+  <h2><i class="bar" style="background:#1b4f9c"></i>AI 与智能体<em>19 个体系</em></h2>
+  <div class="grid">
+<div class="card" style="--fg:#1b4f9c;--bg:#e8f0fb" data-k="agent中台">
+  <div class="idx">01</div>
+  <div class="body">
+    <h3>Agent中台</h3>
+    <div class="sub">企业级 Agent 中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>42 KB</b></span></div>
+    <div class="links"><a class="primary" href="Agent%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card big" style="--fg:#1b4f9c;--bg:#e8f0fb" data-k="ai native原生智能中台">
+  <div class="idx">02</div>
+  <div class="body">
+    <h3>AI Native原生智能中台<span class="tag big">大部头</span></h3>
+    <div class="sub">A AI Native原生智能中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>14</b></span><span>体积 <b>65 KB</b></span></div>
+    <div class="links"><a class="primary" href="AI%20Native%E5%8E%9F%E7%94%9F%E6%99%BA%E8%83%BD%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#1b4f9c;--bg:#e8f0fb" data-k="ai 中台">
+  <div class="idx">03</div>
+  <div class="body">
+    <h3>AI 中台</h3>
+    <div class="sub">企业级AI中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>9</b></span><span>体积 <b>48 KB</b></span></div>
+    <div class="links"><a class="primary" href="AI%20%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#1b4f9c;--bg:#e8f0fb" data-k="copilot 中台">
+  <div class="idx">04</div>
+  <div class="body">
+    <h3>Copilot 中台</h3>
+    <div class="sub">企业级 Copilot 中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>58 KB</b></span></div>
+    <div class="links"><a class="primary" href="Copilot%20%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#1b4f9c;--bg:#e8f0fb" data-k="embedding 中台">
+  <div class="idx">05</div>
+  <div class="body">
+    <h3>Embedding 中台</h3>
+    <div class="sub">企业级 Embedding 中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>56 KB</b></span></div>
+    <div class="links"><a class="primary" href="Embedding%20%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#1b4f9c;--bg:#e8f0fb" data-k="maas中台">
+  <div class="idx">06</div>
+  <div class="body">
+    <h3>MaaS中台</h3>
+    <div class="sub">企业级 MaaS 中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>43 KB</b></span></div>
+    <div class="links"><a class="primary" href="MaaS%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#1b4f9c;--bg:#e8f0fb" data-k="mcp中台">
+  <div class="idx">07</div>
+  <div class="body">
+    <h3>MCP中台</h3>
+    <div class="sub">企业级 MCP 中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>42 KB</b></span></div>
+    <div class="links"><a class="primary" href="MCP%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#1b4f9c;--bg:#e8f0fb" data-k="prompt中台">
+  <div class="idx">08</div>
+  <div class="body">
+    <h3>Prompt中台</h3>
+    <div class="sub">企业级 Prompt 中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>42 KB</b></span></div>
+    <div class="links"><a class="primary" href="Prompt%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#1b4f9c;--bg:#e8f0fb" data-k="rag中台">
+  <div class="idx">09</div>
+  <div class="body">
+    <h3>RAG中台</h3>
+    <div class="sub">企业级 RAG 中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>42 KB</b></span></div>
+    <div class="links"><a class="primary" href="RAG%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#1b4f9c;--bg:#e8f0fb" data-k="skill中台">
+  <div class="idx">10</div>
+  <div class="body">
+    <h3>Skill中台</h3>
+    <div class="sub">企业级 Skill 中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>42 KB</b></span></div>
+    <div class="links"><a class="primary" href="Skill%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#1b4f9c;--bg:#e8f0fb" data-k="token中台">
+  <div class="idx">11</div>
+  <div class="body">
+    <h3>Token中台</h3>
+    <div class="sub">企业级 Token 中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>42 KB</b></span></div>
+    <div class="links"><a class="primary" href="Token%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card big" style="--fg:#1b4f9c;--bg:#e8f0fb" data-k="企业级 ai 智能体平台umiis_全文档整合_完整版">
+  <div class="idx">12</div>
+  <div class="body">
+    <h3>企业级 AI 智能体平台UMIIS_全文档整合_完整版<span class="tag big">大部头</span></h3>
+    <div class="sub">${page.title}</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>251 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E4%BC%81%E4%B8%9A%E7%BA%A7%20AI%20%E6%99%BA%E8%83%BD%E4%BD%93%E5%B9%B3%E5%8F%B0UMIIS_%E5%85%A8%E6%96%87%E6%A1%A3%E6%95%B4%E5%90%88_%E5%AE%8C%E6%95%B4%E7%89%88.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#1b4f9c;--bg:#e8f0fb" data-k="具身智能中台">
+  <div class="idx">13</div>
+  <div class="body">
+    <h3>具身智能中台</h3>
+    <div class="sub">企业级具身智能中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>61 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E5%85%B7%E8%BA%AB%E6%99%BA%E8%83%BD%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#1b4f9c;--bg:#e8f0fb" data-k="模型中台">
+  <div class="idx">14</div>
+  <div class="body">
+    <h3>模型中台</h3>
+    <div class="sub">企业级全域中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>9</b></span><span>体积 <b>69 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E6%A8%A1%E5%9E%8B%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#1b4f9c;--bg:#e8f0fb" data-k="模型任务中台">
+  <div class="idx">15</div>
+  <div class="body">
+    <h3>模型任务中台</h3>
+    <div class="sub">企业级模型任务中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>9</b></span><span>体积 <b>49 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E6%A8%A1%E5%9E%8B%E4%BB%BB%E5%8A%A1%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#1b4f9c;--bg:#e8f0fb" data-k="模型准确率评估中台">
+  <div class="idx">16</div>
+  <div class="body">
+    <h3>模型准确率评估中台</h3>
+    <div class="sub">企业级模型准确率评估中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>62 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E6%A8%A1%E5%9E%8B%E5%87%86%E7%A1%AE%E7%8E%87%E8%AF%84%E4%BC%B0%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#1b4f9c;--bg:#e8f0fb" data-k="混淆矩阵中台">
+  <div class="idx">17</div>
+  <div class="body">
+    <h3>混淆矩阵中台</h3>
+    <div class="sub">企业级混淆矩阵中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>61 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E6%B7%B7%E6%B7%86%E7%9F%A9%E9%98%B5%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#1b4f9c;--bg:#e8f0fb" data-k="训练中台">
+  <div class="idx">18</div>
+  <div class="body">
+    <h3>训练中台</h3>
+    <div class="sub">企业级训练中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>50 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E8%AE%AD%E7%BB%83%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#1b4f9c;--bg:#e8f0fb" data-k="记忆（memory）中台">
+  <div class="idx">19</div>
+  <div class="body">
+    <h3>记忆（Memory）中台</h3>
+    <div class="sub">企业级记忆（Memory）中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>55 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E8%AE%B0%E5%BF%86%EF%BC%88Memory%EF%BC%89%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+  </div>
+</section>
+<section class="sec" data-type="数据与知识">
+  <h2><i class="bar" style="background:#1f6b52"></i>数据与知识<em>7 个体系</em></h2>
+  <div class="grid">
+<div class="card" style="--fg:#1f6b52;--bg:#e6f5ef" data-k="向量库中台">
+  <div class="idx">20</div>
+  <div class="body">
+    <h3>向量库中台</h3>
+    <div class="sub">企业级向量库中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>43 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E5%90%91%E9%87%8F%E5%BA%93%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#1f6b52;--bg:#e6f5ef" data-k="数据中台">
+  <div class="idx">21</div>
+  <div class="body">
+    <h3>数据中台</h3>
+    <div class="sub">企业级数据中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>7</b></span><span>体积 <b>47 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#1f6b52;--bg:#e6f5ef" data-k="数据治理中台">
+  <div class="idx">22</div>
+  <div class="body">
+    <h3>数据治理中台</h3>
+    <div class="sub">企业级数据治理中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>50 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E6%95%B0%E6%8D%AE%E6%B2%BB%E7%90%86%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#1f6b52;--bg:#e6f5ef" data-k="数据预处理中台">
+  <div class="idx">23</div>
+  <div class="body">
+    <h3>数据预处理中台</h3>
+    <div class="sub">企业级数据预处理中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>9</b></span><span>体积 <b>61 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card big" style="--fg:#1f6b52;--bg:#e6f5ef" data-k="游戏平台全量中台体系知识库">
+  <div class="idx">24</div>
+  <div class="body">
+    <h3>游戏平台全量中台体系知识库<span class="tag big">大部头</span></h3>
+    <div class="sub">游戏平台全量中台体系知识库</div>
+    <div class="chips"><span>章节 <b>6</b></span><span>体积 <b>61 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E6%B8%B8%E6%88%8F%E5%B9%B3%E5%8F%B0%E5%85%A8%E9%87%8F%E4%B8%AD%E5%8F%B0%E4%BD%93%E7%B3%BB%E7%9F%A5%E8%AF%86%E5%BA%93.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#1f6b52;--bg:#e6f5ef" data-k="知识库中台">
+  <div class="idx">25</div>
+  <div class="body">
+    <h3>知识库中台</h3>
+    <div class="sub">企业级知识库中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>42 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E7%9F%A5%E8%AF%86%E5%BA%93%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#1f6b52;--bg:#e6f5ef" data-k="预测中台">
+  <div class="idx">26</div>
+  <div class="body">
+    <h3>预测中台</h3>
+    <div class="sub">企业级预测中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>60 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E9%A2%84%E6%B5%8B%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+  </div>
+</section>
+<section class="sec" data-type="业务中台">
+  <h2><i class="bar" style="background:#8a5a12"></i>业务中台<em>11 个体系</em></h2>
+  <div class="grid">
+<div class="card" style="--fg:#8a5a12;--bg:#fdf3e2" data-k="quant_trading">
+  <div class="idx">27</div>
+  <div class="body">
+    <h3>quant_trading</h3>
+    <div class="sub">📊 量化交易完整体系说明书</div>
+    <div class="chips"><span>章节 <b>6</b></span><span>体积 <b>33 KB</b></span></div>
+    <div class="links"><a class="primary" href="quant_trading.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#8a5a12;--bg:#fdf3e2" data-k="业务中台">
+  <div class="idx">28</div>
+  <div class="body">
+    <h3>业务中台</h3>
+    <div class="sub">企业级业务中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>8</b></span><span>体积 <b>58 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E4%B8%9A%E5%8A%A1%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#8a5a12;--bg:#fdf3e2" data-k="场景中台">
+  <div class="idx">29</div>
+  <div class="body">
+    <h3>场景中台</h3>
+    <div class="sub">企业级场景中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>42 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E5%9C%BA%E6%99%AF%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#8a5a12;--bg:#fdf3e2" data-k="游戏中台全量体系">
+  <div class="idx">30</div>
+  <div class="body">
+    <h3>游戏中台全量体系</h3>
+    <div class="sub">四大维度 · 游戏中台全量体系</div>
+    <div class="chips"><span>章节 <b>6</b></span><span>体积 <b>113 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E6%B8%B8%E6%88%8F%E4%B8%AD%E5%8F%B0%E5%85%A8%E9%87%8F%E4%BD%93%E7%B3%BB.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#8a5a12;--bg:#fdf3e2" data-k="税务中台">
+  <div class="idx">31</div>
+  <div class="body">
+    <h3>税务中台</h3>
+    <div class="sub">企业级税务中台完整体系说明书（票税账报合规自治+TaxGraph税务知识图谱版）</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>41 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E7%A8%8E%E5%8A%A1%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#8a5a12;--bg:#fdf3e2" data-k="策略中台">
+  <div class="idx">32</div>
+  <div class="body">
+    <h3>策略中台</h3>
+    <div class="sub">企业级策略中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>43 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E7%AD%96%E7%95%A5%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#8a5a12;--bg:#fdf3e2" data-k="营销中台">
+  <div class="idx">33</div>
+  <div class="body">
+    <h3>营销中台</h3>
+    <div class="sub">企业级营销中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>74 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E8%90%A5%E9%94%80%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#8a5a12;--bg:#fdf3e2" data-k="财务中台">
+  <div class="idx">34</div>
+  <div class="body">
+    <h3>财务中台</h3>
+    <div class="sub">企业级全域中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>9</b></span><span>体积 <b>86 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E8%B4%A2%E5%8A%A1%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#8a5a12;--bg:#fdf3e2" data-k="运营中台">
+  <div class="idx">35</div>
+  <div class="body">
+    <h3>运营中台</h3>
+    <div class="sub">企业级运营中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>9</b></span><span>体积 <b>50 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E8%BF%90%E8%90%A5%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#8a5a12;--bg:#fdf3e2" data-k="量化交易中台qtmp">
+  <div class="idx">36</div>
+  <div class="body">
+    <h3>量化交易中台QTMP</h3>
+    <div class="sub">📊 量化交易中台（量化智能交易中台）完整体系说明书</div>
+    <div class="chips"><span>章节 <b>13</b></span><span>体积 <b>57 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E9%87%8F%E5%8C%96%E4%BA%A4%E6%98%93%E4%B8%AD%E5%8F%B0QTMP.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#8a5a12;--bg:#fdf3e2" data-k="风控中台">
+  <div class="idx">37</div>
+  <div class="body">
+    <h3>风控中台</h3>
+    <div class="sub">企业级风控中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>75 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E9%A3%8E%E6%8E%A7%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+  </div>
+</section>
+<section class="sec" data-type="技术底座">
+  <h2><i class="bar" style="background:#4a3a8a"></i>技术底座<em>11 个体系</em></h2>
+  <div class="grid">
+<div class="card" style="--fg:#4a3a8a;--bg:#efeafb" data-k="api中台">
+  <div class="idx">38</div>
+  <div class="body">
+    <h3>API中台</h3>
+    <div class="sub">企业级 API 中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>49 KB</b></span></div>
+    <div class="links"><a class="primary" href="API%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#4a3a8a;--bg:#efeafb" data-k="iaas中台">
+  <div class="idx">39</div>
+  <div class="body">
+    <h3>IaaS中台</h3>
+    <div class="sub">企业级 IaaS 中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>44 KB</b></span></div>
+    <div class="links"><a class="primary" href="IaaS%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#4a3a8a;--bg:#efeafb" data-k="paas中台">
+  <div class="idx">40</div>
+  <div class="body">
+    <h3>PaaS中台</h3>
+    <div class="sub">企业级 PaaS 中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>49 KB</b></span></div>
+    <div class="links"><a class="primary" href="PaaS%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#4a3a8a;--bg:#efeafb" data-k="saas中台">
+  <div class="idx">41</div>
+  <div class="body">
+    <h3>SaaS中台</h3>
+    <div class="sub">企业级 SaaS 中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>50 KB</b></span></div>
+    <div class="links"><a class="primary" href="SaaS%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card big" style="--fg:#4a3a8a;--bg:#efeafb" data-k="企业全域中台">
+  <div class="idx">42</div>
+  <div class="body">
+    <h3>企业全域中台<span class="tag big">大部头</span></h3>
+    <div class="sub">企业级全域中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>8</b></span><span>体积 <b>64 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E4%BC%81%E4%B8%9A%E5%85%A8%E5%9F%9F%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card big" style="--fg:#4a3a8a;--bg:#efeafb" data-k="具深智能中台">
+  <div class="idx">43</div>
+  <div class="body">
+    <h3>具深智能中台<span class="tag big">大部头</span></h3>
+    <div class="sub">⚙ 具深智能中台（EDIM）完整体系说明书</div>
+    <div class="chips"><span>章节 <b>13</b></span><span>体积 <b>60 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E5%85%B7%E6%B7%B1%E6%99%BA%E8%83%BD%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#4a3a8a;--bg:#efeafb" data-k="技术中台">
+  <div class="idx">44</div>
+  <div class="body">
+    <h3>技术中台</h3>
+    <div class="sub">企业级技术中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>8</b></span><span>体积 <b>51 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E6%8A%80%E6%9C%AF%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#4a3a8a;--bg:#efeafb" data-k="服务中台">
+  <div class="idx">45</div>
+  <div class="body">
+    <h3>服务中台</h3>
+    <div class="sub">企业级全域中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>10</b></span><span>体积 <b>93 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E6%9C%8D%E5%8A%A1%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#4a3a8a;--bg:#efeafb" data-k="算法中台">
+  <div class="idx">46</div>
+  <div class="body">
+    <h3>算法中台</h3>
+    <div class="sub">企业级全域中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>9</b></span><span>体积 <b>83 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E7%AE%97%E6%B3%95%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#4a3a8a;--bg:#efeafb" data-k="运维中台">
+  <div class="idx">47</div>
+  <div class="body">
+    <h3>运维中台</h3>
+    <div class="sub">企业级全域中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>9</b></span><span>体积 <b>81 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E8%BF%90%E7%BB%B4%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+<div class="card" style="--fg:#4a3a8a;--bg:#efeafb" data-k="金融产品运维中台">
+  <div class="idx">48</div>
+  <div class="body">
+    <h3>金融产品运维中台</h3>
+    <div class="sub">🛡️ 金融产品运维中台完整体系说明书</div>
+    <div class="chips"><span>章节 <b>14</b></span><span>体积 <b>61 KB</b></span></div>
+    <div class="links"><a class="primary" href="%E9%87%91%E8%9E%8D%E4%BA%A7%E5%93%81%E8%BF%90%E7%BB%B4%E4%B8%AD%E5%8F%B0.html" target="_blank">打开说明书</a></div>
+  </div>
+</div>
+  </div>
+</section>
+<div class="empty" id="empty">没有匹配的体系，试试别的关键词</div>
+</main>
+
+<footer>说明书链接直达 · 统一为企业级中台完整体系说明书体例</footer>
+
+<script>
+(function(){
+  var DATA = [{"t": "Agent中台", "g": "AI 与智能体", "k": "agent中台"}, {"t": "AI Native原生智能中台", "g": "AI 与智能体", "k": "ai native原生智能中台"}, {"t": "AI 中台", "g": "AI 与智能体", "k": "ai 中台"}, {"t": "Copilot 中台", "g": "AI 与智能体", "k": "copilot 中台"}, {"t": "Embedding 中台", "g": "AI 与智能体", "k": "embedding 中台"}, {"t": "MaaS中台", "g": "AI 与智能体", "k": "maas中台"}, {"t": "MCP中台", "g": "AI 与智能体", "k": "mcp中台"}, {"t": "Prompt中台", "g": "AI 与智能体", "k": "prompt中台"}, {"t": "RAG中台", "g": "AI 与智能体", "k": "rag中台"}, {"t": "Skill中台", "g": "AI 与智能体", "k": "skill中台"}, {"t": "Token中台", "g": "AI 与智能体", "k": "token中台"}, {"t": "企业级 AI 智能体平台UMIIS_全文档整合_完整版", "g": "AI 与智能体", "k": "企业级 ai 智能体平台umiis_全文档整合_完整版"}, {"t": "具身智能中台", "g": "AI 与智能体", "k": "具身智能中台"}, {"t": "模型中台", "g": "AI 与智能体", "k": "模型中台"}, {"t": "模型任务中台", "g": "AI 与智能体", "k": "模型任务中台"}, {"t": "模型准确率评估中台", "g": "AI 与智能体", "k": "模型准确率评估中台"}, {"t": "混淆矩阵中台", "g": "AI 与智能体", "k": "混淆矩阵中台"}, {"t": "训练中台", "g": "AI 与智能体", "k": "训练中台"}, {"t": "记忆（Memory）中台", "g": "AI 与智能体", "k": "记忆（memory）中台"}, {"t": "向量库中台", "g": "数据与知识", "k": "向量库中台"}, {"t": "数据中台", "g": "数据与知识", "k": "数据中台"}, {"t": "数据治理中台", "g": "数据与知识", "k": "数据治理中台"}, {"t": "数据预处理中台", "g": "数据与知识", "k": "数据预处理中台"}, {"t": "游戏平台全量中台体系知识库", "g": "数据与知识", "k": "游戏平台全量中台体系知识库"}, {"t": "知识库中台", "g": "数据与知识", "k": "知识库中台"}, {"t": "预测中台", "g": "数据与知识", "k": "预测中台"}, {"t": "quant_trading", "g": "业务中台", "k": "quant_trading"}, {"t": "业务中台", "g": "业务中台", "k": "业务中台"}, {"t": "场景中台", "g": "业务中台", "k": "场景中台"}, {"t": "游戏中台全量体系", "g": "业务中台", "k": "游戏中台全量体系"}, {"t": "税务中台", "g": "业务中台", "k": "税务中台"}, {"t": "策略中台", "g": "业务中台", "k": "策略中台"}, {"t": "营销中台", "g": "业务中台", "k": "营销中台"}, {"t": "财务中台", "g": "业务中台", "k": "财务中台"}, {"t": "运营中台", "g": "业务中台", "k": "运营中台"}, {"t": "量化交易中台QTMP", "g": "业务中台", "k": "量化交易中台qtmp"}, {"t": "风控中台", "g": "业务中台", "k": "风控中台"}, {"t": "API中台", "g": "技术底座", "k": "api中台"}, {"t": "IaaS中台", "g": "技术底座", "k": "iaas中台"}, {"t": "PaaS中台", "g": "技术底座", "k": "paas中台"}, {"t": "SaaS中台", "g": "技术底座", "k": "saas中台"}, {"t": "企业全域中台", "g": "技术底座", "k": "企业全域中台"}, {"t": "具深智能中台", "g": "技术底座", "k": "具深智能中台"}, {"t": "技术中台", "g": "技术底座", "k": "技术中台"}, {"t": "服务中台", "g": "技术底座", "k": "服务中台"}, {"t": "算法中台", "g": "技术底座", "k": "算法中台"}, {"t": "运维中台", "g": "技术底座", "k": "运维中台"}, {"t": "金融产品运维中台", "g": "技术底座", "k": "金融产品运维中台"}];
+  var q=document.getElementById('q'), cnt=document.getElementById('cnt'),
+      empty=document.getElementById('empty'), clr=document.getElementById('clr'),
+      filters=document.getElementById('filters'), secs=[];
+  [].forEach.call(document.querySelectorAll('.sec'), function(s){
+    secs.push({el:s, type:s.dataset.type, cards:s.querySelectorAll('.card')});
+  });
+  var cur='';
+  filters.addEventListener('click', function(e){
+    var b=e.target.closest('button'); if(!b) return;
+    cur=b.dataset.f;
+    [].forEach.call(filters.children, function(x){x.classList.toggle('on', x===b);});
+    apply();
+  });
+  q.addEventListener('input', apply);
+  clr.addEventListener('click', function(){ q.value=''; q.focus(); apply(); });
+  function apply(){
+    var kw=q.value.trim().toLowerCase();
+    clr.style.display = kw ? 'block':'none';
+    var shown=0;
+    secs.forEach(function(s){
+      var okType = !cur || s.type===cur, n=0;
+      [].forEach.call(s.cards, function(c){
+        var vis = okType && (!kw || c.dataset.k.indexOf(kw)>-1);
+        c.style.display = vis ? '' : 'none';
+        if(vis) n++;
+      });
+      s.el.style.display = n ? '' : 'none';
+      var hd=s.el.querySelector('h2 em');
+      if(hd) hd.textContent = n + ' / ' + s.cards.length + ' 个体系';
+      shown+=n;
+    });
+    cnt.textContent='显示 '+shown+' / '+DATA.length;
+    empty.style.display = shown ? 'none':'block';
+  }
+  apply();
+})();
+</script>
+</body></html>

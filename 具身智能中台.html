@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>具身智能中台 · 企业级完整体系 · 高保真架构</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ===== 设计系统 Token（完全继承参考样式） ===== */
+    :root {
+      --color-primary: #7a2e1a;
+      --color-primary-light: #fce9e0;
+      --color-primary-dark: #4d1c0e;
+      --color-accent: #b85c3a;
+      --color-accent-soft: #f0c8b8;
+      --color-accent-glow: rgba(184, 92, 58, 0.10);
+      --color-neutral-50: #fcf9f7;
+      --color-neutral-100: #f5ede8;
+      --color-neutral-200: #e5d7ce;
+      --color-neutral-300: #cbb8ab;
+      --color-neutral-400: #a68b7a;
+      --color-neutral-600: #6f5544;
+      --color-neutral-700: #4f3a2e;
+      --color-neutral-800: #34241c;
+      --color-neutral-900: #1e140f;
+      --color-gold: #c29a4a;
+      --color-gold-light: #f3e1b0;
+      --color-jade: #3b7a5e;
+      --color-jade-light: #d4ede0;
+      --color-success: #1f6e4a;
+      --color-warning: #a86b2c;
+      --color-error: #b13a2a;
+      --font-base: 1rem;
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-12: 3rem;
+      --radius-sm: 0.75rem;
+      --radius-md: 1.25rem;
+      --radius-card: 2rem;
+      --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(60, 30, 10, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(60, 30, 10, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(60, 30, 10, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+      --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ===== 重置 & 基础 ===== */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    /* ===== 布局 ===== */
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(255, 249, 245, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(255, 235, 220, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); letter-spacing:-0.01em; }
+    .sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+    .sidebar nav ul { list-style:none; padding:0; margin:0; }
+    .sidebar nav ul li { margin-bottom:0.1rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:12px;
+      padding:0.55rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.85rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+    }
+    .sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+    .sidebar nav ul li a:hover,
+    .sidebar nav ul li a:focus-visible {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateX(4px);
+    }
+    .sidebar-footer {
+      margin-top:24px; padding:12px; text-align:center;
+      font-size:0.7rem; color:var(--color-neutral-600);
+      border-top:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 主内容 ===== */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+    /* ===== 页面头部 ===== */
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+      font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+    .page-header .header-meta {
+      font-size:0.9rem; color:var(--color-neutral-600);
+      background:var(--color-neutral-100);
+      padding:0.4rem 1.2rem;
+      border-radius:var(--radius-pill);
+      border:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 卡片系统 ===== */
+    .card {
+      background:rgba(255,252,248,0.92);
+      backdrop-filter: blur(4px);
+      border-radius:var(--radius-card);
+      box-shadow:var(--shadow-card);
+      margin-bottom:var(--space-6);
+      border:1px solid rgba(255, 235, 220, 0.5);
+      overflow:hidden;
+      transition: box-shadow var(--transition-default), transform 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6);
+      background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft);
+      display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 {
+      font-size:clamp(1.2rem, 2.2vw, 1.6rem);
+      font-weight:700; color:var(--color-primary-dark);
+      display:flex; align-items:center; gap:12px;
+      letter-spacing:-0.01em;
+    }
+    .card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+    .card-header .badge-count {
+      margin-left:auto;
+      background:var(--color-accent);
+      color:white;
+      border-radius:var(--radius-pill);
+      padding:0.15rem 0.9rem;
+      font-size:0.7rem;
+      font-weight:600;
+      letter-spacing:0.3px;
+    }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* ===== 网格 & 卡片（策略卡片风格） ===== */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } .grid-4 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; } }
+
+    .policy-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md);
+      padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: all var(--transition-default);
+      position:relative;
+      overflow:hidden;
+      border-left: 4px solid var(--color-accent);
+    }
+    .policy-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft));
+      opacity:0;
+      transition: opacity var(--transition-default);
+    }
+    .policy-card:hover::before { opacity:1; }
+    .policy-card:hover {
+      border-color:var(--color-accent-soft);
+      box-shadow: 0 8px 24px -8px rgba(184,92,58,0.15);
+      transform:translateY(-3px);
+    }
+    .policy-card .policy-icon {
+      font-size:1.8rem;
+      color:var(--color-primary);
+      display:inline-block;
+      margin-right:6px;
+      background: var(--color-primary-light);
+      padding:0.2rem 0.6rem;
+      border-radius:12px;
+    }
+    .policy-card h4 {
+      color:var(--color-primary-dark);
+      font-size:1.05rem;
+      margin-bottom:0.4rem;
+      display:flex; align-items:center; gap:8px;
+      flex-wrap:wrap;
+    }
+    .policy-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+    .policy-card .detail-list {
+      padding-left:0; margin:0.4rem 0 0 0;
+      list-style:none;
+    }
+    .policy-card .detail-list li {
+      margin-bottom:0.25rem;
+      padding-left:1.2rem;
+      position:relative;
+      font-size:0.85rem;
+      color:var(--color-neutral-700);
+    }
+    .policy-card .detail-list li::before {
+      content:'▹'; position:absolute; left:0;
+      color:var(--color-accent);
+      font-weight:600;
+    }
+    .policy-card .detail-list li strong { color:var(--color-neutral-800); }
+
+    /* ===== 架构层 ===== */
+    .arch-diagram {
+      display:flex;
+      flex-direction:column;
+      gap:0.6rem;
+      padding:0.5rem 0;
+    }
+    .arch-layer {
+      display:flex;
+      align-items:stretch;
+      gap:0.75rem;
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.6rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: var(--transition-default);
+    }
+    .arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+    .arch-layer .layer-label {
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      min-width:120px;
+      padding-right:1rem;
+      border-right:2px solid var(--color-neutral-200);
+      font-weight:700;
+      font-size:0.8rem;
+      color:var(--color-primary-dark);
+      letter-spacing:0.3px;
+    }
+    .arch-layer .layer-label i {
+      font-size:1.1rem;
+      color:var(--color-accent);
+      margin-bottom:0.1rem;
+    }
+    .arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+    .arch-layer .layer-blocks {
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:0.5rem;
+      flex:1;
+      padding:0.2rem 0;
+    }
+    .arch-block {
+      background:white;
+      border-radius:var(--radius-sm);
+      padding:0.3rem 0.9rem;
+      border:1px solid var(--color-neutral-200);
+      font-size:0.75rem;
+      font-weight:500;
+      color:var(--color-neutral-700);
+      transition: var(--transition-default);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .arch-block:hover {
+      border-color:var(--color-accent);
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateY(-1px);
+    }
+    .arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+    .arch-block.highlight-block {
+      background:var(--color-accent);
+      color:white;
+      border-color:var(--color-accent);
+    }
+    .arch-block.highlight-block i { color:white; }
+    .arch-layer.inner-layer { background:linear-gradient(135deg, #f5efe8, #f0e4da); border-color:var(--color-accent-soft); }
+    .arch-layer.outer-layer { background:linear-gradient(135deg, #f0f2ed, #e6ece2); border-color:#b8c8aa; }
+    .arch-layer.outer-layer .layer-label { border-right-color:#b8c8aa; color:#2d5a3a; }
+    .arch-layer.outer-layer .layer-label i { color:#3b7a5e; }
+    .arch-layer.outer-layer .arch-block { border-color:#c8d8b8; }
+    .arch-layer.outer-layer .arch-block:hover { border-color:#3b7a5e; background:#e0ede0; }
+    .arch-layer.ultimate-layer { background:linear-gradient(135deg, #f0ede8, #e8e0d8); border-color:#c8b8a8; }
+    .arch-layer.ultimate-layer .layer-label { border-right-color:#c8b8a8; color:#6a4a3a; }
+    .arch-layer.ultimate-layer .layer-label i { color:#8a6a5a; }
+    .arch-layer.ultimate-layer .arch-block { border-color:#d8c8b8; }
+    .arch-layer.ultimate-layer .arch-block:hover { border-color:#8a6a5a; background:#ede0d8; }
+
+    /* ===== 表格 ===== */
+    .table-wrapper {
+      overflow-x:auto;
+      border-radius:var(--radius-md);
+      border:1px solid var(--color-neutral-200);
+      background:white;
+    }
+    table {
+      width:100%; border-collapse:collapse; font-size:0.78rem;
+    }
+    th {
+      background:var(--color-neutral-100);
+      padding:12px 10px;
+      font-weight:600;
+      color:var(--color-primary-dark);
+      text-align:left;
+      border-bottom:2px solid var(--color-neutral-200);
+      font-size:0.7rem;
+      text-transform:uppercase;
+      letter-spacing:0.4px;
+    }
+    td {
+      padding:10px 10px;
+      border-bottom:1px solid var(--color-neutral-200);
+      vertical-align:middle;
+      color:var(--color-neutral-700);
+    }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--color-neutral-50); }
+
+    /* ===== 信息提示 ===== */
+    .info-tip {
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.7rem 1.5rem;
+      border-left:5px solid var(--color-accent);
+      margin-top:var(--space-4);
+      display:flex; align-items:center; gap:0.8rem;
+      font-size:0.9rem;
+      color:var(--color-neutral-700);
+    }
+    .info-tip i { color:var(--color-accent); font-size:1rem; }
+
+    /* ===== 横幅 ===== */
+    .banner-card {
+      background: linear-gradient(135deg, #f5ede6, #e8dcd2);
+      text-align:center;
+      border-color:var(--color-accent-soft);
+    }
+    .banner-card .card-body { padding:2.5rem var(--space-6); }
+    .banner-card .icon-big { font-size:3rem; color:var(--color-primary); opacity:0.7; margin-bottom:var(--space-3); }
+    .banner-card h2 { color:var(--color-primary-dark); font-size:clamp(1.4rem, 2.5vw, 1.9rem); margin-bottom:var(--space-2); }
+    .banner-card p { max-width:680px; margin:0 auto; color:var(--color-neutral-700); font-size:1rem; }
+    .banner-card .footer-note { margin-top:var(--space-6); font-size:0.8rem; color:var(--color-primary); }
+
+    /* ===== 正文排版 ===== */
+    .content-section { margin-bottom:1.2rem; }
+    .content-section h3 { color:var(--color-primary-dark); font-size:1.1rem; margin-bottom:0.5rem; font-weight:700; }
+    .content-section h4 { color:var(--color-primary-dark); font-size:1rem; margin-bottom:0.4rem; font-weight:600; }
+    .content-section p { margin-bottom:0.6rem; font-size:0.9rem; color:var(--color-neutral-700); }
+    .content-section ul { padding-left:1.2rem; margin-bottom:0.6rem; }
+    .content-section li { margin-bottom:0.3rem; font-size:0.88rem; color:var(--color-neutral-700); }
+    .content-section strong { color:var(--color-neutral-800); }
+    .text-block { background:var(--color-neutral-50); border-radius:var(--radius-sm); padding:1rem 1.2rem; border:1px solid var(--color-neutral-200); margin-bottom:0.8rem; }
+
+    /* ===== 响应式 ===== */
+    @media (max-width:1024px) { .sidebar { width:220px; } }
+    @media (max-width:760px) {
+      .sidebar { display:none; }
+      .layout { padding:0.5rem; }
+      .main-content { padding:0; }
+      .card-body { padding:1.25rem var(--space-4); }
+      .card-header { padding:1rem var(--space-4); }
+      .page-header { flex-direction:column; align-items:flex-start; }
+    }
+
+    /* ===== 暗色 ===== */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #1a1410;
+        --color-neutral-100: #221c18;
+        --color-neutral-200: #3a2c24;
+        --color-neutral-300: #5a4a3e;
+        --color-neutral-400: #8a7a6e;
+        --color-neutral-600: #b8a89c;
+        --color-neutral-700: #d0c4b8;
+        --color-neutral-800: #e8dcd0;
+        --color-neutral-900: #f5ede6;
+        --color-primary-light: #3a2a20;
+        --color-accent-soft: #6a4a3a;
+        --color-primary: #d08a6a;
+        --color-primary-dark: #f0c8b0;
+        --color-accent: #c07a5a;
+        --color-gold: #c29a4a;
+        --color-gold-light: #4a3a20;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6);
+        --shadow-card-hover: 0 20px 48px -12px rgba(0,0,0,0.7);
+        --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #120e0a; }
+      .card { background: #1a1410; border-color: #3a2c24; }
+      .card-header { background: #1a1410; border-bottom-color: #4a3a2e; }
+      .policy-card { background: #1a1410; border-color: #3a2c24; }
+      .policy-card .policy-icon { background: #2a1e16; color: #d08a6a; }
+      .policy-card .detail-list li { color: #c0b4a8; }
+      .policy-card .detail-list li strong { color: #e0d4c8; }
+      .table-wrapper { background: #1a1410; border-color: #3a2c24; }
+      th { background: #221c18; color: #e0d4c8; border-bottom-color: #4a3a2e; }
+      td { border-bottom-color: #2a241e; color: #c0b4a8; }
+      tr:hover td { background: #2a241e; }
+      .sidebar { background: rgba(20, 16, 12, 0.92); border-color: #3a2c24; }
+      .sidebar-brand { border-bottom-color: #4a3a2e; }
+      .sidebar-brand h3 { color: #d08a6a; }
+      .sidebar nav ul li a { color: #c0b4a8; }
+      .sidebar nav ul li a:hover { background: #3a2c24; color: white; }
+      .info-tip { background: #1a1410; border-left-color: #c07a5a; color: #c0b4a8; }
+      .banner-card { background:linear-gradient(135deg,#1a1410,#2a241e); }
+      .banner-card p { color: #c0b4a8; }
+      .page-header h1 { background:linear-gradient(135deg,#f0c8b0,#d08a6a); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#2a241e; border-color:#4a3a2e; color:#b8a89c; }
+      .arch-layer { background:#1a1410; border-color:#3a2c24; }
+      .arch-layer:hover { background:#2a1e16; border-color:#5a4a3e; }
+      .arch-layer .layer-label { border-right-color:#3a2c24; color:#e0d4c8; }
+      .arch-block { background:#1a1410; border-color:#3a2c24; color:#c0b4a8; }
+      .arch-block:hover { background:#3a2c24; border-color:#c07a5a; }
+      .arch-layer.inner-layer { background:linear-gradient(135deg,#1a1410,#2a1e16); border-color:#5a3a2a; }
+      .arch-layer.outer-layer { background:linear-gradient(135deg,#141a12,#1a2618); border-color:#2a4a2a; }
+      .arch-layer.outer-layer .layer-label { border-right-color:#2a4a2a; color:#8aba8a; }
+      .arch-layer.outer-layer .layer-label i { color:#5a9a6a; }
+      .arch-layer.outer-layer .arch-block { border-color:#2a4a2a; color:#a0c8a0; }
+      .arch-layer.outer-layer .arch-block:hover { border-color:#5a9a6a; background:#1a2a1a; }
+      .arch-layer.ultimate-layer { background:linear-gradient(135deg,#1a1410,#221c18); border-color:#4a3a2e; }
+      .arch-layer.ultimate-layer .layer-label { border-right-color:#4a3a2e; color:#c8b0a0; }
+      .arch-layer.ultimate-layer .layer-label i { color:#a08070; }
+      .arch-layer.ultimate-layer .arch-block { border-color:#4a3a2e; color:#c8b8a8; }
+      .arch-layer.ultimate-layer .arch-block:hover { border-color:#a08070; background:#2a241e; }
+      .text-block { background:#1a1410; border-color:#3a2c24; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-robot" aria-hidden="true"></i>
+      <h3>具身智能中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-cubes"></i> 全域标准定义</a></li>
+        <li><a href="#s1"><i class="fas fa-layer-group"></i> 八大特征</a></li>
+        <li><a href="#s2"><i class="fas fa-database"></i> 知识体系</a></li>
+        <li><a href="#s3"><i class="fas fa-project-diagram"></i> EKG</a></li>
+        <li><a href="#s4"><i class="fas fa-sitemap"></i> 六大架构</a></li>
+        <li><a href="#s5"><i class="fas fa-puzzle-piece"></i> 功能模块</a></li>
+        <li><a href="#s6"><i class="fas fa-chart-line"></i> 指标体系</a></li>
+        <li><a href="#s7"><i class="fas fa-boxes"></i> 资产体系</a></li>
+        <li><a href="#s8"><i class="fas fa-share-alt"></i> 协同关系</a></li>
+        <li><a href="#s9"><i class="fas fa-flag"></i> 核心价值</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-robot"></i> 具身智能中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-robot"></i> 企业级具身智能中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> VLA / 世界模型 / 机器人统一底座</span>
+    </header>
+
+    <!-- ===== S0 全域标准定义 ===== -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> 具身智能中台全域标准定义</h2>
+        <span class="badge-count">虚实闭环 + EKG 具身图谱自治演进版</span>
+      </div>
+      <div class="card-body">
+        <div class="arch-diagram">
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-microchip"></i> 底层依赖 <span class="sub">算力/训练/数据/仿真</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-microchip"></i> 算力中台</span>
+              <span class="arch-block"><i class="fas fa-brain"></i> 训练中台</span>
+              <span class="arch-block"><i class="fas fa-th"></i> 混淆矩阵中台</span>
+              <span class="arch-block"><i class="fas fa-broom"></i> 数据预处理</span>
+              <span class="arch-block"><i class="fas fa-vector-square"></i> 向量库</span>
+              <span class="arch-block"><i class="fas fa-book"></i> 知识库</span>
+              <span class="arch-block"><i class="fas fa-code"></i> MCP</span>
+              <span class="arch-block"><i class="fas fa-chart-line"></i> 预测中台</span>
+              <span class="arch-block"><i class="fas fa-object-group"></i> 对象存储</span>
+              <span class="arch-block"><i class="fas fa-server"></i> 仿真集群</span>
+              <span class="arch-block"><i class="fas fa-cogs"></i> ROS2/AimRT</span>
+            </div>
+          </div>
+          <div class="arch-layer outer-layer">
+            <div class="layer-label"><i class="fas fa-cogs"></i> 核心能力 <span class="sub">感知/VLA/规划/EKG</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block highlight-block"><i class="fas fa-eye"></i> 感知融合</span>
+              <span class="arch-block"><i class="fas fa-globe"></i> 世界模型</span>
+              <span class="arch-block"><i class="fas fa-hand-paper"></i> VLA</span>
+              <span class="arch-block"><i class="fas fa-route"></i> 任务规划</span>
+              <span class="arch-block"><i class="fas fa-project-diagram"></i> EKG 图谱</span>
+              <span class="arch-block"><i class="fas fa-vr-cardboard"></i> 虚实仿真</span>
+              <span class="arch-block"><i class="fas fa-running"></i> 强化学习</span>
+              <span class="arch-block"><i class="fas fa-robot"></i> 真机调度</span>
+            </div>
+          </div>
+          <div class="arch-layer ultimate-layer">
+            <div class="layer-label"><i class="fas fa-rocket"></i> 上层赋能 <span class="sub">工业/物流/家政/政务</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-industry"></i> 工业</span>
+              <span class="arch-block"><i class="fas fa-truck"></i> 物流</span>
+              <span class="arch-block"><i class="fas fa-home"></i> 家政</span>
+              <span class="arch-block"><i class="fas fa-hard-hat"></i> 巡检</span>
+              <span class="arch-block"><i class="fas fa-building"></i> 政务</span>
+            </div>
+          </div>
+        </div>
+        <div class="info-tip"><i class="fas fa-scroll"></i> 具身智能中台（Embodied AI 中台 / 机器人全域一体化中台），是面向人形 / 四足 / 机械臂 / 移动底盘 / 服务机器人的多模态感知、世界模型、VLA 视觉语言动作、任务规划、运动控制、虚实仿真、具身知识图谱、强化学习训练、真机部署、全链路评测、多机协同一体化统一研发运营中台。</div>
+
+        <div class="content-section" style="margin-top:1.2rem;">
+          <h3>1.1 权威标准定义</h3>
+          <div class="text-block">
+            <p>向下对接算力、训练、混淆矩阵、数据预处理、向量、知识库、MCP、预测中台；向上输出标准化机器人任务服务、动作策略、仿真场景供给工业、物流、家政、巡检、政务服务机器人业务场景。</p>
+            <p>遵循「四层具身资产、感知 - 认知 - 规划 - 执行四层闭环、虚实孪生 Sim2Real、EKG 具身知识图谱、多机协同、强化学习自治调参、分级安全管控、行业模板复用」八大核心建设理念。</p>
+            <p>核心解决行业痛点：机器人感知 / 规划 / 运动代码高度耦合、不同机型框架不互通、仿真与真机差距巨大、任务技能零散无资产沉淀、多机协同无统一调度、强化学习训练成本极高、故障无法溯源、安全规则分散、行业定制重复开发、缺少统一量化评测体系。</p>
+            <p>实现具身机器人研发从 "单机零散 ROS 脚本、分机型独立开发" 升级为全域标准化具身资产、虚实一体化训练、图谱驱动任务自动规划、自治强化学习迭代、统一真机部署管控的通用机器人 AI 底层底座。</p>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h3>1.2 具身智能中台核心定位与层级边界</h3>
+          <div class="text-block">
+            <p><strong>战略定位：</strong>企业全类型机器人统一感知认知生产中心、虚实仿真孪生调度中枢、VLA / 世界模型训练平台、EKG 具身知识推理引擎、多机协同管控中心、机器人全链路评测平台、具身技能自治迭代运营中枢。</p>
+            <p><strong>层级边界：</strong></p>
+            <p><strong>底层依赖层：</strong>算力中台（GPU/NPU 异构集群）、训练中台、混淆矩阵中台、数据预处理、向量库、知识库、MCP、时序预测、对象存储、仿真集群、ROS2/AimRT 中间件；</p>
+            <p><strong>核心能力层：</strong>专注多模态感知融合、世界模型、VLA 生成、长时序任务规划、运动控制、数字孪生仿真、EKG 图谱、强化学习训练、真机调度，不承载上层机器人业务工单系统；</p>
+            <p><strong>上层赋能层：</strong>标准化 MCP 服务输出机器人任务、仿真环境、动作策略供给工业 / 物流 / 家政等业务场景中台。</p>
+            <p><strong>全域上下游标准分层链路：</strong>算力 / 训练 / 数据预处理 → 具身智能中台 → 机器人业务场景中台</p>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h3>1.3 具身智能中台八大核心特征（统一中台标准）</h3>
+          <div class="grid-2">
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-layer-group"></i></span><h4>四层分层具身资产体系</h4><ul class="detail-list"><li>感知资产、认知世界模型资产、任务技能资产、仿真场景资产全域复用</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-sync-alt"></i></span><h4>感知 - 认知 - 规划 - 执行四层标准化闭环</h4><ul class="detail-list"><li>统一兼容人形 / 四足 / 机械臂全机型</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-vr-cardboard"></i></span><h4>虚实孪生 Sim2Real 双向同步</h4><ul class="detail-list"><li>仿真数据回流训练、真机状态映射虚拟环境</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>EKG 具身知识图谱</h4><ul class="detail-list"><li>沉淀场景、物体、动作、任务、故障关联经验</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-hand-paper"></i></span><h4>VLA + 世界模型双引擎一体化</h4><ul class="detail-list"><li>支持零样本新任务长时序规划</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-robot"></i></span><h4>分布式多机协同调度</h4><ul class="detail-list"><li>多机器人编队任务自动拆分分配</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-running"></i></span><h4>强化学习自治调参闭环</h4><ul class="detail-list"><li>仿真 + 真机交互数据自动训练优化动作策略</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-shield-alt"></i></span><h4>分级物理 / 语义双重安全管控</h4><ul class="detail-list"><li>碰撞、违规任务实时拦截，全链路可追溯</li></ul></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S1 八大核心特征 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-layer-group"></i> 八大核心特征</h2>
+        <span class="badge-count">四层 · 虚实孪生 · EKG · VLA · 多机协同</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-layer-group"></i></span><h4>四层分层具身资产体系</h4><ul class="detail-list"><li>感知资产、认知世界模型资产、任务技能资产、仿真场景资产全域复用</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sync-alt"></i></span><h4>感知 - 认知 - 规划 - 执行四层标准化闭环</h4><ul class="detail-list"><li>统一兼容人形 / 四足 / 机械臂全机型</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-vr-cardboard"></i></span><h4>虚实孪生 Sim2Real 双向同步</h4><ul class="detail-list"><li>仿真数据回流训练、真机状态映射虚拟环境</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>EKG 具身知识图谱</h4><ul class="detail-list"><li>沉淀场景、物体、动作、任务、故障关联经验</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-hand-paper"></i></span><h4>VLA + 世界模型双引擎一体化</h4><ul class="detail-list"><li>支持零样本新任务长时序规划</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-robot"></i></span><h4>分布式多机协同调度</h4><ul class="detail-list"><li>多机器人编队任务自动拆分分配</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-running"></i></span><h4>强化学习自治调参闭环</h4><ul class="detail-list"><li>仿真 + 真机交互数据自动训练优化动作策略</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-shield-alt"></i></span><h4>分级物理 / 语义双重安全管控</h4><ul class="detail-list"><li>碰撞、违规任务实时拦截，全链路可追溯</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S2 知识体系 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-database"></i> 具身智能中台专属完整知识体系</h2>
+        <span class="badge-count">十大完整知识域全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="content-section">
+          <p style="margin-bottom:1rem; font-weight:500; color:var(--color-primary-dark);">具身智能知识体系是机器人多模态感知、世界模型、VLA、任务规划、运动控制、仿真孪生、强化学习、具身图谱、行业落地、安全评测的标准化、结构化、可推理、可复用、自进化专业知识合集。</p>
+        </div>
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sitemap"></i></span><h4>2.1 具身顶层架构与全域规划知识域</h4><ul class="detail-list"><li>企业 AI + 机器人全链路分层架构（算力 - 训练 - 具身 - 业务场景）顶层设计</li><li>四层具身资产分层建设标准、跨机型资产共享规范</li><li>具身中台与训练 / 混淆 / MCP 跨中台协同权责、对接标准</li><li>具身智能成熟度评估、存量 ROS 脚本资产化改造方法论</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-eye"></i></span><h4>2.2 多模态感知融合知识域</h4><ul class="detail-list"><li>视觉 RGB-D、激光雷达、IMU、力觉、麦克风多传感器时空对齐</li><li>物体检测、实例分割、3D 点云重建、SLAM 建图技术</li><li>本体位姿、环境语义、人机意图三层感知融合算法</li><li>噪声过滤、传感器失效容错、动态障碍物识别方案</li><li>多机型感知驱动统一抽象标准化规范</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-globe"></i></span><h4>2.3 世界模型与 VLA 知识域</h4><ul class="detail-list"><li>物理世界模型动力学仿真、时序环境预测</li><li>视觉 - 语言 - 动作 VLA 统一编码器、指令映射机制</li><li>零样本 / 少样本物体操作、自然语言任务解析</li><li>多模态时序嵌入、具身向量对齐工程方法</li><li>仿真世界模型与真机动力学对齐 Sim2Real 技术</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-route"></i></span><h4>2.4 长时序任务规划知识域</h4><ul class="detail-list"><li>高层自然语言任务拆解、子动作序列生成</li><li>分层规划：全局路径→局部操作→底层运动</li><li>动态环境重规划、障碍物在线避让</li><li>多机协同任务分配、冲突消解算法</li><li>任务模板资产化、行业标准流程沉淀 SOP</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-cogs"></i></span><h4>2.5 运动控制与强化学习知识域</h4><ul class="detail-list"><li>轨迹优化、阻抗控制、关节力矩底层驱动</li><li>模仿学习 IL、强化学习 RL、DPO 具身微调流程</li><li>奖励函数标准化设计：任务完成 / 碰撞 / 能耗多维度</li><li>虚实混合强化训练、仿真预训练真机微调</li><li>机型自适应策略迁移、零样本运动适配方法</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-vr-cardboard"></i></span><h4>2.6 数字孪生 Sim2Real 仿真知识域</h4><ul class="detail-list"><li>高保真三维场景、物体物理属性建模规范</li><li>并行仿真集群、千万级并行环境调度</li><li>真机状态实时映射虚拟孪生、双向数据回流</li><li>合成感知数据自动生成、真值自动标注</li><li>虚实差距收敛、迁移学习落地方案</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>2.7 EKG 具身知识图谱推理知识域</h4><ul class="detail-list"><li>场景、物体、动作、任务、故障三元组抽取标准</li><li>空间关系、操作因果、任务前置关联建模</li><li>自然语言任务多跳动作推演、故障根因溯源</li><li>每日真机 / 仿真交互日志增量更新图谱权重</li><li>同类场景任务模板智能复用机制</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-shield-alt"></i></span><h4>2.8 具身安全与评测知识域</h4><ul class="detail-list"><li>物理安全：碰撞阈值、力矩限制、急停分级规则</li><li>语义安全：高危任务、违规操作拦截策略</li><li>全维度评测指标：任务完成率、运动平稳度、能耗、碰撞率</li><li>离线仿真批量评测、真机线上 A/B 对照</li><li>工业 / 家政场景分级准入阈值规范</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-industry"></i></span><h4>2.9 行业具身落地知识域</h4><ul class="detail-list"><li>工业机械臂：上下料、装配、检测标准化任务</li><li>物流移动机器人：分拣、转运、多机协同</li><li>人形家政：抓取、整理、人机交互</li><li>巡检机器人：设备缺陷、室内自主导航</li><li>政务服务机器人：问答、引导、访客接待落地 SOP</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-rocket"></i></span><h4>2.10 具身智能前沿演进知识域</h4><ul class="detail-list"><li>自治式世界模型动态自适应、零代码任务生成</li><li>联邦具身仿真、跨工厂隐私训练技术</li><li>端侧轻量化 VLA 与小型世界模型</li><li>通用人形跨本体统一动作策略演进路线</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S3 EKG ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-project-diagram"></i> 具身智能中台专属知识图谱（EKG Embodied Knowledge Graph）体系</h2>
+        <span class="badge-count">核心实体 · 关联 · 智能能力</span>
+      </div>
+      <div class="card-body">
+        <div class="content-section">
+          <p style="margin-bottom:1rem;">EKG 具身知识图谱，是仿真场景、环境物体、传感器、动作原语、任务流程、机器人本体、故障、安全规则、优化策略的机器人专用结构化智能关联网络。解决机器人任务规划依赖人工硬编码、故障排查繁琐、动作经验无法沉淀、新场景重复开发痛点，实现自然语言自动推演动作序列、故障一键分层溯源、行业任务模板智能推荐、强化学习自治调参。</p>
+        </div>
+        <div class="grid-2" style="margin-bottom:1.5rem;">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-circle"></i></span><h4>3.1 EKG 核心实体体系</h4><ul class="detail-list"><li><strong>场景实体：</strong>工厂车间、家庭、机房、物流仓库仿真环境</li><li><strong>物体实体：</strong>工件、家具、设备、障碍物、工具</li><li><strong>本体实体：</strong>人形、四足、机械臂、移动底盘机型</li><li><strong>感知实体：</strong>相机、激光、IMU、力觉传感器</li><li><strong>动作原语实体：</strong>抓取、移动、开门、放置、导航基础动作</li><li><strong>任务实体：</strong>装配、分拣、巡检、家政整理长时序任务</li><li><strong>故障实体：</strong>碰撞、抓取滑落、定位漂移、规划死锁</li><li><strong>安全实体：</strong>力矩上限、高危操作、人员靠近拦截规则</li><li><strong>优化策略实体：</strong>调整轨迹、优化 VLA、扩充仿真样本</li><li><strong>资产实体：</strong>行业任务模板、仿真场景资产包</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-link"></i></span><h4>3.2 EKG 核心关联关系</h4><ul class="detail-list"><li><strong>场景 ↔ 物体：</strong>车间包含机床、工件等目标对象</li><li><strong>物体 ↔ 动作：</strong>纸箱对应抓取、搬运原语</li><li><strong>任务 ↔ 动作：</strong>分拣由 "识别 - 抓取 - 放置" 序列组成</li><li><strong>本体 ↔ 动作：</strong>人形适配全身操作、机械臂仅末端执行</li><li><strong>故障 ↔ 诱因：</strong>抓取滑落多因力觉阈值不合理</li><li><strong>故障 ↔ 优化：</strong>滑落→微调阻抗控制 + 扩充仿真样本</li><li><strong>场景 ↔ 任务：</strong>仓库对应货物转运任务</li><li>每日仿真 / 真机交互日志自动抽取三元组增量更新</li><li><strong>动作 ↔ 安全：</strong>高速移动触发人员靠近急停</li><li><strong>任务 ↔ 评测：</strong>装配任务核心指标为抓取成功率</li></ul></div>
+        </div>
+        <h3 style="color:var(--color-primary-dark); margin-bottom:0.8rem;">3.3 EKG 八大核心智能能力</h3>
+        <div class="grid-3">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-magic"></i></span><h4>智能能力</h4><ul class="detail-list"><li>机器人场景、动作、任务、故障经验自动结构化入库</li><li>输入自然语言指令自动推演完整长时序动作序列</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-search"></i></span><h4>智能能力</h4><ul class="detail-list"><li>真机 / 仿真故障一键分层根因溯源（感知 / 规划 / 运动三层）</li><li>同行业成熟任务模板智能推荐复用</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-broom"></i></span><h4>智能能力</h4><ul class="detail-list"><li>自动识别低任务完成率，推送强化学习调参方案</li><li>动态环境自动调整重规划策略</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sync-alt"></i></span><h4>智能能力</h4><ul class="detail-list"><li>每日虚实交互数据自校准图谱关联权重</li><li>具身研发新人快速检索同类场景落地案例</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S4 六大架构 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> 具身智能中台六大完整架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span>
+      </div>
+      <div class="card-body">
+        <div class="content-section">
+          <h3>4.1 产品架构（九层分层全景架构）</h3>
+          <div class="policy-card" style="margin-bottom:1rem;"><span class="policy-icon"><i class="fas fa-cubes"></i></span><h4>整体分层</h4><ul class="detail-list"><li>多机型接入层 → 四层具身资产池层 → 感知融合引擎层 → VLA + 世界模型层 → 任务规划引擎层 → EKG 具身图谱层 → 虚实孪生仿真层 → 强化学习训练层 → 真机调度 & 自治迭代层</li><li><strong>多机型接入层：</strong>人形 / 机械臂 / 底盘 ROS2/AimRT 统一接入、机型鉴权</li><li><strong>四层资产池层：</strong>感知 / VLA 模型 / 任务技能 / 仿真场景分层管控</li><li><strong>感知融合引擎层：</strong>多传感器时空对齐、3D 重建、语义感知</li><li><strong>VLA + 世界模型层：</strong>视觉语言动作、时序环境预测</li><li><strong>任务规划引擎层：</strong>高层任务拆解、动态重规划、多机协同</li><li><strong>EKG 图谱推理层：</strong>三元组抽取、任务推演、故障溯源</li><li><strong>虚实孪生仿真层：</strong>并行仿真、Sim2Real 双向同步</li><li><strong>强化学习训练层：</strong>IL/RL/DPO 虚实混合训练</li><li><strong>真机调度迭代层：</strong>多机集群、评测、自动调参闭环</li></ul></div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.2 业务架构（三层全域业务架构 + 八大标准业务域）</h3>
+          <div class="grid-2" style="margin-bottom:1rem;">
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-building"></i></span><h4>三层全域业务架构</h4><ul class="detail-list"><li><strong>底层底座层：</strong>算力、训练、数据预处理、向量、MCP 提供算力与数据</li><li><strong>中层具身核心能力层：</strong>资产、感知、VLA、规划、EKG、仿真、训练七大原子服务</li><li><strong>上层机器人赋能层：</strong>输出任务 / 动作 / 仿真能力至工业 / 家政业务场景中台</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-briefcase"></i></span><h4>八大标准业务域</h4><ul class="detail-list"><li>四层具身资产全生命周期业务域：创建、测试、灰度、归档闭环</li><li>多模态感知融合治理业务域：多传感器对齐、语义重建</li><li>VLA 与世界模型研发业务域：多模态动作生成、时序预测</li><li>长时序任务规划 & 多机协同业务域</li><li>EKG 具身图谱推理业务域：任务推演、故障溯源</li><li>虚实孪生 Sim2Real 仿真业务域</li><li>强化学习虚实混合训练业务域</li><li>真机调度、评测自治迭代业务域</li></ul></div>
+          </div>
+          <div class="text-block">
+            <p><strong>核心业务闭环：</strong>真机 / 仿真多源感知数据流入 → 感知融合提取环境语义 → VLA + 世界模型生成动作候选 → EKG 图谱推演完整任务序列 → 仿真预验证或真机执行 → 交互日志回流 EKG → 识别低完成率故障 → 触发强化学习训练优化动作策略。</p>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.3 数据架构（七层具身专属数据架构）</h3>
+          <div class="policy-card" style="margin-bottom:1rem;"><span class="policy-icon"><i class="fas fa-database"></i></span><h4>七层数据架构</h4><ul class="detail-list"><li><strong>EM-ODS 原始接入层：</strong>传感器点云图像、关节数据、仿真轨迹、任务执行日志原始流</li><li><strong>EM-DWD 明细清洗层：</strong>时空对齐、噪声剔除、脱敏、真值标注</li><li><strong>EM-DWB 全域宽表层：</strong>场景、机型、动作、任务、故障、指标全维度宽表</li><li><strong>EM-DWA 知识关联层：</strong>自动抽取三元组构建 EKG 具身图谱</li><li><strong>EM-DWS 主题汇总层：</strong>资产、感知、规划、仿真、评测五大主题</li><li><strong>EM-ADS 指标应用层：</strong>任务完成率、碰撞率、运动平稳度核心指标</li><li><strong>EM-OPT 自主优化层：</strong>低成功率任务沉淀，生成 RL 调参工单</li></ul></div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.4 技术架构（仿真 + 图 + 多模态七层技术架构）</h3>
+          <div class="policy-card" style="margin-bottom:1rem;"><span class="policy-icon"><i class="fas fa-microchip"></i></span><h4>七层技术架构</h4><ul class="detail-list"><li><strong>多机型接入网关层：</strong>ROS2/DDS 统一协议、机型鉴权路由</li><li><strong>分布式存储层：</strong>仿真资产、模型权重、时序轨迹、图数据库</li><li><strong>感知 / VLA 核心引擎层：</strong>点云重建、视觉动作编码</li><li><strong>任务规划 + EKG 图推理引擎：</strong>长时序拆解、多跳溯源</li><li><strong>虚实仿真集群层：</strong>千万级并行物理仿真调度</li><li><strong>强化学习训练引擎：</strong>虚实混合 RL 调度</li><li><strong>管理前端：</strong>仿真编辑器、EKG 可视化、真机监控大屏</li></ul></div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.5 应用架构（八大全域赋能应用）</h3>
+          <div class="grid-2">
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-rocket"></i></span><h4>八大全域赋能应用</h4><ul class="detail-list"><li>四层具身资产集市应用：仿真场景、任务模板检索复用</li><li>多模态感知调试平台：点云 / 语义可视化调参</li><li>VLA 世界模型研发工作台</li><li>长时序任务编排应用：拖拽搭建机器人流程</li><li>EKG 智能任务溯源应用</li><li>虚实孪生仿真平台</li><li>强化学习训练实验平台</li><li>真机集群调度运营应用</li></ul></div>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.6 治理架构（六大全域具身治理体系）</h3>
+          <div class="grid-2">
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-balance-scale"></i></span><h4>六大全域具身治理体系</h4><ul class="detail-list"><li>四层具身资产全生命周期治理</li><li>多传感器感知标准化治理</li><li>VLA / 世界模型研发流水线治理</li><li>EKG 图谱每日增量更新治理</li><li>虚实仿真集群调度常态化治理</li><li>真机安全与评测闭环治理</li></ul></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S5 功能模块 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> 具身智能中台全量产品功能模块</h2>
+        <span class="badge-count">全覆盖无遗漏</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-layer-group"></i></span><h4>模块 1：四层具身资产池模块</h4><ul class="detail-list"><li>感知资产库：相机 / 激光 / IMU 驱动、语义分割模型</li><li>VLA / 世界模型资产：多模态动作基座、时序预测模型</li><li>行业任务技能模板：工业分拣、家政整理标准化流程</li><li>仿真场景资产：车间 / 家庭三维环境、物理配置</li><li>资产版本、灰度、跨机型一键迁移</li><li>低复用资产自动标记归档</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-eye"></i></span><h4>模块 2：多模态感知融合模块</h4><ul class="detail-list"><li>RGB-D、激光、IMU、力觉多传感器时空对齐</li><li>3D 点云重建、SLAM 实时建图</li><li>实例分割、物体 6D 位姿估计</li><li>动态障碍物、人员语义识别</li><li>传感器故障容错、噪声自动过滤</li><li>感知结果可视化预览</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-hand-paper"></i></span><h4>模块 3：VLA + 世界模型模块</h4><ul class="detail-list"><li>文本 / 图像输入映射底层动作原语</li><li>时序世界模型预测物体运动趋势</li><li>零样本新物体抓取、未知环境适配</li><li>多模态向量统一对齐、Sim2Real 适配</li><li>VLA 离线仿真批量评测</li><li>模型轻量化导出真机部署</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-route"></i></span><h4>模块 4：长时序任务规划模块</h4><ul class="detail-list"><li>自然语言高层任务自动拆分子动作序列</li><li>全局路径 + 局部操作分层规划</li><li>动态障碍物在线重规划</li><li>多机器人任务自动分配、冲突消解</li><li>任务流程拖拽编排、仿真预跑</li><li>规划死锁自动检测兜底策略</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>模块 5：EKG 具身知识图谱模块</h4><ul class="detail-list"><li>仿真 / 真机每日交互日志自动抽取三元组入库</li><li>图谱可视化场景 - 物体 - 任务拓扑</li><li>自然语言自动推演完整动作流程</li><li>任务失败一键分层根因溯源（感知 / VLA / 规划）</li><li>低完成率推送 RL 调参优化方案</li><li>每日数据自动校准图谱权重</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-vr-cardboard"></i></span><h4>模块 6：虚实孪生仿真模块</h4><ul class="detail-list"><li>高保真三维场景、物体动力学可视化编辑</li><li>千万级并行仿真集群弹性调度</li><li>真机状态实时同步虚拟孪生</li><li>自动生成感知合成标注数据</li><li>Sim2Real 参数一键同步真机模型</li><li>仿真批量任务评测</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-running"></i></span><h4>模块 7：强化学习训练模块</h4><ul class="detail-list"><li>模仿学习 IL、RL、DPO 多范式统一流水线</li><li>虚实混合并行训练，仿真预训练真机微调</li><li>多维度奖励函数可视化配置</li><li>训练断点续跑、算力自动分配</li><li>A/B 新旧动作策略对照评测</li><li>训练完成模型一键下发真机</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-shield-alt"></i></span><h4>模块 8：真机集群调度 & 安全模块</h4><ul class="detail-list"><li>多机型分布式集群统一管控</li><li>分级物理安全：力矩 / 碰撞 / 人员急停</li><li>高危任务白名单、操作审计日志</li><li>真机实时状态大屏监控</li><li>任务完成率、碰撞率自动统计</li><li>低效果任务自动生成训练工单</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S6 指标体系 ===== -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> 具身智能中台全套指标体系</h2>
+        <span class="badge-count">资产 · 感知 · VLA · 仿真 · 图谱 · 真机</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>具身资产治理指标</strong></td><td>四层资产标准化覆盖率 100%；行业任务模板复用率 ≥83%；闲置低效资产占比 ≤9%；资产版本规范率 100%；资产盘点闭环率 100%</td></tr>
+              <tr><td><strong>多模态感知指标</strong></td><td>多传感器时空对齐误差 ≤5ms；物体 6D 位姿准确率 ≥92%；SLAM 重建漂移率极低；动态障碍物召回率 ≥90%；感知故障自愈率 100%</td></tr>
+              <tr><td><strong>VLA & 世界模型指标</strong></td><td>零样本动作匹配准确率 ≥88%；世界模型时序预测误差可控；Sim2Real 真机迁移任务完成降幅≤10%；VLA 推理 P95 延迟 ≤120ms；多模态向量对齐合规率 100%</td></tr>
+              <tr><td><strong>EKG 图谱专项指标</strong></td><td>全行业机器人场景覆盖率 100%；三元组完整率 ≥99.6%；任务推演准确率 ≥95%；故障分层根因推理准确率 ≥97%；图谱日增量更新及时率 ≥99.5%；图谱赋能训练优化贡献率 ≥34%</td></tr>
+              <tr><td><strong>仿真训练效能指标</strong></td><td>并行仿真集群扩容线性达标；仿真数据标注自动生成率 100%；RL 训练收敛速度提升 ≥40%；仿真评测与真机误差可控；仿真任务闭环率 100%</td></tr>
+              <tr><td><strong>真机核心业务指标</strong></td><td>标准任务完成率 ≥91%；碰撞发生率 ≤3%；运动平稳度评分 ≥4.4/5；多机协同冲突消解率 100%；安全拦截执行率 100%；真机故障闭环率 100%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S7 资产体系 ===== -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> 具身智能中台完整内容资产体系</h2>
+        <span class="badge-count">6大资产包</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sitemap"></i></span><h4>7.1 顶层规划资产</h4><ul class="detail-list"><li>具身智能中台建设白皮书</li><li>虚实一体化落地分阶段路线图</li><li>机器人 AI 成熟度评估报告</li><li>具身 - 训练 - MCP 协同长效方案</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-book"></i></span><h4>7.2 全域标准规范资产</h4><ul class="detail-list"><li>四层具资产分层统一规范</li><li>多传感器感知对齐标准</li><li>VLA 与世界模型研发流水线规范</li><li>EKG 三元组抽取构建标准</li><li>Sim2Real 仿真虚实同步规范</li><li>真机安全分级管控规范</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-database"></i></span><h4>7.3 具身核心数字资产</h4><ul class="detail-list"><li>全行业仿真场景资产包</li><li>标准化机器人任务模板库</li><li>VLA 基座轻量化配置模板</li><li>EKG 具身知识图谱资产包</li><li>RL 奖励函数配置资产</li><li>仿真批量评测数据集</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-tools"></i></span><h4>7.4 落地工程资产</h4><ul class="detail-list"><li>具身中台部署实施手册</li><li>仿真场景编辑器操作指南</li><li>EKG 可视化运维手册</li><li>ROS2/MCP 跨中台对接 API</li><li>上线验收指标评估模板</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-pie"></i></span><h4>7.5 运营复盘资产</h4><ul class="detail-list"><li>月度真机任务效能分析报告</li><li>RL 训练专项复盘报告</li><li>Sim2Real 迁移成果分析</li><li>真机安全审计月度台账</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-shield-alt"></i></span><h4>7.6 应急保障资产</h4><ul class="detail-list"><li>大规模仿真集群雪崩应急预案</li><li>真机碰撞故障处置手册</li><li>VLA 推理失效应急切换方案</li><li>EKG 图谱损坏恢复预案</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S8 协同关系 ===== -->
+    <section id="s8" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-share-alt"></i> 具身智能中台与全中台全域协同关系</h2>
+        <span class="badge-count">13 大中台协同</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-3">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-microchip"></i></span><h4>算力中台</h4><ul class="detail-list"><li>提供仿真并行、VLA、RL 训练异构 GPU/NPU 算力</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-brain"></i></span><h4>训练中台</h4><ul class="detail-list"><li>接收具身仿真 / 真机数据集，输出微调 VLA / 世界模型</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-th"></i></span><h4>混淆矩阵中台</h4><ul class="detail-list"><li>提供物体分类、动作分类统一混淆评测</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-broom"></i></span><h4>数据预处理</h4><ul class="detail-list"><li>多传感器原始数据清洗、时空对齐</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-vector-square"></i></span><h4>向量库</h4><ul class="detail-list"><li>物体、场景多模态向量存储检索</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-book"></i></span><h4>知识库</h4><ul class="detail-list"><li>行业工艺、操作法规供给任务约束</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-code"></i></span><h4>MCP 中台</h4><ul class="detail-list"><li>具身仿真、任务能力标准化 MCP Resource 对外输出</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-key"></i></span><h4>Token 中台</h4><ul class="detail-list"><li>自然语言任务提示词统一计量管控</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-comment"></i></span><h4>Prompt 中台</h4><ul class="detail-list"><li>任务指令分层渲染供给 VLA 输入</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-line"></i></span><h4>预测中台</h4><ul class="detail-list"><li>机器人故障时序预判</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-bar"></i></span><h4>评估中台</h4><ul class="detail-list"><li>具身多维度离线 A/B 评测</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-tachometer-alt"></i></span><h4>效能中台</h4><ul class="detail-list"><li>采集仿真 / 真机算力、任务指标做 ROI 分析</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-layer-group"></i></span><h4>场景中台</h4><ul class="detail-list"><li>工业 / 物流机器人业务场景调用具身任务服务</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S9 核心价值 ===== -->
+    <section id="s9" class="card banner-card">
+      <div class="card-body">
+        <div class="icon-big"><i class="fas fa-flag"></i></div>
+        <h2>具身智能中台 · 核心价值总结</h2>
+        <p>全机型机器人统一感知认知底座，消除人形 / 机械臂 / 底盘独立开发烟囱，一套平台兼容所有具身设备，研发成本下降 70% 以上；<br>虚实孪生 Sim2Real 闭环，海量低成本仿真数据替代真机采集，大幅降低训练硬件损耗与时间；<br>VLA + 世界模型双引擎统一支撑零样本新任务，无需重训即可适配新物体、新环境；<br>EKG 具身知识图谱沉淀任务与动作经验，自然语言自动拆解长时序流程，故障分层快速定位；<br>虚实混合强化学习自治迭代，自动识别低完成率任务生成训练工单；<br>多机协同统一调度，自动分配任务消解冲突，适配工厂多机器人集群作业；<br>分级物理 + 语义双重安全机制，碰撞、高危任务实时拦截，满足工业、家政安全监管；<br>标准化 MCP 输出无缝打通 AI 全链路，作为所有机器人业务场景统一底层具身能力供给中枢。</p>
+        <div class="footer-note">具身智能中台 · VLA / 世界模型 / 机器人统一底座 · 全链路对齐算力 / 训练 / 评估 / 预测全中台标准架构范式</div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

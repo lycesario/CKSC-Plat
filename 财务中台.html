@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>企业级全域中台完整体系说明书</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ===== 设计系统 Token（完全继承参考样式） ===== */
+    :root {
+      --color-primary: #7a2e1a;
+      --color-primary-light: #fce9e0;
+      --color-primary-dark: #4d1c0e;
+      --color-accent: #b85c3a;
+      --color-accent-soft: #f0c8b8;
+      --color-accent-glow: rgba(184, 92, 58, 0.10);
+      --color-neutral-50: #fcf9f7;
+      --color-neutral-100: #f5ede8;
+      --color-neutral-200: #e5d7ce;
+      --color-neutral-300: #cbb8ab;
+      --color-neutral-400: #a68b7a;
+      --color-neutral-600: #6f5544;
+      --color-neutral-700: #4f3a2e;
+      --color-neutral-800: #34241c;
+      --color-neutral-900: #1e140f;
+      --color-gold: #c29a4a;
+      --color-gold-light: #f3e1b0;
+      --color-jade: #3b7a5e;
+      --color-jade-light: #d4ede0;
+      --color-success: #1f6e4a;
+      --color-warning: #a86b2c;
+      --color-error: #b13a2a;
+      --font-base: 1rem;
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-12: 3rem;
+      --radius-sm: 0.75rem;
+      --radius-md: 1.25rem;
+      --radius-card: 2rem;
+      --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(60, 30, 10, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(60, 30, 10, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(60, 30, 10, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+      --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ===== 重置 & 基础 ===== */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    /* ===== 布局 ===== */
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(255, 249, 245, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(255, 235, 220, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); letter-spacing:-0.01em; }
+    .sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+    .sidebar nav ul { list-style:none; padding:0; margin:0; }
+    .sidebar nav ul li { margin-bottom:0.1rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:12px;
+      padding:0.55rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.85rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+    }
+    .sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+    .sidebar nav ul li a:hover,
+    .sidebar nav ul li a:focus-visible {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateX(4px);
+    }
+    .sidebar-footer {
+      margin-top:24px; padding:12px; text-align:center;
+      font-size:0.7rem; color:var(--color-neutral-600);
+      border-top:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 主内容 ===== */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+    /* ===== 页面头部 ===== */
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+      font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+    .page-header .header-meta {
+      font-size:0.9rem; color:var(--color-neutral-600);
+      background:var(--color-neutral-100);
+      padding:0.4rem 1.2rem;
+      border-radius:var(--radius-pill);
+      border:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 卡片系统 ===== */
+    .card {
+      background:rgba(255,252,248,0.92);
+      backdrop-filter: blur(4px);
+      border-radius:var(--radius-card);
+      box-shadow:var(--shadow-card);
+      margin-bottom:var(--space-6);
+      border:1px solid rgba(255, 235, 220, 0.5);
+      overflow:hidden;
+      transition: box-shadow var(--transition-default), transform 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6);
+      background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft);
+      display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 {
+      font-size:clamp(1.2rem, 2.2vw, 1.6rem);
+      font-weight:700; color:var(--color-primary-dark);
+      display:flex; align-items:center; gap:12px;
+      letter-spacing:-0.01em;
+    }
+    .card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+    .card-header .badge-count {
+      margin-left:auto;
+      background:var(--color-accent);
+      color:white;
+      border-radius:var(--radius-pill);
+      padding:0.15rem 0.9rem;
+      font-size:0.7rem;
+      font-weight:600;
+      letter-spacing:0.3px;
+    }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* ===== 网格 & 卡片（数据治理卡片风格） ===== */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } .grid-4 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; } }
+
+    /* 数据治理卡片 (复用九字卡片) */
+    .gov-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md);
+      padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: all var(--transition-default);
+      position:relative;
+      overflow:hidden;
+      border-left: 4px solid var(--color-accent);
+    }
+    .gov-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft));
+      opacity:0;
+      transition: opacity var(--transition-default);
+    }
+    .gov-card:hover::before { opacity:1; }
+    .gov-card:hover {
+      border-color:var(--color-accent-soft);
+      box-shadow: 0 8px 24px -8px rgba(184,92,58,0.15);
+      transform:translateY(-3px);
+    }
+    .gov-card .gov-icon {
+      font-size:1.8rem;
+      color:var(--color-primary);
+      display:inline-block;
+      margin-right:6px;
+      background: var(--color-primary-light);
+      padding:0.2rem 0.6rem;
+      border-radius:12px;
+    }
+    .gov-card h4 {
+      color:var(--color-primary-dark);
+      font-size:1.05rem;
+      margin-bottom:0.4rem;
+      display:flex; align-items:center; gap:8px;
+      flex-wrap:wrap;
+    }
+    .gov-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+    .gov-card .detail-list {
+      padding-left:0; margin:0.4rem 0 0 0;
+      list-style:none;
+    }
+    .gov-card .detail-list li {
+      margin-bottom:0.25rem;
+      padding-left:1.2rem;
+      position:relative;
+      font-size:0.85rem;
+      color:var(--color-neutral-700);
+    }
+    .gov-card .detail-list li::before {
+      content:'▹'; position:absolute; left:0;
+      color:var(--color-accent);
+      font-weight:600;
+    }
+    .gov-card .detail-list li strong { color:var(--color-neutral-800); }
+    .gov-card .tag-layer {
+      display:inline-block;
+      background:var(--color-gold-light);
+      color:var(--color-primary-dark);
+      border-radius:20px;
+      padding:0.05rem 0.8rem;
+      font-size:0.6rem;
+      font-weight:700;
+      letter-spacing:0.3px;
+      margin-left:0.5rem;
+    }
+
+    /* ===== 架构层（继承九层闭环） ===== */
+    .arch-diagram {
+      display:flex;
+      flex-direction:column;
+      gap:0.6rem;
+      padding:0.5rem 0;
+    }
+    .arch-layer {
+      display:flex;
+      align-items:stretch;
+      gap:0.75rem;
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.6rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: var(--transition-default);
+    }
+    .arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+    .arch-layer .layer-label {
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      min-width:120px;
+      padding-right:1rem;
+      border-right:2px solid var(--color-neutral-200);
+      font-weight:700;
+      font-size:0.8rem;
+      color:var(--color-primary-dark);
+      letter-spacing:0.3px;
+    }
+    .arch-layer .layer-label i {
+      font-size:1.1rem;
+      color:var(--color-accent);
+      margin-bottom:0.1rem;
+    }
+    .arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+    .arch-layer .layer-blocks {
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:0.5rem;
+      flex:1;
+      padding:0.2rem 0;
+    }
+    .arch-block {
+      background:white;
+      border-radius:var(--radius-sm);
+      padding:0.3rem 0.9rem;
+      border:1px solid var(--color-neutral-200);
+      font-size:0.75rem;
+      font-weight:500;
+      color:var(--color-neutral-700);
+      transition: var(--transition-default);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .arch-block:hover {
+      border-color:var(--color-accent);
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateY(-1px);
+    }
+    .arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+    .arch-block.highlight-block {
+      background:var(--color-accent);
+      color:white;
+      border-color:var(--color-accent);
+    }
+    .arch-block.highlight-block i { color:white; }
+    .arch-layer.inner-layer { background:linear-gradient(135deg, #f5efe8, #f0e4da); border-color:var(--color-accent-soft); }
+    .arch-layer.outer-layer { background:linear-gradient(135deg, #f0f2ed, #e6ece2); border-color:#b8c8aa; }
+    .arch-layer.outer-layer .layer-label { border-right-color:#b8c8aa; color:#2d5a3a; }
+    .arch-layer.outer-layer .layer-label i { color:#3b7a5e; }
+    .arch-layer.outer-layer .arch-block { border-color:#c8d8b8; }
+    .arch-layer.outer-layer .arch-block:hover { border-color:#3b7a5e; background:#e0ede0; }
+    .arch-layer.ultimate-layer { background:linear-gradient(135deg, #f0ede8, #e8e0d8); border-color:#c8b8a8; }
+    .arch-layer.ultimate-layer .layer-label { border-right-color:#c8b8a8; color:#6a4a3a; }
+    .arch-layer.ultimate-layer .layer-label i { color:#8a6a5a; }
+    .arch-layer.ultimate-layer .arch-block { border-color:#d8c8b8; }
+    .arch-layer.ultimate-layer .arch-block:hover { border-color:#8a6a5a; background:#ede0d8; }
+
+    /* ===== 表格 ===== */
+    .table-wrapper {
+      overflow-x:auto;
+      border-radius:var(--radius-md);
+      border:1px solid var(--color-neutral-200);
+      background:white;
+    }
+    table {
+      width:100%; border-collapse:collapse; font-size:0.78rem;
+    }
+    th {
+      background:var(--color-neutral-100);
+      padding:12px 10px;
+      font-weight:600;
+      color:var(--color-primary-dark);
+      text-align:left;
+      border-bottom:2px solid var(--color-neutral-200);
+      font-size:0.7rem;
+      text-transform:uppercase;
+      letter-spacing:0.4px;
+    }
+    td {
+      padding:10px 10px;
+      border-bottom:1px solid var(--color-neutral-200);
+      vertical-align:middle;
+      color:var(--color-neutral-700);
+    }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--color-neutral-50); }
+    .level-tag {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      border-radius:var(--radius-pill);
+      padding:0.05rem 0.7rem;
+      font-size:0.65rem;
+      font-weight:600;
+      display:inline-block;
+    }
+
+    /* ===== 信息提示 ===== */
+    .info-tip {
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.7rem 1.5rem;
+      border-left:5px solid var(--color-accent);
+      margin-top:var(--space-4);
+      display:flex; align-items:center; gap:0.8rem;
+      font-size:0.9rem;
+      color:var(--color-neutral-700);
+    }
+    .info-tip i { color:var(--color-accent); font-size:1rem; }
+
+    /* ===== 横幅 ===== */
+    .banner-card {
+      background: linear-gradient(135deg, #f5ede6, #e8dcd2);
+      text-align:center;
+      border-color:var(--color-accent-soft);
+    }
+    .banner-card .card-body { padding:2.5rem var(--space-6); }
+    .banner-card .icon-big { font-size:3rem; color:var(--color-primary); opacity:0.7; margin-bottom:var(--space-3); }
+    .banner-card h2 { color:var(--color-primary-dark); font-size:clamp(1.4rem, 2.5vw, 1.9rem); margin-bottom:var(--space-2); }
+    .banner-card p { max-width:680px; margin:0 auto; color:var(--color-neutral-700); font-size:1rem; }
+    .banner-card .footer-note { margin-top:var(--space-6); font-size:0.8rem; color:var(--color-primary); }
+
+    /* ===== 响应式 ===== */
+    @media (max-width:1024px) { .sidebar { width:220px; } }
+    @media (max-width:760px) {
+      .sidebar { display:none; }
+      .layout { padding:0.5rem; }
+      .main-content { padding:0; }
+      .card-body { padding:1.25rem var(--space-4); }
+      .card-header { padding:1rem var(--space-4); }
+      .page-header { flex-direction:column; align-items:flex-start; }
+    }
+
+    /* ===== 暗色 ===== */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #1a1410;
+        --color-neutral-100: #221c18;
+        --color-neutral-200: #3a2c24;
+        --color-neutral-300: #5a4a3e;
+        --color-neutral-400: #8a7a6e;
+        --color-neutral-600: #b8a89c;
+        --color-neutral-700: #d0c4b8;
+        --color-neutral-800: #e8dcd0;
+        --color-neutral-900: #f5ede6;
+        --color-primary-light: #3a2a20;
+        --color-accent-soft: #6a4a3a;
+        --color-primary: #d08a6a;
+        --color-primary-dark: #f0c8b0;
+        --color-accent: #c07a5a;
+        --color-gold: #c29a4a;
+        --color-gold-light: #4a3a20;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6);
+        --shadow-card-hover: 0 20px 48px -12px rgba(0,0,0,0.7);
+        --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #120e0a; }
+      .card { background: #1a1410; border-color: #3a2c24; }
+      .card-header { background: #1a1410; border-bottom-color: #4a3a2e; }
+      .gov-card { background: #1a1410; border-color: #3a2c24; }
+      .gov-card .gov-icon { background: #2a1e16; color: #d08a6a; }
+      .gov-card .detail-list li { color: #c0b4a8; }
+      .gov-card .detail-list li strong { color: #e0d4c8; }
+      .table-wrapper { background: #1a1410; border-color: #3a2c24; }
+      th { background: #221c18; color: #e0d4c8; border-bottom-color: #4a3a2e; }
+      td { border-bottom-color: #2a241e; color: #c0b4a8; }
+      tr:hover td { background: #2a241e; }
+      .sidebar { background: rgba(20, 16, 12, 0.92); border-color: #3a2c24; }
+      .sidebar-brand { border-bottom-color: #4a3a2e; }
+      .sidebar-brand h3 { color: #d08a6a; }
+      .sidebar nav ul li a { color: #c0b4a8; }
+      .sidebar nav ul li a:hover { background: #3a2c24; color: white; }
+      .info-tip { background: #1a1410; border-left-color: #c07a5a; color: #c0b4a8; }
+      .banner-card { background:linear-gradient(135deg,#1a1410,#2a241e); }
+      .banner-card p { color: #c0b4a8; }
+      .page-header h1 { background:linear-gradient(135deg,#f0c8b0,#d08a6a); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#2a241e; border-color:#4a3a2e; color:#b8a89c; }
+      .arch-layer { background:#1a1410; border-color:#3a2c24; }
+      .arch-layer:hover { background:#2a1e16; border-color:#5a4a3e; }
+      .arch-layer .layer-label { border-right-color:#3a2c24; color:#e0d4c8; }
+      .arch-block { background:#1a1410; border-color:#3a2c24; color:#c0b4a8; }
+      .arch-block:hover { background:#3a2c24; border-color:#c07a5a; }
+      .arch-layer.inner-layer { background:linear-gradient(135deg,#1a1410,#2a1e16); border-color:#5a3a2a; }
+      .arch-layer.outer-layer { background:linear-gradient(135deg,#141a12,#1a2618); border-color:#2a4a2a; }
+      .arch-layer.outer-layer .layer-label { border-right-color:#2a4a2a; color:#8aba8a; }
+      .arch-layer.outer-layer .layer-label i { color:#5a9a6a; }
+      .arch-layer.outer-layer .arch-block { border-color:#2a4a2a; color:#a0c8a0; }
+      .arch-layer.outer-layer .arch-block:hover { border-color:#5a9a6a; background:#1a2a1a; }
+      .arch-layer.ultimate-layer { background:linear-gradient(135deg,#1a1410,#221c18); border-color:#4a3a2e; }
+      .arch-layer.ultimate-layer .layer-label { border-right-color:#4a3a2e; color:#c8b0a0; }
+      .arch-layer.ultimate-layer .layer-label i { color:#a08070; }
+      .arch-layer.ultimate-layer .arch-block { border-color:#4a3a2e; color:#c8b8a8; }
+      .arch-layer.ultimate-layer .arch-block:hover { border-color:#a08070; background:#2a241e; }
+    }
+    
+    /* ===== 优化新增样式 ===== */
+    /* 核心价值区域优化样式 */
+    .value-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .value-header .icon-big {
+        font-size: 2.8rem;
+        color: var(--color-primary);
+        opacity: 0.8;
+        margin-bottom: 0.5rem;
+    }
+    .value-header h2 {
+        font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+        color: var(--color-primary-dark);
+        margin-bottom: 0.25rem;
+    }
+    .value-subtitle {
+        font-size: 1rem;
+        color: var(--color-neutral-600);
+        letter-spacing: 2px;
+        font-weight: 300;
+    }
+
+    /* 价值网格 */
+    .value-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin: 1.5rem 0 2rem 0;
+    }
+    .value-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(4px);
+        padding: 1.2rem 1.4rem;
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 235, 220, 0.5);
+        transition: all 0.3s ease;
+    }
+    .value-item:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-card-hover);
+        border-color: var(--color-accent-soft);
+        background: rgba(255, 255, 255, 0.85);
+    }
+    .value-item .value-icon {
+        flex-shrink: 0;
+        width: 2.8rem;
+        height: 2.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--color-primary-light);
+        border-radius: 50%;
+        color: var(--color-accent);
+        font-size: 1.2rem;
+    }
+    .value-item .value-content h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--color-primary-dark);
+        margin-bottom: 0.3rem;
+        line-height: 1.3;
+    }
+    .value-item .value-content p {
+        font-size: 0.9rem;
+        color: var(--color-neutral-700);
+        line-height: 1.6;
+        margin: 0;
+    }
+    /* 最后一项占满整行 */
+    .value-item.full-width {
+        grid-column: 1 / -1;
+    }
+
+    /* 暗色主题适配 */
+    @media (prefers-color-scheme: dark) {
+        .value-item {
+            background: rgba(30, 24, 20, 0.7);
+            border-color: var(--color-neutral-200);
+        }
+        .value-item:hover {
+            background: rgba(40, 32, 26, 0.9);
+            border-color: var(--color-accent-soft);
+        }
+        .value-item .value-content p {
+            color: var(--color-neutral-600);
+        }
+        .value-subtitle {
+            color: var(--color-neutral-400);
+        }
+    }
+
+    /* 响应式布局 */
+    @media (max-width: 768px) {
+        .value-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        .value-item {
+            padding: 1rem 1.2rem;
+        }
+        .value-item .value-content h4 {
+            font-size: 0.95rem;
+        }
+        .value-item .value-content p {
+            font-size: 0.85rem;
+        }
+    }
+    
+    /* 正文文本样式补充 */
+    .content-text {
+      font-size: 0.95rem;
+      color: var(--color-neutral-700);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+    .content-text strong {
+      color: var(--color-primary-dark);
+    }
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--color-primary-dark);
+      margin: 1.5rem 0 1rem 0;
+      border-bottom: 2px solid var(--color-primary-light);
+      padding-bottom: 0.5rem;
+    }
+    .subsection-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--color-neutral-800);
+      margin: 1.2rem 0 0.8rem 0;
+    }
+    .normal-list {
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--color-neutral-700);
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+    .normal-list li {
+      margin-bottom: 0.3rem;
+    }
+    .normal-list li strong {
+      color: var(--color-neutral-800);
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-sitemap" aria-hidden="true"></i>
+      <h3>全域中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-book-open"></i> 全域中台定义</a></li>
+        <li><a href="#s1"><i class="fas fa-coins"></i> 财务中台专项</a></li>
+        <li><a href="#s2"><i class="fas fa-book"></i> 知识体系+图谱</a></li>
+        <li><a href="#s3"><i class="fas fa-sitemap"></i> 六大核心架构</a></li>
+        <li><a href="#s4"><i class="fas fa-puzzle-piece"></i> 产品功能模块</a></li>
+        <li><a href="#s5"><i class="fas fa-chart-line"></i> 全套指标体系</a></li>
+        <li><a href="#s6"><i class="fas fa-boxes"></i> 完整内容体系</a></li>
+        <li><a href="#s7"><i class="fas fa-share-alt"></i> 协同关系总结</a></li>
+        <li><a href="#s8"><i class="fas fa-flag"></i> 核心价值总结</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-sitemap"></i> 全域中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-sitemap"></i> 企业级全域中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> 全结构化完整版</span>
+    </header>
+
+    <!-- ===== S0 全域中台定义 ===== -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> 企业全域中台完整定义</h2>
+        <span class="badge-count">通用总述</span>
+      </div>
+      <div class="card-body">
+        <div class="arch-diagram">
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-cogs"></i> 技术底座 <span class="sub">技术/数据/业务/AI/算法/模型/运维/财务</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-server"></i> 技术中台</span>
+              <span class="arch-block"><i class="fas fa-database"></i> 数据中台</span>
+              <span class="arch-block"><i class="fas fa-box"></i> 业务中台</span>
+              <span class="arch-block"><i class="fas fa-brain"></i> AI中台</span>
+              <span class="arch-block"><i class="fas fa-bullhorn"></i> 运营中台</span>
+              <span class="arch-block"><i class="fas fa-microchip"></i> 模型中台</span>
+              <span class="arch-block"><i class="fas fa-calculator"></i> 算法中台</span>
+              <span class="arch-block"><i class="fas fa-tasks"></i> 运维中台</span>
+              <span class="arch-block"><i class="fas fa-coins"></i> 财务中台</span>
+            </div>
+          </div>
+          <div class="arch-layer outer-layer">
+            <div class="layer-label"><i class="fas fa-rocket"></i> 核心能力 <span class="sub">资产化沉淀/服务化封装/智能化赋能/全域化治理</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block highlight-block"><i class="fas fa-cubes"></i> 能力复用</span>
+              <span class="arch-block"><i class="fas fa-sync-alt"></i> 迭代升级</span>
+              <span class="arch-block"><i class="fas fa-shield-alt"></i> 风险可控</span>
+              <span class="arch-block"><i class="fas fa-chart-line"></i> 经营闭环</span>
+            </div>
+          </div>
+          <div class="arch-layer ultimate-layer">
+            <div class="layer-label"><i class="fas fa-star"></i> 终极价值 <span class="sub">技术筑基/数据供料/业务定标/算法赋逻/模型赋能/AI升维/运营增收/运维稳盘/财务控盘</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-building"></i> 全域数智经营闭环</span>
+              <span class="arch-block"><i class="fas fa-expand-arrows-alt"></i> 场景快速创新</span>
+              <span class="arch-block"><i class="fas fa-gem"></i> 资产持续沉淀</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section-title">1.1 标准官方定义</div>
+        <div class="content-text">
+          企业全域中台是企业数字化转型的核心能力中枢与全域资产复用底座，是基于领域驱动设计、资产化沉淀、服务化封装、智能化赋能、全域化治理思想，整合企业底层技术资源、全域数据资产、通用业务能力、智能模型知识、全域运营能力、算法能力、运维能力，通过标准化、模块化、组件化、知识化、可编排的体系化建设，将企业零散、重复、烟囱式、定制化的技术、数据、业务、AI、算法、运维、运营、财务能力统一沉淀为可复用、可迭代、可自动化、可治理的企业数字资产，为前台所有业务场景、创新应用、全域经营、系统稳定运行、财务管控经营提供统一支撑的企业级全域能力复用平台与数智化赋能中枢。
+        </div>
+        <div class="content-text">
+          企业全域中台并非单一系统，而是由技术中台、数据中台、业务中台、AI中台、运营中台、模型中台、算法中台、运维中台、财务中台九大核心中台构成的完整全域中台矩阵，彻底解决企业系统烟囱、能力重复建设、数据割裂、业务标准化不足、运营碎片化、AI模型零散、算法逻辑混乱、运维碎片化、财务管控分散、业财割裂、核算滞后、风险不可控、财务经验无法沉淀等数字化、智能化、经营管控痛点，实现一次建设、全域复用、场景快速创新、资产持续沉淀、能力持续迭代、经营与运维与财务三闭环增长的企业高阶数智化终极架构。
+        </div>
+        
+        <div class="section-title">1.2 九张子中台精准边界与协同关系</div>
+        <div class="content-text">
+          - <strong>技术中台：</strong>管底层技术底座、研发运维、云原生资源，解决「系统稳、迭代快、架构统一」；<br>
+          - <strong>数据中台：</strong>管全域数据治理、数据资产、指标体系，解决「数据可信、数据统一、数据价值释放」；<br>
+          - <strong>业务中台：</strong>管通用业务实体、业务流程、业务规则，解决「业务标准化、业务复用、前台业务快速落地」；<br>
+          - <strong>AI中台：</strong>管顶层智能能力、知识推理、智能决策编排，解决「场景智能化、知识赋能业务」；<br>
+          - <strong>运营中台：</strong>管用户、内容、活动、渠道、策略、自动化运营，解决「运营标准化、精细化、自动化、经营可量化」；<br>
+          - <strong>模型中台：</strong>管算力、模型全生命周期、样本特征、模型工程化，解决「AI模型落地难、不可控、无法规模化」；<br>
+          - <strong>算法中台：</strong>管全域算法、算子组件、智能编排、规则推理，解决「智能逻辑零散、无法复用、迭代混乱」；<br>
+          - <strong>运维中台：</strong>管全域IT资源、监控告警、故障处置、变更发布、巡检容灾、运维知识、自动化运维，解决「运维分散、人工低效、故障频发、无体系、无沉淀、无智能」，是企业全域系统稳定运行的智能运维工程底座与运维资产中枢。<br>
+          - <strong>财务中台（新增核心）：</strong>管企业全域业财税资审核算、财务流程、财务标准、资金管控、预算成本、风控合规、财务知识沉淀，解决「业财割裂、核算滞后、管控松散、风险隐蔽、报表低效、经验流失、财务无法赋能业务」，是企业全域经营管控、价值创造、风险合规的数智财务能力中枢与经营资产底座。
+        </div>
+        
+        <div class="section-title">1.3 全域中台核心建设目标</div>
+        <ol class="normal-list">
+          <li><strong>彻底打破企业信息化、数字化、智能化建设烟囱，</strong>构建技术、数据、业务、AI、算法、模型、运营、运维、财务九位一体全域统一架构；</li>
+          <li><strong>实现企业所有通用能力资产化、标准化、组件化、可复用，</strong>杜绝重复建设与资源浪费；</li>
+          <li><strong>实现研发、数据、业务、智能、运营、运维、财务全流程自动化、智能化、可治理、可追溯；</li>
+          <li><strong>轻量化支撑前台业务创新、场景迭代、系统稳定运行、风险可控、经营可控；</strong></li>
+          <li><strong>构建全域知识体系与多专项知识图谱，</strong>沉淀企业数字化、智能化、运维工程化、财务经营全量经验；</li>
+          <li><strong>形成「技术筑基、数据供料、业务定标、算法赋逻、模型赋能、AI升维、运营增收、运维稳盘、财务控盘」的完整全域数智经营闭环。</strong></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== S1 财务中台专项 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-coins"></i> 财务中台专项完整定义</h2>
+        <span class="badge-count">核心专项</span>
+      </div>
+      <div class="card-body">
+        <div class="section-title">2.1 财务中台标准定义</div>
+        <div class="content-text">
+          财务中台是企业全域业财税资审一体化的数智财务能力中枢与财务经营资产复用底座，隶属于企业全域中台经营管控层，承接技术中台底层底座、数据中台全域数据、业务中台业务流程、AI与算法中台智能能力、运维中台稳态保障，基于智能财务、业财融合、管控一体化、风险前置、价值经营理念，实现企业全域会计核算、资金管理、预算成本、费用报销、应收应付、税务管理、合并报表、财务风控、审计合规、财务分析的统一标准、统一流程、统一核算、统一管控、统一数据、统一风控、统一知识沉淀、统一经营赋能。
+        </div>
+        <div class="content-text">
+          财务中台彻底解决传统财务「业财数据割裂、核算人工依赖重、流程不标准、管控滞后、风险隐蔽、报表滞后、成本不清、资金散乱、财务经验流失、无法赋能业务经营」的核心痛点，将企业所有财务制度、核算规则、流程模板、风控模型、预算模型、成本模型、税务规则、经营分析经验沉淀为标准化、自动化、智能化、可复用的财务数字资产，为企业全域业务经营、风险管控、降本增效、战略决策提供标准化、精细化、实时化、智能化、可追溯、可迭代的全域财务经营保障，是企业数智化经营管控与价值创造的核心经营基石。
+        </div>
+        
+        <div class="section-title">2.2 财务中台核心本质与定位</div>
+        <div class="content-text">
+          <strong>战略定位：</strong>企业全域经营管控核心中枢、业财融合统一底座、财务风险治理中心、资金价值运营中心、预算成本管控中心、经营决策支撑中心、财务资产沉淀与能力复用中心。
+        </div>
+        <div class="content-text">
+          <strong>核心本质：</strong>财务制度标准化、财务流程自动化、财务核算智能化、财务管控前置化、财务数据资产化、财务风险可控化、财务能力可复用化、财务经营价值最大化。
+        </div>
+        <div class="content-text">
+          <strong>核心边界：</strong>向下承接全域业务数据与系统底座、向上支撑企业经营决策与业务赋能、横向联动八大中台，专注业财融合、核算标准化、资金管控、预算成本、税务合规、财务风控、经营分析、财务知识沉淀，不替代前台业务经营、不替代底层技术运维，专注企业全域经营的合规、高效、精益、增值。
+        </div>
+        
+        <div class="section-title">2.3 财务中台核心特征</div>
+        <ol class="normal-list">
+          <li><strong>全域业财一体化：</strong>打通采购、销售、人力、项目、库存全业务域与财务域数据、流程、规则壁垒；</li>
+          <li><strong>财务能力资产化：</strong>核算规则、审批流程、预算模型、风控规则、税务模板全部资产化复用；</li>
+          <li><strong>核算流程自动化：</strong>报销、应收应付、凭证生成、期末结账、报表输出全流程自动化；</li>
+          <li><strong>风险管控智能化：</strong>依托财务知识图谱与算法模型，实现费用、资金、税务、往来风险前置预警；</li>
+          <li><strong>经营数据实时化：</strong>实时输出营收、成本、利润、资金、预算执行、税负等经营数据；</li>
+          <li><strong>全流程可追溯审计：</strong>所有财务操作、核算、审批、资金流转、税务处理全链路留存可追溯；</li>
+          <li><strong>财务知识可沉淀迭代：</strong>构建专属财务知识体系与财务知识图谱，实现财务制度、风控经验、核算经验结构化、可推理、可传承、可迭代。</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== S2 知识体系+图谱 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book"></i> 财务中台专属完整知识体系 + 财务知识图谱体系</h2>
+        <span class="badge-count">知识域+图谱体系</span>
+      </div>
+      <div class="card-body">
+        <div class="subsection-title">3.1 财务中台十大核心知识域</div>
+        <div class="content-text" style="margin-bottom: 1.5rem;">财务中台知识体系是企业全域数智财务落地的标准化专业知识集合，以会计核算知识、业财融合知识、资金管控知识、预算成本知识、费用管控知识、税务合规知识、财务风控知识、合并报表知识、经营分析知识、财务数智迭代知识为核心底层，覆盖财务从基础核算、流程管控、风险合规、成本精益、资金增值、经营决策到经验沉淀的全链路标准化知识，形成企业可传承、可复用、可智能推理、可经营赋能的专属财务知识体系。</div>
+        
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>3.1.1 财务战略与数智规划知识域</h4><ul class="detail-list"><li>企业全域财务数智化顶层规划、财务中台建设路线、业财融合落地方法论；传统财务核算转型、财务流程解耦、财务能力沉淀、财务资产化建设规范；财务成熟度评估、财务管控体系升级、财务价值转型、降本增效落地知识；核算财务、流程财务、智能财务、经营财务四级能力迭代建设知识</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-file-invoice-dollar"></i></span><h4>3.1.2 标准化会计核算知识域</h4><ul class="detail-list"><li>企业会计准则、集团统一核算制度、科目体系规范、账务处理标准；收入确认、成本结转、费用归集、资产折旧、摊销计提、坏账计提标准化知识；日常账务、期末结账、往来清理、账务调整、差错更正标准化流程；多组织、多业态、多账套、跨境核算统一规范与差异化适配知识</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>3.1.3 业财融合流程知识域</h4><ul class="detail-list"><li>采购-付款、销售-收款、项目-成本、人力-薪酬、库存-成本业财链路知识；业务单据标准化、业财映射规则、业务数据转财务数据标准化方法论；业务流程前置管控、财务规则嵌入业务场景、业财差异核对闭环知识；跨部门业财协同、异常单据处理、业财对账闭环标准化体系</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-university"></i></span><h4>3.1.4 资金管控与司库知识域</h4><ul class="detail-list"><li>集团资金集中管控、账户管理、资金归集、资金下拨、资金调度知识；收付款合规管控、票据管理、融资管理、资金计划、资金头寸管控；资金风险防控、资金占用分析、资金效率优化、资金价值运营知识；全流程资金追溯、资金合规审计、资金精益管控迭代规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>3.1.5 预算与成本精益知识域</h4><ul class="detail-list"><li>全面预算编制、预算评审、预算下达、预算执行、预算调整、预算考核知识；标准成本、实际成本、项目成本、产品成本、部门成本归集核算体系；预算偏差分析、成本异动预警、降本增效策略、精益成本管控方法论；事前预算、事中管控、事后分析的全周期预算成本闭环知识</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-receipt"></i></span><h4>3.1.6 费用与往来管控知识域</h4><ul class="detail-list"><li>费用标准、费用报销、费用合规、费用分摊、费用精益管控知识；应收账款账期管控、回款跟踪、坏账风险、客户信用管控体系；应付账款账期管理、付款合规、供应商信用、往来对账闭环知识；往来清理机制、挂账规范、长期挂账风险处置标准化流程</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-landmark"></i></span><h4>3.1.7 税务合规与筹划知识域</h4><ul class="detail-list"><li>增值税、企业所得税、个税、附加税全税种核算与申报规范；税务发票管理、进项抵扣、销项开具、发票验真、发票风控知识；税务合规自查、税负分析、税务风险预警、合法税务筹划方法论；税收政策迭代适配、税务台账管理、税务审计闭环规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>3.1.8 财务风控与审计知识域</h4><ul class="detail-list"><li>财务流程风控、资金风控、费用风控、税务风控、往来风控知识；权限风控、审批风控、单据风控、账务风控全维度风险管控体系；内部财务审计、专项审计、整改闭环、风险台账迭代知识；财务风险分级、风险预警、风险处置、风险复盘优化方法论</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-file-contract"></i></span><h4>3.1.9 合并报表与财务分析知识域</h4><ul class="detail-list"><li>单体报表、汇总报表、合并报表编制、抵消分录、股权架构核算知识；财务三大报表分析、盈利能力、偿债能力、运营能力、成长能力分析；经营专题分析、业财差异分析、绩效归因分析、经营诊断方法论；可视化经营看板、经营报告、决策支撑输出标准化体系</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>3.1.10 财务数智迭代知识域</h4><ul class="detail-list"><li>财务自动化、智能化、数字化落地适配知识；财务数据治理、财务指标标准化、财务资产沉淀方法论；财务AI赋能、智能审核、智能核算、智能预警落地规范；财务体系持续迭代、流程优化、制度升级、能力复用迭代知识</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.2 财务中台专属知识图谱体系（核心专项）</div>
+        <div class="content-text" style="margin-bottom: 1.5rem;">财务知识图谱（FinGraph）是企业全域业财实体、财务规则、业务关联、风险因果、核算逻辑、经营关系、制度经验的结构化智能知识网络。基于全域业务数据、财务核算数据、流程审批数据、资金税务数据、预算成本数据、风控审计数据，通过知识抽取、三元组构建、规则关联、因果推理、风险匹配，搭建覆盖「组织-业务-单据-核算-资金-税务-预算-风险-人员-制度」的全域财务知识网络，解决传统财务「规则依赖人工、业财关联看不清、风险隐蔽难发现、核算经验不沉淀、经营归因无依据」的痛点，实现财务可核算、可管控、可推理、可预警、可经营、可传承、可迭代。</div>
+        
+        <div class="subsection-title">3.2.1 财务知识图谱核心实体体系</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-building"></i></span><h4>组织主体实体</h4><ul class="detail-list"><li>集团公司、子公司、部门、项目主体、利润中心、成本中心、核算主体</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-file-alt"></i></span><h4>业务单据实体</h4><ul class="detail-list"><li>采购单、销售单、报销单、付款单、收款单、工单、库存单据、薪酬单据</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>财务核算实体</h4><ul class="detail-list"><li>会计科目、凭证、账簿、收入、成本、费用、资产、负债、权益、利润</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-money-check-alt"></i></span><h4>资金往来实体</h4><ul class="detail-list"><li>银行账户、资金流水、应收、应付、票据、融资、回款、付款记录</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-line"></i></span><h4>预算成本实体</h4><ul class="detail-list"><li>预算指标、预算额度、成本对象、成本项目、预算执行、成本偏差</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-landmark"></i></span><h4>税务合规实体</h4><ul class="detail-list"><li>发票、税种、税目、税负、抵扣凭证、申报记录、税务风险标签</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exclamation-triangle"></i></span><h4>财务风险实体</h4><ul class="detail-list"><li>费用超标、资金违规、往来逾期、税负异常、成本异动、审批不合规</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-gavel"></i></span><h4>制度规则实体</h4><ul class="detail-list"><li>核算制度、费用标准、审批流程、预算规则、风控规则、税务规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-user-tie"></i></span><h4>人员权限实体</h4><ul class="detail-list"><li>财务角色、审批人、核算人、责任人、权限范围、操作记录</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.2.2 财务知识图谱核心关联关系</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>业务-核算关联</h4><ul class="detail-list"><li>业务单据自动映射会计科目、自动生成凭证、自动归集成本费用</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>组织-预算关联</h4><ul class="detail-list"><li>核算主体绑定预算指标、预算额度管控部门/项目支出</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>单据-资金关联</h4><ul class="detail-list"><li>收付款单据关联资金流水、账户、票据、融资记录</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>费用-制度关联</h4><ul class="detail-list"><li>报销单据关联费用标准、差旅标准、报销规范、合规条款</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>往来-风险关联</h4><ul class="detail-list"><li>应收应付关联账期、逾期天数、坏账风险、信用等级</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>税务-业务关联</h4><ul class="detail-list"><li>业务场景匹配税种、抵扣规则、开票规范、税负阈值</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>异动-规则关联</h4><ul class="detail-list"><li>经营数据异动匹配风控规则、历史异常案例、整改方案</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>流程-人员关联</h4><ul class="detail-list"><li>审批节点绑定责任人、权限范围、审批标准、追溯责任</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.2.3 财务知识图谱核心能力与价值</div>
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-archive"></i></span><h4>财务经验结构化沉淀</h4><ul class="detail-list"><li>将零散核算经验、风控经验、业财匹配规则、税务合规经验结构化入库</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>业财关系智能关联</h4><ul class="detail-list"><li>自动串联业务、核算、资金、税务、预算全链路数据，消除业财孤岛</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exclamation-triangle"></i></span><h4>财务风险智能预警</h4><ul class="detail-list"><li>基于因果关系识别超标、逾期、违规、异常税负、成本异动风险</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-magic"></i></span><h4>核算规则智能匹配</h4><ul class="detail-list"><li>根据业务场景自动匹配科目、凭证模板、核算口径、分摊规则</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-search"></i></span><h4>经营归因智能推理</h4><ul class="detail-list"><li>自动推导利润波动、成本异动、资金占用变化的核心业务原因</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>财务制度标准化传承</h4><ul class="detail-list"><li>摆脱财务人员个人经验依赖，实现财务体系标准化复制迭代</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>全域财务态势可视化</h4><ul class="detail-list"><li>全景展示预算态势、资金态势、利润态势、风险态势、税务态势</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S3 六大核心架构 ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> 财务中台六大核心架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span>
+      </div>
+      <div class="card-body">
+        <div class="subsection-title">4.1 产品架构（财务中台九层分层全景）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">整体分层：全域业务接入层 → 业财数据融合层 → 财务标准规则层 → 财务自动化流程层 → 核算与资金管控层 → 预算成本税务管控层 → 财务风控审计层 → 经营智能应用层 → 财务全域治理层</div>
+        <div class="arch-diagram" style="margin-bottom: 2rem;">
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-plug"></i> 接入层</div><div class="layer-blocks"><span class="arch-block">全域业务接入</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-filter"></i> 融合层</div><div class="layer-blocks"><span class="arch-block">业财数据清洗</span><span class="arch-block">标准化映射</span><span class="arch-block">差异对账</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-gavel"></i> 规则层</div><div class="layer-blocks"><span class="arch-block">科目体系</span><span class="arch-block">核算口径</span><span class="arch-block">费用标准</span><span class="arch-block">预算规则</span><span class="arch-block">税务规则</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-cogs"></i> 流程层</div><div class="layer-blocks"><span class="arch-block">报销审批</span><span class="arch-block">收付款</span><span class="arch-block">凭证生成</span><span class="arch-block">结账报表</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-book"></i> 核算层</div><div class="layer-blocks"><span class="arch-block">总账核算</span><span class="arch-block">应收应付</span><span class="arch-block">资金司库</span><span class="arch-block">票据融资</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-pie"></i> 管控层</div><div class="layer-blocks"><span class="arch-block">全面预算</span><span class="arch-block">精益成本</span><span class="arch-block">全税种管理</span><span class="arch-block">发票管控</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-shield-alt"></i> 风控层</div><div class="layer-blocks"><span class="arch-block">事前预警</span><span class="arch-block">事中拦截</span><span class="arch-block">事后审计</span><span class="arch-block">整改闭环</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-line"></i> 应用层</div><div class="layer-blocks"><span class="arch-block">财务看板</span><span class="arch-block">经营分析</span><span class="arch-block">智能问答</span><span class="arch-block">决策支撑</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-sync-alt"></i> 治理层</div><div class="layer-blocks"><span class="arch-block">制度治理</span><span class="arch-block">数据治理</span><span class="arch-block">流程治理</span><span class="arch-block">风险治理</span><span class="arch-block">知识治理</span></div></div>
+        </div>
+        
+        <div class="subsection-title">4.2 业务架构（财务中台三层业务域架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">上层：前台经营赋能场景层 | 中层：财务中台核心能力层（业财融合、智能核算、资金管控、预算成本、税务合规、财务风控、经营分析原子能力） | 下层：全域支撑底座层（技术中台云原生底座、数据中台数据治理能力、AI算法中台智能推理能力、运维中台稳态保障）</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>业财融合业务域</h4><ul class="detail-list"><li>业务接入、业财映射、单据标准化、业财对账、差异闭环</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>智能核算业务域</h4><ul class="detail-list"><li>总账管理、应收应付、资产核算、期末结账、凭证自动化</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-university"></i></span><h4>资金司库业务域</h4><ul class="detail-list"><li>账户管理、资金归集、收付款管控、票据融资、资金计划</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>预算成本业务域</h4><ul class="detail-list"><li>全面预算、费用管控、项目成本、成本分摊、精益降本</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-landmark"></i></span><h4>税务管理业务域</h4><ul class="detail-list"><li>发票管理、全税种申报、税负分析、税务风控、合规自查</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>财务风控业务域</h4><ul class="detail-list"><li>流程风控、资金风控、费用风控、税务风控、往来风控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-file-contract"></i></span><h4>合并报表与分析业务域</h4><ul class="detail-list"><li>单体报表、合并抵消、经营看板、专题分析、决策支撑</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>财务知识智能业务域</h4><ul class="detail-list"><li>财务知识沉淀、知识图谱推理、智能答疑、规则迭代</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.2.3 财务中台核心业务流转</div>
+        <div class="content-text" style="margin-bottom: 2rem;">全域业务数据统一接入 → 业财融合标准化清洗映射 → 匹配财务核算与制度规则 → 自动化流程审批与核算落地 → 资金税务预算同步管控 → 知识图谱智能风控预警 → 财务数据沉淀汇总 → 报表与经营分析输出 → 风险整改闭环 → 财务制度与规则迭代优化 → 财务知识图谱更新沉淀，形成「业务入池-规则匹配-自动核算-全程管控-经营输出-迭代优化」完整业财经营闭环。</div>
+        
+        <div class="subsection-title">4.3 数据架构（财务中台专属七层数据架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">财务中台依托全域中台统一数据底座，搭建适配智能财务、业财融合、风控合规、经营决策的七层专属数据架构，打通业务、核算、资金、税务、预算、风险、知识全链路数据闭环，支撑财务自动化、智能化、精细化、可量化经营治理。</div>
+        <div class="arch-diagram" style="margin-bottom: 2rem;">
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-database"></i> FIN-ODS</div><div class="layer-blocks"><span class="arch-block">原始接入层：业务单据、账务数据、资金流水、发票税务、预算数据、审批流程、风控记录原始数据</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-filter"></i> FIN-DWD</div><div class="layer-blocks"><span class="arch-block">明细清洗层：原始财务与业务数据清洗、去重、标准化、字段规整、业财对齐、时间对齐，生成标准业财明细数据</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-table"></i> FIN-DWB</div><div class="layer-blocks"><span class="arch-block">业务宽表层：整合业务场景、核算结果、资金信息、预算执行、税务信息、人员组织信息，生成业财一体化宽表</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-project-diagram"></i> FIN-DWA</div><div class="layer-blocks"><span class="arch-block">知识关联层：抽取业务-核算-资金-税务-风险-制度三元组数据，构建财务知识图谱结构化数据源</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-bar"></i> FIN-DWS</div><div class="layer-blocks"><span class="arch-block">主题汇总层：按收入、成本、费用、资金、预算、税务、风险主题聚合统计</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-line"></i> FIN-ADS</div><div class="layer-blocks"><span class="arch-block">指标应用层：输出盈利、偿债、运营、预算、税负、风控、效率指标</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-sync-alt"></i> FIN-OPT</div><div class="layer-blocks"><span class="arch-block">经营迭代层：沉淀业财差异、风险归因、成本优化、预算优化、制度优化数据，支撑财务体系智能迭代升级</span></div></div>
+        </div>
+        
+        <div class="subsection-title">财务中台核心数据模型体系</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>业财映射数据模型</h4><ul class="detail-list"><li>业务场景、单据类型、对应科目、核算规则、分摊规则、凭证模板</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>会计核算数据模型</h4><ul class="detail-list"><li>科目、凭证、账簿、余额、发生额、结账状态、账务维度</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-money-check-alt"></i></span><h4>资金往来数据模型</h4><ul class="detail-list"><li>账户、流水、收付款、票据、融资、往来账龄、回款进度</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>预算成本数据模型</h4><ul class="detail-list"><li>预算维度、预算额度、执行进度、成本对象、成本构成、偏差数据</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-landmark"></i></span><h4>税务合规数据模型</h4><ul class="detail-list"><li>发票信息、税种税目、抵扣数据、申报数据、税负数据、风险标签</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>财务风控数据模型</h4><ul class="detail-list"><li>风险类型、触发条件、风险等级、处置结果、整改状态</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>财务知识图谱数据模型</h4><ul class="detail-list"><li>财务实体、关联关系、规则三元组、场景匹配、风险推理模型</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.4 技术架构（财务中台云原生智能财务架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">财务中台基于全域统一云原生底座，叠加智能财务、规则引擎、知识图谱、AI风控技术栈，形成统一底座+财务专属智能引擎的七层技术架构，实现业财一体化、核算自动化、风控智能化、经营精细化、治理数字化。</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-plug"></i></span><h4>分层1：全域多源接入层</h4><ul class="detail-list"><li>API对接、数据库直连、文件导入、探针采集，实现多业态、多系统、多主体业财数据统一接入</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>分层2：基础中间件层</h4><ul class="detail-list"><li>业务数据库、财务数仓、图数据库、缓存、消息队列、ETL调度、报表引擎</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>分层3：云原生统一底座层</h4><ul class="detail-list"><li>容器编排、微服务调度、统一网关、多租户隔离、分布式事务支撑</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-lock"></i></span><h4>分层4：财务安全权限层</h4><ul class="detail-list"><li>财务数据脱敏、角色权限、数据权限、操作审计、敏感财务信息管控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cogs"></i></span><h4>分层5：财务专属智能引擎层</h4><ul class="detail-list"><li>业财映射引擎、核算规则引擎、预算管控引擎、税务风控引擎、财务知识图谱推理引擎、智能审核引擎</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>分层6：财务能力服务封装层</h4><ul class="detail-list"><li>财务原子能力API封装、服务注册、能力编排、跨中台协同调用</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-desktop"></i></span><h4>分层7：财务智能应用层</h4><ul class="detail-list"><li>财务经营大屏、智能报表、风险预警中心、智能问答、经营诊断、财务复盘应用</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">横向贯穿三大体系</div>
+        <div class="grid-3" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-code"></i></span><h4>财务技术规范体系</h4><ul class="detail-list"><li>数据接入规范、业财映射规范、核算自动化规范、风控规则规范、报表输出标准</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>财务安全合规体系</h4><ul class="detail-list"><li>财务数据安全、操作安全、权限安全、税务合规、审计合规、制度合规体系</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>财务迭代保障体系</h4><ul class="detail-list"><li>制度迭代、规则迭代、模型迭代、知识迭代、指标迭代持续保障</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.5 应用架构（财务中台全场景赋能应用体系）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">财务中台为企业全域八大中台、所有前台业务经营场景提供统一业财管控、风险合规、经营赋能、决策支撑，所有财务核算、资金管控、预算成本、税务风控、经营分析全部统一收口，形成八大财务赋能应用场景体系：</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>业财一体化融合应用</h4><ul class="detail-list"><li>全业务场景财务嵌入、自动核算、业财对账、差异闭环、业务合规前置</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>智能核算自动化应用</h4><ul class="detail-list"><li>凭证自动生成、期末自动结账、账务自动调整、报表自动出具</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-university"></i></span><h4>资金司库管控应用</h4><ul class="detail-list"><li>资金集中管控、流水追溯、头寸管理、票据融资、资金风险预警</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>预算成本精益应用</h4><ul class="detail-list"><li>全周期预算管控、实时成本归集、偏差预警、降本增效分析</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-landmark"></i></span><h4>税务智能合规应用</h4><ul class="detail-list"><li>发票全生命周期、自动申报、税负监控、税务风险自查</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>财务风险智能防控应用</h4><ul class="detail-list"><li>费用、资金、税务、往来、成本全维度风险预警与拦截</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-line"></i></span><h4>经营决策分析应用</h4><ul class="detail-list"><li>实时经营看板、专题分析、绩效归因、经营诊断、决策输出</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>财务知识智能应用</h4><ul class="detail-list"><li>财务规则检索、制度答疑、风险案例复用、核算方案智能推荐</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">财务中台统一应用访问链路</div>
+        <div class="content-text" style="margin-bottom: 2rem;">全域业务经营产生数据 → 统一接入财务中台 → 业财融合标准化处理 → 规则引擎自动核算与管控 → 知识图谱智能风控预警 → 财务数据资产沉淀 → 经营分析与报表输出 → 风险整改与流程优化 → 财务知识与规则迭代升级 → 全流程合规审计留存。</div>
+        
+        <div class="subsection-title">4.6 治理架构（财务中台六大统一治理体系）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">聚焦财务全流程、全维度、全生命周期经营风险与资产沉淀，构建财务数据治理、财务制度治理、财务流程治理、资金税务治理、预算成本治理、财务知识迭代治理六大闭环治理域，实现企业全域财务可控、可量化、可追溯、可合规、可经营、可迭代。</div>
+        <div class="grid-3">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>财务数据治理</h4><ul class="detail-list"><li>业财数据标准、数据质量、数据对齐、数据时效、数据资产全生命周期治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-gavel"></i></span><h4>财务制度治理</h4><ul class="detail-list"><li>核算制度、费用标准、预算制度、税务制度、审批制度统一管控与迭代</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>财务流程治理</h4><ul class="detail-list"><li>报销流程、付款流程、核算流程、结账流程、报表流程标准化与优化治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-university"></i></span><h4>资金税务治理</h4><ul class="detail-list"><li>资金合规、资金效率、税负合理、发票合规、申报准确闭环治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>预算成本治理</h4><ul class="detail-list"><li>预算刚性管控、成本精准归集、偏差整改、降本增效闭环治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>财务知识迭代治理</h4><ul class="detail-list"><li>财务知识入库、审核、更新、复用、案例迭代、规则质量管控</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S4 产品功能模块 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> 财务中台完整产品功能模块</h2>
+        <span class="badge-count">全维度全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>模块1：全域业财融合与数据接入</h4><ul class="detail-list"><li>多系统统一接入；业务单据标准化；业财规则映射；业财自动对账；异常单据治理；多主体适配</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>模块2：智能总账与自动核算</h4><ul class="detail-list"><li>统一科目体系；凭证自动化；日常账务管理；资产核算管理；期末智能结账；账簿查询追溯</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-money-check-alt"></i></span><h4>模块3：应收应付与往来管控</h4><ul class="detail-list"><li>应收账款管理；应付账款管理；往来对账管理；逾期风险管控；坏账管理；往来台账统计</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-university"></i></span><h4>模块4：资金司库与收付款管控</h4><ul class="detail-list"><li>账户统一管理；资金集中管控；收付款全流程；票据融资管理；资金计划管理；资金风险管控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>模块5：全面预算与精益成本</h4><ul class="detail-list"><li>多维预算编制；预算评审下达；预算执行管控；预算调整管控；精益成本核算；成本分析优化</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-receipt"></i></span><h4>模块6：费用报销与合规管控</h4><ul class="detail-list"><li>多类型费用报销；费用标准管控；智能发票核验；报销流程自动化；费用分摊管理；费用分析复盘</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-landmark"></i></span><h4>模块7：全税种税务管理</h4><ul class="detail-list"><li>发票全生命周期；全税种核算；智能税务申报；税负监控分析；税务合规自查；税务台账管理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-file-contract"></i></span><h4>模块8：合并报表与智能经营分析</h4><ul class="detail-list"><li>单体报表自动生成；合并报表管理；报表版本管理；经营大屏可视化；专题经营分析；智能经营报告</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>模块9：财务风控与审计合规</h4><ul class="detail-list"><li>全维度风控规则；事前预警事中拦截；风险台账管理；全流程审计追溯；内部专项审计；合规自查报告</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>模块10：财务知识图谱与智能知识库</h4><ul class="detail-list"><li>财务知识统一入库；财务知识三元组抽取；财务知识图谱可视化；智能知识检索；财务智能问答；知识自动迭代；知识质量管控</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S5 全套指标体系 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> 财务中台全套指标体系</h2>
+        <span class="badge-count">核算+资金+预算+成本+税务+风控+知识</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>核算质量核心指标</strong></td><td>账务核算准确率≥99.9% · 凭证自动化生成率≥95% · 月末准时结账率100% · 业财数据差异率≤0.5% · 账务差错整改闭环率100% · 辅助核算完整率≥99.8%</td></tr>
+              <tr><td><strong>资金管控效能指标</strong></td><td>资金归集率≥95% · 合规支付率100% · 资金计划执行率≥90% · 资金逾期风险发生率≤0.3% · 资金流水匹配准确率≥99.9% · 资金周转效率同比提升≥5%</td></tr>
+              <tr><td><strong>预算管控指标</strong></td><td>预算编制完整率100% · 预算执行偏差率≤5% · 超预算违规支出率0 · 预算调整合规率100% · 预算考核落地率100%</td></tr>
+              <tr><td><strong>成本精益管控指标</strong></td><td>成本归集精准率≥99.5% · 间接费用分摊准确率≥99.5% · 成本异动及时预警率100% · 年度综合降本率≥3% · 项目成本闭环率100%</td></tr>
+              <tr><td><strong>费用合规指标</strong></td><td>费用超标拦截率100% · 报销单据合规率≥99.8% · 发票查重验真率100% · 费用自动审核通过率≥90% · 违规费用发生率≤0.2%</td></tr>
+              <tr><td><strong>税务合规指标</strong></td><td>全税种申报准确率100% · 申报按期完成率100% · 发票合规率≥99.9% · 有效抵扣率≥98% · 税务风险零事故达成率100%</td></tr>
+              <tr><td><strong>往来运营指标</strong></td><td>应收账款周转天数逐年优化 · 逾期应收占比≤2% · 应付账款账期合规率100% · 往来对账闭环率100% · 长期挂账清理闭环率100%</td></tr>
+              <tr><td><strong>财务风控合规指标</strong></td><td>财务风险预警覆盖率100% · 风险处置闭环率100% · 财务审计问题整改率100% · 高危财务操作拦截率100% · 财务合规自查通过率100%</td></tr>
+              <tr><td><strong>财务知识图谱专项指标</strong></td><td>财务制度与规则知识覆盖率100% · 财务知识三元组完整率≥99.5% · 财务风险智能识别准确率≥96% · 核算规则智能匹配率≥95% · 财务知识迭代更新及时率≥99% · 财务新人业务上手效率提升≥80%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S6 完整内容体系 ===== -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> 财务中台完整内容体系</h2>
+        <span class="badge-count">交付物+标准+资产+文档全集</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>7.1 顶层规划类内容</h4><ul class="detail-list"><li>企业财务中台整体建设方案、数智财务转型白皮书、业财融合建设总体规划；财务中台架构规划、智能财务建设路线图、财务能力迭代规划；企业财务成熟度评估报告、分阶段落地清单、财务数智化验收方案；企业全域财务标准化总则、财务资产复用与能力迭代整体规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>7.2 全域标准规范类内容</h4><ul class="detail-list"><li>集团统一会计核算制度、科目体系规范、辅助核算标准化规范；业财融合映射规范、业务单据标准化、业财对账闭环规范；费用报销标准、审批流程标准、预算管控标准化规范；资金收付、票据融资、账户管理标准化管控规范；成本归集、费用分摊、项目成本核算标准化规范；全税种税务管理、发票管控、申报合规标准化规范；财务风控规则、审计合规、风险处置闭环标准化规范；财务知识图谱构建、财务知识沉淀、迭代更新标准化规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>7.3 财务中台核心资产内容</h4><ul class="detail-list"><li>全域业财数据资产库：业务明细、账务明细、资金明细、税务明细、预算明细资产全集；财务规则资产库：核算模板、凭证模板、分摊模板、预算模板、报表模板资产；财务制度资产库：全套财务管理制度、合规制度、审批制度、风控制度资产；风险预案资产库：财务风险处置预案、异常整改模板、复盘优化模板；税务合规资产库：税种模板、申报模板、税负分析模板、税务自查模板；财务知识资产包：财务知识图谱、核算案例库、风控案例库、财务FAQ、最佳实践库；业财能力拓扑图、业务-核算-风险-知识全域映射矩阵</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tools"></i></span><h4>7.4 财务中台落地工程内容</h4><ul class="detail-list"><li>财务中台快速落地实施手册、业财融合轻量化搭建指南；数据接入、规则配置、自动化核算、风控配置全流程操作手册；财务能力API对接文档、系统接入规范、跨中台协同调用手册；财务知识图谱维护、知识更新、智能问答应用运维手册；财务上线验收标准、指标评估模板、财务体系迭代评审模板</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>7.5 财务中台治理运营类内容</h4><ul class="detail-list"><li>月度/季度财务经营报告、预算执行报告、成本管控分析报告；资金效能分析、税务合规分析、费用管控分析、降本增效报告；财务风险复盘台账、业财差异整改台账、制度优化台账；重大财务异常复盘报告、财务体系优化方案、能力迭代规划；财务合规审计报告、税务自查报告、风控整改闭环台账</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>7.6 财务保障类文档</h4><ul class="detail-list"><li>财务中台运维手册、核算/风控/税务异常排查FAQ；月末年末结账保障预案、财务数据灾备与恢复预案；重大财务风险应急处置预案、税务风险应急保障手册；财务知识图谱持续迭代、知识质量保障、案例更新手册</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S7 协同关系总结 ===== -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-share-alt"></i> 财务中台与八大中台全域协同关系总结</h2>
+        <span class="badge-count">9大中台协同</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>1. 技术中台</h4><ul class="detail-list"><li>提供云原生集群、微服务、存储算力、调度底座，为财务中台多租户、多系统对接、高并发核算提供底层技术支撑</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>2. 数据中台</h4><ul class="detail-list"><li>汇聚全域业务、用户、资源、经营原始数据，为财务业财融合、数据治理、指标计算、经营分析提供统一数据原料</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>3. 业务中台</h4><ul class="detail-list"><li>统一业务实体、业务流程、业务维度标准，支撑财务精准核算、预算归集、成本分摊、业财精准匹配</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-calculator"></i></span><h4>4. 算法中台</h4><ul class="detail-list"><li>提供异常识别算法、时序分析算法、关联匹配算法，支撑财务风险预警、业财差异识别、成本异动研判</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-microchip"></i></span><h4>5. 模型中台</h4><ul class="detail-list"><li>依托预测模型、归因模型、分类模型，实现资金预测、预算预测、利润预测、风险等级研判</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-brain"></i></span><h4>6. AI中台</h4><ul class="detail-list"><li>结合财务知识图谱实现智能审核、智能答疑、智能归因、智能复盘、自治式财务管控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bullhorn"></i></span><h4>7. 运营中台</h4><ul class="detail-list"><li>将财务盈利、成本、预算、资金指标纳入全域经营评估，实现财务价值可量化、经营成果可落地</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tasks"></i></span><h4>8. 运维中台</h4><ul class="detail-list"><li>保障财务中台系统稳定、数据安全、权限可控、灾备可用，筑牢财务数据与系统稳态底线</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-coins"></i></span><h4>9. 财务中台</h4><ul class="detail-list"><li>反向赋能八大中台经营合规、成本可控、风险可控、价值增值，是企业全域数智体系合规底线、价值中枢、决策核心</li></ul></div>
+        </div>
+        <div class="info-tip" style="margin-top: 1.5rem;"><i class="fas fa-info-circle"></i> 全域九维闭环逻辑：技术筑基、数据供料、业务定标、算法赋逻、模型赋能、AI升维、运营增收、运维稳盘、财务控盘，九大中台深度协同，构建企业可建设、可复用、可智能、可治理、可稳态、可经营、可增值的完整全域数智经营闭环体系。</div>
+      </div>
+    </section>
+
+    <!-- ===== S8 核心价值总结 ===== -->
+    <section id="s8" class="card banner-card">
+        <div class="card-body">
+            <!-- 顶部图标与标题 -->
+            <div class="value-header">
+                <div class="icon-big"><i class="fas fa-flag"></i></div>
+                <h2>财务中台核心价值总结</h2>
+                <p class="value-subtitle">六大维度 · 重塑企业全域业财融合与经营管控体系</p>
+            </div>
+
+            <!-- 价值网格 -->
+            <div class="value-grid">
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-unlink"></i></div>
+                    <div class="value-content">
+                        <h4>打破业财孤岛，构建全域一体化财务体系</h4>
+                        <p>彻底解决业务、财务、税务、资金、预算数据割裂问题，实现全链路业财税资审一体化融合，统一企业财务语言与经营口径。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-cubes"></i></div>
+                    <div class="value-content">
+                        <h4>财务能力资产化，实现制度经验可沉淀可传承</h4>
+                        <p>将财务制度、核算规则、风控经验、税务规范、预算模型全部资产化，摆脱核心财务人员经验依赖，实现企业财务能力整体沉淀、标准化复制。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-robot"></i></div>
+                    <div class="value-content">
+                        <h4>流程自动化提效，大幅降低财务人工成本</h4>
+                        <p>实现凭证生成、结账报税、报表输出、审核流转全流程自动化，大幅减少重复人工核算工作，提升财务结账与出表效率。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div class="value-content">
+                        <h4>风控前置智能化，筑牢企业经营合规底线</h4>
+                        <p>依托财务知识图谱与AI智能能力，实现费用、资金、税务、往来、预算风险前置预警与事中拦截，从「事后整改」升级为「事前预防、事中管控」。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="value-content">
+                        <h4>经营数据实时化，支撑精准战略决策</h4>
+                        <p>实时输出企业盈利、成本、资金、预算、税负经营数据，实现经营问题实时诊断、异动实时归因、策略实时调整。</p>
+                    </div>
+                </div>
+                <div class="value-item full-width">
+                    <div class="value-icon"><i class="fas fa-sync-alt"></i></div>
+                    <div class="value-content">
+                        <h4>知识体系迭代，驱动财务从核算型向经营型跃迁</h4>
+                        <p>通过专属财务知识体系与知识图谱，实现财务经验结构化、智能化、迭代化，推动企业财务从核算财务、流程财务向智能财务、经营财务、价值财务高阶升级，持续为企业创造降本、增效、避险、增值的核心经营价值。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部注脚 -->
+            <div class="footer-note">财务中台 · 企业全域数智化经营管控与价值创造核心基石</div>
+        </div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>

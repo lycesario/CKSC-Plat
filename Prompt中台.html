@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Prompt中台 · 企业级完整体系 · 高保真架构</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ===== 设计系统 Token（完全继承参考样式） ===== */
+    :root {
+      --color-primary: #7a2e1a;
+      --color-primary-light: #fce9e0;
+      --color-primary-dark: #4d1c0e;
+      --color-accent: #b85c3a;
+      --color-accent-soft: #f0c8b8;
+      --color-accent-glow: rgba(184, 92, 58, 0.10);
+      --color-neutral-50: #fcf9f7;
+      --color-neutral-100: #f5ede8;
+      --color-neutral-200: #e5d7ce;
+      --color-neutral-300: #cbb8ab;
+      --color-neutral-400: #a68b7a;
+      --color-neutral-600: #6f5544;
+      --color-neutral-700: #4f3a2e;
+      --color-neutral-800: #34241c;
+      --color-neutral-900: #1e140f;
+      --color-gold: #c29a4a;
+      --color-gold-light: #f3e1b0;
+      --color-jade: #3b7a5e;
+      --color-jade-light: #d4ede0;
+      --color-success: #1f6e4a;
+      --color-warning: #a86b2c;
+      --color-error: #b13a2a;
+      --font-base: 1rem;
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-12: 3rem;
+      --radius-sm: 0.75rem;
+      --radius-md: 1.25rem;
+      --radius-card: 2rem;
+      --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(60, 30, 10, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(60, 30, 10, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(60, 30, 10, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+      --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ===== 重置 & 基础 ===== */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    /* ===== 布局 ===== */
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(255, 249, 245, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(255, 235, 220, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); letter-spacing:-0.01em; }
+    .sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+    .sidebar nav ul { list-style:none; padding:0; margin:0; }
+    .sidebar nav ul li { margin-bottom:0.1rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:12px;
+      padding:0.55rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.85rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+    }
+    .sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+    .sidebar nav ul li a:hover,
+    .sidebar nav ul li a:focus-visible {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateX(4px);
+    }
+    .sidebar-footer {
+      margin-top:24px; padding:12px; text-align:center;
+      font-size:0.7rem; color:var(--color-neutral-600);
+      border-top:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 主内容 ===== */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+    /* ===== 页面头部 ===== */
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+      font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+    .page-header .header-meta {
+      font-size:0.9rem; color:var(--color-neutral-600);
+      background:var(--color-neutral-100);
+      padding:0.4rem 1.2rem;
+      border-radius:var(--radius-pill);
+      border:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 卡片系统 ===== */
+    .card {
+      background:rgba(255,252,248,0.92);
+      backdrop-filter: blur(4px);
+      border-radius:var(--radius-card);
+      box-shadow:var(--shadow-card);
+      margin-bottom:var(--space-6);
+      border:1px solid rgba(255, 235, 220, 0.5);
+      overflow:hidden;
+      transition: box-shadow var(--transition-default), transform 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6);
+      background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft);
+      display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 {
+      font-size:clamp(1.2rem, 2.2vw, 1.6rem);
+      font-weight:700; color:var(--color-primary-dark);
+      display:flex; align-items:center; gap:12px;
+      letter-spacing:-0.01em;
+    }
+    .card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+    .card-header .badge-count {
+      margin-left:auto;
+      background:var(--color-accent);
+      color:white;
+      border-radius:var(--radius-pill);
+      padding:0.15rem 0.9rem;
+      font-size:0.7rem;
+      font-weight:600;
+      letter-spacing:0.3px;
+    }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* ===== 网格 & 卡片（Prompt卡片风格） ===== */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } .grid-4 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; } }
+
+    /* Prompt卡片 (复用九字卡片) */
+    .prompt-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md);
+      padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: all var(--transition-default);
+      position:relative;
+      overflow:hidden;
+      border-left: 4px solid var(--color-accent);
+    }
+    .prompt-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft));
+      opacity:0;
+      transition: opacity var(--transition-default);
+    }
+    .prompt-card:hover::before { opacity:1; }
+    .prompt-card:hover {
+      border-color:var(--color-accent-soft);
+      box-shadow: 0 8px 24px -8px rgba(184,92,58,0.15);
+      transform:translateY(-3px);
+    }
+    .prompt-card .prompt-icon {
+      font-size:1.8rem;
+      color:var(--color-primary);
+      display:inline-block;
+      margin-right:6px;
+      background: var(--color-primary-light);
+      padding:0.2rem 0.6rem;
+      border-radius:12px;
+    }
+    .prompt-card h4 {
+      color:var(--color-primary-dark);
+      font-size:1.05rem;
+      margin-bottom:0.4rem;
+      display:flex; align-items:center; gap:8px;
+      flex-wrap:wrap;
+    }
+    .prompt-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+    .prompt-card .detail-list {
+      padding-left:0; margin:0.4rem 0 0 0;
+      list-style:none;
+    }
+    .prompt-card .detail-list li {
+      margin-bottom:0.25rem;
+      padding-left:1.2rem;
+      position:relative;
+      font-size:0.85rem;
+      color:var(--color-neutral-700);
+    }
+    .prompt-card .detail-list li::before {
+      content:'▹'; position:absolute; left:0;
+      color:var(--color-accent);
+      font-weight:600;
+    }
+    .prompt-card .detail-list li strong { color:var(--color-neutral-800); }
+    .prompt-card .tag-layer {
+      display:inline-block;
+      background:var(--color-gold-light);
+      color:var(--color-primary-dark);
+      border-radius:20px;
+      padding:0.05rem 0.8rem;
+      font-size:0.6rem;
+      font-weight:700;
+      letter-spacing:0.3px;
+      margin-left:0.5rem;
+    }
+
+    /* ===== 架构层（继承九层闭环） ===== */
+    .arch-diagram {
+      display:flex;
+      flex-direction:column;
+      gap:0.6rem;
+      padding:0.5rem 0;
+    }
+    .arch-layer {
+      display:flex;
+      align-items:stretch;
+      gap:0.75rem;
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.6rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: var(--transition-default);
+    }
+    .arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+    .arch-layer .layer-label {
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      min-width:120px;
+      padding-right:1rem;
+      border-right:2px solid var(--color-neutral-200);
+      font-weight:700;
+      font-size:0.8rem;
+      color:var(--color-primary-dark);
+      letter-spacing:0.3px;
+    }
+    .arch-layer .layer-label i {
+      font-size:1.1rem;
+      color:var(--color-accent);
+      margin-bottom:0.1rem;
+    }
+    .arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+    .arch-layer .layer-blocks {
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:0.5rem;
+      flex:1;
+      padding:0.2rem 0;
+    }
+    .arch-block {
+      background:white;
+      border-radius:var(--radius-sm);
+      padding:0.3rem 0.9rem;
+      border:1px solid var(--color-neutral-200);
+      font-size:0.75rem;
+      font-weight:500;
+      color:var(--color-neutral-700);
+      transition: var(--transition-default);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .arch-block:hover {
+      border-color:var(--color-accent);
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateY(-1px);
+    }
+    .arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+    .arch-block.highlight-block {
+      background:var(--color-accent);
+      color:white;
+      border-color:var(--color-accent);
+    }
+    .arch-block.highlight-block i { color:white; }
+    .arch-layer.inner-layer { background:linear-gradient(135deg, #f5efe8, #f0e4da); border-color:var(--color-accent-soft); }
+    .arch-layer.outer-layer { background:linear-gradient(135deg, #f0f2ed, #e6ece2); border-color:#b8c8aa; }
+    .arch-layer.outer-layer .layer-label { border-right-color:#b8c8aa; color:#2d5a3a; }
+    .arch-layer.outer-layer .layer-label i { color:#3b7a5e; }
+    .arch-layer.outer-layer .arch-block { border-color:#c8d8b8; }
+    .arch-layer.outer-layer .arch-block:hover { border-color:#3b7a5e; background:#e0ede0; }
+    .arch-layer.ultimate-layer { background:linear-gradient(135deg, #f0ede8, #e8e0d8); border-color:#c8b8a8; }
+    .arch-layer.ultimate-layer .layer-label { border-right-color:#c8b8a8; color:#6a4a3a; }
+    .arch-layer.ultimate-layer .layer-label i { color:#8a6a5a; }
+    .arch-layer.ultimate-layer .arch-block { border-color:#d8c8b8; }
+    .arch-layer.ultimate-layer .arch-block:hover { border-color:#8a6a5a; background:#ede0d8; }
+
+    /* ===== 表格 ===== */
+    .table-wrapper {
+      overflow-x:auto;
+      border-radius:var(--radius-md);
+      border:1px solid var(--color-neutral-200);
+      background:white;
+    }
+    table {
+      width:100%; border-collapse:collapse; font-size:0.78rem;
+    }
+    th {
+      background:var(--color-neutral-100);
+      padding:12px 10px;
+      font-weight:600;
+      color:var(--color-primary-dark);
+      text-align:left;
+      border-bottom:2px solid var(--color-neutral-200);
+      font-size:0.7rem;
+      text-transform:uppercase;
+      letter-spacing:0.4px;
+    }
+    td {
+      padding:10px 10px;
+      border-bottom:1px solid var(--color-neutral-200);
+      vertical-align:middle;
+      color:var(--color-neutral-700);
+    }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--color-neutral-50); }
+    .level-tag {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      border-radius:var(--radius-pill);
+      padding:0.05rem 0.7rem;
+      font-size:0.65rem;
+      font-weight:600;
+      display:inline-block;
+    }
+
+    /* ===== 信息提示 ===== */
+    .info-tip {
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.7rem 1.5rem;
+      border-left:5px solid var(--color-accent);
+      margin-top:var(--space-4);
+      display:flex; align-items:center; gap:0.8rem;
+      font-size:0.9rem;
+      color:var(--color-neutral-700);
+    }
+    .info-tip i { color:var(--color-accent); font-size:1rem; }
+
+    /* ===== 横幅 ===== */
+    .banner-card {
+      background: linear-gradient(135deg, #f5ede6, #e8dcd2);
+      text-align:center;
+      border-color:var(--color-accent-soft);
+    }
+    .banner-card .card-body { padding:2.5rem var(--space-6); }
+    .banner-card .icon-big { font-size:3rem; color:var(--color-primary); opacity:0.7; margin-bottom:var(--space-3); }
+    .banner-card h2 { color:var(--color-primary-dark); font-size:clamp(1.4rem, 2.5vw, 1.9rem); margin-bottom:var(--space-2); }
+    .banner-card p { max-width:680px; margin:0 auto; color:var(--color-neutral-700); font-size:1rem; }
+    .banner-card .footer-note { margin-top:var(--space-6); font-size:0.8rem; color:var(--color-primary); }
+
+    /* ===== 响应式 ===== */
+    @media (max-width:1024px) { .sidebar { width:220px; } }
+    @media (max-width:760px) {
+      .sidebar { display:none; }
+      .layout { padding:0.5rem; }
+      .main-content { padding:0; }
+      .card-body { padding:1.25rem var(--space-4); }
+      .card-header { padding:1rem var(--space-4); }
+      .page-header { flex-direction:column; align-items:flex-start; }
+    }
+
+    /* ===== 暗色 ===== */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #1a1410;
+        --color-neutral-100: #221c18;
+        --color-neutral-200: #3a2c24;
+        --color-neutral-300: #5a4a3e;
+        --color-neutral-400: #8a7a6e;
+        --color-neutral-600: #b8a89c;
+        --color-neutral-700: #d0c4b8;
+        --color-neutral-800: #e8dcd0;
+        --color-neutral-900: #f5ede6;
+        --color-primary-light: #3a2a20;
+        --color-accent-soft: #6a4a3a;
+        --color-primary: #d08a6a;
+        --color-primary-dark: #f0c8b0;
+        --color-accent: #c07a5a;
+        --color-gold: #c29a4a;
+        --color-gold-light: #4a3a20;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6);
+        --shadow-card-hover: 0 20px 48px -12px rgba(0,0,0,0.7);
+        --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #120e0a; }
+      .card { background: #1a1410; border-color: #3a2c24; }
+      .card-header { background: #1a1410; border-bottom-color: #4a3a2e; }
+      .prompt-card { background: #1a1410; border-color: #3a2c24; }
+      .prompt-card .prompt-icon { background: #2a1e16; color: #d08a6a; }
+      .prompt-card .detail-list li { color: #c0b4a8; }
+      .prompt-card .detail-list li strong { color: #e0d4c8; }
+      .table-wrapper { background: #1a1410; border-color: #3a2c24; }
+      th { background: #221c18; color: #e0d4c8; border-bottom-color: #4a3a2e; }
+      td { border-bottom-color: #2a241e; color: #c0b4a8; }
+      tr:hover td { background: #2a241e; }
+      .sidebar { background: rgba(20, 16, 12, 0.92); border-color: #3a2c24; }
+      .sidebar-brand { border-bottom-color: #4a3a2e; }
+      .sidebar-brand h3 { color: #d08a6a; }
+      .sidebar nav ul li a { color: #c0b4a8; }
+      .sidebar nav ul li a:hover { background: #3a2c24; color: white; }
+      .info-tip { background: #1a1410; border-left-color: #c07a5a; color: #c0b4a8; }
+      .banner-card { background:linear-gradient(135deg,#1a1410,#2a241e); }
+      .banner-card p { color: #c0b4a8; }
+      .page-header h1 { background:linear-gradient(135deg,#f0c8b0,#d08a6a); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#2a241e; border-color:#4a3a2e; color:#b8a89c; }
+      .arch-layer { background:#1a1410; border-color:#3a2c24; }
+      .arch-layer:hover { background:#2a1e16; border-color:#5a4a3e; }
+      .arch-layer .layer-label { border-right-color:#3a2c24; color:#e0d4c8; }
+      .arch-block { background:#1a1410; border-color:#3a2c24; color:#c0b4a8; }
+      .arch-block:hover { background:#3a2c24; border-color:#c07a5a; }
+      .arch-layer.inner-layer { background:linear-gradient(135deg,#1a1410,#2a1e16); border-color:#5a3a2a; }
+      .arch-layer.outer-layer { background:linear-gradient(135deg,#141a12,#1a2618); border-color:#2a4a2a; }
+      .arch-layer.outer-layer .layer-label { border-right-color:#2a4a2a; color:#8aba8a; }
+      .arch-layer.outer-layer .layer-label i { color:#5a9a6a; }
+      .arch-layer.outer-layer .arch-block { border-color:#2a4a2a; color:#a0c8a0; }
+      .arch-layer.outer-layer .arch-block:hover { border-color:#5a9a6a; background:#1a2a1a; }
+      .arch-layer.ultimate-layer { background:linear-gradient(135deg,#1a1410,#221c18); border-color:#4a3a2e; }
+      .arch-layer.ultimate-layer .layer-label { border-right-color:#4a3a2e; color:#c8b0a0; }
+      .arch-layer.ultimate-layer .layer-label i { color:#a08070; }
+      .arch-layer.ultimate-layer .arch-block { border-color:#4a3a2e; color:#c8b8a8; }
+      .arch-layer.ultimate-layer .arch-block:hover { border-color:#a08070; background:#2a241e; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-pen-fancy" aria-hidden="true"></i>
+      <h3>Prompt中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-cubes"></i> 全域标准定义</a></li>
+        <li><a href="#s1"><i class="fas fa-layer-group"></i> 八大特征</a></li>
+        <li><a href="#s2"><i class="fas fa-book"></i> 知识体系</a></li>
+        <li><a href="#s3"><i class="fas fa-project-diagram"></i> PromptGraph</a></li>
+        <li><a href="#s4"><i class="fas fa-sitemap"></i> 六大架构</a></li>
+        <li><a href="#s5"><i class="fas fa-puzzle-piece"></i> 功能模块</a></li>
+        <li><a href="#s6"><i class="fas fa-chart-line"></i> 指标体系</a></li>
+        <li><a href="#s7"><i class="fas fa-boxes"></i> 资产体系</a></li>
+        <li><a href="#s8"><i class="fas fa-share-alt"></i> 协同关系</a></li>
+        <li><a href="#s9"><i class="fas fa-flag"></i> 核心价值</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-pen-fancy"></i> Prompt中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-pen-fancy"></i> 企业级 Prompt 中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> PromptOps 标准化中台</span>
+    </header>
+
+    <!-- ===== S0 全域标准定义 ===== -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> Prompt 中台全域标准定义</h2>
+        <span class="badge-count">当下落地 + AI 原生提示工程自治演进</span>
+      </div>
+      <div class="card-body">
+        <div class="arch-diagram">
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-database"></i> 底层依赖 <span class="sub">算力/IaaS/Token/MCP</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-microchip"></i> 算力中台</span>
+              <span class="arch-block"><i class="fas fa-cloud"></i> IaaS/PaaS</span>
+              <span class="arch-block"><i class="fas fa-code"></i> MCP网关</span>
+              <span class="arch-block"><i class="fas fa-coins"></i> Token中台</span>
+              <span class="arch-block"><i class="fas fa-vector-square"></i> 向量库</span>
+              <span class="arch-block"><i class="fas fa-table"></i> 数据中台</span>
+            </div>
+          </div>
+          <div class="arch-layer outer-layer">
+            <div class="layer-label"><i class="fas fa-cogs"></i> 核心能力 <span class="sub">资产/DSL/调度/评测/安全</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block highlight-block"><i class="fas fa-layer-group"></i> 四层资产</span>
+              <span class="arch-block"><i class="fas fa-code"></i> DSL渲染</span>
+              <span class="arch-block"><i class="fas fa-arrows-spin"></i> 意图调度</span>
+              <span class="arch-block"><i class="fas fa-flask"></i> A/B评测</span>
+              <span class="arch-block"><i class="fas fa-shield-alt"></i> 安全过滤</span>
+              <span class="arch-block"><i class="fas fa-project-diagram"></i> PromptGraph</span>
+            </div>
+          </div>
+          <div class="arch-layer ultimate-layer">
+            <div class="layer-label"><i class="fas fa-rocket"></i> 上层赋能 <span class="sub">MaaS/Agent/Skill/Copilot</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-cloud"></i> MaaS</span>
+              <span class="arch-block"><i class="fas fa-robot"></i> Agent</span>
+              <span class="arch-block"><i class="fas fa-toolbox"></i> Skill</span>
+              <span class="arch-block"><i class="fas fa-robot"></i> Copilot</span>
+              <span class="arch-block"><i class="fas fa-code"></i> 低代码AI</span>
+            </div>
+          </div>
+        </div>
+        <div class="info-tip"><i class="fas fa-scroll"></i> Prompt 中台（提示工程中台 / PromptOps 中台），是企业全域大模型、智能体、MCP、Skill、AI 应用的统一提示词资产全生命周期管控、模块化渲染、智能调度、自动化评测、安全合规、知识沉淀自治中枢，属于 AI 原生中间层核心标准化中台。</div>
+        <div style="margin-top:0.8rem; font-size:0.9rem; color:var(--color-neutral-600);">
+          <p><strong>战略定位：</strong>企业全域提示词统一资产沉淀中心、PromptOps 工业化流水线中枢、多模型自适应提示调度平台、自动化评测实验中心、PromptGraph 提示知识推理平台、AI 输入安全合规管控中心、提示工程自主迭代运营中枢。</p>
+          <p><strong>层级边界：</strong>底层依赖层（IaaS / 算力中台弹性推理算力、PaaS 云原生集群、MCP 协议网关、Token 计量中台、向量知识库、数据中台业务数据集）；核心能力层（专注 Prompt 分层资产管理、DSL 标准化渲染、意图匹配调度、A/B 评测、安全过滤、图谱推理、灰度发布）；上层赋能层（统一为 MaaS、Agent、Skill、各类行业 AI Copilot 提供标准化可动态渲染 Prompt 输入流）。</p>
+          <p><strong>全域上下游固定分层链路：</strong>算力 / IaaS → MCP 网关 → Token 中台 → Prompt 中台 → Skill 中台 → Agent 中台 → MaaS 大模型</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S1 八大核心特征 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-layer-group"></i> 八大核心特征</h2>
+        <span class="badge-count">四层资产 · DSL · 多模型适配 · PromptOps</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-layer-group"></i></span><h4>四层模块化资产</h4><ul class="detail-list"><li>System/Task/Few-shot/Const解耦拆分，独立复用、按需组合</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-code"></i></span><h4>标准化DSL</h4><ul class="detail-list"><li>变量插值、条件分支、循环、动态知识库注入</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-arrows-spin"></i></span><h4>多模型自适应</h4><ul class="detail-list"><li>意图+PromptGraph联合推理自动推荐最优提示组合</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-road"></i></span><h4>PromptOps流水线</h4><ul class="detail-list"><li>需求→编辑→测试→A/B实验→灰度→全量→回退→归档</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-brain"></i></span><h4>三重智能驱动</h4><ul class="detail-list"><li>规则 + LLM + PromptGraph 联合推理</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-shield-alt"></i></span><h4>全链路安全拦截</h4><ul class="detail-list"><li>提示注入、敏感指令、违规约束多层实时过滤</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-coins"></i></span><h4>Token深度协同</h4><ul class="detail-list"><li>自动精简冗余Prompt，降低整体Token消耗</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-sync-alt"></i></span><h4>数据驱动自治迭代</h4><ul class="detail-list"><li>每日调用数据回流PromptGraph，自动输出调优方案</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S2 十大知识域 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book"></i> Prompt 中台专属知识体系</h2>
+        <span class="badge-count">十大完整知识域</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-3">
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-sitemap"></i></span><h4>顶层架构与体系规划</h4><ul class="detail-list"><li>AI分层架构设计；四层分层标准；跨中台协同规范；成熟度评估</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-layer-group"></i></span><h4>四层模块化Prompt设计</h4><ul class="detail-list"><li>System/Task/Few-shot/Const分层规范；复用组合；模板通用化</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-code"></i></span><h4>DSL标准化语法</h4><ul class="detail-list"><li>插值/分支/循环/导入语法；编译器原理；缓存加速；Token预精简</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-arrows-spin"></i></span><h4>意图识别与多模型适配</h4><ul class="detail-list"><li>意图向量化检索；模型差异化适配；A/B分流；降本方法论</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-flask"></i></span><h4>自动化评测与实验</h4><ul class="detail-list"><li>多维指标体系；离线/在线A/B；数据集构建；准入阈值</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-shield-alt"></i></span><h4>安全与输入风控</h4><ul class="detail-list"><li>注入检测；敏感过滤；脱敏清洗；白名单；多级审核</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-industry"></i></span><h4>行业垂直落地</h4><ul class="detail-list"><li>营销/风控/财务/客服行业模板；RAG优化；多智能体协同</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-project-diagram"></i></span><h4>PromptGraph推理</h4><ul class="detail-list"><li>三元组抽取；意图-模板-模型关联；多跳推演；增量更新</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-chart-pie"></i></span><h4>资产运营与复盘</h4><ul class="detail-list"><li>复用率/效果/Token复盘；低效识别；资产目录化；成本压降</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-rocket"></i></span><h4>前沿演进</h4><ul class="detail-list"><li>自治生成；端侧轻量化；联邦共享；原生提示优化</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S3 PromptGraph ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-project-diagram"></i> PromptGraph 提示知识图谱</h2>
+        <span class="badge-count">核心实体 · 关联 · 智能能力</span>
+      </div>
+      <div class="card-body">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+          <div><h4 style="color:var(--color-primary-dark);"><i class="fas fa-circle"></i> 核心实体体系</h4><ul class="detail-list" style="list-style:none; padding-left:0;"><li>模板、意图、模型、场景、评测、故障、策略、租户、资产、执行</li></ul></div>
+          <div><h4 style="color:var(--color-primary-dark);"><i class="fas fa-link"></i> 核心关联关系</h4><ul class="detail-list" style="list-style:none; padding-left:0;"><li>意图↔模板；模板↔模型；模板↔评测；模板↔故障；场景↔模板；执行↔图谱</li></ul></div>
+        </div>
+        <div style="margin-top:1rem; display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.8rem;">
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-magic"></i></span><h4>智能能力</h4><ul class="detail-list"><li>经验自动结构化</li><li>最优组合推演</li><li>一键根因溯源</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-broom"></i></span><h4>智能能力</h4><ul class="detail-list"><li>冗余精简推荐</li><li>行业模板推荐</li><li>多模型策略生成</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-shield-alt"></i></span><h4>智能能力</h4><ul class="detail-list"><li>实验数据沉淀</li><li>新人快速赋能</li><li>知识经验复用</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S4 六大架构 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> 六大完整架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-cubes"></i></span><h4>产品架构（九层）</h4><ul class="detail-list"><li>MCP接入 → 四层资产 → DSL渲染 → 意图调度 → A/B评测 → PromptGraph → 安全过滤 → PromptOps → 运营迭代</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-briefcase"></i></span><h4>业务架构</h4><ul class="detail-list"><li>底层底座：算力/MCP/Token/向量；中层核心：资产/DSL/调度/评测/图谱/安全/流水线；上层赋能：MaaS/Agent/Skill/Copilot</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-database"></i></span><h4>数据架构（七层）</h4><ul class="detail-list"><li>PR-ODS → PR-DWD → PR-DWB → PR-DWA → PR-DWS → PR-ADS → PR-OPT</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-microchip"></i></span><h4>技术架构（七层）</h4><ul class="detail-list"><li>MCP网关 → 分布式存储 → 核心引擎 → PromptGraph → 安全风控 → 流水线调度 → 管理前端</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-rocket"></i></span><h4>应用架构（八大应用）</h4><ul class="detail-list"><li>资产集市、DSL编辑器、意图调度、A/B平台、图谱运维、安全管控、流水线工作台、资产运营</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-balance-scale"></i></span><h4>治理架构（六大体系）</h4><ul class="detail-list"><li>资产生命周期、DSL标准化、A/B实验标准化、输入安全闭环、图谱迭代、运营成本</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S5 功能模块 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> 全量产品功能模块</h2>
+        <span class="badge-count">八大模块全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-layer-group"></i></span><h4>四层模板资产池</h4><ul class="detail-list"><li>System/Task/Few-shot/Const分层仓库；元数据管理；组合复用；权限隔离；版本灰度</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-code"></i></span><h4>DSL可视化渲染</h4><ul class="detail-list"><li>插值/分支/循环可视化；知识库注入；Token精简；实时预览；语法检测</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-arrows-spin"></i></span><h4>意图识别与调度</h4><ul class="detail-list"><li>意图向量化检索；PromptGraph联合匹配；多模型分流；灰度切分；降流监控</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-flask"></i></span><h4>A/B评测实验</h4><ul class="detail-list"><li>离线批量跑分；在线分流对照；多维打分；准入阈值；劣化回退</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-project-diagram"></i></span><h4>PromptGraph推理</h4><ul class="detail-list"><li>三元组抽取；意图匹配；模板推荐；根因溯源；权重校准</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-shield-alt"></i></span><h4>多层安全过滤</h4><ul class="detail-list"><li>注入检测；敏感扫描；动态脱敏；三级审核；白名单；审计日志</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-road"></i></span><h4>PromptOps流水线</h4><ul class="detail-list"><li>需求→编辑→评测→灰度→全量标准化流程；审批流；回滚；通知</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-chart-line"></i></span><h4>资产运营与Token优化</h4><ul class="detail-list"><li>复用率看板；Token统计；冗余识别；精简建议；行业模板扩充</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S6 指标体系 ===== -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> 全套指标体系</h2>
+        <span class="badge-count">资产 · 渲染 · 调度 · 评测 · 图谱 · 安全</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>模板资产治理</strong></td><td>分层覆盖率100% · 复用率≥82% · 闲置占比≤9% · 版本规范率100% · 行业覆盖率≥90%</td></tr>
+              <tr><td><strong>DSL渲染效能</strong></td><td>语法合规率100% · 渲染耗时≤18ms · Token降幅≥32% · 成功率100% · 校验通过率≥98.5%</td></tr>
+              <tr><td><strong>意图调度</strong></td><td>匹配准确率≥96% · 切分精准率100% · 精简匹配率≥93% · 降流及时率100%</td></tr>
+              <tr><td><strong>A/B评测</strong></td><td>准确率≥92% · 幻觉率≤5% · 格式合规率≥97% · 劣化识别≥98% · 样本覆盖率100%</td></tr>
+              <tr><td><strong>PromptGraph图谱</strong></td><td>场景覆盖率100% · 三元组完整率≥99.6% · 推荐准确率≥95% · 根因准确率≥97%</td></tr>
+              <tr><td><strong>安全合规</strong></td><td>注入拦截率≥99.8% · 敏感扫描覆盖率100% · 审核闭环率100% · 审计留存率100%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S7 资产体系 ===== -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> 完整内容资产体系</h2>
+        <span class="badge-count">6大资产包</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-sitemap"></i></span><h4>顶层规划资产</h4><ul class="detail-list"><li>PromptOps白皮书 · 路线图 · 成熟度评估 · 协同方案</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-book"></i></span><h4>全域标准规范</h4><ul class="detail-list"><li>分层规范 · DSL语法标准 · A/B管理规范 · 图谱抽取标准 · 安全审核规范 · 流水线SOP</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-database"></i></span><h4>核心数字资产</h4><ul class="detail-list"><li>四层模板库 · DSL模板包 · 评测数据集 · 图谱资产 · 调优案例库 · 精简策略</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-tools"></i></span><h4>落地工程资产</h4><ul class="detail-list"><li>部署手册 · 编辑器指南 · 实验平台文档 · 运维手册 · API文档 · 验收模板</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-chart-pie"></i></span><h4>运营复盘资产</h4><ul class="detail-list"><li>月度Token降本报告 · A/B复盘 · 行业成果 · 安全台账</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-shield-alt"></i></span><h4>应急保障资产</h4><ul class="detail-list"><li>调度雪崩预案 · 灰度回退方案 · 注入攻击处置 · 图谱恢复预案</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S8 协同关系 ===== -->
+    <section id="s8" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-share-alt"></i> 全中台全域协同关系</h2>
+        <span class="badge-count">10 大中台协同</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-3">
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-microchip"></i></span><h4>算力中台</h4><ul class="detail-list"><li>提供DSL渲染、图谱推理、批量评测弹性算力</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-cloud"></i></span><h4>IaaS/PaaS</h4><ul class="detail-list"><li>承载模板库、图数据库、流水线集群</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-code"></i></span><h4>MCP中台</h4><ul class="detail-list"><li>统一AI流量入口，请求先流入MCP再转发</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-coins"></i></span><h4>Token中台</h4><ul class="detail-list"><li>协同完成冗余精简，统一计量提示消耗Token</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-table"></i></span><h4>数据中台</h4><ul class="detail-list"><li>提供业务知识库、评测数据集动态注入</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-toolbox"></i></span><h4>Skill中台</h4><ul class="detail-list"><li>工具描述类Prompt统一托管于资产池</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-robot"></i></span><h4>Agent中台</h4><ul class="detail-list"><li>多智能体任务分层模板统一由Prompt中台渲染</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-cloud"></i></span><h4>MaaS中台</h4><ul class="detail-list"><li>接收渲染完成标准化Prompt执行推理</li></ul></div>
+          <div class="prompt-card"><span class="prompt-icon"><i class="fas fa-tasks"></i></span><h4>运维中台</h4><ul class="detail-list"><li>承接模板告警、实验异常、安全风险工单</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S9 核心价值 ===== -->
+    <section id="s9" class="card banner-card">
+      <div class="card-body">
+        <div class="icon-big"><i class="fas fa-flag"></i></div>
+        <h2>Prompt 中台 · 核心价值总结</h2>
+        <p>终结 Prompt 代码碎片化乱象，构建分层可复用提示资产底座，四层解耦模板大幅减少重复编写，降低提示工程人力成本 70% 以上；<br>工业化 PromptOps 流水线，实现提示标准化交付，覆盖需求到归档全流程，上线可灰度可回退，消除人工上线风险；<br>DSL 零代码动态渲染，支持变量 / 分支 / 知识库注入，快速适配多轮对话、RAG、复杂业务场景；<br>意图 + PromptGraph 双重智能匹配，自动推荐最优模板，降低业务场景提示调优门槛；<br>与 Token 中台深度协同，自动精简冗余文本，全域 AI Token 消耗压降 30% 以上；<br>多层安全前置拦截提示注入、敏感指令，三级发布审核满足等保合规；<br>沉淀企业专属提示工程知识资产，依托 PromptGraph 沉淀调优经验，实现模板自治迭代，支撑全域 AI 低成本规模化落地。</p>
+        <div class="footer-note">Prompt 中台 · PromptOps 标准化中台 · 对齐算力 / MaaS/Agent/MCP/Token 统一架构范式</div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>企业级数据预处理中台完整体系说明书</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+/* ===== 设计系统 Token ===== */
+:root {
+  --color-primary: #7a2e1a;
+  --color-primary-light: #fce9e0;
+  --color-primary-dark: #4d1c0e;
+  --color-accent: #b85c3a;
+  --color-accent-soft: #f0c8b8;
+  --color-neutral-50: #fcf9f7;
+  --color-neutral-100: #f5ede8;
+  --color-neutral-200: #e5d7ce;
+  --color-neutral-300: #cbb8ab;
+  --color-neutral-400: #a68b7a;
+  --color-neutral-600: #6f5544;
+  --color-neutral-700: #4f3a2e;
+  --color-neutral-800: #34241c;
+  --color-neutral-900: #1e140f;
+  --color-gold: #c29a4a;
+  --color-gold-light: #f3e1b0;
+  --font-base: 1rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --radius-sm: 0.75rem;
+  --radius-md: 1.25rem;
+  --radius-card: 2rem;
+  --radius-pill: 40px;
+  --shadow-card: 0 12px 32px -8px rgba(60, 30, 10, 0.12);
+  --shadow-card-hover: 0 20px 48px -12px rgba(60, 30, 10, 0.20);
+  --shadow-sidebar: 0 16px 40px -8px rgba(60, 30, 10, 0.12);
+  --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--color-neutral-50);
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: var(--color-neutral-900);
+  line-height: 1.6;
+  scroll-behavior: smooth;
+  font-size: var(--font-base);
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+.layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+/* ===== 侧边栏 ===== */
+.sidebar {
+  position:sticky; top:1.5rem; align-self:flex-start;
+  width:280px; flex-shrink:0;
+  background: rgba(255, 249, 245, 0.88);
+  backdrop-filter: blur(16px);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sidebar);
+  border:1px solid rgba(255, 235, 220, 0.6);
+  padding:1.6rem 0.8rem;
+  max-height:calc(100vh - 3rem);
+  overflow-y:auto;
+  transition: var(--transition-default);
+}
+.sidebar::-webkit-scrollbar { width:4px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+.sidebar-brand {
+  display:flex; align-items:center; gap:10px;
+  padding:0 1rem 1rem 1rem;
+  border-bottom:2px solid var(--color-primary-light);
+  margin-bottom:1rem;
+}
+.sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); }
+.sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+.sidebar nav ul { list-style:none; padding:0; margin:0; }
+.sidebar nav ul li { margin-bottom:0.1rem; }
+.sidebar nav ul li a {
+  display:flex; align-items:center; gap:12px;
+  padding:0.55rem 1rem; border-radius:var(--radius-pill);
+  font-weight:500; font-size:0.85rem;
+  color:var(--color-neutral-700); text-decoration:none;
+  transition: all var(--transition-default);
+}
+.sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+.sidebar nav ul li a:hover { background:var(--color-primary-light); color:var(--color-primary-dark); transform:translateX(4px); }
+.sidebar-footer { margin-top:24px; padding:12px; text-align:center; font-size:0.7rem; color:var(--color-neutral-600); border-top:1px solid var(--color-neutral-200); }
+
+/* ===== 主内容 ===== */
+.main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+.page-header {
+  margin-bottom: var(--space-6);
+  padding: var(--space-4) 0 var(--space-2) 0;
+  display: flex; align-items:center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-4);
+}
+.page-header h1 {
+  font-size: clamp(1.6rem, 3.2vw, 2.6rem); font-weight:800; letter-spacing:-0.025em;
+  background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  display:flex; align-items:center; gap:0.5rem;
+}
+.page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+.page-header .header-meta { font-size:0.9rem; color:var(--color-neutral-600); background:var(--color-neutral-100); padding:0.4rem 1.2rem; border-radius:var(--radius-pill); border:1px solid var(--color-neutral-200); }
+
+/* ===== 卡片 ===== */
+.card {
+  background:rgba(255,252,248,0.92); backdrop-filter: blur(4px);
+  border-radius:var(--radius-card); box-shadow:var(--shadow-card); margin-bottom:var(--space-6);
+  border:1px solid rgba(255, 235, 220, 0.5); overflow:hidden; transition: box-shadow var(--transition-default), transform 0.25s;
+}
+.card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+.card-header {
+  padding:1.2rem var(--space-6); background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+  border-bottom:2px solid var(--color-accent-soft); display:flex; align-items:center; gap:var(--space-3);
+}
+.card-header h2 { font-size:clamp(1.2rem, 2.2vw, 1.6rem); font-weight:700; color:var(--color-primary-dark); display:flex; align-items:center; gap:12px; }
+.card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+.card-header .badge-count { margin-left:auto; background:var(--color-accent); color:white; border-radius:var(--radius-pill); padding:0.15rem 0.9rem; font-size:0.7rem; font-weight:600; }
+.card-body { padding:1.8rem var(--space-6); }
+
+/* ===== 网格 ===== */
+.grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+.grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+@media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } }
+@media (max-width:760px) { .grid-2,.grid-3 { grid-template-columns:1fr; } .sidebar { display:none; } .layout { padding:0.5rem; } .card-body { padding:1.25rem var(--space-4); } }
+
+/* ===== 知识卡片 ===== */
+.gov-card {
+  background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+  border-radius:var(--radius-md); padding:1.3rem 1.3rem 1rem;
+  border:1px solid var(--color-neutral-200); transition: all var(--transition-default);
+  position:relative; overflow:hidden; border-left: 4px solid var(--color-accent);
+}
+.gov-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft)); opacity:0; transition: opacity var(--transition-default); }
+.gov-card:hover::before { opacity:1; }
+.gov-card:hover { border-color:var(--color-accent-soft); box-shadow: 0 8px 24px -8px rgba(184,92,58,0.15); transform:translateY(-3px); }
+.gov-card .gov-icon { font-size:1.8rem; color:var(--color-primary); display:inline-block; margin-right:6px; background: var(--color-primary-light); padding:0.2rem 0.6rem; border-radius:12px; }
+.gov-card h4 { color:var(--color-primary-dark); font-size:1.05rem; margin-bottom:0.4rem; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.gov-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+.gov-card .detail-list { padding-left:0; margin:0.4rem 0 0 0; list-style:none; }
+.gov-card .detail-list li { margin-bottom:0.25rem; padding-left:1.2rem; position:relative; font-size:0.85rem; color:var(--color-neutral-700); }
+.gov-card .detail-list li::before { content:'▹'; position:absolute; left:0; color:var(--color-accent); font-weight:600; }
+.gov-card .detail-list li strong { color:var(--color-neutral-800); }
+
+/* ===== 架构层 ===== */
+.arch-diagram { display:flex; flex-direction:column; gap:0.6rem; padding:0.5rem 0; }
+.arch-layer {
+  display:flex; align-items:stretch; gap:0.75rem; background:var(--color-neutral-50);
+  border-radius:var(--radius-md); padding:0.6rem 1rem; border:1px solid var(--color-neutral-200); transition: var(--transition-default);
+}
+.arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+.arch-layer .layer-label { display:flex; flex-direction:column; justify-content:center; min-width:120px; padding-right:1rem; border-right:2px solid var(--color-neutral-200); font-weight:700; font-size:0.8rem; color:var(--color-primary-dark); }
+.arch-layer .layer-label i { font-size:1.1rem; color:var(--color-accent); margin-bottom:0.1rem; }
+.arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+.arch-layer .layer-blocks { display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem; flex:1; padding:0.2rem 0; }
+.arch-block { background:white; border-radius:var(--radius-sm); padding:0.3rem 0.9rem; border:1px solid var(--color-neutral-200); font-size:0.75rem; font-weight:500; color:var(--color-neutral-700); transition: var(--transition-default); }
+.arch-block:hover { border-color:var(--color-accent); background:var(--color-primary-light); color:var(--color-primary-dark); transform:translateY(-1px); }
+.arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+
+/* ===== 表格 ===== */
+.table-wrapper { overflow-x:auto; border-radius:var(--radius-md); border:1px solid var(--color-neutral-200); background:white; }
+table { width:100%; border-collapse:collapse; font-size:0.78rem; }
+th { background:var(--color-neutral-100); padding:12px 10px; font-weight:600; color:var(--color-primary-dark); text-align:left; border-bottom:2px solid var(--color-neutral-200); font-size:0.7rem; text-transform:uppercase; }
+td { padding:10px 10px; border-bottom:1px solid var(--color-neutral-200); vertical-align:middle; color:var(--color-neutral-700); }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:var(--color-neutral-50); }
+
+/* ===== 文本 ===== */
+.content-text { font-size: 0.95rem; color: var(--color-neutral-700); line-height: 1.8; margin-bottom: 1rem; }
+.content-text strong { color: var(--color-primary-dark); }
+.section-title { font-size: 1.2rem; font-weight: 700; color: var(--color-primary-dark); margin: 1.5rem 0 1rem 0; border-bottom: 2px solid var(--color-primary-light); padding-bottom: 0.5rem; }
+.subsection-title { font-size: 1.05rem; font-weight: 600; color: var(--color-neutral-800); margin: 1.2rem 0 0.8rem 0; }
+.normal-list { padding-left: 1.5rem; margin-bottom: 1rem; color: var(--color-neutral-700); font-size: 0.9rem; line-height: 1.7; }
+.normal-list li { margin-bottom: 0.3rem; }
+.normal-list li strong { color: var(--color-neutral-800); }
+.info-tip { background:var(--color-neutral-50); border-radius:var(--radius-md); padding:0.7rem 1.5rem; border-left:5px solid var(--color-accent); margin-top:var(--space-4); display:flex; align-items:center; gap:0.8rem; font-size:0.9rem; color:var(--color-neutral-700); }
+.info-tip i { color:var(--color-accent); font-size:1rem; }
+
+/* ===== 价值 ===== */
+.value-header { text-align: center; margin-bottom: 2rem; }
+.value-header .icon-big { font-size: 2.8rem; color: var(--color-primary); opacity: 0.8; margin-bottom: 0.5rem; }
+.value-header h2 { font-size: clamp(1.6rem, 2.8vw, 2.2rem); color: var(--color-primary-dark); margin-bottom: 0.25rem; }
+.value-subtitle { font-size: 1rem; color: var(--color-neutral-600); letter-spacing: 2px; font-weight: 300; }
+.value-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin: 1.5rem 0 2rem 0; }
+.value-item { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(4px); padding: 1.2rem 1.4rem; border-radius: var(--radius-md); border: 1px solid rgba(255, 235, 220, 0.5); transition: all 0.3s ease; }
+.value-item:hover { transform: translateY(-3px); box-shadow: var(--shadow-card-hover); border-color: var(--color-accent-soft); background: rgba(255, 255, 255, 0.85); }
+.value-item .value-icon { flex-shrink: 0; width: 2.8rem; height: 2.8rem; display: flex; align-items: center; justify-content: center; background: var(--color-primary-light); border-radius: 50%; color: var(--color-accent); font-size: 1.2rem; }
+.value-item .value-content h4 { font-size: 1rem; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 0.3rem; line-height: 1.3; }
+.value-item .value-content p { font-size: 0.9rem; color: var(--color-neutral-700); line-height: 1.6; margin: 0; }
+.value-item.full-width { grid-column: 1 / -1; }
+@media (max-width: 768px) { .value-grid { grid-template-columns: 1fr; gap: 1rem; } }
+
+/* ===== 暗色 ===== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-neutral-50: #1a1410; --color-neutral-100: #221c18; --color-neutral-200: #3a2c24; --color-neutral-700: #d0c4b8; --color-neutral-800: #e8dcd0; --color-neutral-900: #f5ede6;
+    --color-primary-light: #3a2a20; --color-accent-soft: #6a4a3a; --color-primary: #d08a6a; --color-primary-dark: #f0c8b0; --color-accent: #c07a5a; --color-gold: #c29a4a; --color-gold-light: #4a3a20;
+    --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6); --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+  }
+  body { background: #120e0a; }
+  .card { background: #1a1410; border-color: #3a2c24; }
+  .card-header { background: #1a1410; border-bottom-color: #4a3a2e; }
+  .gov-card { background: #1a1410; border-color: #3a2c24; }
+  .gov-card .gov-icon { background: #2a1e16; color: #d08a6a; }
+  .gov-card .detail-list li { color: #c0b4a8; }
+  .table-wrapper { background: #1a1410; border-color: #3a2c24; }
+  th { background: #221c18; color: #e0d4c8; border-bottom-color: #4a3a2e; }
+  td { border-bottom-color: #2a241e; color: #c0b4a8; }
+  .sidebar { background: rgba(20, 16, 12, 0.92); border-color: #3a2c24; }
+  .sidebar-brand { border-bottom-color: #4a3a2e; }
+  .sidebar nav ul li a { color: #c0b4a8; }
+  .sidebar nav ul li a:hover { background: #3a2c24; color: white; }
+  .info-tip { background: #1a1410; border-left-color: #c07a5a; color: #c0b4a8; }
+  .page-header h1 { background:linear-gradient(135deg,#f0c8b0,#d08a6a); -webkit-background-clip:text; background-clip:text; }
+  .page-header .header-meta { background:#2a241e; border-color:#4a3a2e; color:#b8a89c; }
+  .arch-layer { background:#1a1410; border-color:#3a2c24; }
+  .arch-layer .layer-label { border-right-color:#3a2c24; color:#e0d4c8; }
+  .arch-block { background:#1a1410; border-color:#3a2c24; color:#c0b4a8; }
+  .value-item { background: rgba(30, 24, 20, 0.7); border-color: var(--color-neutral-200); }
+  .value-item:hover { background: rgba(40, 32, 26, 0.9); border-color: var(--color-accent-soft); }
+  .value-item .value-content p { color: var(--color-neutral-600); }
+  .value-subtitle { color: var(--color-neutral-400); }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-stream" aria-hidden="true"></i>
+      <h3>数据预处理中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-book-open"></i> 全域标准定义</a></li>
+        <li><a href="#s1"><i class="fas fa-book"></i> 完整知识体系</a></li>
+        <li><a href="#s2"><i class="fas fa-project-diagram"></i> 知识图谱体系</a></li>
+        <li><a href="#s3"><i class="fas fa-sitemap"></i> 六大核心架构</a></li>
+        <li><a href="#s4"><i class="fas fa-puzzle-piece"></i> 产品功能模块</a></li>
+        <li><a href="#s5"><i class="fas fa-chart-line"></i> 全套指标体系</a></li>
+        <li><a href="#s6"><i class="fas fa-boxes"></i> 内容资产体系</a></li>
+        <li><a href="#s7"><i class="fas fa-share-alt"></i> 全域协同关系</a></li>
+        <li><a href="#s8"><i class="fas fa-flag"></i> 核心价值总结</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-stream"></i> 数据预处理中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-stream"></i> 企业级数据预处理中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> 批流一体 + 多模态 AI 预处理底座</span>
+    </header>
+
+    <!-- ===== S0 全域标准定义 ===== -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> 数据预处理中台全域标准定义</h2>
+        <span class="badge-count">批流统一 + 多模态 + 图谱联动</span>
+      </div>
+      <div class="card-body">
+        <div class="section-title">1.1 权威标准定义</div>
+        <div class="content-text">
+          数据预处理中台（DataPrep 中台），是企业全域结构化、半结构化、非结构化、多模态原始数据统一接入、清洗标准化、分层加工、多模态解析、特征生成、向量编码、实体抽取、流水线编排、质量管控、DataPrepGraph 预处理知识图谱、自治迭代的全链路前置数据加工核心底座。
+        </div>
+        <div class="content-text">
+          定位为所有 AI、数据应用的统一数据前置加工层，向下对接业务数据库、文件存储、实时埋点、音视频源、算力集群；向上统一输出标准化结构化数据、文本片段、图像特征、实体三元组、向量给数据仓库、向量库、知识库、RAG、Prompt、Agent、MaaS、场景中台。
+        </div>
+        <div class="content-text">
+          遵循「批流一体统一引擎、四层级预处理资产、多模态全链路解析、可视化流水线、质量规则引擎、DataPrepGraph 预处理知识图谱、自治质量优化、多租户隔离」八大核心建设理念。
+        </div>
+        <div class="content-text">
+          核心解决行业痛点：各业务独立开发清洗脚本、文档 OCR / 解析工具零散、切分向量化逻辑重复、数据质量无统一管控、原始数据噪声泛滥、加工流程无复用、故障无法溯源、向量 / 实体加工无统一标准、RAG 知识库构建重复开发预处理逻辑、人工维护脚本成本极高。
+        </div>
+        <div class="content-text">
+          实现企业数据加工从「分散硬编码脚本、单点文档工具」升级为全域标准化预处理资产池、拖拽式流水线、多模态一体化加工、质量自动巡检、图谱驱动自治优化的统一前置数据底座。
+        </div>
+        
+        <div class="section-title">1.2 数据预处理中台核心定位与层级边界</div>
+        <div class="content-text"><strong>战略定位</strong><br>企业全域原始数据统一加工中心、批流一体预处理调度中枢、多模态解析引擎、特征 / 向量 / 实体标准化生产平台、DataPrepGraph 预处理知识推理平台、数据质量全生命周期管控中心、AI/RAG 前置数据供给底座。</div>
+        <div class="content-text"><strong>层级边界</strong><br>
+        <strong>底层依赖层：</strong>算力中台 CPU/GPU 弹性算力、IaaS 对象存储、PaaS 云原生调度、业务数据库、消息队列 Kafka、文件服务器、音视频存储；<br>
+        <strong>核心能力层：</strong>专注数据接入、清洗转换、多模态解析、分层加工、特征向量生成、实体抽取、流水线编排、质量校验、预处理图谱，不承载数据仓库存储、大模型推理、业务流程执行；<br>
+        <strong>上层赋能层：</strong>统一输出标准化结构化数据、文本块、图像特征、实体三元组、向量至数据中台、向量库、知识库、RAG、Prompt、Agent、MaaS、场景中台。</div>
+        <div class="content-text"><strong>全域上下游标准分层链路</strong><br>业务源 / 文件 / 埋点 → 数据预处理中台 → 数据仓库 / 向量库 / 知识库 / RAG/Agent/ 场景中台</div>
+        
+        <div class="section-title">1.3 数据预处理中台八大核心特征</div>
+        <ol class="normal-list">
+          <li><strong>批流一体统一计算引擎：</strong>离线批量、实时流、增量 CDC、定时快照同一套流水线编排，无需两套开发；</li>
+          <li><strong>四层分层预处理资产体系：</strong>基础清洗原子、模态解析组件、行业加工流水线、定制特征包四层复用；</li>
+          <li><strong>全模态一体化处理：</strong>结构化表、JSON/XML、PDF/Word/ 图片 / 音频 / 视频统一一站式解析加工；</li>
+          <li><strong>规则 + LLM+DataPrepGraph 三重智能加工：</strong>硬清洗规则、大模型语义处理、预处理图谱联合优化；</li>
+          <li><strong>DataPrepGraph 预处理专属知识图谱，</strong>沉淀清洗规则、分块策略、质量故障关联经验；</li>
+          <li><strong>全链路数据质量闭环：</strong>前置校验、加工中拦截、后置巡检、自动修复；</li>
+          <li><strong>多租户细粒度隔离：</strong>数据源、加工流水线、输出资产分级权限隔离；</li>
+          <li><strong>数据驱动自治迭代：</strong>每日加工质量日志回流图谱，自动推荐清洗优化策略。</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== S1 完整知识体系 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book"></i> 数据预处理中台专属完整知识体系</h2>
+        <span class="badge-count">十大完整知识域全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="content-text" style="margin-bottom: 1.5rem;">数据预处理中台知识体系是企业多源数据接入、清洗转换、多模态解析、向量实体生成、流水线编排、质量管控、图谱推理、行业落地、运营迭代的标准化、结构化、可推理、可复用、自进化专业知识合集。</div>
+        
+        <div class="subsection-title">2.1 预处理顶层架构与全域规划知识域</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>企业数据全链路分层架构（数据源 - 预处理 - 向量 / 知识库 - RAG-Agent）顶层设计</li>
+          <li>四层预处理资产分层建设标准、跨业务流水线共享规范</li>
+          <li>预处理中台与向量 / 知识库 / RAG 跨中台协同权责、对接标准</li>
+          <li>企业数据加工成熟度评估、存量脚本资产化改造方法论</li>
+        </ul></div>
+        
+        <div class="subsection-title">2.2 多源数据接入与分层存储知识域</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-plug"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>结构化源：MySQL/Oracle/PostgreSQL CDC 增量、全量同步规范</li>
+          <li>半结构化：JSON/XML/ 日志文件解析、字段映射标准</li>
+          <li>非结构化：PDF/Word/Excel/PPT 文档分层抽取知识</li>
+          <li>多模态：图片 OCR、语音转写、视频帧提取、图文混排解析</li>
+          <li>实时流 Kafka、批量文件、定时快照三类接入调度 SOP</li>
+        </ul></div>
+        
+        <div class="subsection-title">2.3 标准化清洗转换工程知识域</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-filter"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>基础清洗：去重、空值填充、异常值过滤、格式统一、脱敏</li>
+          <li>字段转换：类型强转、日期标准化、单位归一、编码统一</li>
+          <li>业务规则过滤：黑名单、无效单据、测试数据剔除</li>
+          <li>增量合并、快照差分、缓慢变化维加工知识</li>
+          <li>批量 / 流数据差异化清洗适配方案</li>
+        </ul></div>
+        
+        <div class="subsection-title">2.4 多模态深度解析知识域</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-file-alt"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>文档解析：目录、表格、图表、公式、页眉页脚剥离</li>
+          <li>文本分块：固定窗口 / 语义分层 / 标题绑定三种切分算法</li>
+          <li>图像：OCR 文字、图表结构化、图片描述生成</li>
+          <li>音视频：语音 ASR 转文字、关键帧抽取、字幕对齐</li>
+          <li>多模态混合融合、图文关联对齐落地方法</li>
+        </ul></div>
+        
+        <div class="subsection-title">2.5 特征 / 向量 / 实体抽取知识域</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-vector-square"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>结构化特征：统计、分类、时间序列特征标准化生成</li>
+          <li>文本 Embedding 批量向量化、长短文本分片编码</li>
+          <li>NER 实体、属性、关系三元组抽取、实体消歧</li>
+          <li>向量归一、量化压缩、冷热向量分离加工</li>
+          <li>RAG 专用文本块加工、知识库适配预处理规范</li>
+        </ul></div>
+        
+        <div class="subsection-title">2.6 可视化流水线编排知识域</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-stream"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>标准化画布节点：接入 / 清洗 / 解析 / 分块 / 向量化 / 实体 / 输出</li>
+          <li>分支、循环、条件过滤、异常兜底流程配置</li>
+          <li>增量断点续跑、快照回滚、并行任务调度</li>
+          <li>流水线模板资产化、行业一键复用 SOP</li>
+          <li>仿真预跑、批量测试、加工效果预览</li>
+        </ul></div>
+        
+        <div class="subsection-title">2.7 DataPrepGraph 预处理图谱推理知识域</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>清洗规则、分块策略、质量故障三元组抽取标准</li>
+          <li>数据源 - 加工流程 - 质量问题关联建模</li>
+          <li>劣质数据根因多跳溯源、清洗方案智能推荐</li>
+          <li>流水线劣化自动识别、增量优化策略生成</li>
+          <li>每日加工日志自动增量更新图谱权重</li>
+        </ul></div>
+        
+        <div class="subsection-title">2.8 全链路数据质量管控知识域</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>六大质量维度：完整性、唯一性、准确性、一致性、时效性、合规性</li>
+          <li>前置拦截、加工过滤、后置巡检三级质量闭环</li>
+          <li>异常数据分流、自动修复、问题样本归档</li>
+          <li>质量告警、月度质量复盘、规则迭代流程</li>
+          <li>隐私数据脱敏、涉密字段过滤合规规范</li>
+        </ul></div>
+        
+        <div class="subsection-title">2.9 行业预处理落地知识域</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-industry"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>金融：合同 / 财报 PDF 解析、交易数据清洗、风险实体抽取</li>
+          <li>政务：政策文档分块、证照 OCR、法规实体构建</li>
+          <li>研发：技术文档、代码文件、知识库预处理</li>
+          <li>客服：工单、对话日志、语音转写加工</li>
+          <li>行业 RAG 配套专属预处理流水线落地 SOP</li>
+        </ul></div>
+        
+        <div class="subsection-title">2.10 预处理前沿演进知识域</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-rocket"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>自治式自动生成清洗流水线、零人工配置</li>
+          <li>端侧轻量化离线预处理引擎</li>
+          <li>联邦隐私数据预处理、跨企业安全加工</li>
+          <li>多模态统一原生预处理架构、动态自适应分块技术</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <!-- ===== S2 知识图谱体系 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-project-diagram"></i> 数据预处理中台专属知识图谱（DataPrepGraph）体系</h2>
+        <span class="badge-count">图谱实体+关系+智能能力</span>
+      </div>
+      <div class="card-body">
+        <div class="content-text" style="margin-bottom: 1.5rem;">DataPrepGraph 预处理知识图谱，是企业数据源、清洗规则、模态解析策略、流水线、质量故障、优化策略、业务场景的结构化加工智能关联网络。解决加工脚本零散、质量问题无法溯源、分块 / 清洗策略依赖人工经验痛点，实现业务数据源自动匹配成熟流水线、劣质数据一键根因溯源、清洗优化方案智能推荐、流水线自治迭代。</div>
+        
+        <div class="subsection-title">3.1 DataPrepGraph 核心实体体系</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>数据源实体</h4><ul class="detail-list"><li>数据库、文件、图片、音频、实时埋点</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cogs"></i></span><h4>预处理组件实体</h4><ul class="detail-list"><li>清洗、OCR、分块、向量化、NER 实体抽取</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-stream"></i></span><h4>流水线实体</h4><ul class="detail-list"><li>通用基础、行业标准、定制加工流程</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sliders-h"></i></span><h4>策略实体</h4><ul class="detail-list"><li>去重规则、文本切分窗口、向量量化方案</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exclamation-triangle"></i></span><h4>故障实体</h4><ul class="detail-list"><li>缺失值泛滥、格式错乱、分块碎片化、实体漏抽</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-briefcase"></i></span><h4>场景实体</h4><ul class="detail-list"><li>RAG 知识库、风控特征、客服对话、研发文档</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-building"></i></span><h4>租户实体</h4><ul class="detail-list"><li>企业 / 部门 / 项目、私有数据源隔离</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-bar"></i></span><h4>指标实体</h4><ul class="detail-list"><li>完整率、去重率、实体召回、加工耗时</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-magic"></i></span><h4>优化实体</h4><ul class="detail-list"><li>新增清洗规则、调整分块大小、更换嵌入模型</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-gem"></i></span><h4>资产实体</h4><ul class="detail-list"><li>流水线模板、质量规则库、分块策略包</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.2 DataPrepGraph 核心关联关系</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>数据源 ↔ 流水线</h4><ul class="detail-list"><li>数据库 / 文档适配标准加工流程</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>流水线 ↔ 组件</h4><ul class="detail-list"><li>一条流程包含清洗、解析、向量化节点</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>组件 ↔ 策略</h4><ul class="detail-list"><li>分块组件绑定窗口 / 语义切分策略</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>流水线 ↔ 故障</h4><ul class="detail-list"><li>文档流水线高发碎片化问题</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>故障 ↔ 优化</h4><ul class="detail-list"><li>分块碎片化→调大窗口 + 标题绑定</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>场景 ↔ 流水线</h4><ul class="detail-list"><li>RAG 场景专属文档预处理模板</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>租户 ↔ 数据源</h4><ul class="detail-list"><li>部门私有文件访问权限</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>策略 ↔ 指标</h4><ul class="detail-list"><li>语义分块提升实体召回率</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>流水线 ↔ 下游</h4><ul class="detail-list"><li>输出向量供给向量库、实体供给图谱</li></ul></div>
+        </div>
+        <div class="content-text" style="margin-bottom: 1.5rem;">每日加工日志自动抽取三元组增量更新图谱权重</div>
+        
+        <div class="subsection-title">3.3 DataPrepGraph 八大核心智能能力</div>
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>数据加工经验自动结构化入库</h4><ul class="detail-list"><li>脱离零散脚本与文档</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-magic"></i></span><h4>输入业务数据源自动推荐成熟行业流水线模板</h4><ul class="detail-list"><li>智能匹配最佳加工流程</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-search"></i></span><h4>数据质量劣化一键分层根因溯源</h4><ul class="detail-list"><li>源 / 清洗 / 分块 / 模型问题定位</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-lightbulb"></i></span><h4>自动推送清洗、分块、向量化优化方案</h4><ul class="detail-list"><li>智能推荐改进策略</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exclamation-circle"></i></span><h4>低质量流水线自动识别，生成迭代工单</h4><ul class="detail-list"><li>自动预警并创建优化任务</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-share-alt"></i></span><h4>同行业文档加工方案智能复用推荐</h4><ul class="detail-list"><li>跨项目最佳实践共享</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>每日加工数据自校准图谱关联权重</h4><ul class="detail-list"><li>自动更新图谱知识网络</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-user-graduate"></i></span><h4>预处理运维新人快速检索同类加工落地案例</h4><ul class="detail-list"><li>知识快速传承与查询</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S3 六大核心架构 ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> 数据预处理中台六大完整架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span>
+      </div>
+      <div class="card-body">
+        <div class="subsection-title">4.1 产品架构（九层分层全景架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">整体分层：多源统一接入层 → 四层预处理资产池层 → 多模态解析引擎层 → 特征向量实体生成层 → 可视化流水线编排层 → DataPrepGraph 图谱推理层 → 全链路质量管控层 → 多租户权限层 → 自治优化迭代层</div>
+        <div class="arch-diagram" style="margin-bottom: 2rem;">
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-plug"></i> 多源统一接入层</div><div class="layer-blocks"><span class="arch-block">数据库 CDC、文件、音视频、实时 Kafka 统一接入</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-cubes"></i> 四层预处理资产池层</div><div class="layer-blocks"><span class="arch-block">基础清洗 / 模态组件 / 行业流水线 / 特征包分层管控</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-file-alt"></i> 多模态解析引擎层</div><div class="layer-blocks"><span class="arch-block">文档 OCR/ASR/ 图文结构化统一解析</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-vector-square"></i> 特征向量实体层</div><div class="layer-blocks"><span class="arch-block">结构化特征、文本 Embedding、NER 三元组生成</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-stream"></i> 可视化流水线编排层</div><div class="layer-blocks"><span class="arch-block">拖拽节点、分支循环、断点续跑</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-project-diagram"></i> DataPrepGraph 图谱推理层</div><div class="layer-blocks"><span class="arch-block">三元组抽取、故障溯源、策略推荐</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-shield-alt"></i> 全链路质量管控层</div><div class="layer-blocks"><span class="arch-block">三级校验、异常分流、质量告警</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-user-lock"></i> 多租户权限层</div><div class="layer-blocks"><span class="arch-block">数据源、流水线、输出资产隔离</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-sync-alt"></i> 自治优化迭代层</div><div class="layer-blocks"><span class="arch-block">质量日志回流，自动生成优化任务</span></div></div>
+        </div>
+        
+        <div class="subsection-title">4.2 业务架构（三层全域业务架构 + 八大标准业务域）</div>
+        <div class="subsection-title">三层全域业务架构</div>
+        <ol class="normal-list" style="margin-bottom: 1.5rem;">
+          <li><strong>底层底座层：</strong>算力、存储、消息队列提供计算存储支撑；</li>
+          <li><strong>中层预处理核心能力层：</strong>接入、清洗解析、向量实体、流水线、图谱、质量七大原子服务；</li>
+          <li><strong>上层数据赋能层：</strong>标准化数据输出至向量库、知识库、RAG、数据中台。</li>
+        </ol>
+        <div class="subsection-title">八大标准业务域</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-plug"></i></span><h4>多源数据接入治理业务域</h4><ul class="detail-list"><li>全类型源批量 / 实时同步</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>四层预处理资产全生命周期业务域</h4><ul class="detail-list"><li>组件 / 流水线创建、灰度、归档</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-file-alt"></i></span><h4>多模态深度解析业务域</h4><ul class="detail-list"><li>文档 / 音视频一体化加工</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-vector-square"></i></span><h4>特征向量实体生成业务域</h4><ul class="detail-list"><li>结构化 / 文本 / 实体标准化产出</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-stream"></i></span><h4>可视化流水线编排业务域</h4><ul class="detail-list"><li>批流统一流程配置</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>DataPrepGraph 知识推理业务域</h4><ul class="detail-list"><li>加工经验沉淀、故障溯源</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>全链路数据质量业务域</h4><ul class="detail-list"><li>三级校验、异常归档、质量复盘</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-user-lock"></i></span><h4>多租户自治迭代业务域</h4><ul class="detail-list"><li>权限隔离、流水线自动优化</li></ul></div>
+        </div>
+        <div class="subsection-title">核心业务闭环</div>
+        <div class="content-text" style="margin-bottom: 2rem;">多源原始数据接入 → 流水线执行清洗 / 解析 / 分块 / 向量化 → 三级质量校验 → 合格数据输出下游向量 / 知识库 → 加工日志回流 DataPrepGraph → 图谱识别质量缺陷 → 自动推送清洗 / 分块优化工单迭代流水线。</div>
+        
+        <div class="subsection-title">4.3 数据架构（七层预处理专属数据架构）</div>
+        <div class="arch-diagram" style="margin-bottom: 2rem;">
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-database"></i> PRE-ODS</div><div class="layer-blocks"><span class="arch-block">原始接入层：数据库 binlog、文件、音视频流、实时埋点原始日志</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-filter"></i> PRE-DWD</div><div class="layer-blocks"><span class="arch-block">清洗明细层：去重、脱敏、格式统一后的标准明细</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-table"></i> PRE-DWB</div><div class="layer-blocks"><span class="arch-block">全域宽表层：数据源、流水线、加工组件、质量指标全维度宽表</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-project-diagram"></i> PRE-DWA</div><div class="layer-blocks"><span class="arch-block">知识关联层：自动抽取三元组构建 DataPrepGraph 知识网络</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-bar"></i> PRE-DWS</div><div class="layer-blocks"><span class="arch-block">主题汇总层：资产、加工效能、数据质量、租户四大主题聚合</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-line"></i> PRE-ADS</div><div class="layer-blocks"><span class="arch-block">指标应用层：完整率、实体召回、加工耗时核心指标</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-sync-alt"></i> PRE-OPT</div><div class="layer-blocks"><span class="arch-block">自主优化层：劣质数据、低效流水线沉淀优化任务</span></div></div>
+        </div>
+        
+        <div class="subsection-title">4.4 技术架构（批流一体多模态七层技术架构）</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-plug"></i></span><h4>多源接入网关层</h4><ul class="detail-list"><li>CDC、文件上传、Kafka 消费、音视频流接入</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cogs"></i></span><h4>批流统一计算层</h4><ul class="detail-list"><li>Spark/Flink 混合调度弹性算力</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-file-alt"></i></span><h4>预处理核心引擎层</h4><ul class="detail-list"><li>清洗、OCR、ASR、分块、向量化、NER</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>DataPrepGraph 图推理引擎</h4><ul class="detail-list"><li>三元组抽取、多跳路径检索</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>数据质量引擎</h4><ul class="detail-list"><li>规则校验、异常分流、质量打分</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>存储分层层</h4><ul class="detail-list"><li>原始湖、加工明细、向量缓存、图数据库</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-desktop"></i></span><h4>管理前端层</h4><ul class="detail-list"><li>流水线画布、图谱可视化、质量大屏</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.5 应用架构（八大全域赋能应用）</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-plug"></i></span><h4>多源数据源接入工作台</h4><ul class="detail-list"><li>数据库 / 文件一键同步配置</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>四层预处理资产集市应用</h4><ul class="detail-list"><li>清洗组件、行业流水线检索复用</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-stream"></i></span><h4>可视化流水线编排平台</h4><ul class="detail-list"><li>拖拽搭建批 / 实时加工流程</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-file-alt"></i></span><h4>多模态解析调试应用</h4><ul class="detail-list"><li>文档 OCR、分块效果预览</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>DataPrepGraph 智能运维应用</h4><ul class="detail-list"><li>质量故障一键溯源</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>数据质量管控平台</h4><ul class="detail-list"><li>规则配置、异常样本查询</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-vector-square"></i></span><h4>向量 / 实体批量生产应用</h4><ul class="detail-list"><li>RAG 配套预处理一键执行</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>自治优化运营应用</h4><ul class="detail-list"><li>低效流水线自动预警</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.6 治理架构（六大全域预处理治理体系）</div>
+        <div class="grid-3">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>四层预处理资产全生命周期治理</h4><ul class="detail-list"><li>创建、测试、灰度、归档闭环</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-file-alt"></i></span><h4>多模态解析标准化治理</h4><ul class="detail-list"><li>文档 / 音视频统一加工规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-stream"></i></span><h4>批流流水线常态化治理</h4><ul class="detail-list"><li>调度、断点、快照管控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>DataPrepGraph 知识迭代治理</h4><ul class="detail-list"><li>每日三元组增量更新</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>全链路数据质量闭环治理</h4><ul class="detail-list"><li>校验、告警、整改</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-user-lock"></i></span><h4>多租户数据源安全治理</h4><ul class="detail-list"><li>隔离、脱敏、访问审计</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S4 产品功能模块 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> 数据预处理中台全量产品功能模块</h2>
+        <span class="badge-count">全覆盖无遗漏</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-plug"></i></span><h4>模块 1：多源统一接入模块</h4><ul class="detail-list"><li>结构化：MySQL/Oracle/PostgreSQL 全量 + CDC 增量；半结构化：JSON/XML/ 日志文件批量解析；文档类：PDF/Word/Excel/PPT 批量上传；多模态：图片 OCR、音频 ASR、视频帧抽取；实时 Kafka 流、定时快照、增量同步配置；接入断点续传、文件分片上传、去重前置</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>模块 2：四层预处理资产池模块</h4><ul class="detail-list"><li>基础清洗组件库：去重、空值、格式、脱敏、过滤；模态解析组件库：OCR、ASR、文本分块、表格抽取；行业标准流水线包：金融 / 政务 / 客服 / RAG 专用流程；特征 / 向量模板库：结构化特征、Embedding 配置；流水线版本、灰度流量、一键回滚；资产盘点、低复用流水线自动标记</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-file-alt"></i></span><h4>模块 3：多模态深度解析模块</h4><ul class="detail-list"><li>文档结构化：目录、表格、图表、公式剥离；三种文本分块算法可视化配置；图片文字、图表数据自动提取；音频转写、字幕对齐、静音过滤；图文混排关联绑定、多模态融合输出；解析效果仿真预览、低质量文档标记</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-vector-square"></i></span><h4>模块 4：特征 / 向量 / 实体生成模块</h4><ul class="detail-list"><li>结构化统计、分类、时序特征自动生成；批量文本 Embedding、长短文本分片编码；NER 实体、属性、关系三元组抽取；向量归一、PQ 量化、冷热分层缓存；实体消歧、同义词合并；向量批量输出对接向量库标准格式</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-stream"></i></span><h4>模块 5：可视化流水线编排模块</h4><ul class="detail-list"><li>标准化拖拽节点：接入 / 清洗 / OCR / 分块 / 向量化 / 输出；顺序、并行、条件分支、异常兜底；增量断点续跑、任务快照回滚；仿真预跑、单步调试、预览加工结果；流水线模板保存、行业一键复用；调度周期、并发弹性配置</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>模块 6：DataPrepGraph 知识图谱模块</h4><ul class="detail-list"><li>每日加工日志自动抽取三元组入库；图谱可视化展示数据源 - 流水线 - 故障拓扑；输入数据源自动推荐标准加工流水线；质量劣化一键分层根因溯源；清洗 / 分块优化方案智能推送；每日数据自动校准图谱权重</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>模块 7：全链路数据质量模块</h4><ul class="detail-list"><li>六大质量维度自定义规则配置；前置拦截、加工过滤、后置三级巡检；异常数据分流归档、问题样本查询；质量打分、分租户质量看板；分级告警、邮件 / 企微通知；月度质量复盘报表自动生成</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-user-lock"></i></span><h4>模块 8：多租户与自治迭代模块</h4><ul class="detail-list"><li>企业 / 部门三级数据源、流水线隔离；数据源访问读写分级权限、敏感字段脱敏；全链路加工日志永久审计；低效流水线、高缺陷任务自动识别；自动生成清洗 / 分块优化工单；优化效果前后对比看板</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S5 全套指标体系 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> 数据预处理中台全套指标体系</h2>
+        <span class="badge-count">资产+加工+模态+图谱+质量+安全</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>预处理资产治理指标</strong></td><td>四层资产标准化拆分覆盖率 100%；行业流水线复用率 ≥84%；闲置低效流水线占比 ≤9%；流水线版本规范率 100%；资产盘点闭环率 100%；组件复用率 ≥80%</td></tr>
+              <tr><td><strong>批流加工效能指标</strong></td><td>批量加工吞吐峰值达标；实时流延迟 P95 ≤500ms；增量断点续跑成功率 100%；流水线故障自愈率 100%；加工资源弹性扩容达标；加工任务闭环率 100%</td></tr>
+              <tr><td><strong>多模态解析指标</strong></td><td>文档解析成功率 ≥96%；OCR 文字识别准确率 ≥92%；ASR 转写准确率 ≥90%；文本分块完整率 ≥93%；实体抽取召回率 ≥91%；图文关联匹配率 ≥88%</td></tr>
+              <tr><td><strong>DataPrepGraph 图谱专项指标</strong></td><td>全域数据源场景知识覆盖率 100%；三元组完整率 ≥99.6%；流水线推荐准确率 ≥95%；质量故障根因推理准确率 ≥97%；图谱日增量更新及时率 ≥99.5%；图谱赋能加工优化贡献率 ≥34%</td></tr>
+              <tr><td><strong>数据质量核心指标</strong></td><td>数据完整性 ≥95%；唯一性去重达标；数据准确性 ≥93%；一致性合规率 100%；异常数据拦截率 ≥98%；质量整改闭环率 100%</td></tr>
+              <tr><td><strong>多租户安全合规指标</strong></td><td>数据源隔离合规率 100%；敏感数据脱敏覆盖率 100%；加工日志审计留存率 100%；越权访问拦截率 100%；涉密文件隔离管控闭环；安全整改及时率 100%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S6 内容资产体系 ===== -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> 数据预处理中台完整内容资产体系</h2>
+        <span class="badge-count">交付物+标准+资产+文档全集</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>7.1 顶层规划资产</h4><ul class="detail-list"><li>数据预处理中台建设白皮书；批流一体落地分阶段路线图；企业数据加工成熟度评估报告；预处理 - 向量 - RAG 协同长效方案</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>7.2 全域标准规范资产</h4><ul class="detail-list"><li>多源数据源接入统一规范；四层预处理资产分层标准；多模态解析、分块、向量化规范；DataPrepGraph 三元组抽取构建标准；数据质量六大维度规则规范；多租户数据源安全管控规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>7.3 预处理核心数字资产</h4><ul class="detail-list"><li>通用清洗组件模板库；全行业标准流水线资产包（金融 / 政务 / 客服 / RAG）；多模态解析配置模板；特征 / 向量生成策略库；DataPrepGraph 预处理知识图谱资产包；数据质量规则资产库</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tools"></i></span><h4>7.4 落地工程资产</h4><ul class="detail-list"><li>预处理中台部署实施手册；流水线编排工作台操作指南；DataPrepGraph 可视化运维手册；向量库 / 知识库对接 API 文档；上线验收指标评估模板</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>7.5 运营复盘资产</h4><ul class="detail-list"><li>月度加工效能 & 数据质量分析报告；多模态解析专项复盘报告；RAG 配套预处理落地成果报告；安全审计月度台账</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exclamation-triangle"></i></span><h4>7.6 应急保障资产</h4><ul class="detail-list"><li>大规模批处理雪崩应急预案；CDC 增量同步中断恢复方案；OCR/ASR 解析故障处置手册；DataPrepGraph 图谱损坏恢复预案</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S7 全域协同关系 ===== -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-share-alt"></i> 数据预处理中台与全中台全域协同关系</h2>
+        <span class="badge-count">跨中台协同联动</span>
+      </div>
+      <div class="card-body">
+        <ol class="normal-list">
+          <li><strong>算力中台：</strong>提供批流计算、OCR/ASR/Embedding 推理弹性 CPU/GPU 算力；</li>
+          <li><strong>IaaS/PaaS：</strong>承载数据湖、向量缓存、图数据库分布式集群；</li>
+          <li><strong>数据中台：</strong>接收清洗后的标准结构化数据供给数仓；</li>
+          <li><strong>向量库中台：</strong>接收预处理分块文本，批量生成向量入库；</li>
+          <li><strong>知识库中台：</strong>输出结构化文档、实体三元组构建企业知识库；</li>
+          <li><strong>RAG 中台：</strong>作为 RAG 唯一前置数据加工供给源，提供分块、清洗文档；</li>
+          <li><strong>Prompt 中台：</strong>提供干净业务文本素材用于提示渲染；</li>
+          <li><strong>Skill 中台：</strong>数据查询、文档解析类 Skill 底层加工支撑；</li>
+          <li><strong>Agent 中台：</strong>智能体知识库依赖预处理产出高质量文本；</li>
+          <li><strong>MaaS 中台：</strong>模型训练 / 微调高质量预处理语料来源；</li>
+          <li><strong>场景中台：</strong>行业知识库场景统一调用预处理流水线。</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== S8 核心价值总结 ===== -->
+    <section id="s8" class="card banner-card">
+        <div class="card-body">
+            <div class="value-header">
+                <div class="icon-big"><i class="fas fa-flag"></i></div>
+                <h2>数据预处理中台核心价值总结</h2>
+                <p class="value-subtitle">七大维度 · 重塑企业全域数据预处理体系</p>
+            </div>
+            <div class="value-grid">
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-cubes"></i></div>
+                    <div class="value-content">
+                        <h4>统一全域多源数据加工底座</h4>
+                        <p>消除各业务独立开发清洗脚本、零散 OCR 工具，一套流水线覆盖数据库 / 文档 / 音视频，大幅降低重复开发成本。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-stream"></i></div>
+                    <div class="value-content">
+                        <h4>批流一体统一引擎</h4>
+                        <p>离线批量、实时增量共用编排画布，无需两套开发维护，加工效率提升 70% 以上。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-file-alt"></i></div>
+                    <div class="value-content">
+                        <h4>全模态一体化解析</h4>
+                        <p>文档、图片、音频一站式清洗分块，原生适配 RAG 知识库建设，解决 RAG 底层数据质量痛点。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-project-diagram"></i></div>
+                    <div class="value-content">
+                        <h4>DataPrepGraph 自治迭代</h4>
+                        <p>预处理知识图谱沉淀加工经验，自动匹配行业流水线、定位数据质量根因，实现流水线自治迭代。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div class="value-content">
+                        <h4>六大维度全链路数据质量闭环</h4>
+                        <p>前置拦截劣质数据，从源头抑制大模型幻觉、检索召回不足问题。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-vector-square"></i></div>
+                    <div class="value-content">
+                        <h4>标准化输出无缝对接全 AI 链路</h4>
+                        <p>标准化输出文本 / 向量 / 实体，无缝对接向量库、知识库、RAG、Agent 全 AI 链路，是企业所有数据与 AI 应用的统一前置加工基础设施。</p>
+                    </div>
+                </div>
+                <div class="value-item full-width">
+                    <div class="value-icon"><i class="fas fa-user-lock"></i></div>
+                    <div class="value-content">
+                        <h4>多租户细粒度安全合规</h4>
+                        <p>多租户细粒度数据源隔离 + 全链路审计，满足财务、政务等高敏感数据合规加工要求。</p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-note" style="margin-top: 2rem; font-size:0.8rem; color:var(--color-primary);">数据预处理中台 · 企业所有数据与 AI 应用的统一前置加工基础设施</div>
+        </div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>

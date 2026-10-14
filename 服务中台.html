@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>企业级全域中台完整体系说明书</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ===== 设计系统 Token（完全继承参考样式） ===== */
+    :root {
+      --color-primary: #7a2e1a;
+      --color-primary-light: #fce9e0;
+      --color-primary-dark: #4d1c0e;
+      --color-accent: #b85c3a;
+      --color-accent-soft: #f0c8b8;
+      --color-accent-glow: rgba(184, 92, 58, 0.10);
+      --color-neutral-50: #fcf9f7;
+      --color-neutral-100: #f5ede8;
+      --color-neutral-200: #e5d7ce;
+      --color-neutral-300: #cbb8ab;
+      --color-neutral-400: #a68b7a;
+      --color-neutral-600: #6f5544;
+      --color-neutral-700: #4f3a2e;
+      --color-neutral-800: #34241c;
+      --color-neutral-900: #1e140f;
+      --color-gold: #c29a4a;
+      --color-gold-light: #f3e1b0;
+      --color-jade: #3b7a5e;
+      --color-jade-light: #d4ede0;
+      --color-success: #1f6e4a;
+      --color-warning: #a86b2c;
+      --color-error: #b13a2a;
+      --font-base: 1rem;
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-12: 3rem;
+      --radius-sm: 0.75rem;
+      --radius-md: 1.25rem;
+      --radius-card: 2rem;
+      --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(60, 30, 10, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(60, 30, 10, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(60, 30, 10, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+      --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ===== 重置 & 基础 ===== */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    /* ===== 布局 ===== */
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(255, 249, 245, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(255, 235, 220, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); letter-spacing:-0.01em; }
+    .sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+    .sidebar nav ul { list-style:none; padding:0; margin:0; }
+    .sidebar nav ul li { margin-bottom:0.1rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:12px;
+      padding:0.55rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.85rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+    }
+    .sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+    .sidebar nav ul li a:hover,
+    .sidebar nav ul li a:focus-visible {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateX(4px);
+    }
+    .sidebar-footer {
+      margin-top:24px; padding:12px; text-align:center;
+      font-size:0.7rem; color:var(--color-neutral-600);
+      border-top:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 主内容 ===== */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+    /* ===== 页面头部 ===== */
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+      font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+    .page-header .header-meta {
+      font-size:0.9rem; color:var(--color-neutral-600);
+      background:var(--color-neutral-100);
+      padding:0.4rem 1.2rem;
+      border-radius:var(--radius-pill);
+      border:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 卡片系统 ===== */
+    .card {
+      background:rgba(255,252,248,0.92);
+      backdrop-filter: blur(4px);
+      border-radius:var(--radius-card);
+      box-shadow:var(--shadow-card);
+      margin-bottom:var(--space-6);
+      border:1px solid rgba(255, 235, 220, 0.5);
+      overflow:hidden;
+      transition: box-shadow var(--transition-default), transform 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6);
+      background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft);
+      display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 {
+      font-size:clamp(1.2rem, 2.2vw, 1.6rem);
+      font-weight:700; color:var(--color-primary-dark);
+      display:flex; align-items:center; gap:12px;
+      letter-spacing:-0.01em;
+    }
+    .card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+    .card-header .badge-count {
+      margin-left:auto;
+      background:var(--color-accent);
+      color:white;
+      border-radius:var(--radius-pill);
+      padding:0.15rem 0.9rem;
+      font-size:0.7rem;
+      font-weight:600;
+      letter-spacing:0.3px;
+    }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* ===== 网格 & 卡片（数据治理卡片风格） ===== */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } .grid-4 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; } }
+
+    /* 数据治理卡片 (复用九字卡片) */
+    .gov-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md);
+      padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: all var(--transition-default);
+      position:relative;
+      overflow:hidden;
+      border-left: 4px solid var(--color-accent);
+    }
+    .gov-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft));
+      opacity:0;
+      transition: opacity var(--transition-default);
+    }
+    .gov-card:hover::before { opacity:1; }
+    .gov-card:hover {
+      border-color:var(--color-accent-soft);
+      box-shadow: 0 8px 24px -8px rgba(184,92,58,0.15);
+      transform:translateY(-3px);
+    }
+    .gov-card .gov-icon {
+      font-size:1.8rem;
+      color:var(--color-primary);
+      display:inline-block;
+      margin-right:6px;
+      background: var(--color-primary-light);
+      padding:0.2rem 0.6rem;
+      border-radius:12px;
+    }
+    .gov-card h4 {
+      color:var(--color-primary-dark);
+      font-size:1.05rem;
+      margin-bottom:0.4rem;
+      display:flex; align-items:center; gap:8px;
+      flex-wrap:wrap;
+    }
+    .gov-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+    .gov-card .detail-list {
+      padding-left:0; margin:0.4rem 0 0 0;
+      list-style:none;
+    }
+    .gov-card .detail-list li {
+      margin-bottom:0.25rem;
+      padding-left:1.2rem;
+      position:relative;
+      font-size:0.85rem;
+      color:var(--color-neutral-700);
+    }
+    .gov-card .detail-list li::before {
+      content:'▹'; position:absolute; left:0;
+      color:var(--color-accent);
+      font-weight:600;
+    }
+    .gov-card .detail-list li strong { color:var(--color-neutral-800); }
+    .gov-card .tag-layer {
+      display:inline-block;
+      background:var(--color-gold-light);
+      color:var(--color-primary-dark);
+      border-radius:20px;
+      padding:0.05rem 0.8rem;
+      font-size:0.6rem;
+      font-weight:700;
+      letter-spacing:0.3px;
+      margin-left:0.5rem;
+    }
+
+    /* ===== 架构层（继承九层闭环） ===== */
+    .arch-diagram {
+      display:flex;
+      flex-direction:column;
+      gap:0.6rem;
+      padding:0.5rem 0;
+    }
+    .arch-layer {
+      display:flex;
+      align-items:stretch;
+      gap:0.75rem;
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.6rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: var(--transition-default);
+    }
+    .arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+    .arch-layer .layer-label {
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      min-width:120px;
+      padding-right:1rem;
+      border-right:2px solid var(--color-neutral-200);
+      font-weight:700;
+      font-size:0.8rem;
+      color:var(--color-primary-dark);
+      letter-spacing:0.3px;
+    }
+    .arch-layer .layer-label i {
+      font-size:1.1rem;
+      color:var(--color-accent);
+      margin-bottom:0.1rem;
+    }
+    .arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+    .arch-layer .layer-blocks {
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:0.5rem;
+      flex:1;
+      padding:0.2rem 0;
+    }
+    .arch-block {
+      background:white;
+      border-radius:var(--radius-sm);
+      padding:0.3rem 0.9rem;
+      border:1px solid var(--color-neutral-200);
+      font-size:0.75rem;
+      font-weight:500;
+      color:var(--color-neutral-700);
+      transition: var(--transition-default);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .arch-block:hover {
+      border-color:var(--color-accent);
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateY(-1px);
+    }
+    .arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+    .arch-block.highlight-block {
+      background:var(--color-accent);
+      color:white;
+      border-color:var(--color-accent);
+    }
+    .arch-block.highlight-block i { color:white; }
+    .arch-layer.inner-layer { background:linear-gradient(135deg, #f5efe8, #f0e4da); border-color:var(--color-accent-soft); }
+    .arch-layer.outer-layer { background:linear-gradient(135deg, #f0f2ed, #e6ece2); border-color:#b8c8aa; }
+    .arch-layer.outer-layer .layer-label { border-right-color:#b8c8aa; color:#2d5a3a; }
+    .arch-layer.outer-layer .layer-label i { color:#3b7a5e; }
+    .arch-layer.outer-layer .arch-block { border-color:#c8d8b8; }
+    .arch-layer.outer-layer .arch-block:hover { border-color:#3b7a5e; background:#e0ede0; }
+    .arch-layer.ultimate-layer { background:linear-gradient(135deg, #f0ede8, #e8e0d8); border-color:#c8b8a8; }
+    .arch-layer.ultimate-layer .layer-label { border-right-color:#c8b8a8; color:#6a4a3a; }
+    .arch-layer.ultimate-layer .layer-label i { color:#8a6a5a; }
+    .arch-layer.ultimate-layer .arch-block { border-color:#d8c8b8; }
+    .arch-layer.ultimate-layer .arch-block:hover { border-color:#8a6a5a; background:#ede0d8; }
+
+    /* ===== 表格 ===== */
+    .table-wrapper {
+      overflow-x:auto;
+      border-radius:var(--radius-md);
+      border:1px solid var(--color-neutral-200);
+      background:white;
+    }
+    table {
+      width:100%; border-collapse:collapse; font-size:0.78rem;
+    }
+    th {
+      background:var(--color-neutral-100);
+      padding:12px 10px;
+      font-weight:600;
+      color:var(--color-primary-dark);
+      text-align:left;
+      border-bottom:2px solid var(--color-neutral-200);
+      font-size:0.7rem;
+      text-transform:uppercase;
+      letter-spacing:0.4px;
+    }
+    td {
+      padding:10px 10px;
+      border-bottom:1px solid var(--color-neutral-200);
+      vertical-align:middle;
+      color:var(--color-neutral-700);
+    }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--color-neutral-50); }
+    .level-tag {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      border-radius:var(--radius-pill);
+      padding:0.05rem 0.7rem;
+      font-size:0.65rem;
+      font-weight:600;
+      display:inline-block;
+    }
+
+    /* ===== 信息提示 ===== */
+    .info-tip {
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.7rem 1.5rem;
+      border-left:5px solid var(--color-accent);
+      margin-top:var(--space-4);
+      display:flex; align-items:center; gap:0.8rem;
+      font-size:0.9rem;
+      color:var(--color-neutral-700);
+    }
+    .info-tip i { color:var(--color-accent); font-size:1rem; }
+
+    /* ===== 横幅 ===== */
+    .banner-card {
+      background: linear-gradient(135deg, #f5ede6, #e8dcd2);
+      text-align:center;
+      border-color:var(--color-accent-soft);
+    }
+    .banner-card .card-body { padding:2.5rem var(--space-6); }
+    .banner-card .icon-big { font-size:3rem; color:var(--color-primary); opacity:0.7; margin-bottom:var(--space-3); }
+    .banner-card h2 { color:var(--color-primary-dark); font-size:clamp(1.4rem, 2.5vw, 1.9rem); margin-bottom:var(--space-2); }
+    .banner-card p { max-width:680px; margin:0 auto; color:var(--color-neutral-700); font-size:1rem; }
+    .banner-card .footer-note { margin-top:var(--space-6); font-size:0.8rem; color:var(--color-primary); }
+
+    /* ===== 响应式 ===== */
+    @media (max-width:1024px) { .sidebar { width:220px; } }
+    @media (max-width:760px) {
+      .sidebar { display:none; }
+      .layout { padding:0.5rem; }
+      .main-content { padding:0; }
+      .card-body { padding:1.25rem var(--space-4); }
+      .card-header { padding:1rem var(--space-4); }
+      .page-header { flex-direction:column; align-items:flex-start; }
+    }
+
+    /* ===== 暗色 ===== */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #1a1410;
+        --color-neutral-100: #221c18;
+        --color-neutral-200: #3a2c24;
+        --color-neutral-300: #5a4a3e;
+        --color-neutral-400: #8a7a6e;
+        --color-neutral-600: #b8a89c;
+        --color-neutral-700: #d0c4b8;
+        --color-neutral-800: #e8dcd0;
+        --color-neutral-900: #f5ede6;
+        --color-primary-light: #3a2a20;
+        --color-accent-soft: #6a4a3a;
+        --color-primary: #d08a6a;
+        --color-primary-dark: #f0c8b0;
+        --color-accent: #c07a5a;
+        --color-gold: #c29a4a;
+        --color-gold-light: #4a3a20;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6);
+        --shadow-card-hover: 0 20px 48px -12px rgba(0,0,0,0.7);
+        --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #120e0a; }
+      .card { background: #1a1410; border-color: #3a2c24; }
+      .card-header { background: #1a1410; border-bottom-color: #4a3a2e; }
+      .gov-card { background: #1a1410; border-color: #3a2c24; }
+      .gov-card .gov-icon { background: #2a1e16; color: #d08a6a; }
+      .gov-card .detail-list li { color: #c0b4a8; }
+      .gov-card .detail-list li strong { color: #e0d4c8; }
+      .table-wrapper { background: #1a1410; border-color: #3a2c24; }
+      th { background: #221c18; color: #e0d4c8; border-bottom-color: #4a3a2e; }
+      td { border-bottom-color: #2a241e; color: #c0b4a8; }
+      tr:hover td { background: #2a241e; }
+      .sidebar { background: rgba(20, 16, 12, 0.92); border-color: #3a2c24; }
+      .sidebar-brand { border-bottom-color: #4a3a2e; }
+      .sidebar-brand h3 { color: #d08a6a; }
+      .sidebar nav ul li a { color: #c0b4a8; }
+      .sidebar nav ul li a:hover { background: #3a2c24; color: white; }
+      .info-tip { background: #1a1410; border-left-color: #c07a5a; color: #c0b4a8; }
+      .banner-card { background:linear-gradient(135deg,#1a1410,#2a241e); }
+      .banner-card p { color: #c0b4a8; }
+      .page-header h1 { background:linear-gradient(135deg,#f0c8b0,#d08a6a); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#2a241e; border-color:#4a3a2e; color:#b8a89c; }
+      .arch-layer { background:#1a1410; border-color:#3a2c24; }
+      .arch-layer:hover { background:#2a1e16; border-color:#5a4a3e; }
+      .arch-layer .layer-label { border-right-color:#3a2c24; color:#e0d4c8; }
+      .arch-block { background:#1a1410; border-color:#3a2c24; color:#c0b4a8; }
+      .arch-block:hover { background:#3a2c24; border-color:#c07a5a; }
+      .arch-layer.inner-layer { background:linear-gradient(135deg,#1a1410,#2a1e16); border-color:#5a3a2a; }
+      .arch-layer.outer-layer { background:linear-gradient(135deg,#141a12,#1a2618); border-color:#2a4a2a; }
+      .arch-layer.outer-layer .layer-label { border-right-color:#2a4a2a; color:#8aba8a; }
+      .arch-layer.outer-layer .layer-label i { color:#5a9a6a; }
+      .arch-layer.outer-layer .arch-block { border-color:#2a4a2a; color:#a0c8a0; }
+      .arch-layer.outer-layer .arch-block:hover { border-color:#5a9a6a; background:#1a2a1a; }
+      .arch-layer.ultimate-layer { background:linear-gradient(135deg,#1a1410,#221c18); border-color:#4a3a2e; }
+      .arch-layer.ultimate-layer .layer-label { border-right-color:#4a3a2e; color:#c8b0a0; }
+      .arch-layer.ultimate-layer .layer-label i { color:#a08070; }
+      .arch-layer.ultimate-layer .arch-block { border-color:#4a3a2e; color:#c8b8a8; }
+      .arch-layer.ultimate-layer .arch-block:hover { border-color:#a08070; background:#2a241e; }
+    }
+    
+    /* ===== 优化新增样式 ===== */
+    /* 核心价值区域优化样式 */
+    .value-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .value-header .icon-big {
+        font-size: 2.8rem;
+        color: var(--color-primary);
+        opacity: 0.8;
+        margin-bottom: 0.5rem;
+    }
+    .value-header h2 {
+        font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+        color: var(--color-primary-dark);
+        margin-bottom: 0.25rem;
+    }
+    .value-subtitle {
+        font-size: 1rem;
+        color: var(--color-neutral-600);
+        letter-spacing: 2px;
+        font-weight: 300;
+    }
+
+    /* 价值网格 */
+    .value-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin: 1.5rem 0 2rem 0;
+    }
+    .value-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(4px);
+        padding: 1.2rem 1.4rem;
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 235, 220, 0.5);
+        transition: all 0.3s ease;
+    }
+    .value-item:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-card-hover);
+        border-color: var(--color-accent-soft);
+        background: rgba(255, 255, 255, 0.85);
+    }
+    .value-item .value-icon {
+        flex-shrink: 0;
+        width: 2.8rem;
+        height: 2.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--color-primary-light);
+        border-radius: 50%;
+        color: var(--color-accent);
+        font-size: 1.2rem;
+    }
+    .value-item .value-content h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--color-primary-dark);
+        margin-bottom: 0.3rem;
+        line-height: 1.3;
+    }
+    .value-item .value-content p {
+        font-size: 0.9rem;
+        color: var(--color-neutral-700);
+        line-height: 1.6;
+        margin: 0;
+    }
+    /* 最后一项占满整行 */
+    .value-item.full-width {
+        grid-column: 1 / -1;
+    }
+
+    /* 暗色主题适配 */
+    @media (prefers-color-scheme: dark) {
+        .value-item {
+            background: rgba(30, 24, 20, 0.7);
+            border-color: var(--color-neutral-200);
+        }
+        .value-item:hover {
+            background: rgba(40, 32, 26, 0.9);
+            border-color: var(--color-accent-soft);
+        }
+        .value-item .value-content p {
+            color: var(--color-neutral-600);
+        }
+        .value-subtitle {
+            color: var(--color-neutral-400);
+        }
+    }
+
+    /* 响应式布局 */
+    @media (max-width: 768px) {
+        .value-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        .value-item {
+            padding: 1rem 1.2rem;
+        }
+        .value-item .value-content h4 {
+            font-size: 0.95rem;
+        }
+        .value-item .value-content p {
+            font-size: 0.85rem;
+        }
+    }
+    
+    /* 正文文本样式补充 */
+    .content-text {
+      font-size: 0.95rem;
+      color: var(--color-neutral-700);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+    .content-text strong {
+      color: var(--color-primary-dark);
+    }
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--color-primary-dark);
+      margin: 1.5rem 0 1rem 0;
+      border-bottom: 2px solid var(--color-primary-light);
+      padding-bottom: 0.5rem;
+    }
+    .subsection-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--color-neutral-800);
+      margin: 1.2rem 0 0.8rem 0;
+    }
+    .normal-list {
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--color-neutral-700);
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+    .normal-list li {
+      margin-bottom: 0.3rem;
+    }
+    .normal-list li strong {
+      color: var(--color-neutral-800);
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-sitemap" aria-hidden="true"></i>
+      <h3>全域中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-book-open"></i> 全域中台定义</a></li>
+        <li><a href="#s1"><i class="fas fa-concierge-bell"></i> 服务中台专项</a></li>
+        <li><a href="#s2"><i class="fas fa-book"></i> 知识体系+图谱</a></li>
+        <li><a href="#s3"><i class="fas fa-sitemap"></i> 六大核心架构</a></li>
+        <li><a href="#s4"><i class="fas fa-puzzle-piece"></i> 产品功能模块</a></li>
+        <li><a href="#s5"><i class="fas fa-chart-line"></i> 全套指标体系</a></li>
+        <li><a href="#s6"><i class="fas fa-boxes"></i> 完整内容体系</a></li>
+        <li><a href="#s7"><i class="fas fa-share-alt"></i> 协同关系总结</a></li>
+        <li><a href="#s8"><i class="fas fa-flag"></i> 核心价值总结</a></li>
+        <li><a href="#s9"><i class="fas fa-bullhorn"></i> 营销中台专项</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-sitemap"></i> 全域中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-sitemap"></i> 企业级全域中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> 全结构化完整版</span>
+    </header>
+
+    <!-- ===== S0 全域中台定义 ===== -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> 企业全域中台完整定义</h2>
+        <span class="badge-count">通用总述</span>
+      </div>
+      <div class="card-body">
+        <div class="arch-diagram">
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-cogs"></i> 技术底座 <span class="sub">技术/数据/业务/AI/算法/模型/运维/财务/运营/服务</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-server"></i> 技术中台</span>
+              <span class="arch-block"><i class="fas fa-database"></i> 数据中台</span>
+              <span class="arch-block"><i class="fas fa-box"></i> 业务中台</span>
+              <span class="arch-block"><i class="fas fa-brain"></i> AI中台</span>
+              <span class="arch-block"><i class="fas fa-calculator"></i> 算法中台</span>
+              <span class="arch-block"><i class="fas fa-microchip"></i> 模型中台</span>
+              <span class="arch-block"><i class="fas fa-tasks"></i> 运维中台</span>
+              <span class="arch-block"><i class="fas fa-coins"></i> 财务中台</span>
+              <span class="arch-block"><i class="fas fa-bullhorn"></i> 运营中台</span>
+              <span class="arch-block"><i class="fas fa-concierge-bell"></i> 服务中台</span>
+            </div>
+          </div>
+          <div class="arch-layer outer-layer">
+            <div class="layer-label"><i class="fas fa-rocket"></i> 核心能力 <span class="sub">资产化沉淀/服务化封装/智能化赋能/全域化治理</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block highlight-block"><i class="fas fa-cubes"></i> 能力复用</span>
+              <span class="arch-block"><i class="fas fa-sync-alt"></i> 迭代升级</span>
+              <span class="arch-block"><i class="fas fa-shield-alt"></i> 风险可控</span>
+              <span class="arch-block"><i class="fas fa-chart-line"></i> 经营闭环</span>
+            </div>
+          </div>
+          <div class="arch-layer ultimate-layer">
+            <div class="layer-label"><i class="fas fa-star"></i> 终极价值 <span class="sub">技术筑基/数据供料/业务定标/算法赋逻/模型赋能/AI升维/运营增收/运维稳盘/财务控盘/服务提效</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-building"></i> 全域数智经营闭环</span>
+              <span class="arch-block"><i class="fas fa-expand-arrows-alt"></i> 场景快速创新</span>
+              <span class="arch-block"><i class="fas fa-gem"></i> 资产持续沉淀</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section-title">1.1 标准官方定义</div>
+        <div class="content-text">
+          企业全域中台是企业数字化转型的核心能力中枢与全域资产复用底座，是基于领域驱动设计、资产化沉淀、服务化封装、智能化赋能、全域化治理思想，整合企业底层技术资源、全域数据资产、通用业务能力、智能模型知识、全域运营能力、算法能力、运维能力，通过标准化、模块化、组件化、知识化、可编排的体系化建设，将企业零散、重复、烟囱式、定制化的技术、数据、业务、AI、算法、运维、运营、财务能力统一沉淀为可复用、可迭代、可自动化、可治理的企业数字资产，为前台所有业务场景、创新应用、全域经营、系统稳定运行、财务管控经营提供统一支撑的企业级全域能力复用平台与数智化赋能中枢。
+        </div>
+        <div class="content-text">
+          企业全域中台并非单一系统，而是由技术中台、数据中台、业务中台、AI中台、运营中台、模型中台、算法中台、运维中台、财务中台、服务中台十大核心中台构成的完整全域中台矩阵，彻底解决企业系统烟囱、能力重复建设、数据割裂、业务标准化不足、运营碎片化、AI模型零散、算法逻辑混乱、运维碎片化、财务管控分散、服务体系杂乱、客户响应低效、服务经验无法沉淀等数字化、智能化、经营管控与服务体验痛点，实现一次建设、全域复用、场景快速创新、资产持续沉淀、能力持续迭代、经营与运维与财务与服务四闭环增长的企业高阶数智化终极架构。
+        </div>
+        
+        <div class="section-title">1.2 十张子中台精准边界与协同关系</div>
+        <div class="content-text">
+          - <strong>技术中台：</strong>管底层技术底座、研发运维、云原生资源，解决「系统稳、迭代快、架构统一」；<br>
+          - <strong>数据中台：</strong>管全域数据治理、数据资产、指标体系，解决「数据可信、数据统一、数据价值释放」；<br>
+          - <strong>业务中台：</strong>管通用业务实体、业务流程、业务规则，解决「业务标准化、业务复用、前台业务快速落地」；<br>
+          - <strong>AI中台：</strong>管顶层智能能力、知识推理、智能决策编排，解决「场景智能化、知识赋能业务」；<br>
+          - <strong>运营中台：</strong>管用户、内容、活动、渠道、策略、自动化运营，解决「运营标准化、精细化、自动化、经营可量化」；<br>
+          - <strong>模型中台：</strong>管算力、模型全生命周期、样本特征、模型工程化，解决「AI模型落地难、不可控、无法规模化」；<br>
+          - <strong>算法中台：</strong>管全域算法、算子组件、智能编排、规则推理，解决「智能逻辑零散、无法复用、迭代混乱」；<br>
+          - <strong>运维中台：</strong>管全域IT资源、监控告警、故障处置、变更发布、巡检容灾、运维知识、自动化运维，解决「运维分散、人工低效、故障频发、无体系、无沉淀、无智能」，是企业全域系统稳定运行的智能运维工程底座与运维资产中枢。<br>
+          - <strong>财务中台（核心）：</strong>管企业全域业财税资审核算、财务流程、财务标准、资金管控、预算成本、风控合规、财务知识沉淀，解决「业财割裂、核算滞后、管控松散、风险隐蔽、报表低效、经验流失、财务无法赋能业务」，是企业全域经营管控、价值创造、风险合规的数智财务能力中枢与经营资产底座。<br>
+          - <strong>服务中台（新增核心）：</strong>管企业全域客户服务、售后履约、工单流转、服务质量、客户诉求、服务知识、服务风控、客户满意度经营，解决「服务流程散乱、响应滞后、经验流失、服务标准不统一、客户诉求无闭环、服务质量不可控、客户粘性难提升、服务数据无法赋能经营」，是企业全域客户经营、服务标准化、体验精益化、服务资产沉淀的智能服务能力中枢与客户价值底座。
+        </div>
+        
+        <div class="section-title">1.3 全域中台核心建设目标</div>
+        <ol class="normal-list">
+          <li><strong>彻底打破企业信息化、数字化、智能化建设烟囱，</strong>构建技术、数据、业务、AI、算法、模型、运营、运维、财务、服务十位一体全域统一架构；</li>
+          <li><strong>实现企业所有通用能力资产化、标准化、组件化、可复用，</strong>杜绝重复建设与资源浪费；</li>
+          <li><strong>实现研发、数据、业务、智能、运营、运维、财务、服务全流程自动化、智能化、可治理、可追溯；</li>
+          <li><strong>轻量化支撑前台业务创新、场景迭代、系统稳定运行、风险可控、经营可控、服务可控；</strong></li>
+          <li><strong>构建全域知识体系与多专项知识图谱，</strong>沉淀企业数字化、智能化、运维工程化、财务经营、客户服务全量经验；</li>
+          <li><strong>形成「技术筑基、数据供料、业务定标、算法赋逻、模型赋能、AI升维、运营增收、运维稳盘、财务控盘、服务提效」的完整全域数智经营闭环。</strong></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== S1 服务中台专项 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-concierge-bell"></i> 服务中台专项完整定义</h2>
+        <span class="badge-count">核心专项</span>
+      </div>
+      <div class="card-body">
+        <div class="section-title">2.1 服务中台标准定义</div>
+        <div class="content-text">
+          服务中台是企业全域客户服务一体化的数智服务能力中枢与客户服务资产复用底座，隶属于企业全域中台客户经营与体验管控层，承接技术中台底层底座、数据中台全域数据、业务中台业务流程、AI与算法中台智能能力、运维中台稳态保障、财务中台合规管控，基于智能服务、客诉闭环、服务标准化、体验精益化、服务资产化理念，实现企业全域售前咨询、售中履约、售后工单、客诉处理、服务回访、质量质检、客户关怀、服务风控、服务复盘的统一标准、统一流程、统一工单、统一管控、统一数据、统一质检、统一知识沉淀、统一体验赋能。
+        </div>
+        <div class="content-text">
+          服务中台彻底解决传统服务「服务流程碎片化、人工依赖度高、响应时效慢、服务标准不统一、客诉闭环难、质量无管控、客户体验参差、服务经验流失、服务数据无法反哺业务」的核心痛点，将企业所有服务话术、工单流程、质检规则、客诉处置模板、服务SOP、客户关怀体系、服务复盘经验沉淀为标准化、自动化、智能化、可复用的服务数字资产，为企业全域客户经营、体验提升、口碑沉淀、复购增长、服务降本、服务合规提供标准化、精细化、实时化、智能化、可追溯、可迭代的全域服务经营保障，是企业数智化客户经营、体验升级与服务价值创造的核心体验基石。
+        </div>
+        
+        <div class="section-title">2.2 服务中台核心本质与定位</div>
+        <div class="content-text">
+          <strong>战略定位：</strong>企业全域客户服务管控中枢、全周期客户体验统一底座、服务质量治理中心、客户诉求闭环中心、服务效率提升中心、客户口碑经营中心、服务资产沉淀与能力复用中心。
+        </div>
+        <div class="content-text">
+          <strong>核心本质：</strong>服务制度标准化、服务流程自动化、服务处置智能化、服务管控前置化、服务数据资产化、服务质量可控化、服务能力可复用化、客户体验价值最大化。
+        </div>
+        <div class="content-text">
+          <strong>核心边界：</strong>向下承接全域业务数据与系统底座、向上支撑客户体验升级与前台业务赋能、横向联动九大中台，专注全周期客户服务、工单闭环管控、客诉智能处置、服务质量质检、客户体验运营、服务知识沉淀、服务效率精益提升，不替代前台销售经营、不替代底层技术运维、不替代财务经营核算，专注企业全域客户服务的合规、高效、精益、增值。
+        </div>
+        
+        <div class="section-title">2.3 服务中台核心特征</div>
+        <ol class="normal-list">
+          <li><strong>全域服务一体化：</strong>打通售前、售中、售后全服务链路，整合线上线下、多渠道、多业态客户服务资源，破除服务孤岛；</li>
+          <li><strong>服务能力资产化：</strong>服务话术、工单模板、处置流程、质检标准、关怀体系、客诉预案全部资产化复用；</li>
+          <li><strong>服务流程自动化：</strong>工单自动分发、诉求自动归类、流程自动流转、回访自动触发、报表自动生成全流程自动化；</li>
+          <li><strong>服务管控智能化：</strong>依托服务知识图谱与AI算法模型，实现服务超时预警、违规处置、客诉升级、服务质量智能质检；</li>
+          <li><strong>服务数据实时化：</strong>实时输出服务响应时效、工单办结率、客诉率、满意度、服务效率、质量问题等经营数据；</li>
+          <li><strong>全流程可追溯审计：</strong>所有服务接待、工单处置、客诉处理、回访沟通、质检整改全链路留存可追溯；</li>
+          <li><strong>服务知识可沉淀迭代：</strong>构建专属服务知识体系与服务知识图谱，实现服务标准、处置经验、答疑话术、避坑要点结构化、可推理、可传承、可迭代。</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== S2 知识体系+图谱 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book"></i> 服务中台专属完整知识体系 + 服务知识图谱体系</h2>
+        <span class="badge-count">知识域+图谱体系</span>
+      </div>
+      <div class="card-body">
+        <div class="subsection-title">3.1 服务中台十大核心知识域</div>
+        <div class="content-text" style="margin-bottom: 1.5rem;">服务中台知识体系是企业全域数智服务落地的标准化专业知识集合，以全周期客户服务知识、工单闭环管控知识、客诉处置复盘知识、服务质量质检知识、客户体验运营知识、多渠道服务适配知识、服务合规风控知识、服务效率精益知识、服务数据经营知识、服务数智迭代知识为核心底层，覆盖服务从基础接待、工单处置、质量管控、客诉闭环、体验优化、口碑经营到经验沉淀的全链路标准化知识，形成企业可传承、可复用、可智能推理、可体验赋能的专属服务知识体系。</div>
+        
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>3.1.1 服务战略与数智规划知识域</h4><ul class="detail-list"><li>企业全域服务数智化顶层规划、服务中台建设路线、全周期客户体验落地方法论；传统人工服务转型、服务流程解耦、服务能力沉淀、服务资产化建设规范；服务成熟度评估、服务管控体系升级、服务价值转型、体验增效落地知识；人工服务、流程服务、智能服务、体验经营四级能力迭代建设知识</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-headset"></i></span><h4>3.1.2 全周期客户服务知识域</h4><ul class="detail-list"><li>售前咨询答疑、产品科普、政策解读、需求匹配、意向引导标准化服务知识；售中履约跟进、进度同步、异常告知、需求确认、对接协同服务规范；售后安装、运维、退换货、故障排查、使用指导、续费跟进全流程服务标准；多业态、多产品、多客户群体的差异化服务适配知识与场景化服务规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tasks"></i></span><h4>3.1.3 工单闭环管控知识域</h4><ul class="detail-list"><li>工单创建、分类、分派、接单、处置、督办、办结、归档全流程标准知识；紧急工单、疑难工单、跨部门工单、重复工单的处置流程与优先级规则；工单超时管控、进度跟踪、异常拦截、延期审批、闭环核验标准化体系；工单台账管理、数据统计、问题归因、流程优化闭环方法论</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exclamation-triangle"></i></span><h4>3.1.4 客诉处置与复盘知识域</h4><ul class="detail-list"><li>客诉分级标准、诉求甄别、情绪安抚、问题核查、解决方案匹配知识；一般客诉、重大客诉、批量客诉、升级客诉的分层处置流程与应急预案；客诉超时预警、升级机制、责任界定、赔付标准、致歉回访规范；客诉复盘归因、问题整改、流程优化、预防机制搭建闭环知识</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-clipboard-check"></i></span><h4>3.1.5 服务质量质检知识域</h4><ul class="detail-list"><li>服务话术规范、沟通礼仪、应答标准、禁忌话术、服务态度质检标准；工单处置规范性、流程完整性、回复准确性、闭环完整性质检知识；抽检规则、全检场景、质检打分体系、扣分标准、整改要求标准化规范；质检问题台账、整改跟踪、复盘优化、服务能力迭代方法论</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-broadcast-tower"></i></span><h4>3.1.6 多渠道服务适配知识域</h4><ul class="detail-list"><li>线上客服、线下门店、电话热线、社群渠道、小程序、官网多渠道服务适配规范；各渠道话术差异化、响应时效标准、服务流程统一、诉求同步机制；跨渠道诉求合并、重复问题甄别、统一处置、统一回访闭环知识；渠道服务数据打通、体验统一、问题汇总治理标准化体系</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>3.1.7 服务合规与风控知识域</h4><ul class="detail-list"><li>客户信息隐私保护、服务沟通合规、话术合规、信息脱敏管控知识；服务承诺合规、赔付合规、答复口径统一、禁止虚假承诺风控规则；服务纠纷防控、舆情风险预判、客诉升级风险、客户投诉溯源管控；服务合规自查、风险台账迭代、违规处置、合规升级闭环规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-heartbeat"></i></span><h4>3.1.8 客户体验运营知识域</h4><ul class="detail-list"><li>满意度调研、NPS净推荐值、差评归因、体验短板识别知识；客户分层关怀、节日回访、续费提醒、流失预警、复购激活运营规范；差评整改、体验优化、口碑修复、优质案例沉淀、标杆服务打造方法论；全链路体验监测、体验指标优化、客户粘性提升闭环体系</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-line"></i></span><h4>3.1.9 服务数据经营分析知识域</h4><ul class="detail-list"><li>服务时效、工单效率、客诉指标、质量指标、体验指标统计分析知识；服务人员效能、班组效能、渠道效能、场景效能差异化分析方法论；服务问题归因、高频问题统计、短板环节诊断、优化策略输出规范；服务经营看板、月度/季度服务报告、决策支撑输出标准化体系</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>3.1.10 服务数智迭代知识域</h4><ul class="detail-list"><li>服务自动化、智能化、数字化落地适配知识，智能客服、机器人接待落地规范；服务数据治理、服务指标标准化、服务资产沉淀方法论；AI赋能服务、智能分诊、智能答疑、智能质检、智能预警落地体系；服务体系持续迭代、流程优化、标准升级、能力复用迭代知识</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.2 服务中台专属知识图谱体系（核心专项）</div>
+        <div class="content-text" style="margin-bottom: 1.5rem;">服务知识图谱（ServGraph）是企业全域客户服务实体、服务规则、诉求关联、问题因果、处置逻辑、体验关系、服务经验的结构化智能知识网络。基于全域客户诉求数据、工单处置数据、沟通对话数据、质检考核数据、客诉复盘数据、客户回访数据，通过知识抽取、三元组构建、规则关联、因果推理、问题匹配，搭建覆盖「客户-渠道-诉求-工单-服务人员-处置方案-质检规则-体验结果-风险隐患」的全域服务知识网络，解决传统服务「应答依赖人工、诉求关联看不清、隐性问题难发现、服务经验不沉淀、体验短板无依据」的痛点，实现服务可接待、可处置、可管控、可推理、可预警、可体验、可传承、可迭代。</div>
+        
+        <div class="subsection-title">3.2.1 服务知识图谱核心实体体系</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-user"></i></span><h4>客户主体实体</h4><ul class="detail-list"><li>个人客户、企业客户、客户分层、客户标签、客户生命周期、客户粘性等级</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-broadcast-tower"></i></span><h4>服务渠道实体</h4><ul class="detail-list"><li>热线电话、线上客服、社群、门店、官网、小程序、第三方平台渠道</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-comment-dots"></i></span><h4>客户诉求实体</h4><ul class="detail-list"><li>咨询类、售后类、故障类、投诉类、建议类、退款类、履约类诉求</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-ticket-alt"></i></span><h4>服务工单实体</h4><ul class="detail-list"><li>工单编号、工单类型、优先级、处置节点、办结状态、延期记录、归档信息</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-user-tie"></i></span><h4>服务人员实体</h4><ul class="detail-list"><li>客服人员、运维人员、售后人员、对接人员、服务班组、权限角色</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-wrench"></i></span><h4>处置方案实体</h4><ul class="detail-list"><li>标准答疑话术、故障排查步骤、客诉处置流程、赔付标准、整改方案</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-clipboard-check"></i></span><h4>服务质检实体</h4><ul class="detail-list"><li>质检维度、扣分标准、违规类型、整改要求、质检结果、优秀案例</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-smile"></i></span><h4>体验结果实体</h4><ul class="detail-list"><li>满意度评分、差评标签、NPS分值、流失倾向、口碑标签、回访结果</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-gavel"></i></span><h4>服务规则实体</h4><ul class="detail-list"><li>响应时效标准、工单流转规则、客诉升级阈值、服务合规规范、考核标准</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.2.2 服务知识图谱核心关联关系</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>诉求-工单关联</h4><ul class="detail-list"><li>客户诉求自动匹配工单类型、优先级、对应处置部门与人员</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>工单-流程关联</h4><ul class="detail-list"><li>工单节点绑定流转规则、时效标准、督办机制、延期审批流程</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>诉求-方案关联</h4><ul class="detail-list"><li>同类诉求自动匹配标准话术、排查步骤、处置方案、答疑模板</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>人员-工单关联</h4><ul class="detail-list"><li>服务人员绑定负责场景、工单配额、处置效率、考核指标</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>工单-质检关联</h4><ul class="detail-list"><li>办结工单自动匹配质检规则、抽检标准、违规判定条件</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>诉求-体验关联</h4><ul class="detail-list"><li>高频诉求、未闭环问题、超时工单关联满意度差评、流失倾向</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>问题-风险关联</h4><ul class="detail-list"><li>重复诉求、批量投诉、超时工单关联服务风险、舆情风险</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>案例-规则关联</h4><ul class="detail-list"><li>优质服务案例、违规差评案例沉淀为标准化服务规则与避坑体系</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.2.3 服务知识图谱核心能力与价值</div>
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-archive"></i></span><h4>服务经验结构化沉淀</h4><ul class="detail-list"><li>将零散答疑经验、故障处置经验、客诉处理经验、服务合规经验结构化入库</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>诉求工单智能关联</h4><ul class="detail-list"><li>自动串联客户诉求、工单流转、人员处置、体验反馈全链路数据，消除服务数据孤岛</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exclamation-triangle"></i></span><h4>服务风险智能预警</h4><ul class="detail-list"><li>基于因果关系识别工单超时、批量投诉、服务违规、客户流失风险</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-magic"></i></span><h4>诉求场景智能匹配</h4><ul class="detail-list"><li>根据客户问题场景自动匹配话术、处置流程、排查方案、应答口径</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-search"></i></span><h4>体验短板智能推理</h4><ul class="detail-list"><li>自动推导满意度波动、差评集中、投诉上升的核心服务原因</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>服务标准标准化传承</h4><ul class="detail-list"><li>摆脱资深服务人员个人经验依赖，实现企业服务体系标准化复制迭代</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>全域服务态势可视化</h4><ul class="detail-list"><li>全景展示工单态势、时效态势、质量态势、体验态势、风险态势</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S3 六大核心架构 ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> 服务中台六大核心架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span>
+      </div>
+      <div class="card-body">
+        <div class="subsection-title">4.1 产品架构（服务中台九层分层全景）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">整体分层：全域客户渠道接入层 → 服务诉求融合层 → 服务标准规则层 → 服务自动化流程层 → 工单与履约管控层 → 质量质检与客诉管控层 → 服务风险合规层 → 客户体验智能应用层 → 服务全域治理层</div>
+        <div class="arch-diagram" style="margin-bottom: 2rem;">
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-phone-alt"></i> 接入层</div><div class="layer-blocks"><span class="arch-block">全域客户渠道统一接入</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-filter"></i> 融合层</div><div class="layer-blocks"><span class="arch-block">多渠道诉求清洗</span><span class="arch-block">标准化归类</span><span class="arch-block">去重合并</span><span class="arch-block">差异对齐</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-gavel"></i> 规则层</div><div class="layer-blocks"><span class="arch-block">统一服务话术</span><span class="arch-block">响应时效</span><span class="arch-block">工单标准</span><span class="arch-block">质检规则</span><span class="arch-block">客诉分级</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-cogs"></i> 流程层</div><div class="layer-blocks"><span class="arch-block">诉求分诊</span><span class="arch-block">工单派发</span><span class="arch-block">进度推送</span><span class="arch-block">回访触发</span><span class="arch-block">报表生成</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-tasks"></i> 管控层</div><div class="layer-blocks"><span class="arch-block">工单全生命周期</span><span class="arch-block">履约跟进</span><span class="arch-block">售后处置</span><span class="arch-block">跨部门协同</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-clipboard-check"></i> 质检层</div><div class="layer-blocks"><span class="arch-block">智能质检</span><span class="arch-block">人工复核</span><span class="arch-block">客诉分层处置</span><span class="arch-block">升级督办</span><span class="arch-block">问题整改</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-shield-alt"></i> 合规层</div><div class="layer-blocks"><span class="arch-block">事前话术预警</span><span class="arch-block">事中违规拦截</span><span class="arch-block">事后审计复盘</span><span class="arch-block">风险台账闭环</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-line"></i> 应用层</div><div class="layer-blocks"><span class="arch-block">服务经营看板</span><span class="arch-block">体验分析</span><span class="arch-block">智能答疑</span><span class="arch-block">差评诊断</span><span class="arch-block">服务决策支撑</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-sync-alt"></i> 治理层</div><div class="layer-blocks"><span class="arch-block">服务制度治理</span><span class="arch-block">数据治理</span><span class="arch-block">流程治理</span><span class="arch-block">质量治理</span><span class="arch-block">知识治理</span><span class="arch-block">资产治理</span></div></div>
+        </div>
+        
+        <div class="subsection-title">4.2 业务架构（服务中台三层业务域架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">上层：前台客户体验赋能场景层 | 中层：服务中台核心能力层（全渠道服务、工单闭环、智能质检、客诉处置、体验运营、服务风控原子能力） | 下层：全域支撑底座层（技术中台云原生底座、数据中台数据治理能力、AI算法中台智能推理能力、运维中台稳态保障、财务中台合规管控）</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-phone-alt"></i></span><h4>全渠道接入业务域</h4><ul class="detail-list"><li>多渠道诉求汇聚、统一分诊、诉求标准化、重复诉求合并</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tasks"></i></span><h4>智能工单业务域</h4><ul class="detail-list"><li>工单创建、分派、督办、流转、办结、归档、台账统计全流程管理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-headset"></i></span><h4>全周期履约服务业务域</h4><ul class="detail-list"><li>售前咨询、售中跟进、售后运维、故障排查、退换货处置</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exclamation-triangle"></i></span><h4>客诉专项处置业务域</h4><ul class="detail-list"><li>客诉分级、升级督办、赔付管理、复盘整改、舆情防控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-clipboard-check"></i></span><h4>服务质量质检业务域</h4><ul class="detail-list"><li>智能质检、人工抽检、打分考核、问题整改、能力培训</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-heartbeat"></i></span><h4>客户体验运营业务域</h4><ul class="detail-list"><li>满意度调研、NPS管理、差评修复、客户关怀、流失预警</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>服务合规风控业务域</h4><ul class="detail-list"><li>话术合规、隐私保护、服务承诺管控、风险预警、合规审计</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>服务知识智能业务域</h4><ul class="detail-list"><li>服务知识沉淀、知识图谱推理、智能答疑、规则迭代、案例复用</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.2.3 服务中台核心业务流转</div>
+        <div class="content-text" style="margin-bottom: 2rem;">全域客户诉求统一接入 → 多渠道诉求标准化清洗归类 → 匹配服务标准与处置规则 → 自动化工单分派与流程流转 → 履约服务与客诉同步管控 → 知识图谱智能质检与风险预警 → 服务数据沉淀汇总 → 体验分析与服务报表输出 → 问题整改闭环 → 服务制度与规则迭代优化 → 服务知识图谱更新沉淀，形成「诉求入池-智能分诊-自动处置-全程质控-体验输出-迭代优化」完整客户服务经营闭环。</div>
+        
+        <div class="subsection-title">4.3 数据架构（服务中台专属七层数据架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">服务中台依托全域中台统一数据底座，搭建适配智能服务、体验精益、质量管控、合规经营的七层专属数据架构，打通客户诉求、工单处置、质检考核、客诉复盘、体验反馈、服务风险、服务知识全链路数据闭环，支撑服务自动化、智能化、精细化、可量化经营治理。</div>
+        <div class="arch-diagram" style="margin-bottom: 2rem;">
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-database"></i> SER-ODS</div><div class="layer-blocks"><span class="arch-block">原始接入层：全渠道对话、工单、客诉、回访、质检、体验原始数据</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-filter"></i> SER-DWD</div><div class="layer-blocks"><span class="arch-block">明细清洗层：清洗、去重、标准化、字段规整、诉求对齐、时间对齐</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-table"></i> SER-DWB</div><div class="layer-blocks"><span class="arch-block">业务宽表层：客户信息、渠道场景、工单处置、人员服务、质检结果、体验反馈一体化宽表</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-project-diagram"></i> SER-DWA</div><div class="layer-blocks"><span class="arch-block">知识关联层：抽取诉求-工单-人员-方案-质检-体验-风险三元组数据，构建服务知识图谱数据源</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-bar"></i> SER-DWS</div><div class="layer-blocks"><span class="arch-block">主题汇总层：按时效、质量、客诉、体验、人员效能主题聚合统计</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-line"></i> SER-ADS</div><div class="layer-blocks"><span class="arch-block">指标应用层：时效、质量、效能、体验、风控、运营指标</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-sync-alt"></i> SER-OPT</div><div class="layer-blocks"><span class="arch-block">经营迭代层：沉淀服务短板、体验归因、质量优化、流程优化、标准优化数据</span></div></div>
+        </div>
+        
+        <div class="subsection-title">服务中台核心数据模型体系</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-comment-dots"></i></span><h4>渠道诉求数据模型</h4><ul class="detail-list"><li>渠道类型、诉求类目、问题标签、咨询内容、诉求时间、客户信息</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tasks"></i></span><h4>工单流转数据模型</h4><ul class="detail-list"><li>工单维度、优先级、流转节点、处置人员、时效记录、办结状态</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-user-tie"></i></span><h4>服务人员效能模型</h4><ul class="detail-list"><li>接待量、办结量、响应时长、满意度、差评率、违规次数</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exclamation-triangle"></i></span><h4>客诉管控数据模型</h4><ul class="detail-list"><li>客诉等级、投诉原因、处置时长、赔付情况、整改结果、复盘结论</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-clipboard-check"></i></span><h4>质检考核数据模型</h4><ul class="detail-list"><li>质检维度、扣分点、违规类型、整改时限、复检结果、考核得分</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-smile"></i></span><h4>客户体验数据模型</h4><ul class="detail-list"><li>满意度、NPS值、差评标签、回访结果、流失倾向、关怀记录</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>服务知识图谱数据模型</h4><ul class="detail-list"><li>服务实体、关联关系、规则三元组、场景匹配、问题推理模型</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.4 技术架构（服务中台云原生智能服务架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">服务中台基于全域统一云原生底座，叠加智能服务、规则引擎、知识图谱、AI质检技术栈，形成统一底座+服务专属智能引擎的七层技术架构，实现全渠道服务一体化、工单流转自动化、服务质检智能化、客户体验精细化、服务治理数字化。</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-plug"></i></span><h4>分层1：全域多源接入层</h4><ul class="detail-list"><li>API对接、会话探针、数据库直连、文件导入，实现全渠道、多业态、多场景服务数据统一接入</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>分层2：基础中间件层</h4><ul class="detail-list"><li>服务业务数据库、服务数仓、图数据库、缓存、消息队列、ETL调度、报表引擎</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>分层3：云原生统一底座层</h4><ul class="detail-list"><li>容器编排、微服务调度、统一网关、多租户隔离、分布式事务支撑</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-lock"></i></span><h4>分层4：服务安全权限层</h4><ul class="detail-list"><li>客户信息脱敏、角色权限、数据权限、操作审计、敏感服务信息管控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cogs"></i></span><h4>分层5：服务专属智能引擎层</h4><ul class="detail-list"><li>渠道分诊引擎、工单流转引擎、服务质检引擎、客诉风控引擎、服务知识图谱推理引擎、智能答疑引擎</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>分层6：服务能力服务封装层</h4><ul class="detail-list"><li>服务原子能力API封装、服务注册、能力编排、跨中台协同调用</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-desktop"></i></span><h4>分层7：服务智能应用层</h4><ul class="detail-list"><li>服务经营大屏、智能服务报表、风险预警中心、智能问答、体验诊断、服务复盘应用</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">横向贯穿三大体系</div>
+        <div class="grid-3" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-code"></i></span><h4>服务技术规范体系</h4><ul class="detail-list"><li>渠道接入规范、诉求映射规范、工单自动化规范、质检规则规范、服务报表输出标准</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>服务安全合规体系</h4><ul class="detail-list"><li>客户隐私安全、服务操作安全、话术合规、审计合规、制度合规体系</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>服务迭代保障体系</h4><ul class="detail-list"><li>制度迭代、规则迭代、模型迭代、知识迭代、指标迭代持续保障</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.5 应用架构（服务中台全场景赋能应用体系）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">服务中台为企业全域十大中台、所有前台客户经营场景提供统一服务管控、体验优化、质量合规、客户价值赋能，所有客户咨询、工单处置、客诉处理、质量质检、体验运营全部统一收口，形成八大服务赋能应用场景体系：</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-phone-alt"></i></span><h4>全渠道服务融合应用</h4><ul class="detail-list"><li>多渠道诉求统一接入、智能分诊、诉求去重、跨渠道协同、服务口径统一</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tasks"></i></span><h4>智能工单自动化应用</h4><ul class="detail-list"><li>工单自动创建、智能分派、超时督办、自动流转、一键办结归档</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-headset"></i></span><h4>全周期履约服务应用</h4><ul class="detail-list"><li>售前咨询赋能、售中进度跟进、售后故障处置、履约异常闭环</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exclamation-triangle"></i></span><h4>客诉智能处置应用</h4><ul class="detail-list"><li>客诉分级预警、升级督办、自动复盘、赔付管控、舆情风险防控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-clipboard-check"></i></span><h4>服务质量智能质检应用</h4><ul class="detail-list"><li>会话全量质检、工单合规质检、违规智能拦截、考核自动统计</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>服务风险智能防控应用</h4><ul class="detail-list"><li>话术违规、超时服务、虚假承诺、隐私泄露全维度风险预警与拦截</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-heartbeat"></i></span><h4>客户体验经营应用</h4><ul class="detail-list"><li>实时体验看板、差评归因分析、客户关怀、流失预警、口碑优化</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>服务知识智能应用</h4><ul class="detail-list"><li>服务规则检索、话术答疑、故障案例复用、处置方案智能推荐</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">服务中台统一应用访问链路</div>
+        <div class="content-text" style="margin-bottom: 2rem;">全域客户产生服务诉求 → 统一接入服务中台 → 诉求标准化分类处理 → 规则引擎自动分诊与工单管控 → 知识图谱智能质检风控 → 服务数据资产沉淀 → 体验分析与服务报表输出 → 问题整改与流程优化 → 服务知识与规则迭代升级 → 全流程合规审计留存。</div>
+        
+        <div class="subsection-title">4.6 治理架构（服务中台六大统一治理体系）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">聚焦服务全流程、全维度、全生命周期质量风险与资产沉淀，构建服务数据治理、服务制度治理、服务流程治理、服务质量治理、客户体验治理、服务知识迭代治理六大闭环治理域，实现企业全域服务可控、可量化、可追溯、可合规、可体验、可迭代。</div>
+        <div class="grid-3">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>服务数据治理</h4><ul class="detail-list"><li>服务数据标准、数据质量、诉求对齐、数据时效、服务资产全生命周期治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-gavel"></i></span><h4>服务制度治理</h4><ul class="detail-list"><li>服务话术制度、时效标准、工单制度、质检制度、客诉制度统一管控与迭代</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>服务流程治理</h4><ul class="detail-list"><li>咨询接待、工单流转、客诉处置、回访质检、归档复盘流程标准化与优化治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-clipboard-check"></i></span><h4>服务质量治理</h4><ul class="detail-list"><li>服务态度合规、应答准确、流程完整、问题闭环、质量短板闭环治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-heartbeat"></i></span><h4>客户体验治理</h4><ul class="detail-list"><li>满意度管控、差评整改、NPS优化、客户关怀、流失防控闭环治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>服务知识迭代治理</h4><ul class="detail-list"><li>服务知识入库、审核、更新、复用、案例迭代、规则质量管控</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S4 产品功能模块 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> 服务中台完整产品功能模块</h2>
+        <span class="badge-count">全维度全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-phone-alt"></i></span><h4>模块1：全域全渠道统一接入</h4><ul class="detail-list"><li>多渠道统一汇聚；诉求标准化治理；智能分诊匹配；重复诉求合并；无效诉求过滤；多业态适配</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tasks"></i></span><h4>模块2：智能工单全生命周期</h4><ul class="detail-list"><li>多类型工单创建；智能分派与抢单；工单时效管控；跨部门协同工单；工单办结核验；工单归档与溯源</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-headset"></i></span><h4>模块3：售前售中售后全周期服务</h4><ul class="detail-list"><li>售前智能咨询；售中履约跟进；售后故障排查；退换货履约服务；续费升级服务；定制化服务适配</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exclamation-triangle"></i></span><h4>模块4：客诉专项处置与复盘</h4><ul class="detail-list"><li>客诉分级管理；客诉快速响应；升级督办机制；赔付合规管控；客诉回访闭环；客诉复盘迭代</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-clipboard-check"></i></span><h4>模块5：智能服务质量质检</h4><ul class="detail-list"><li>全量会话质检；多维质检规则；智能违规预警；人工复核校验；质检考核打分；问题整改闭环</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-heartbeat"></i></span><h4>模块6：客户体验运营与关怀</h4><ul class="detail-list"><li>全场景满意度调研；NPS净推荐值管理；客户分层关怀；节日节点运营；差评专项修复；客户流失预警</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>模块7：服务合规与风险管控</h4><ul class="detail-list"><li>客户隐私保护；话术合规管控；服务时效合规；舆情风险防控；服务操作审计；合规自查复盘</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-line"></i></span><h4>模块8：服务效能与经营分析</h4><ul class="detail-list"><li>人员效能统计；班组效能分析；渠道效能分析；服务问题归因；服务经营大屏；自动服务报告</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-robot"></i></span><h4>模块9：智能客服与机器人应答</h4><ul class="detail-list"><li>智能问答机器人；语义智能理解；人工无缝转接；知识库实时更新；无人值守工单；机器人效能统计</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>模块10：服务知识图谱与智能知识库</h4><ul class="detail-list"><li>服务知识统一入库；服务知识三元组抽取；服务知识图谱可视化；智能知识检索；服务智能问答；知识自动迭代；知识质量管控</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S5 全套指标体系 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> 服务中台全套指标体系</h2>
+        <span class="badge-count">时效+质量+效能+体验+合规+风控+知识</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>服务时效核心指标</strong></td><td>平均首次响应时长≤30秒 · 普通工单按时办结率≥98% · 紧急工单10分钟响应率100% · 工单超时率≤1% · 客诉2小时首次响应率100% · 全流程服务闭环时效达标率≥99%</td></tr>
+              <tr><td><strong>服务质量管控指标</strong></td><td>服务质检合规率≥99.5% · 应答话术准确率≥99% · 工单处置规范率≥98.5% · 服务问题整改闭环率100% · 违规服务发生率≤0.3% · 优质服务案例产出率逐月提升</td></tr>
+              <tr><td><strong>服务人员效能指标</strong></td><td>人均有效接待量达标率100% · 工单一次性解决率≥95% · 工单重复返工率≤2% · 机器人问题解决率≥85% · 跨部门工单协同办结率≥97% · 服务人力成本同比优化≥5%</td></tr>
+              <tr><td><strong>客户体验核心指标</strong></td><td>客户整体满意度≥98% · 有效差评率≤1% · NPS净推荐值≥45分 · 差评整改修复率100% · 客户服务投诉率≤0.5% · 服务导致客户流失率趋近于0</td></tr>
+              <tr><td><strong>客诉管控指标</strong></td><td>客诉按时办结率≥99% · 重大客诉零漏处置率100% · 客诉重复发生率≤1% · 客诉复盘整改闭环率100% · 批量客诉风险拦截率100% · 客诉赔付合规率100%</td></tr>
+              <tr><td><strong>服务合规风控指标</strong></td><td>客户隐私合规率100% · 服务话术合规率≥99.8% · 服务风险预警覆盖率100% · 服务违规处置闭环率100% · 服务审计问题整改率100% · 舆情风险零事故达成率100%</td></tr>
+              <tr><td><strong>渠道运营指标</strong></td><td>全渠道服务覆盖度100% · 各渠道诉求处理均衡率≥98% · 渠道诉求合并准确率≥99% · 渠道服务数据同步率100% · 渠道服务异常处置率100%</td></tr>
+              <tr><td><strong>服务知识图谱专项指标</strong></td><td>服务制度与话术知识覆盖率100% · 服务知识三元组完整率≥99.5% · 服务问题智能匹配准确率≥96% · 故障方案智能推荐率≥95% · 服务知识迭代更新及时率≥99% · 新人服务上手效率提升≥80%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S6 完整内容体系 ===== -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> 服务中台完整内容体系</h2>
+        <span class="badge-count">交付物+标准+资产+文档全集</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>7.1 顶层规划类内容</h4><ul class="detail-list"><li>企业服务中台整体建设方案、数智服务转型白皮书、全周期客户体验建设总体规划；服务中台架构规划、智能服务建设路线图、服务能力迭代规划；企业服务成熟度评估报告、分阶段落地清单、服务数智化验收方案；企业全域服务标准化总则、服务资产复用与能力迭代整体规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>7.2 全域标准规范类内容</h4><ul class="detail-list"><li>全渠道服务统一话术规范、沟通礼仪标准、应答口径管理制度；工单流转标准化规范、诉求分类标准、时效管控、闭环验收规范；客诉分级处置标准、升级机制、赔付规范、复盘整改闭环规范；服务质检打分标准、抽检规则、问题整改、考核评级标准化规范；售前售中售后全周期服务SOP、场景化服务处置规范；客户隐私保护、服务合规、舆情防控、风险处置标准化规范；客户体验运营标准、满意度管理、差评修复、客户关怀标准化规范；服务知识图谱构建、服务知识沉淀、迭代更新标准化规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>7.3 服务中台核心资产内容</h4><ul class="detail-list"><li>全域服务数据资产库：渠道诉求、工单明细、客诉明细、质检明细、体验数据资产全集；服务规则资产库：话术模板、工单模板、客诉处置模板、回访模板、考核模板资产；服务制度资产库：全套服务管理制度、合规制度、考核制度、风控制度资产；服务预案资产库：客诉应急处置预案、舆情防控预案、服务异常整改模板；服务体验资产库：客户关怀模板、差评修复方案、客户分层运营模板；服务知识资产包：服务知识图谱、故障案例库、客诉案例库、服务FAQ、最佳实践库；诉求-工单-体验-风险全域映射矩阵、服务能力拓扑图</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tools"></i></span><h4>7.4 服务中台落地工程内容</h4><ul class="detail-list"><li>服务中台快速落地实施手册、全渠道服务融合轻量化搭建指南；渠道接入、规则配置、智能分诊、智能质检、风控配置全流程操作手册；服务能力API对接文档、系统接入规范、跨中台协同调用手册；服务知识图谱维护、知识更新、智能问答应用运维手册；服务上线验收标准、指标评估模板、服务体系迭代评审模板</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>7.5 服务中台治理运营类内容</h4><ul class="detail-list"><li>月度/季度服务经营报告、工单效能报告、服务质量分析报告；客户体验分析、客诉治理分析、渠道服务效能、服务降本增效报告；服务质量复盘台账、诉求短板整改台账、服务制度优化台账；重大客诉复盘报告、服务体系优化方案、服务能力迭代规划；服务合规审计报告、舆情自查报告、服务风险整改闭环台账</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>7.6 服务保障类文档</h4><ul class="detail-list"><li>服务中台运维手册、服务异常、质检异常、客诉异常排查FAQ；服务高峰保障预案、节假日服务值守与应急处置预案；重大舆情、批量投诉风险应急处置预案、服务危机保障手册；服务知识图谱持续迭代、知识质量保障、案例更新手册</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S7 协同关系总结 ===== -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-share-alt"></i> 服务中台与九大中台全域协同关系总结</h2>
+        <span class="badge-count">10大中台协同</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>1. 技术中台</h4><ul class="detail-list"><li>提供云原生集群、微服务、存储算力、调度底座，为服务中台多渠道接入、高并发服务、智能问答、海量会话处理提供底层技术支撑</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>2. 数据中台</h4><ul class="detail-list"><li>汇聚全域客户、业务、经营原始数据，为服务诉求治理、体验分析、服务指标计算、客户分层运营提供统一数据原料</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>3. 业务中台</h4><ul class="detail-list"><li>统一客户、订单、产品、履约业务实体与流程标准，支撑服务精准答疑、工单精准匹配、售后履约精准闭环</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-calculator"></i></span><h4>4. 算法中台</h4><ul class="detail-list"><li>提供语义识别、诉求分类、异常聚类、时序分析算法，支撑服务智能分诊、高频问题挖掘、客诉异常识别</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-microchip"></i></span><h4>5. 模型中台</h4><ul class="detail-list"><li>依托语义模型、归因模型、分类模型，实现客户诉求预判、差评风险预测、服务短板智能研判</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-brain"></i></span><h4>6. AI中台</h4><ul class="detail-list"><li>结合服务知识图谱实现智能答疑、智能质检、诉求智能匹配、服务自治式管控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bullhorn"></i></span><h4>7. 运营中台</h4><ul class="detail-list"><li>将客户体验、服务满意度、客诉指标纳入全域客户经营评估，实现服务价值可量化、客户口碑可落地</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tasks"></i></span><h4>8. 运维中台</h4><ul class="detail-list"><li>保障服务中台系统稳定、会话数据安全、服务链路可控、灾备可用，筑牢客户服务稳态底线</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-coins"></i></span><h4>9. 财务中台</h4><ul class="detail-list"><li>支撑服务赔付合规、服务人力成本核算、服务降本增效、服务费用合规管控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-concierge-bell"></i></span><h4>10. 服务中台</h4><ul class="detail-list"><li>反向赋能九大中台客户体验优化、前端业务问题整改、服务流程迭代、客户风险前置，是企业全域数智体系客户体验底线、口碑价值中枢、客户经营核心</li></ul></div>
+        </div>
+        <div class="info-tip" style="margin-top: 1.5rem;"><i class="fas fa-info-circle"></i> 全域十维闭环逻辑：技术筑基、数据供料、业务定标、算法赋逻、模型赋能、AI升维、运营增收、运维稳盘、财务控盘、服务提效，十大中台深度协同，构建企业可建设、可复用、可智能、可治理、可稳态、可经营、可增值、可体验的完整全域数智经营闭环体系。</div>
+      </div>
+    </section>
+
+    <!-- ===== S8 核心价值总结 ===== -->
+    <section id="s8" class="card banner-card">
+        <div class="card-body">
+            <!-- 顶部图标与标题 -->
+            <div class="value-header">
+                <div class="icon-big"><i class="fas fa-flag"></i></div>
+                <h2>服务中台核心价值总结</h2>
+                <p class="value-subtitle">六大维度 · 重塑企业全域客户体验与服务价值</p>
+            </div>
+
+            <!-- 价值网格 -->
+            <div class="value-grid">
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-unlink"></i></div>
+                    <div class="value-content">
+                        <h4>打破服务孤岛，构建全域一体化服务体系</h4>
+                        <p>彻底破除多渠道服务割裂、诉求分散、标准不一的问题，实现售前售中售后全链路、全渠道服务一体化融合，统一企业客户服务语言与体验口径。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-cubes"></i></div>
+                    <div class="value-content">
+                        <h4>服务能力资产化，实现服务经验可沉淀可传承</h4>
+                        <p>将企业服务话术、处置流程、质检标准、客诉预案、服务SOP全部资产化，摆脱资深服务人员经验依赖，实现企业服务能力整体沉淀、标准化复制。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-robot"></i></div>
+                    <div class="value-content">
+                        <h4>服务流程自动化提效，大幅降低人工服务成本</h4>
+                        <p>实现诉求分诊、工单流转、回访触发、报表输出、智能答疑全流程自动化，减少人工重复工作，大幅提升服务响应与闭环效率。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div class="value-content">
+                        <h4>服务管控智能化，筑牢客户体验与合规底线</h4>
+                        <p>依托服务知识图谱与AI智能能力，实现服务超时、话术违规、虚假承诺、客诉升级风险前置预警与事中拦截，从「事后整改」升级为「事前预防、事中管控」。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="value-content">
+                        <h4>体验数据实时化，支撑客户经营精准决策</h4>
+                        <p>实时输出服务时效、质量、满意度、客诉、体验短板经营数据，实现服务问题实时诊断、体验异动实时归因、服务策略实时调整。</p>
+                    </div>
+                </div>
+                <div class="value-item full-width">
+                    <div class="value-icon"><i class="fas fa-sync-alt"></i></div>
+                    <div class="value-content">
+                        <h4>知识体系持续迭代，驱动服务从被动响应向主动经营跃迁</h4>
+                        <p>通过专属服务知识体系与知识图谱，实现服务经验结构化、智能化、迭代化，推动企业服务从被动应答服务、流程标准化服务向智能服务、体验服务、客户价值经营服务高阶升级，持续为企业创造提效、提质、避险、增收的核心客户经营价值。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部注脚 -->
+            <div class="footer-note">服务中台 · 企业全域数智化客户经营与服务价值中枢</div>
+        </div>
+    </section>
+
+    <!-- ===== S9 营销中台专项 ===== -->
+    <section id="s9" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-bullhorn"></i> 营销中台专项完整体系</h2>
+        <span class="badge-count">全结构化完整版</span>
+      </div>
+      <div class="card-body">
+        <div class="section-title">10.1 营销中台标准定义</div>
+        <div class="content-text">
+          营销中台是企业全域数智化营销能力中枢与营销资产复用底座，隶属于企业全域中台增长经营与用户价值变现核心层，深度承接技术中台底层云原生底座、数据中台全域用户数据资产、业务中台业务实体标准、AI/算法/模型中台智能算力与推理能力、运营中台用户经营体系、财务中台成本合规管控、服务中台客户体验闭环，基于用户资产化、营销标准化、流程自动化、策略智能化、投放精细化、增长闭环化、资产可迭代理念，实现企业全域公域引流、私域沉淀、用户分层、活动营销、内容种草、渠道投放、会员经营、线索转化、复购增收、品牌传播的统一用户、统一策略、统一内容、统一投放、统一活动、统一数据、统一复盘、统一资产沉淀。
+        </div>
+        <div class="content-text">
+          营销中台彻底解决传统营销「渠道零散、策略混乱、用户割裂、重复投放、资源浪费、营销无标准、转化无闭环、数据不互通、经验不沉淀、投放凭经验、获客成本高、增长不可持续、营销无法精细化」的核心痛点，将企业所有营销策略、活动模板、投放规则、内容素材、用户标签、转化SOP、复盘方法论沉淀为标准化、自动化、智能化、可复用的营销数字资产，为企业全域用户增长、线索变现、业绩增收、品牌溢价、成本优化、长效经营提供标准化、精细化、智能化、可追溯、可迭代、可闭环的全域数智营销保障，是企业数智化增长转型、精益营销、长效增收的核心增长引擎。
+        </div>
+        
+        <div class="section-title">10.2 营销中台核心本质与定位</div>
+        <div class="content-text">
+          <strong>战略定位：</strong>企业全域数智营销管控中枢、全链路用户增长统一底座、营销资源治理中心、线索转化闭环中心、投放增效降本中心、品牌经营中心、营销资产沉淀与能力复用中心，是企业十大中台体系中唯一专注用户增长、商业变现、业绩增收的核心增长型中台。
+        </div>
+        <div class="content-text">
+          <strong>核心本质：</strong>营销制度标准化、营销流程自动化、营销策略智能化、投放管控精细化、用户资产价值化、营销成本可控化、营销能力可复用化、用户生命周期价值最大化。
+        </div>
+        <div class="content-text">
+          <strong>核心边界：</strong>向下承接全域用户数据、业务底座与智能算力、向上支撑前台全域营销场景与业绩增长、横向联动九大中台，专注全域渠道营销、用户分层经营、智能投放转化、活动内容营销、会员增长、线索闭环、营销风控、营销资产沉淀，不替代前台销售成交、不替代底层技术研发、不替代财务核算、不替代售后服务，专注企业全域营销的增效、降本、增收、长效经营。
+        </div>
+        
+        <div class="section-title">10.3 营销中台核心特征</div>
+        <ol class="normal-list">
+          <li><strong>全域营销一体化：</strong>打通公域、私域、线下、线上全营销链路，整合多渠道、多业态、多品牌营销资源，彻底破除营销孤岛；</li>
+          <li><strong>营销能力资产化：</strong>营销策略、活动模板、投放规则、内容素材、用户标签、转化SOP、复盘经验全部资产化、可复用、可迭代；</li>
+          <li><strong>营销流程自动化：</strong>用户分诊、线索流转、活动触发、触达自动化、报表生成全流程自动化，减少人工重复操作；</li>
+          <li><strong>营销策略智能化：</strong>依托营销知识图谱与AI算法模型，实现用户意图识别、策略智能推荐、投放自动优化、风险前置预警；</li>
+          <li><strong>投放管控精细化：</strong>渠道ROI实时监控、成本精细核算、预算动态调控、低效渠道自动淘汰，实现营销投入产出最大化；</li>
+          <li><strong>用户资产价值化：</strong>用户全生命周期价值量化、分层经营、高价值用户深耕、流失用户召回，实现用户资产持续增值；</li>
+          <li><strong>营销知识可沉淀迭代：</strong>构建专属营销知识体系与营销知识图谱，实现营销策略、投放经验、转化规律结构化、可推理、可传承、可迭代。</li>
+        </ol>
+      </div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>

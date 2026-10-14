@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>金融产品运维中台（金融全域运维智能中台）完整体系说明书【终极标准版】</title>
+<style>
+:root {
+  --color-primary: #1a4a7a;
+  --color-primary-light: #e8f0fa;
+  --color-primary-dark: #0f2f52;
+  --color-accent: #2e7db5;
+  --color-accent-soft: #cfe2f3;
+  --color-accent-glow: rgba(46,125,181,0.10);
+  --color-neutral-50: #f7f9fc;
+  --color-neutral-100: #eef3f9;
+  --color-neutral-200: #d6e0ec;
+  --color-neutral-300: #b6c4d6;
+  --color-neutral-400: #8a9bb0;
+  --color-neutral-600: #5a6b80;
+  --color-neutral-700: #3f4d60;
+  --color-neutral-800: #2a3545;
+  --color-neutral-900: #1a212e;
+  --color-gold: #b8860b;
+  --color-gold-light: #f5e6a3;
+  --color-jade: #2e8b57;
+  --color-jade-light: #d4ede0;
+  --color-success: #1f6e4a;
+  --color-warning: #b8860b;
+  --color-error: #b13a2a;
+  --font-base: 1rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --radius-sm: 0.75rem;
+  --radius-md: 1.25rem;
+  --radius-card: 2rem;
+  --radius-pill: 40px;
+  --shadow-card: 0 12px 32px -8px rgba(26,74,122,0.12);
+  --shadow-card-hover: 0 20px 48px -12px rgba(26,74,122,0.20);
+  --shadow-sidebar: 0 16px 40px -8px rgba(26,74,122,0.12);
+  --transition-default: 0.3s cubic-bezier(0.2,0.9,0.4,1);
+  --transition-bounce: 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  --transition-fade: 0.6s ease-out;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--color-neutral-50);
+  font-family: 'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  color: var(--color-neutral-900);
+  line-height:1.6;
+  scroll-behavior: smooth;
+  font-size: var(--font-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  animation: fadeInPage var(--transition-fade) both;
+}
+@keyframes fadeInPage { from { opacity:0; } to { opacity:1; } }
+::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+i { font-style:normal; display:inline-flex; align-items:center; justify-content:center; vertical-align:middle; }
+i svg { width:1em; height:1em; fill:currentColor; }
+
+/* Layout */
+.layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+/* Sidebar */
+.sidebar {
+  position:sticky; top:1.5rem; align-self:flex-start;
+  width:280px; flex-shrink:0;
+  background: rgba(245,249,255,0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sidebar);
+  border:1px solid rgba(200,220,240,0.6);
+  padding:1.6rem 0.8rem;
+  max-height:calc(100vh - 3rem);
+  overflow-y:auto;
+  transition: var(--transition-default);
+  z-index:100;
+}
+.sidebar::-webkit-scrollbar { width:4px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+.sidebar-brand {
+  display:flex; align-items:center; gap:10px;
+  padding:0 1rem 1rem 1rem;
+  border-bottom:2px solid var(--color-primary-light);
+  margin-bottom:1rem;
+}
+.sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); letter-spacing:-0.01em; }
+.sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+.sidebar nav > ul { list-style:none; padding:0; margin:0; }
+.sidebar nav > ul > li { margin-bottom:0.1rem; }
+.sidebar nav > ul > li > a,
+.sidebar nav > ul > li > .nav-group > a {
+  display:flex; align-items:center; gap:12px;
+  padding:0.55rem 1rem; border-radius:var(--radius-pill);
+  font-weight:500; font-size:0.85rem;
+  color:var(--color-neutral-700); text-decoration:none;
+  transition: all var(--transition-default);
+  cursor:pointer;
+}
+.sidebar nav ul li a i, .sidebar nav ul li .nav-group > a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+.sidebar nav ul li a:hover,
+.sidebar nav ul li a:focus-visible,
+.sidebar nav ul li .nav-group > a:hover {
+  background:var(--color-primary-light);
+  color:var(--color-primary-dark);
+  transform:translateX(4px);
+}
+.sidebar nav ul li a.active {
+  background:var(--color-accent);
+  color:#fff;
+  font-weight:600;
+  box-shadow: 0 4px 12px rgba(46,125,181,0.3);
+}
+.sidebar nav ul li a.active i { color:#fff; }
+.nav-group .submenu {
+  list-style:none; padding:0.2rem 0 0.2rem 2.4rem; margin:0;
+  max-height:0; overflow:hidden;
+  transition: max-height 0.4s ease;
+}
+.nav-group.open .submenu { max-height:800px; }
+.nav-group .submenu li a {
+  display:block; padding:0.35rem 0.8rem; border-radius:8px;
+  font-size:0.78rem; color:var(--color-neutral-600); text-decoration:none;
+  transition: all 0.2s;
+}
+.nav-group .submenu li a:hover { background:var(--color-primary-light); color:var(--color-primary-dark); }
+.nav-group > a .arrow { margin-left:auto; transition:transform 0.3s; font-size:0.7rem; opacity:0.6; }
+.nav-group.open > a .arrow { transform:rotate(90deg); }
+.sidebar-footer {
+  margin-top:24px; padding:12px; text-align:center;
+  font-size:0.7rem; color:var(--color-neutral-600);
+  border-top:1px solid var(--color-neutral-200);
+}
+
+/* Main */
+.main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+/* Header */
+.page-header {
+  margin-bottom: var(--space-6);
+  padding: var(--space-4) 0 var(--space-2) 0;
+  display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:var(--space-4);
+}
+.page-header h1 {
+  font-size: clamp(1.4rem, 2.8vw, 2.2rem);
+  font-weight:800; letter-spacing:-0.025em;
+  background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  display:flex; align-items:center; gap:0.5rem;
+}
+.page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+.page-header .header-meta {
+  font-size:0.85rem; color:var(--color-neutral-600);
+  background:var(--color-neutral-100);
+  padding:0.4rem 1.2rem; border-radius:var(--radius-pill);
+  border:1px solid var(--color-neutral-200);
+}
+
+/* Card */
+.card {
+  background:rgba(255,255,255,0.92);
+  backdrop-filter:blur(4px);
+  border-radius:var(--radius-card);
+  box-shadow:var(--shadow-card);
+  margin-bottom:var(--space-6);
+  border:1px solid rgba(220,230,240,0.5);
+  overflow:hidden;
+  transition: box-shadow var(--transition-default), transform 0.25s;
+  animation: slideUp 0.7s var(--transition-default) both;
+}
+.card:nth-child(odd) { animation-delay:0.1s; }
+.card:nth-child(even) { animation-delay:0.2s; }
+@keyframes slideUp { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+.card:hover { box-shadow:var(--shadow-card-hover); transform:translateY(-2px); }
+.card-header {
+  padding:1.2rem var(--space-6);
+  background:linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+  border-bottom:2px solid var(--color-accent-soft);
+  display:flex; align-items:center; gap:var(--space-3);
+}
+.card-header h2 {
+  font-size:clamp(1.1rem,2vw,1.5rem);
+  font-weight:700; color:var(--color-primary-dark);
+  display:flex; align-items:center; gap:12px; letter-spacing:-0.01em;
+}
+.card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+.card-header .badge-count {
+  margin-left:auto; background:var(--color-accent); color:#fff;
+  border-radius:var(--radius-pill); padding:0.15rem 0.9rem;
+  font-size:0.7rem; font-weight:600; letter-spacing:0.3px;
+}
+.card-body { padding:1.8rem var(--space-6); }
+
+/* Grid */
+.grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+.grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+@media (max-width:1024px){ .grid-2{grid-template-columns:repeat(2,1fr);} .grid-3{grid-template-columns:repeat(2,1fr);} }
+@media (max-width:760px){ .grid-2,.grid-3{grid-template-columns:1fr;} }
+
+/* Policy card */
+.policy-card {
+  background:linear-gradient(145deg,#ffffff,var(--color-neutral-50));
+  border-radius:var(--radius-md);
+  padding:1.3rem 1.3rem 1rem;
+  border:1px solid var(--color-neutral-200);
+  transition: all var(--transition-default);
+  position:relative; overflow:hidden;
+  border-left:4px solid var(--color-accent);
+}
+.policy-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft));
+  opacity:0; transition:opacity var(--transition-default);
+}
+.policy-card:hover::before { opacity:1; }
+.policy-card:hover { border-color:var(--color-accent-soft); box-shadow:0 8px 24px -8px rgba(46,125,181,0.15); transform:translateY(-3px); }
+.policy-card .policy-icon {
+  font-size:1.8rem; color:var(--color-primary);
+  display:inline-block; margin-right:6px;
+  background:var(--color-primary-light); padding:0.2rem 0.6rem; border-radius:12px;
+}
+.policy-card h4 { color:var(--color-primary-dark); font-size:1.05rem; margin-bottom:0.4rem; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.policy-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+.policy-card .detail-list { padding-left:0; margin:0.4rem 0 0 0; list-style:none; }
+.policy-card .detail-list li { margin-bottom:0.25rem; padding-left:1.2rem; position:relative; font-size:0.85rem; color:var(--color-neutral-700); }
+.policy-card .detail-list li::before { content:'▹'; position:absolute; left:0; color:var(--color-accent); font-weight:600; }
+.policy-card .detail-list li strong { color:var(--color-neutral-800); }
+
+/* Content */
+.content-section { margin-bottom:1.2rem; }
+.content-section h3 { color:var(--color-primary-dark); font-size:1.1rem; margin-bottom:0.5rem; font-weight:700; }
+.content-section h4 { color:var(--color-primary-dark); font-size:1rem; margin-bottom:0.4rem; font-weight:600; }
+.content-section p { margin-bottom:0.6rem; font-size:0.9rem; color:var(--color-neutral-700); }
+.content-section ul { padding-left:1.2rem; margin-bottom:0.6rem; }
+.content-section li { margin-bottom:0.3rem; font-size:0.88rem; color:var(--color-neutral-700); }
+.content-section strong { color:var(--color-neutral-800); }
+.text-block { background:var(--color-neutral-50); border-radius:var(--radius-sm); padding:1rem 1.2rem; border:1px solid var(--color-neutral-200); margin-bottom:0.8rem; }
+
+/* Tables */
+table.data-table { width:100%; border-collapse:collapse; margin:0.5rem 0 1rem 0; font-size:0.85rem; border-radius:var(--radius-md); overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
+table.data-table thead th { background:linear-gradient(135deg, var(--color-primary), var(--color-accent)); color:#fff; padding:0.7rem 0.9rem; text-align:left; font-weight:600; font-size:0.82rem; }
+table.data-table tbody td { padding:0.65rem 0.9rem; border-bottom:1px solid var(--color-neutral-200); color:var(--color-neutral-700); vertical-align:top; }
+table.data-table tbody tr:nth-child(even) { background:var(--color-neutral-50); }
+table.data-table tbody tr:hover { background:var(--color-primary-light); }
+table.data-table td:first-child { font-weight:600; color:var(--color-primary-dark); white-space:nowrap; }
+
+/* Banner */
+.banner-card { background:linear-gradient(135deg,#1a3a6a,#2e5d9e); text-align:center; border-color:var(--color-accent-soft); }
+.banner-card .card-body { padding:2.5rem var(--space-6); }
+.banner-card .icon-big { font-size:3rem; color:#fff; opacity:0.7; margin-bottom:var(--space-3); }
+.banner-card h2 { color:#fff; font-size:clamp(1.3rem,2.4vw,1.8rem); margin-bottom:var(--space-2); }
+.banner-card p { max-width:720px; margin:0 auto; color:rgba(255,255,255,0.85); font-size:1rem; }
+.banner-card .footer-note { margin-top:var(--space-6); font-size:0.8rem; color:var(--color-gold-light); }
+.banner-card .risk-badge { display:inline-block; margin-top:1rem; background:rgba(255,255,255,0.15); color:#fff; padding:0.3rem 1rem; border-radius:var(--radius-pill); font-size:0.78rem; border:1px solid rgba(255,255,255,0.3); }
+
+/* Back to top */
+#backToTop {
+  position:fixed; bottom:2rem; right:2rem;
+  width:48px; height:48px; border-radius:50%;
+  background:var(--color-accent); color:#fff; border:none; cursor:pointer;
+  font-size:1.3rem; box-shadow:0 4px 16px rgba(46,125,181,0.4);
+  opacity:0; pointer-events:none; transition:opacity 0.3s, transform 0.3s;
+  z-index:999;
+}
+#backToTop.visible { opacity:1; pointer-events:auto; }
+#backToTop:hover { transform:scale(1.1); }
+
+/* Responsive */
+@media (max-width:1024px){ .sidebar{width:220px;} }
+@media (max-width:760px){
+  .sidebar{display:none;}
+  .layout{padding:0.5rem;}
+  .main-content{padding:0;}
+  .card-body{padding:1.25rem var(--space-4);}
+  .card-header{padding:1rem var(--space-4);}
+  .page-header{flex-direction:column; align-items:flex-start;}
+}
+
+/* Dark mode */
+@media (prefers-color-scheme:dark){
+  :root{
+    --color-neutral-50:#11151c;
+    --color-neutral-100:#1a2030;
+    --color-neutral-200:#253040;
+    --color-neutral-300:#3a4a60;
+    --color-neutral-400:#6a7a90;
+    --color-neutral-600:#a0b0c0;
+    --color-neutral-700:#c0d0e0;
+    --color-neutral-800:#e0e8f0;
+    --color-neutral-900:#f0f4f8;
+    --color-primary-light:#1a2a40;
+    --color-accent-soft:#2a4a6a;
+    --color-primary:#7ab4e0;
+    --color-primary-dark:#a0c8e8;
+    --color-accent:#5a9fd0;
+    --color-gold:#c29a4a;
+    --color-gold-light:#3a2a10;
+    --shadow-card:0 12px 32px -8px rgba(0,0,0,0.6);
+    --shadow-card-hover:0 20px 48px -12px rgba(0,0,0,0.7);
+    --shadow-sidebar:0 16px 40px -8px rgba(0,0,0,0.6);
+  }
+  body{background:#0a0e14;}
+  .card{background:#11151c; border-color:#253040;}
+  .card-header{background:#11151c; border-bottom-color:#2a3a50;}
+  .policy-card{background:#11151c; border-color:#253040;}
+  .policy-card .policy-icon{background:#1a2a40; color:#7ab4e0;}
+  .policy-card .detail-list li{color:#a0b0c0;}
+  .policy-card .detail-list li strong{color:#d0d8e0;}
+  .sidebar{background:rgba(15,20,30,0.92); border-color:#253040;}
+  .sidebar-brand{border-bottom-color:#2a3a50;}
+  .sidebar-brand h3{color:#7ab4e0;}
+  .sidebar nav ul li a{color:#a0b0c0;}
+  .sidebar nav ul li a:hover{background:#1a2a40; color:#fff;}
+  .text-block{background:#11151c; border-color:#253040;}
+  .banner-card{background:linear-gradient(135deg,#0a1020,#1a2a50);}
+  .banner-card p{color:#a0b0c0;}
+  .page-header h1{background:linear-gradient(135deg,#a0c8e8,#7ab4e0); -webkit-background-clip:text; background-clip:text;}
+  .page-header .header-meta{background:#1a2030; border-color:#2a3a50; color:#a0b0c0;}
+  table.data-table tbody td{border-bottom-color:#253040; color:#a0b0c0;}
+  table.data-table tbody tr:nth-child(even){background:#151b28;}
+  table.data-table tbody tr:hover{background:#1a2a40;}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar" role="navigation" aria-label="主导航">
+  <div class="sidebar-brand">
+    <i>🛡️</i>
+    <h3>FPOM 运维中台</h3>
+  </div>
+  <nav>
+    <ul>
+      <li><a href="#overview">📋 概览</a></li>
+      <li>
+        <div class="nav-group" id="nav-def">
+          <a href="#s1">📖 权威定义 <span class="arrow">▸</span></a>
+          <ul class="submenu">
+            <li><a href="#s1-1">核心本质定义</a></li>
+            <li><a href="#s1-2">行业悖论与价值</a></li>
+            <li><a href="#s1-3">三阶演进式定义</a></li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div class="nav-group" id="nav-evo">
+          <a href="#s2">📊 行业演进轨迹 <span class="arrow">▸</span></a>
+          <ul class="submenu">
+            <li><a href="#s2-table">标准化阶段表</a></li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div class="nav-group" id="nav-kd">
+          <a href="#s3">📚 七大知识体系 <span class="arrow">▸</span></a>
+          <ul class="submenu">
+            <li><a href="#kd1">知识域1 监管合规</a></li>
+            <li><a href="#kd2">知识域2 业务系统</a></li>
+            <li><a href="#kd3">知识域3 稳态运维</a></li>
+            <li><a href="#kd4">知识域4 敏态迭代</a></li>
+            <li><a href="#kd5">知识域5 安全治理</a></li>
+            <li><a href="#kd6">知识域6 AIOps</a></li>
+            <li><a href="#kd7">知识域7 自治演进</a></li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div class="nav-group" id="nav-graph">
+          <a href="#s4">🔗 FP-Graph知识图谱 <span class="arrow">▸</span></a>
+          <ul class="submenu">
+            <li><a href="#graph-entity">核心实体清单</a></li>
+            <li><a href="#graph-triple">三元组关系</a></li>
+            <li><a href="#graph-ability">六大核心能力</a></li>
+          </ul>
+        </div>
+      </li>
+      <li><a href="#s5">🏛️ 产品架构</a></li>
+      <li><a href="#s6">🏢 业务架构</a></li>
+      <li><a href="#s7">💾 数据架构</a></li>
+      <li><a href="#s8">⚙️ 技术架构</a></li>
+      <li><a href="#s9">🎯 应用架构</a></li>
+      <li>
+        <div class="nav-group" id="nav-mod">
+          <a href="#s10">🧩 功能模块 <span class="arrow">▸</span></a>
+          <ul class="submenu">
+            <li><a href="#m1">模块1 实时监控</a></li>
+            <li><a href="#m2">模块2 日志审计</a></li>
+            <li><a href="#m3">模块3 变更管控</a></li>
+            <li><a href="#m4">模块4 故障处置</a></li>
+            <li><a href="#m5">模块5 自愈运维</a></li>
+            <li><a href="#m6">模块6 资源容量</a></li>
+            <li><a href="#m7">模块7 容灾备份</a></li>
+            <li><a href="#m8">模块8 FP-Graph</a></li>
+            <li><a href="#m9">模块9 AIOps</a></li>
+            <li><a href="#m10">模块10 合规审计</a></li>
+            <li><a href="#m11">模块11 驾驶舱</a></li>
+          </ul>
+        </div>
+      </li>
+      <li><a href="#s11">📈 指标体系</a></li>
+      <li><a href="#s12">🚀 三阶演进路线</a></li>
+      <li><a href="#s13">📝 全文总结</a></li>
+    </ul>
+  </nav>
+  <div class="sidebar-footer">金融产品运维中台 · 金融全域运维智能底座</div>
+</aside>
+
+<main class="main-content">
+<header class="page-header">
+  <h1>🛡️ 金融产品运维中台完整体系说明书</h1>
+  <span class="header-meta">金融全域运维智能中台 · 终极标准版</span>
+</header>
+
+<!-- 概览 -->
+<section id="overview" class="card">
+  <div class="card-header">
+    <h2>📋 中台概览</h2>
+    <span class="badge-count">FULL SPEC</span>
+  </div>
+  <div class="card-body">
+    <div class="text-block">
+      <p style="font-size:1.05rem;font-weight:600;color:var(--color-primary-dark);">金融产品运维中台（金融全域运维智能中台）完整体系说明书【终极标准版】</p>
+      <p style="margin-bottom:0.8rem;"><span style="background:var(--color-accent);color:#fff;padding:0.2rem 0.8rem;border-radius:var(--radius-pill);font-size:0.8rem;">严格遵循算力/量化/AI Native中台统一范式 · 金融行业专属</span></p>
+      <p>本文严格遵循算力中台、量化交易中台、AI Native中台统一企业级顶层架构范式，结合金融行业"强合规、强稳定、零宕机、高安全、可审计、高并发、低风险"核心业务属性，深度挖掘、系统重构、结构化输出金融产品运维中台全域体系。</p>
+      <p>内容覆盖：精准官方定义、行业演进逻辑、七大完整知识体系、金融运维专属知识图谱、业务/产品/数据/技术/应用/功能六层架构、全量功能模块、标准化指标体系、三阶演进路线。整体结构层级、颗粒度、系统化程度、落地性完全对标顶级中台标准，可直接用于可研申报、架构评审、项目立项、产品方案、数字化建设汇报。</p>
+    </div>
+    <div class="text-block" style="border-left:4px solid var(--color-warning);background:linear-gradient(90deg,#fff8e6,var(--color-neutral-50));">
+      <p style="margin-bottom:0;"><strong>核心前置定位：</strong>金融产品运维中台是<strong>金融行业业务连续性底座、风险可控治理中枢、系统稳定运行管家、合规审计溯源平台</strong>。解决金融行业传统运维"碎片化、人工化、事后救火、风险不可见、合规难追溯、故障恢复慢、版本迭代风险高"的核心行业悖论。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 一、完整权威定义 -->
+<section id="s1" class="card">
+  <div class="card-header">
+    <h2>📖 一、金融产品运维中台 完整权威定义（演进式+本质式）</h2>
+    <span class="badge-count">1.1-1.3</span>
+  </div>
+  <div class="card-body">
+    <div class="content-section" id="s1-1">
+      <h3>1. 核心本质定义</h3>
+      <p><strong>金融产品运维中台（Financial Product Operation Middle Platform，FPOM）</strong>：是面向银行、证券、基金、期货、资管、量化、金融科技公司，基于金融监管规范、业务连续性要求、信息安全标准、交易系统稳定性要求，构建的统一、标准化、智能化、可审计、可自愈、可预判的金融全域运维能力中台底座。</p>
+      <p>中台统一收敛金融所有业务系统、交易系统、资管系统、量化系统、渠道系统、数据系统的运维能力，实现运维从人工救火、被动处置、分散运维，全面升级为标准化管控、可视化感知、智能化预判、自动化处置、全链路溯源、合规化闭环，是金融数字化稳态运营与敏态迭代的核心支撑中枢。</p>
+    </div>
+    <div class="content-section" id="s1-2">
+      <h3>2. 行业核心悖论与解决价值</h3>
+      <p><strong>金融行业核心悖论：</strong>金融业务迭代越快、交易并发越高、产品体系越复杂、监管要求越严，传统人工运维的疏漏风险、变更风险、宕机风险、合规风险、数据风险就越高，"业务越创新、运维越脆弱"成为行业共性痛点。</p>
+      <p><strong>运维中台核心价值：</strong>以系统化、平台化、智能化运维体系，隔离人为运维风险、前置系统隐患、固化合规流程、统一风险口径、实现故障自愈、保障业务永续，支撑金融业务高速迭代与绝对稳定的双向平衡。</p>
+    </div>
+    <div class="content-section" id="s1-3">
+      <h3>3. 三阶演进式定义（过去-现在-未来）</h3>
+      <p><strong>过去：分散人工救火运维时代</strong>——金融各系统独立运维、团队分散、工具零散、无统一标准，运维以事后故障抢修为主，变更无管控、操作无留痕、风险无预判，故障频发、恢复慢、合规追溯难，属于"人力驱动、被动运维"。</p>
+      <p><strong>现在：标准化平台管控时代</strong>——依托统一运维中台收敛全系统运维能力，实现监控统一、变更统一、权限统一、日志统一、告警统一、工单统一、合规统一，完成金融运维从"人工零散"向"体系化、标准化、可审计"的转型，支撑金融稳态运营与合规监管。</p>
+      <p><strong>未来：AI自治智能运维时代</strong>——结合大模型与运维知识图谱，实现故障智能预判、根因自动定位、风险智能推演、变更智能校验、系统自愈修复、运维策略自适应，进入预判式、无人化、自进化、自治理的金融全域智能运维新阶段。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 二、行业演进轨迹 -->
+<section id="s2" class="card">
+  <div class="card-header">
+    <h2>📊 二、金融产品运维行业演进轨迹（标准化阶段表）</h2>
+    <span class="badge-count">4阶段</span>
+  </div>
+  <div class="card-body">
+    <div id="s2-table">
+      <table class="data-table">
+        <thead>
+          <tr><th style="width:18%;">阶段</th><th style="width:22%;">运维模式</th><th style="width:35%;">核心特征</th><th style="width:25%;">典型痛点</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>人工分散运维期</td>
+            <td>各业务系统独立运维、人工值守、线下操作、事后抢修</td>
+            <td colspan="1">运维标准不统一、操作无留痕、故障响应慢、变更风险极高、合规无法追溯、人为失误频发</td>
+            <td>工具零散、数据孤岛、告警风暴、根因难定位、无法全局研判</td>
+          </tr>
+          <tr>
+            <td>工具零散运维期</td>
+            <td>引入各类监控、工单、日志工具，但工具割裂、数据不通、流程不闭环</td>
+            <td colspan="1">数据孤岛严重、告警风暴、根因定位难、无法全局研判、运维效率低、无法支撑复杂金融架构</td>
+            <td>缺少智能预判、经验无法沉淀、运维效率低</td>
+          </tr>
+          <tr>
+            <td>中台标准化运维期</td>
+            <td>全域运维能力收敛、流程固化、合规闭环、全链路监控、统一管控</td>
+            <td colspan="1">缺少智能预判能力、依赖人工经验、无法提前规避隐性风险、运维经验无法沉淀复用</td>
+            <td>行业处于探索落地阶段</td>
+          </tr>
+          <tr>
+            <td>AI自治运维期（未来）</td>
+            <td>知识图谱+AI大模型驱动，预判、定位、处置、自愈、迭代全自治</td>
+            <td colspan="1">行业处于探索落地阶段，需要标准化中台底座支撑能力落地</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 三、七大知识体系 -->
+<section id="s3" class="card">
+  <div class="card-header">
+    <h2>📚 三、金融产品运维中台 七大完整知识体系（闭环全覆盖）</h2>
+    <span class="badge-count">知识域1-7</span>
+  </div>
+  <div class="card-body">
+    <div class="text-block" style="margin-bottom:1.2rem;">
+      <p style="margin-bottom:0;">对标行业顶级中台知识域粒度，构建七大金融专属知识体系，覆盖合规、业务、技术、运维、安全、智能、演进全维度，构成金融运维中台唯一完整知识底座。</p>
+    </div>
+    <div class="grid-2">
+      <div class="policy-card" id="kd1">
+        <span class="policy-icon">📜</span>
+        <h4>知识域1：金融监管合规与运维审计知识域</h4>
+        <ul class="detail-list">
+          <li>银保监、证监、人行金融运维监管规范、信息科技风险管理指引；</li>
+          <li>金融系统操作留痕、日志留存、变更审批、权限分级、双人复核规范；</li>
+          <li>金融信息安全等级保护、等保2.0、三级/四级合规要求；</li>
+          <li>金融运维审计、事后追溯、风险报备、故障上报、监管报送体系；</li>
+          <li>金融业务连续性、容灾备份、故障停机时长、事故定级定责标准。</li>
+        </ul>
+      </div>
+      <div class="policy-card" id="kd2">
+        <span class="policy-icon">🏦</span>
+        <h4>知识域2：全品类金融业务系统知识域</h4>
+        <ul class="detail-list">
+          <li>交易类系统：股票、期货、期权、基金、量化交易、高频交易系统运维特征；</li>
+          <li>资管类系统：净值系统、产品系统、投研系统、风控系统运维特性；</li>
+          <li>渠道类系统：手机银行、交易APP、官网、终端柜台系统运维规范；</li>
+          <li>数据类系统：金融数仓、指标平台、数据中台、算力中台运维标准；</li>
+          <li>金融核心系统高可用、高并发、低延迟、零中断运行要求。</li>
+        </ul>
+      </div>
+      <div class="policy-card" id="kd3">
+        <span class="policy-icon">🔧</span>
+        <h4>知识域3：金融稳态运维工程知识域</h4>
+        <ul class="detail-list">
+          <li>7×24小时金融值守、日常巡检、容灾切换、备份恢复、资源管控体系；</li>
+          <li>金融系统变更管理、版本发布、灰度发布、回滚机制、变更风险管控；</li>
+          <li>故障分级、应急响应、故障排查、复盘整改、问题闭环工程；</li>
+          <li>服务器、网络、存储、数据库、中间件、算力资源运维标准；</li>
+          <li>金融业务高峰期压测、容量评估、峰值保障、重大活动保供体系。</li>
+        </ul>
+      </div>
+      <div class="policy-card" id="kd4">
+        <span class="policy-icon">🚀</span>
+        <h4>知识域4：金融敏态迭代运维知识域</h4>
+        <ul class="detail-list">
+          <li>金融DevSecOps研发运维一体化、安全左移、质量左移；</li>
+          <li>快速迭代场景下的变更风控、版本管控、灰度验证、投产保障；</li>
+          <li>多环境运维隔离：开发、测试、预生产、生产环境管控规范；</li>
+          <li>迭代风险识别、版本冲突规避、投产窗口管理、夜间投产管控。</li>
+        </ul>
+      </div>
+      <div class="policy-card" id="kd5">
+        <span class="policy-icon">🔒</span>
+        <h4>知识域5：金融安全与风险治理知识域</h4>
+        <ul class="detail-list">
+          <li>运维权限治理、最小权限原则、账号安全、操作风控、越权拦截；</li>
+          <li>网络安全、主机安全、应用安全、数据安全、接口安全运维体系；</li>
+          <li>人为操作风险、变更风险、漏洞风险、病毒风险、入侵风险治理；</li>
+          <li>金融数据防泄露、防篡改、备份防丢失、日志防篡改运维规范。</li>
+        </ul>
+      </div>
+      <div class="policy-card" id="kd6">
+        <span class="policy-icon">🤖</span>
+        <h4>知识域6：智能运维AIOps工程知识域</h4>
+        <ul class="detail-list">
+          <li>海量运维日志、指标、链路数据的结构化分析与异常挖掘；</li>
+          <li>时序异常检测、趋势预测、阈值自适应、告警降噪、根因分析；</li>
+          <li>运维知识沉淀、故障案例库、风险规则库、策略库构建；</li>
+          <li>自动化自愈、自动恢复、自动切换、自动巡检智能工程体系。</li>
+        </ul>
+      </div>
+      <div class="policy-card" id="kd7" style="grid-column:1 / -1;">
+        <span class="policy-icon">🌐</span>
+        <h4>知识域7：金融运维自治演进知识域</h4>
+        <ul class="detail-list" style="display:grid;grid-template-columns:repeat(2,1fr);gap:0 1.5rem;">
+          <li>大模型赋能运维问答、故障推理、风险推演、报告自动生成；</li>
+          <li>运维策略自适应、风险规则自迭代、巡检策略自优化；</li>
+          <li>全域运维态势感知、全局风险研判、跨系统联动治理；</li>
+          <li>无人值守、自治运维、零人工干预的未来金融运维体系演进逻辑。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 四、FP-Graph知识图谱 -->
+<section id="s4" class="card">
+  <div class="card-header">
+    <h2>🔗 四、金融运维专属知识图谱（FP-Graph）完整体系</h2>
+    <span class="badge-count">实体+关系+能力</span>
+  </div>
+  <div class="card-body">
+    <div class="text-block" style="margin-bottom:1.2rem;">
+      <p style="margin-bottom:0;">构建金融行业首个全域运维知识图谱FP-Graph，打通「系统-资源-指标-告警-故障-变更-操作-风险-合规-策略」全实体关联，实现故障溯源、风险推演、合规校验、根因推理、策略优化全智能闭环。</p>
+    </div>
+    <div class="content-section" id="graph-entity">
+      <h3>1. 核心实体清单</h3>
+      <table class="data-table">
+        <thead><tr><th style="width:22%;">实体类型</th><th>实体示例</th></tr></thead>
+        <tbody>
+          <tr><td>业务系统实体</td><td>交易系统、资管系统、投研系统、数据中台、渠道终端系统</td></tr>
+          <tr><td>基础设施实体</td><td>服务器、算力节点、网络设备、存储、数据库、中间件、缓存</td></tr>
+          <tr><td>运维指标实体</td><td>CPU、内存、磁盘、时延、并发、成功率、报错率、连接数</td></tr>
+          <tr><td>告警事件实体</td><td>资源过载、接口异常、超时报错、连接中断、性能抖动</td></tr>
+          <tr><td>故障事件实体</td><td>系统宕机、交易中断、数据异常、服务不可用、峰值雪崩</td></tr>
+          <tr><td>变更操作实体</td><td>版本发布、配置修改、参数调整、权限变更、资源扩容</td></tr>
+          <tr><td>运维人员实体</td><td>运维工程师、值班人员、变更审批人、安全审计员</td></tr>
+          <tr><td>合规规则实体</td><td>等保规范、监管运维要求、变更审批规范、日志留存规范</td></tr>
+          <tr><td>运维策略实体</td><td>巡检策略、告警策略、容灾策略、自愈策略、变更风控策略</td></tr>
+          <tr><td>风险实体</td><td>变更风险、容量风险、性能风险、安全风险、断点风险</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="content-section" id="graph-triple">
+      <h3>2. 核心三元组关联关系</h3>
+      <ol style="padding-left:1.2rem;">
+        <li>基础设施实体 → 支撑运行 → 业务系统实体；</li>
+        <li>业务系统运行 → 产生采集 → 运维指标实体；</li>
+        <li>指标异常超限 → 触发生成 → 告警事件实体；</li>
+        <li>告警叠加恶化 → 演进形成 → 故障事件实体；</li>
+        <li>运维人员 → 执行操作 → 变更操作实体；</li>
+        <li>变更操作 → 直接影响 → 系统指标与故障风险；</li>
+        <li>合规规则实体 → 约束管控 → 所有运维操作与系统运行；</li>
+        <li>历史故障案例 → 沉淀迭代 → 运维策略实体；</li>
+        <li>策略执行偏差 → 产生新增 → 风险实体。</li>
+      </ol>
+    </div>
+    <div class="content-section" id="graph-ability">
+      <h3>3. FP-Graph核心六大智能能力</h3>
+      <div class="grid-2">
+        <div class="policy-card">
+          <span class="policy-icon">🔍</span>
+          <h4>故障全链路溯源</h4>
+          <p style="font-size:0.85rem;color:var(--color-neutral-700);">从业务故障回溯指标、告警、资源、变更、操作根因。</p>
+        </div>
+        <div class="policy-card">
+          <span class="policy-icon">⚠️</span>
+          <h4>风险传导智能推演</h4>
+          <p style="font-size:0.85rem;color:var(--color-neutral-700);">预判单点资源异常扩散为全域业务故障的传导路径。</p>
+        </div>
+        <div class="policy-card">
+          <span class="policy-icon">📋</span>
+          <h4>变更风险智能评估</h4>
+          <p style="font-size:0.85rem;color:var(--color-neutral-700);">自动研判版本变更、配置修改带来的系统风险等级。</p>
+        </div>
+        <div class="policy-card">
+          <span class="policy-icon">✅</span>
+          <h4>合规智能校验</h4>
+          <p style="font-size:0.85rem;color:var(--color-neutral-700);">自动识别运维操作不合规、流程缺失、日志断档问题。</p>
+        </div>
+        <div class="policy-card">
+          <span class="policy-icon">⚙️</span>
+          <h4>运维策略迭代优化</h4>
+          <p style="font-size:0.85rem;color:var(--color-neutral-700);">基于历史故障自动优化巡检、告警、自愈策略。</p>
+        </div>
+        <div class="policy-card">
+          <span class="policy-icon">💡</span>
+          <h4>系统健康度全景研判</h4>
+          <p style="font-size:0.85rem;color:var(--color-neutral-700);">图谱联动计算全域金融系统稳态健康得分。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 五、产品架构 -->
+<section id="s5" class="card">
+  <div class="card-header">
+    <h2>🏛️ 五、金融产品运维中台 产品架构（三层标准化架构）</h2>
+    <span class="badge-count">3层</span>
+  </div>
+  <div class="card-body">
+    <div class="grid-2">
+      <div class="policy-card">
+        <span class="policy-icon">🖥️</span>
+        <h4>1. 应用产品层（面向运维、开发、安全、合规、管理、监管）</h4>
+        <ul class="detail-list">
+          <li>全域运维态势驾驶舱</li>
+          <li>金融监控中心</li>
+          <li>故障应急处置平台</li>
+          <li>变更发布管理平台</li>
+          <li>运维工单平台</li>
+          <li>合规审计追溯平台</li>
+          <li>容灾备份管理平台</li>
+          <li>智能自愈运维平台</li>
+          <li>AIOps智能分析平台</li>
+          <li>监管报送运维平台</li>
+        </ul>
+      </div>
+      <div class="policy-card">
+        <span class="policy-icon">🔌</span>
+        <h4>2. 核心能力组件层（中台可复用、服务化输出）</h4>
+        <ul class="detail-list">
+          <li>全域监控组件</li>
+          <li>日志审计组件</li>
+          <li>链路追踪组件</li>
+          <li>变更管控组件</li>
+          <li>工单流程组件</li>
+          <li>容灾备份组件</li>
+          <li>资源调度组件</li>
+          <li>FP-Graph知识图谱组件</li>
+          <li>AIOps智能分析组件</li>
+          <li>风险治理组件</li>
+          <li>合规校验组件</li>
+          <li>自动化运维组件</li>
+          <li>开放网关组件</li>
+        </ul>
+      </div>
+      <div class="policy-card" style="grid-column:1 / -1;">
+        <span class="policy-icon">🏗️</span>
+        <h4>3. 基础底座层</h4>
+        <ul class="detail-list" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0 1.5rem;">
+          <li>金融高可用算力底座</li>
+          <li>时序数据存储底座</li>
+          <li>日志存储底座</li>
+          <li>图计算底座</li>
+          <li>加密存证底座</li>
+          <li>多环境隔离底座</li>
+          <li>权限租户隔离底座</li>
+          <li>安全防护底座</li>
+          <li>灾备冗余底座</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 六、业务架构 -->
+<section id="s6" class="card">
+  <div class="card-header">
+    <h2>🏢 六、金融产品运维中台 业务架构（四层标准化架构）</h2>
+    <span class="badge-count">4层</span>
+  </div>
+  <div class="card-body">
+    <div class="content-section">
+      <h3>1. 战略管理层</h3>
+      <p>金融IT运维体系规划、业务连续性治理、运维合规体系建设、智能化运维升级规划、故障压降战略、变更风险管控战略、监管适配升级、全域稳态保障规划。</p>
+    </div>
+    <div class="content-section">
+      <h3>2. 六大核心业务域</h3>
+      <div class="grid-2">
+        <div class="policy-card">
+          <span class="policy-icon">📡</span>
+          <h4>业务域1：全域稳态监控业务域</h4>
+          <p style="font-size:0.85rem;color:var(--color-neutral-700);">基础设施、中间件、数据库、应用、交易链路、用户体验全方位实时监控，异常毫秒级感知。</p>
+        </div>
+        <div class="policy-card">
+          <span class="policy-icon">🔄</span>
+          <h4>业务域2：变更与发布风控业务域</h4>
+          <p style="font-size:0.85rem;color:var(--color-neutral-700);">版本发布、配置变更、参数调整全流程审批、灰度、校验、回滚、留痕闭环，严控金融变更风险。</p>
+        </div>
+        <div class="policy-card">
+          <span class="policy-icon">🚨</span>
+          <h4>业务域3：故障应急与自愈业务域</h4>
+          <p style="font-size:0.85rem;color:var(--color-neutral-700);">故障告警、降噪、定位、分派、处置、复盘、整改闭环，支持自动化自愈与容灾切换。</p>
+        </div>
+        <div class="policy-card">
+          <span class="policy-icon">📊</span>
+          <h4>业务域4：资源容量治理业务域</h4>
+          <p style="font-size:0.85rem;color:var(--color-neutral-700);">算力、存储、网络、数据库资源监控、容量预判、峰值调度、资源优化、浪费治理。</p>
+        </div>
+        <div class="policy-card">
+          <span class="policy-icon">🔐</span>
+          <h4>业务域5：安全与合规审计业务域</h4>
+          <p style="font-size:0.85rem;color:var(--color-neutral-700);">全操作留痕、日志存证、合规校验、风险审计、问题整改、监管报送支撑。</p>
+        </div>
+        <div class="policy-card">
+          <span class="policy-icon">🤖</span>
+          <h4>业务域6：AIOps智能自治业务域</h4>
+          <p style="font-size:0.85rem;color:var(--color-neutral-700);">异常智能检测、根因智能分析、风险智能推演、策略智能迭代、运维无人化升级。</p>
+        </div>
+      </div>
+    </div>
+    <div class="content-section">
+      <h3>3. 支撑业务域</h3>
+      <p>权限租户管理、运维排班管理、绩效考核、运维报表、故障台账、变更台账、合规台账、知识库管理。</p>
+    </div>
+    <div class="content-section">
+      <h3>4. 外部生态对接域</h3>
+      <p>对接金融交易系统、资管系统、数据中台、算力中台、安全平台、监管报送平台、DevOps研发平台、灾备中心。</p>
+    </div>
+    <div class="text-block" style="background:linear-gradient(90deg,#eef5ff,var(--color-neutral-50));border-left:4px solid var(--color-accent);">
+      <p style="margin-bottom:0;"><strong>完整业务闭环：</strong>全域监控感知 → 风险预判识别 → 变更严格管控 → 故障快速处置 → 合规审计存证 → 数据沉淀分析 → 智能策略迭代 → 稳态持续保障</p>
+    </div>
+  </div>
+</section>
+
+<!-- 七、数据架构 -->
+<section id="s7" class="card">
+  <div class="card-header">
+    <h2>💾 七、金融产品运维中台 数据架构（五层标准化架构）</h2>
+    <span class="badge-count">5层</span>
+  </div>
+  <div class="card-body">
+    <div class="grid-2">
+      <div class="policy-card">
+        <span class="policy-icon">📥</span>
+        <h4>1. 数据采集层</h4>
+        <ul class="detail-list">
+          <li>主机指标、网络指标、存储指标</li>
+          <li>数据库指标、中间件指标、应用性能指标</li>
+          <li>交易链路数据、系统日志、操作日志</li>
+          <li>变更日志、告警数据、故障数据</li>
+          <li>工单数据、容灾备份数据</li>
+        </ul>
+      </div>
+      <div class="policy-card">
+        <span class="policy-icon">🔀</span>
+        <h4>2. 融合加工层</h4>
+        <ul class="detail-list">
+          <li>多源数据清洗、时序对齐</li>
+          <li>数据脱敏、异常标签化</li>
+          <li>故障分类、变更结构化</li>
+          <li>风险等级打分、日志标准化解析</li>
+          <li>数据质量校验</li>
+        </ul>
+      </div>
+      <div class="policy-card">
+        <span class="policy-icon">🕸️</span>
+        <h4>3. 知识图谱建模层（FP-Graph核心）</h4>
+        <ul class="detail-list">
+          <li>构建系统-资源-指标-告警-故障-变更-人员-合规-策略全域实体关系网络</li>
+          <li>实时图谱更新、风险传导建模、故障溯源建模、运维行为建模</li>
+        </ul>
+      </div>
+      <div class="policy-card">
+        <span class="policy-icon">📊</span>
+        <h4>4. 业务主题指标层</h4>
+        <ul class="detail-list">
+          <li>系统可用性主题</li>
+          <li>故障治理主题</li>
+          <li>变更风控主题</li>
+          <li>资源容量主题</li>
+          <li>合规审计主题</li>
+          <li>智能运维主题</li>
+          <li>业务连续性主题</li>
+        </ul>
+      </div>
+      <div class="policy-card" style="grid-column:1 / -1;">
+        <span class="policy-icon">📤</span>
+        <h4>5. 服务输出层</h4>
+        <ul class="detail-list" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0 1.5rem;">
+          <li>监控数据服务</li>
+          <li>故障溯源服务</li>
+          <li>合规报表服务</li>
+          <li>容量分析服务</li>
+          <li>图谱推理服务</li>
+          <li>智能预警服务</li>
+          <li>监管报送数据服务</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 八、技术架构 -->
+<section id="s8" class="card">
+  <div class="card-header">
+    <h2>⚙️ 八、金融产品运维中台 技术架构（七层标准化架构）</h2>
+    <span class="badge-count">7层</span>
+  </div>
+  <div class="card-body">
+    <div class="text-block" style="text-align:center;font-size:0.95rem;font-weight:600;color:var(--color-primary-dark);margin-bottom:1.2rem;">
+      数据采集层 → 统一网关层 → 微服务业务层 → FP-Graph智能推理层 → 计算引擎层 → 多层存储层 → 运维管控层
+    </div>
+    <div class="grid-2">
+      <div class="policy-card">
+        <span class="policy-icon">📥</span>
+        <h4>1. 数据采集层</h4>
+        <p style="font-size:0.85rem;color:var(--color-neutral-700);">探针采集、SDK采集、日志采集、API采集、时序指标采集、链路追踪采集、离线数据同步。</p>
+      </div>
+      <div class="policy-card">
+        <span class="policy-icon">🚪</span>
+        <h4>2. 统一网关层</h4>
+        <p style="font-size:0.85rem;color:var(--color-neutral-700);">金融级安全鉴权、租户隔离、流量管控、接口加密、访问风控、防越权、防攻击。</p>
+      </div>
+      <div class="policy-card">
+        <span class="policy-icon">⚙️</span>
+        <h4>3. 业务服务层</h4>
+        <p style="font-size:0.85rem;color:var(--color-neutral-700);">监控服务、变更服务、工单服务、容灾服务、审计服务、自愈服务、资源管理微服务集群。</p>
+      </div>
+      <div class="policy-card">
+        <span class="policy-icon">🧠</span>
+        <h4>4. 智能推理层</h4>
+        <p style="font-size:0.85rem;color:var(--color-neutral-700);">FP-Graph知识图谱引擎、故障溯源引擎、风险推演引擎、合规校验引擎、策略优化引擎。</p>
+      </div>
+      <div class="policy-card">
+        <span class="policy-icon">💻</span>
+        <h4>5. 计算引擎层</h4>
+        <p style="font-size:0.85rem;color:var(--color-neutral-700);">实时流式计算、时序异常计算、故障聚合计算、容量预测计算、AI智能分析计算。</p>
+      </div>
+      <div class="policy-card">
+        <span class="policy-icon">💾</span>
+        <h4>6. 存储层</h4>
+        <p style="font-size:0.85rem;color:var(--color-neutral-700);">时序数据库（指标）、日志数据库（审计）、图数据库（知识图谱）、对象存储（备份台账）、缓存数据库（实时监控）。</p>
+      </div>
+      <div class="policy-card" style="grid-column:1 / -1;">
+        <span class="policy-icon">🛠️</span>
+        <h4>7. 运维管控层</h4>
+        <p style="font-size:0.85rem;color:var(--color-neutral-700);">系统运维、权限管控、版本管理、告警运维、灾备切换、合规日志运维、安全加固。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 九、应用架构 -->
+<section id="s9" class="card">
+  <div class="card-header">
+    <h2>🎯 九、金融产品运维中台 应用架构（七大核心应用场景）</h2>
+    <span class="badge-count">7大场景</span>
+  </div>
+  <div class="card-body">
+    <div class="grid-2">
+      <div class="policy-card">
+        <span class="policy-icon">🏛️</span>
+        <h4>1. 金融核心系统稳态保障场景</h4>
+        <p style="font-size:0.85rem;color:var(--color-neutral-700);">交易系统、核心资管系统7×24小时零中断保障，峰值高并发稳运行、零宕机、零故障。</p>
+      </div>
+      <div class="policy-card">
+        <span class="policy-icon">🔐</span>
+        <h4>2. 金融变更风险严控场景</h4>
+        <p style="font-size:0.85rem;color:var(--color-neutral-700);">版本投产、配置变更、参数调整全流程风控，杜绝变更引发的系统性故障。</p>
+      </div>
+      <div class="policy-card">
+        <span class="policy-icon">⚡</span>
+        <h4>3. 故障极速处置与复盘场景</h4>
+        <p style="font-size:0.85rem;color:var(--color-neutral-700);">金融故障秒级感知、分钟级定位、快速恢复、全流程复盘整改闭环。</p>
+      </div>
+      <div class="policy-card">
+        <span class="policy-icon">📈</span>
+        <h4>4. 资源容量智能治理场景</h4>
+        <p style="font-size:0.85rem;color:var(--color-neutral-700);">算力、存储、网络资源智能预判、扩容预警、闲置治理、降本增效。</p>
+      </div>
+      <div class="policy-card">
+        <span class="policy-icon">📋</span>
+        <h4>5. 金融合规审计与监管适配场景</h4>
+        <p style="font-size:0.85rem;color:var(--color-neutral-700);">全操作留痕、日志存证、合规自查、自动生成监管运维报表。</p>
+      </div>
+      <div class="policy-card">
+        <span class="policy-icon">🔄</span>
+        <h4>6. 容灾备份与业务连续性场景</h4>
+        <p style="font-size:0.85rem;color:var(--color-neutral-700);">异地多活、灾备切换、数据备份、故障自愈、业务永续保障。</p>
+      </div>
+      <div class="policy-card" style="grid-column:1 / -1;">
+        <span class="policy-icon">🤖</span>
+        <h4>7. AIOps智能自治运维场景</h4>
+        <p style="font-size:0.85rem;color:var(--color-neutral-700);">AI预判风险、自动根因分析、自适应运维策略、无人化运维升级。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 十、功能模块 -->
+<section id="s10" class="card">
+  <div class="card-header">
+    <h2>🧩 十、详细产品功能模块（11大核心金融运维模块，全覆盖）</h2>
+    <span class="badge-count">模块1-11</span>
+  </div>
+  <div class="card-body">
+    <div class="grid-2">
+      <div class="policy-card" id="m1">
+        <span class="policy-icon">📡</span>
+        <h4>模块1：全域金融实时监控模块</h4>
+        <ul class="detail-list">
+          <li>基础设施监控、数据库监控、中间件监控</li>
+          <li>应用监控、交易链路监控、用户体验监控</li>
+          <li>多维度聚合监控、大屏态势感知</li>
+          <li>毫秒级异常告警、监控阈值统一管理</li>
+        </ul>
+      </div>
+      <div class="policy-card" id="m2">
+        <span class="policy-icon">📜</span>
+        <h4>模块2：日志审计与链路追踪模块</h4>
+        <ul class="detail-list">
+          <li>全量日志采集、结构化解析</li>
+          <li>日志脱敏、日志加密存证</li>
+          <li>全链路追踪、交易链路还原</li>
+          <li>异常日志检索、操作日志溯源、合规日志归档</li>
+        </ul>
+      </div>
+      <div class="policy-card" id="m3">
+        <span class="policy-icon">🔄</span>
+        <h4>模块3：金融变更发布管控模块</h4>
+        <ul class="detail-list">
+          <li>变更申请、多级审批、变更风险评估</li>
+          <li>灰度发布、分批投产、投产窗口管控</li>
+          <li>变更校验、自动回滚、变更全留痕</li>
+          <li>变更台账统计</li>
+        </ul>
+      </div>
+      <div class="policy-card" id="m4">
+        <span class="policy-icon">🚨</span>
+        <h4>模块4：故障应急处置管理模块</h4>
+        <ul class="detail-list">
+          <li>告警降噪、故障聚合、故障定级</li>
+          <li>自动分派、应急流程触发、处置进度跟踪</li>
+          <li>故障恢复校验、复盘总结、问题整改闭环</li>
+          <li>故障台账管理</li>
+        </ul>
+      </div>
+      <div class="policy-card" id="m5">
+        <span class="policy-icon">🤖</span>
+        <h4>模块5：自动化运维与自愈模块</h4>
+        <ul class="detail-list">
+          <li>自动化巡检、批量运维操作</li>
+          <li>容灾自动切换、服务自动重启</li>
+          <li>异常自动修复、资源自动扩容</li>
+          <li>运维脚本管理、无人值守运维</li>
+        </ul>
+      </div>
+      <div class="policy-card" id="m6">
+        <span class="policy-icon">📊</span>
+        <h4>模块6：资源容量治理模块</h4>
+        <ul class="detail-list">
+          <li>算力/存储/网络资源统计、使用率监控</li>
+          <li>容量趋势预测、峰值预警</li>
+          <li>闲置资源回收、资源优化建议</li>
+          <li>资源台账、成本治理</li>
+        </ul>
+      </div>
+      <div class="policy-card" id="m7">
+        <span class="policy-icon">🔒</span>
+        <h4>模块7：容灾备份与业务连续性模块</h4>
+        <ul class="detail-list">
+          <li>数据定时备份、异地容灾</li>
+          <li>备份有效性校验、灾备切换演练</li>
+          <li>业务连续性评估、故障降级策略</li>
+          <li>兜底保障机制</li>
+        </ul>
+      </div>
+      <div class="policy-card" id="m8">
+        <span class="policy-icon">🕸️</span>
+        <h4>模块8：FP-Graph知识图谱智能模块</h4>
+        <ul class="detail-list">
+          <li>运维实体关系建模</li>
+          <li>故障全链路溯源、风险传导推演</li>
+          <li>变更风险智能研判、合规缺口检测</li>
+          <li>运维策略优化、图谱可视化与API服务</li>
+        </ul>
+      </div>
+      <div class="policy-card" id="m9">
+        <span class="policy-icon">📈</span>
+        <h4>模块9：AIOps智能分析模块</h4>
+        <ul class="detail-list">
+          <li>时序异常智能检测、阈值自适应</li>
+          <li>告警智能降噪、根因自动分析</li>
+          <li>故障趋势预测</li>
+          <li>运维经验智能沉淀、策略自迭代</li>
+        </ul>
+      </div>
+      <div class="policy-card" id="m10">
+        <span class="policy-icon">📋</span>
+        <h4>模块10：合规审计与监管报送模块</h4>
+        <ul class="detail-list">
+          <li>金融运维合规自查、操作合规校验</li>
+          <li>风险审计报告、故障事故报告</li>
+          <li>运维台账自动生成、监管运维数据报送</li>
+          <li>全链路合规存证</li>
+        </ul>
+      </div>
+      <div class="policy-card" id="m11" style="grid-column:1 / -1;">
+        <span class="policy-icon">🖥️</span>
+        <h4>模块11：运维态势驾驶舱与开放集成模块</h4>
+        <ul class="detail-list" style="display:grid;grid-template-columns:repeat(2,1fr);gap:0 1.5rem;">
+          <li>全域运维态势大屏</li>
+          <li>系统健康度全景</li>
+          <li>风险全景、故障统计</li>
+          <li>变更统计、运维绩效统计</li>
+          <li>全能力API开放</li>
+          <li>多系统生态对接</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 十一、指标体系 -->
+<section id="s11" class="card">
+  <div class="card-header">
+    <h2>📈 十一、全套标准化指标体系（8大维度金融级KPI）</h2>
+    <span class="badge-count">8大维度</span>
+  </div>
+  <div class="card-body">
+    <div class="grid-2">
+      <div class="policy-card">
+        <span class="policy-icon">✅</span>
+        <h4>1. 系统可用性指标</h4>
+        <ul class="detail-list">
+          <li>全年系统可用率</li>
+          <li>核心系统宕机时长</li>
+          <li>交易中断次数</li>
+          <li>服务不可用率</li>
+          <li>峰值稳定率</li>
+        </ul>
+      </div>
+      <div class="policy-card">
+        <span class="policy-icon">🔧</span>
+        <h4>2. 故障治理指标</h4>
+        <ul class="detail-list">
+          <li>故障总数、重大故障次数</li>
+          <li>故障平均恢复时长</li>
+          <li>故障复发率</li>
+          <li>故障闭环率</li>
+          <li>故障压降率</li>
+        </ul>
+      </div>
+      <div class="policy-card">
+        <span class="policy-icon">🔄</span>
+        <h4>3. 变更风控指标</h4>
+        <ul class="detail-list">
+          <li>变更成功率</li>
+          <li>变更回滚率</li>
+          <li>变更引发故障率</li>
+          <li>不合规变更次数</li>
+          <li>变更审批完整率</li>
+        </ul>
+      </div>
+      <div class="policy-card">
+        <span class="policy-icon">🔔</span>
+        <h4>4. 监控告警指标</h4>
+        <ul class="detail-list">
+          <li>告警准确率</li>
+          <li>告警误报率</li>
+          <li>告警漏报率</li>
+          <li>告警降噪率</li>
+          <li>异常发现平均时长</li>
+        </ul>
+      </div>
+      <div class="policy-card">
+        <span class="policy-icon">📊</span>
+        <h4>5. 资源容量指标</h4>
+        <ul class="detail-list">
+          <li>资源平均使用率</li>
+          <li>峰值使用率</li>
+          <li>资源闲置率</li>
+          <li>容量预警及时率</li>
+          <li>资源优化降本率</li>
+        </ul>
+      </div>
+      <div class="policy-card">
+        <span class="policy-icon">📋</span>
+        <h4>6. 合规审计指标</h4>
+        <ul class="detail-list">
+          <li>运维操作合规率</li>
+          <li>日志留存完整率</li>
+          <li>审计覆盖率</li>
+          <li>监管问题整改率</li>
+          <li>合规零违规时长</li>
+        </ul>
+      </div>
+      <div class="policy-card">
+        <span class="policy-icon">🕸️</span>
+        <h4>7. 知识图谱智能指标</h4>
+        <ul class="detail-list">
+          <li>故障溯源准确率</li>
+          <li>风险推演准确率</li>
+          <li>变更风险评估精准度</li>
+          <li>合规缺口识别率</li>
+        </ul>
+      </div>
+      <div class="policy-card">
+        <span class="policy-icon">🤖</span>
+        <h4>8. 智能自治运维指标</h4>
+        <ul class="detail-list">
+          <li>自动化处置率</li>
+          <li>自愈成功率</li>
+          <li>AI预警有效率</li>
+          <li>人工运维替代率</li>
+          <li>策略迭代优化率</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 十二、三阶演进路线 -->
+<section id="s12" class="card">
+  <div class="card-header">
+    <h2>🚀 十二、三阶演进路线（当前-中期-未来）</h2>
+    <span class="badge-count">3阶段</span>
+  </div>
+  <div class="card-body">
+    <div class="content-section">
+      <h3>阶段一：标准化合规运维筑基（当前）</h3>
+      <p>完成全域运维能力收敛、统一监控、统一变更、统一审计、统一工单，实现运维全流程标准化、合规化、可追溯，彻底解决人工零散运维风险，保障金融业务稳态运行。</p>
+    </div>
+    <div class="content-section">
+      <h3>阶段二：知识赋能智能运维（中期）</h3>
+      <p>FP-Graph知识图谱全面落地，实现故障智能溯源、风险推演、变更智能风控、告警智能降噪、容量智能预测，AIOps体系成型，大幅降低人工运维压力，压降故障与风险。</p>
+    </div>
+    <div class="content-section">
+      <h3>阶段三：全域自治无人运维（未来）</h3>
+      <p>依托大模型+知识图谱，实现运维策略自迭代、故障自愈、风险预判前置、变更智能校验、系统自适应优化，建成无人值守、自治治理、永续稳定的金融全域智能运维中台生态。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 十三、全文总结 -->
+<section id="s13" class="card banner-card">
+  <div class="card-header" style="background:linear-gradient(135deg,#1a3a6a,#2e5d9e);border-bottom-color:rgba(255,255,255,0.15);">
+    <h2 style="color:#fff;">📝 十三、全文总结</h2>
+  </div>
+  <div class="card-body">
+    <p style="color:rgba(255,255,255,0.9);font-size:1.05rem;line-height:1.8;">金融产品运维中台，完整构建了<strong style="color:#fff;">定义体系 + 七大知识体系 + 专属知识图谱 + 六层标准架构 + 十一大功能模块 + 八大指标体系 + 三阶演进</strong>的全域闭环体系。区别于普通IT运维平台，本中台深度适配金融强监管、零故障、高稳定、可审计的行业核心属性，从传统"工具型运维"升级为<strong style="color:#fff;">金融业务连续性治理中枢、风险可控智能运维底座</strong>，完全匹配当下金融数字化稳态建设与未来AI自治运维的发展趋势。</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<button id="backToTop" title="返回顶部">↑</button>
+
+<script>
+// 折叠子菜单
+document.querySelectorAll('.nav-group > a').forEach(function(a){
+  a.addEventListener('click', function(e){
+    e.preventDefault();
+    var group = this.parentElement;
+    group.classList.toggle('open');
+  });
+});
+// 自动展开含 active 的组
+function setActiveHash(){
+  var hash = location.hash;
+  if(!hash) return;
+  document.querySelectorAll('.sidebar nav a').forEach(function(a){ a.classList.remove('active'); });
+  var link = document.querySelector('.sidebar nav a[href="'+hash+'"]');
+  if(link){
+    link.classList.add('active');
+    var group = link.closest('.nav-group');
+    if(group) group.classList.add('open');
+  }
+}
+window.addEventListener('hashchange', setActiveHash);
+setActiveHash();
+
+// 返回顶部
+var btn = document.getElementById('backToTop');
+window.addEventListener('scroll', function(){
+  btn.classList.toggle('visible', window.scrollY > 400);
+});
+btn.addEventListener('click', function(){
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+
+// 滚动时高亮当前区域
+var sections = ['overview','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12','s13'];
+var navLinks = {};
+document.querySelectorAll('.sidebar nav a[href^="#"]').forEach(function(a){
+  navLinks[a.getAttribute('href').slice(1)] = a;
+});
+function onScroll(){
+  var scrollPos = window.scrollY + 120;
+  var current = 'overview';
+  for(var i=0;i<sections.length;i++){
+    var el = document.getElementById(sections[i]);
+    if(el && el.offsetTop <= scrollPos) current = sections[i];
+  }
+  Object.values(navLinks).forEach(function(a){ a.classList.remove('active'); });
+  if(navLinks[current]){
+    navLinks[current].classList.add('active');
+    var g = navLinks[current].closest('.nav-group');
+    if(g) g.classList.add('open');
+  }
+}
+window.addEventListener('scroll', onScroll);
+onScroll();
+</script>
+</body>
+</html>

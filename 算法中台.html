@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>企业级全域中台完整体系说明书</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ===== 设计系统 Token（完全继承参考样式） ===== */
+    :root {
+      --color-primary: #7a2e1a;
+      --color-primary-light: #fce9e0;
+      --color-primary-dark: #4d1c0e;
+      --color-accent: #b85c3a;
+      --color-accent-soft: #f0c8b8;
+      --color-accent-glow: rgba(184, 92, 58, 0.10);
+      --color-neutral-50: #fcf9f7;
+      --color-neutral-100: #f5ede8;
+      --color-neutral-200: #e5d7ce;
+      --color-neutral-300: #cbb8ab;
+      --color-neutral-400: #a68b7a;
+      --color-neutral-600: #6f5544;
+      --color-neutral-700: #4f3a2e;
+      --color-neutral-800: #34241c;
+      --color-neutral-900: #1e140f;
+      --color-gold: #c29a4a;
+      --color-gold-light: #f3e1b0;
+      --color-jade: #3b7a5e;
+      --color-jade-light: #d4ede0;
+      --color-success: #1f6e4a;
+      --color-warning: #a86b2c;
+      --color-error: #b13a2a;
+      --font-base: 1rem;
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-12: 3rem;
+      --radius-sm: 0.75rem;
+      --radius-md: 1.25rem;
+      --radius-card: 2rem;
+      --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(60, 30, 10, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(60, 30, 10, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(60, 30, 10, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+      --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ===== 重置 & 基础 ===== */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    /* ===== 布局 ===== */
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(255, 249, 245, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(255, 235, 220, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); letter-spacing:-0.01em; }
+    .sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+    .sidebar nav ul { list-style:none; padding:0; margin:0; }
+    .sidebar nav ul li { margin-bottom:0.1rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:12px;
+      padding:0.55rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.85rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+    }
+    .sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+    .sidebar nav ul li a:hover,
+    .sidebar nav ul li a:focus-visible {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateX(4px);
+    }
+    .sidebar-footer {
+      margin-top:24px; padding:12px; text-align:center;
+      font-size:0.7rem; color:var(--color-neutral-600);
+      border-top:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 主内容 ===== */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+    /* ===== 页面头部 ===== */
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+      font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+    .page-header .header-meta {
+      font-size:0.9rem; color:var(--color-neutral-600);
+      background:var(--color-neutral-100);
+      padding:0.4rem 1.2rem;
+      border-radius:var(--radius-pill);
+      border:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 卡片系统 ===== */
+    .card {
+      background:rgba(255,252,248,0.92);
+      backdrop-filter: blur(4px);
+      border-radius:var(--radius-card);
+      box-shadow:var(--shadow-card);
+      margin-bottom:var(--space-6);
+      border:1px solid rgba(255, 235, 220, 0.5);
+      overflow:hidden;
+      transition: box-shadow var(--transition-default), transform 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6);
+      background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft);
+      display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 {
+      font-size:clamp(1.2rem, 2.2vw, 1.6rem);
+      font-weight:700; color:var(--color-primary-dark);
+      display:flex; align-items:center; gap:12px;
+      letter-spacing:-0.01em;
+    }
+    .card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+    .card-header .badge-count {
+      margin-left:auto;
+      background:var(--color-accent);
+      color:white;
+      border-radius:var(--radius-pill);
+      padding:0.15rem 0.9rem;
+      font-size:0.7rem;
+      font-weight:600;
+      letter-spacing:0.3px;
+    }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* ===== 网格 & 卡片（数据治理卡片风格） ===== */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } .grid-4 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; } }
+
+    /* 数据治理卡片 (复用九字卡片) */
+    .gov-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md);
+      padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: all var(--transition-default);
+      position:relative;
+      overflow:hidden;
+      border-left: 4px solid var(--color-accent);
+    }
+    .gov-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft));
+      opacity:0;
+      transition: opacity var(--transition-default);
+    }
+    .gov-card:hover::before { opacity:1; }
+    .gov-card:hover {
+      border-color:var(--color-accent-soft);
+      box-shadow: 0 8px 24px -8px rgba(184,92,58,0.15);
+      transform:translateY(-3px);
+    }
+    .gov-card .gov-icon {
+      font-size:1.8rem;
+      color:var(--color-primary);
+      display:inline-block;
+      margin-right:6px;
+      background: var(--color-primary-light);
+      padding:0.2rem 0.6rem;
+      border-radius:12px;
+    }
+    .gov-card h4 {
+      color:var(--color-primary-dark);
+      font-size:1.05rem;
+      margin-bottom:0.4rem;
+      display:flex; align-items:center; gap:8px;
+      flex-wrap:wrap;
+    }
+    .gov-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+    .gov-card .detail-list {
+      padding-left:0; margin:0.4rem 0 0 0;
+      list-style:none;
+    }
+    .gov-card .detail-list li {
+      margin-bottom:0.25rem;
+      padding-left:1.2rem;
+      position:relative;
+      font-size:0.85rem;
+      color:var(--color-neutral-700);
+    }
+    .gov-card .detail-list li::before {
+      content:'▹'; position:absolute; left:0;
+      color:var(--color-accent);
+      font-weight:600;
+    }
+    .gov-card .detail-list li strong { color:var(--color-neutral-800); }
+    .gov-card .tag-layer {
+      display:inline-block;
+      background:var(--color-gold-light);
+      color:var(--color-primary-dark);
+      border-radius:20px;
+      padding:0.05rem 0.8rem;
+      font-size:0.6rem;
+      font-weight:700;
+      letter-spacing:0.3px;
+      margin-left:0.5rem;
+    }
+
+    /* ===== 架构层（继承九层闭环） ===== */
+    .arch-diagram {
+      display:flex;
+      flex-direction:column;
+      gap:0.6rem;
+      padding:0.5rem 0;
+    }
+    .arch-layer {
+      display:flex;
+      align-items:stretch;
+      gap:0.75rem;
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.6rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: var(--transition-default);
+    }
+    .arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+    .arch-layer .layer-label {
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      min-width:120px;
+      padding-right:1rem;
+      border-right:2px solid var(--color-neutral-200);
+      font-weight:700;
+      font-size:0.8rem;
+      color:var(--color-primary-dark);
+      letter-spacing:0.3px;
+    }
+    .arch-layer .layer-label i {
+      font-size:1.1rem;
+      color:var(--color-accent);
+      margin-bottom:0.1rem;
+    }
+    .arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+    .arch-layer .layer-blocks {
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:0.5rem;
+      flex:1;
+      padding:0.2rem 0;
+    }
+    .arch-block {
+      background:white;
+      border-radius:var(--radius-sm);
+      padding:0.3rem 0.9rem;
+      border:1px solid var(--color-neutral-200);
+      font-size:0.75rem;
+      font-weight:500;
+      color:var(--color-neutral-700);
+      transition: var(--transition-default);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .arch-block:hover {
+      border-color:var(--color-accent);
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateY(-1px);
+    }
+    .arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+    .arch-block.highlight-block {
+      background:var(--color-accent);
+      color:white;
+      border-color:var(--color-accent);
+    }
+    .arch-block.highlight-block i { color:white; }
+    .arch-layer.inner-layer { background:linear-gradient(135deg, #f5efe8, #f0e4da); border-color:var(--color-accent-soft); }
+    .arch-layer.outer-layer { background:linear-gradient(135deg, #f0f2ed, #e6ece2); border-color:#b8c8aa; }
+    .arch-layer.outer-layer .layer-label { border-right-color:#b8c8aa; color:#2d5a3a; }
+    .arch-layer.outer-layer .layer-label i { color:#3b7a5e; }
+    .arch-layer.outer-layer .arch-block { border-color:#c8d8b8; }
+    .arch-layer.outer-layer .arch-block:hover { border-color:#3b7a5e; background:#e0ede0; }
+    .arch-layer.ultimate-layer { background:linear-gradient(135deg, #f0ede8, #e8e0d8); border-color:#c8b8a8; }
+    .arch-layer.ultimate-layer .layer-label { border-right-color:#c8b8a8; color:#6a4a3a; }
+    .arch-layer.ultimate-layer .layer-label i { color:#8a6a5a; }
+    .arch-layer.ultimate-layer .arch-block { border-color:#d8c8b8; }
+    .arch-layer.ultimate-layer .arch-block:hover { border-color:#8a6a5a; background:#ede0d8; }
+
+    /* ===== 表格 ===== */
+    .table-wrapper {
+      overflow-x:auto;
+      border-radius:var(--radius-md);
+      border:1px solid var(--color-neutral-200);
+      background:white;
+    }
+    table {
+      width:100%; border-collapse:collapse; font-size:0.78rem;
+    }
+    th {
+      background:var(--color-neutral-100);
+      padding:12px 10px;
+      font-weight:600;
+      color:var(--color-primary-dark);
+      text-align:left;
+      border-bottom:2px solid var(--color-neutral-200);
+      font-size:0.7rem;
+      text-transform:uppercase;
+      letter-spacing:0.4px;
+    }
+    td {
+      padding:10px 10px;
+      border-bottom:1px solid var(--color-neutral-200));
+      vertical-align:middle;
+      color:var(--color-neutral-700);
+    }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--color-neutral-50); }
+    .level-tag {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      border-radius:var(--radius-pill);
+      padding:0.05rem 0.7rem;
+      font-size:0.65rem;
+      font-weight:600;
+      display:inline-block;
+    }
+
+    /* ===== 信息提示 ===== */
+    .info-tip {
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.7rem 1.5rem;
+      border-left:5px solid var(--color-accent);
+      margin-top:var(--space-4);
+      display:flex; align-items:center; gap:0.8rem;
+      font-size:0.9rem;
+      color:var(--color-neutral-700);
+    }
+    .info-tip i { color:var(--color-accent); font-size:1rem; }
+
+    /* ===== 横幅 ===== */
+    .banner-card {
+      background: linear-gradient(135deg, #f5ede6, #e8dcd2);
+      text-align:center;
+      border-color:var(--color-accent-soft);
+    }
+    .banner-card .card-body { padding:2.5rem var(--space-6); }
+    .banner-card .icon-big { font-size:3rem; color:var(--color-primary); opacity:0.7; margin-bottom:var(--space-3); }
+    .banner-card h2 { color:var(--color-primary-dark); font-size:clamp(1.4rem, 2.5vw, 1.9rem); margin-bottom:var(--space-2); }
+    .banner-card p { max-width:680px; margin:0 auto; color:var(--color-neutral-700); font-size:1rem; }
+    .banner-card .footer-note { margin-top:var(--space-6); font-size:0.8rem; color:var(--color-primary); }
+
+    /* ===== 响应式 ===== */
+    @media (max-width:1024px) { .sidebar { width:220px; } }
+    @media (max-width:760px) {
+      .sidebar { display:none; }
+      .layout { padding:0.5rem; }
+      .main-content { padding:0; }
+      .card-body { padding:1.25rem var(--space-4); }
+      .card-header { padding:1rem var(--space-4); }
+      .page-header { flex-direction:column; align-items:flex-start; }
+    }
+
+    /* ===== 暗色 ===== */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #1a1410;
+        --color-neutral-100: #221c18;
+        --color-neutral-200: #3a2c24;
+        --color-neutral-300: #5a4a3e;
+        --color-neutral-400: #8a7a6e;
+        --color-neutral-600: #b8a89c;
+        --color-neutral-700: #d0c4b8;
+        --color-neutral-800: #e8dcd0;
+        --color-neutral-900: #f5ede6;
+        --color-primary-light: #3a2a20;
+        --color-accent-soft: #6a4a3a;
+        --color-primary: #d08a6a;
+        --color-primary-dark: #f0c8b0;
+        --color-accent: #c07a5a;
+        --color-gold: #c29a4a;
+        --color-gold-light: #4a3a20;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6);
+        --shadow-card-hover: 0 20px 48px -12px rgba(0,0,0,0.7);
+        --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #120e0a; }
+      .card { background: #1a1410; border-color: #3a2c24; }
+      .card-header { background: #1a1410; border-bottom-color: #4a3a2e; }
+      .gov-card { background: #1a1410; border-color: #3a2c24; }
+      .gov-card .gov-icon { background: #2a1e16; color: #d08a6a; }
+      .gov-card .detail-list li { color: #c0b4a8; }
+      .gov-card .detail-list li strong { color: #e0d4c8; }
+      .table-wrapper { background: #1a1410; border-color: #3a2c24; }
+      th { background: #221c18; color: #e0d4c8; border-bottom-color: #4a3a2e; }
+      td { border-bottom-color: #2a241e; color: #c0b4a8; }
+      tr:hover td { background: #2a241e; }
+      .sidebar { background: rgba(20, 16, 12, 0.92); border-color: #3a2c24; }
+      .sidebar-brand { border-bottom-color: #4a3a2e; }
+      .sidebar-brand h3 { color: #d08a6a; }
+      .sidebar nav ul li a { color: #c0b4a8; }
+      .sidebar nav ul li a:hover { background: #3a2c24; color: white; }
+      .info-tip { background: #1a1410; border-left-color: #c07a5a; color: #c0b4a8; }
+      .banner-card { background:linear-gradient(135deg,#1a1410,#2a241e); }
+      .banner-card p { color: #c0b4a8; }
+      .page-header h1 { background:linear-gradient(135deg,#f0c8b0,#d08a6a); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#2a241e; border-color:#4a3a2e; color:#b8a89c; }
+      .arch-layer { background:#1a1410; border-color:#3a2c24; }
+      .arch-layer:hover { background:#2a1e16; border-color:#5a4a3e; }
+      .arch-layer .layer-label { border-right-color:#3a2c24; color:#e0d4c8; }
+      .arch-block { background:#1a1410; border-color:#3a2c24; color:#c0b4a8; }
+      .arch-block:hover { background:#3a2c24; border-color:#c07a5a; }
+      .arch-layer.inner-layer { background:linear-gradient(135deg,#1a1410,#2a1e16); border-color:#5a3a2a; }
+      .arch-layer.outer-layer { background:linear-gradient(135deg,#141a12,#1a2618); border-color:#2a4a2a; }
+      .arch-layer.outer-layer .layer-label { border-right-color:#2a4a2a; color:#8aba8a; }
+      .arch-layer.outer-layer .layer-label i { color:#5a9a6a; }
+      .arch-layer.outer-layer .arch-block { border-color:#2a4a2a; color:#a0c8a0; }
+      .arch-layer.outer-layer .arch-block:hover { border-color:#5a9a6a; background:#1a2a1a; }
+      .arch-layer.ultimate-layer { background:linear-gradient(135deg,#1a1410,#221c18); border-color:#4a3a2e; }
+      .arch-layer.ultimate-layer .layer-label { border-right-color:#4a3a2e; color:#c8b0a0; }
+      .arch-layer.ultimate-layer .layer-label i { color:#a08070; }
+      .arch-layer.ultimate-layer .arch-block { border-color:#4a3a2e; color:#c8b8a8; }
+      .arch-layer.ultimate-layer .arch-block:hover { border-color:#a08070; background:#2a241e; }
+    }
+    
+    /* ===== 优化新增样式 ===== */
+    /* 核心价值区域优化样式 */
+    .value-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .value-header .icon-big {
+        font-size: 2.8rem;
+        color: var(--color-primary);
+        opacity: 0.8;
+        margin-bottom: 0.5rem;
+    }
+    .value-header h2 {
+        font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+        color: var(--color-primary-dark);
+        margin-bottom: 0.25rem;
+    }
+    .value-subtitle {
+        font-size: 1rem;
+        color: var(--color-neutral-600);
+        letter-spacing: 2px;
+        font-weight: 300;
+    }
+
+    /* 价值网格 */
+    .value-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin: 1.5rem 0 2rem 0;
+    }
+    .value-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(4px);
+        padding: 1.2rem 1.4rem;
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 235, 220, 0.5);
+        transition: all 0.3s ease;
+    }
+    .value-item:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-card-hover);
+        border-color: var(--color-accent-soft);
+        background: rgba(255, 255, 255, 0.85);
+    }
+    .value-item .value-icon {
+        flex-shrink: 0;
+        width: 2.8rem;
+        height: 2.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--color-primary-light);
+        border-radius: 50%;
+        color: var(--color-accent);
+        font-size: 1.2rem;
+    }
+    .value-item .value-content h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--color-primary-dark);
+        margin-bottom: 0.3rem;
+        line-height: 1.3;
+    }
+    .value-item .value-content p {
+        font-size: 0.9rem;
+        color: var(--color-neutral-700);
+        line-height: 1.6;
+        margin: 0;
+    }
+    /* 最后一项占满整行 */
+    .value-item.full-width {
+        grid-column: 1 / -1;
+    }
+
+    /* 暗色主题适配 */
+    @media (prefers-color-scheme: dark) {
+        .value-item {
+            background: rgba(30, 24, 20, 0.7);
+            border-color: var(--color-neutral-200);
+        }
+        .value-item:hover {
+            background: rgba(40, 32, 26, 0.9);
+            border-color: var(--color-accent-soft);
+        }
+        .value-item .value-content p {
+            color: var(--color-neutral-600);
+        }
+        .value-subtitle {
+            color: var(--color-neutral-400);
+        }
+    }
+
+    /* 响应式布局 */
+    @media (max-width: 768px) {
+        .value-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        .value-item {
+            padding: 1rem 1.2rem;
+        }
+        .value-item .value-content h4 {
+            font-size: 0.95rem;
+        }
+        .value-item .value-content p {
+            font-size: 0.85rem;
+        }
+    }
+    
+    /* 正文文本样式补充 */
+    .content-text {
+      font-size: 0.95rem;
+      color: var(--color-neutral-700);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+    .content-text strong {
+      color: var(--color-primary-dark);
+    }
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--color-primary-dark);
+      margin: 1.5rem 0 1rem 0;
+      border-bottom: 2px solid var(--color-primary-light);
+      padding-bottom: 0.5rem;
+    }
+    .subsection-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--color-neutral-800);
+      margin: 1.2rem 0 0.8rem 0;
+    }
+    .normal-list {
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--color-neutral-700);
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+    .normal-list li {
+      margin-bottom: 0.3rem;
+    }
+    .normal-list li strong {
+      color: var(--color-neutral-800);
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-sitemap" aria-hidden="true"></i>
+      <h3>全域中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-book-open"></i> 全域中台定义</a></li>
+        <li><a href="#s1"><i class="fas fa-calculator"></i> 算法中台专项</a></li>
+        <li><a href="#s2"><i class="fas fa-book"></i> 知识体系+图谱</a></li>
+        <li><a href="#s3"><i class="fas fa-sitemap"></i> 六大核心架构</a></li>
+        <li><a href="#s4"><i class="fas fa-puzzle-piece"></i> 产品功能模块</a></li>
+        <li><a href="#s5"><i class="fas fa-chart-line"></i> 全套指标体系</a></li>
+        <li><a href="#s6"><i class="fas fa-boxes"></i> 完整内容体系</a></li>
+        <li><a href="#s7"><i class="fas fa-share-alt"></i> 协同关系总结</a></li>
+        <li><a href="#s8"><i class="fas fa-flag"></i> 核心价值总结</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-sitemap"></i> 全域中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-sitemap"></i> 企业级全域中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> 全结构化完整版</span>
+    </header>
+
+    <!-- ===== S0 全域中台定义 ===== -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> 企业全域中台完整定义</h2>
+        <span class="badge-count">通用总述</span>
+      </div>
+      <div class="card-body">
+        <div class="arch-diagram">
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-cogs"></i> 技术底座 <span class="sub">技术/数据/业务/AI/运营/模型/算法</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-server"></i> 技术中台</span>
+              <span class="arch-block"><i class="fas fa-database"></i> 数据中台</span>
+              <span class="arch-block"><i class="fas fa-box"></i> 业务中台</span>
+              <span class="arch-block"><i class="fas fa-brain"></i> AI中台</span>
+              <span class="arch-block"><i class="fas fa-bullhorn"></i> 运营中台</span>
+              <span class="arch-block"><i class="fas fa-microchip"></i> 模型中台</span>
+              <span class="arch-block"><i class="fas fa-calculator"></i> 算法中台</span>
+            </div>
+          </div>
+          <div class="arch-layer outer-layer">
+            <div class="layer-label"><i class="fas fa-rocket"></i> 核心能力 <span class="sub">资产化沉淀/服务化封装/智能化赋能/全域化治理</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block highlight-block"><i class="fas fa-cubes"></i> 能力复用</span>
+              <span class="arch-block"><i class="fas fa-sync-alt"></i> 迭代升级</span>
+              <span class="arch-block"><i class="fas fa-shield-alt"></i> 风险可控</span>
+              <span class="arch-block"><i class="fas fa-chart-line"></i> 经营闭环</span>
+            </div>
+          </div>
+          <div class="arch-layer ultimate-layer">
+            <div class="layer-label"><i class="fas fa-star"></i> 终极价值 <span class="sub">技术底座支撑/数据原料供给/业务标准承载/算法逻辑驱动/模型工程落地/AI智能赋能/运营落地增收</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-building"></i> 全域数智化闭环</span>
+              <span class="arch-block"><i class="fas fa-expand-arrows-alt"></i> 场景快速创新</span>
+              <span class="arch-block"><i class="fas fa-gem"></i> 资产持续沉淀</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section-title">1.1 标准官方定义</div>
+        <div class="content-text">
+          企业全域中台是企业数字化转型的核心能力中枢与全域资产复用底座，是基于领域驱动设计、资产化沉淀、服务化封装、智能化赋能、全域化治理思想，整合企业底层技术资源、全域数据资产、通用业务能力、智能模型知识、全域运营能力，通过标准化、模块化、组件化、知识化、可编排的体系化建设，将企业零散、重复、烟囱式、定制化的技术、数据、业务、AI、运营能力统一沉淀为可复用、可迭代、可自动化、可治理的企业数字资产，为前台所有业务场景、创新应用、全域经营提供统一支撑的企业级全域能力复用平台与数智化赋能中枢。
+        </div>
+        <div class="content-text">
+          企业全域中台并非单一系统，而是由技术中台、数据中台、业务中台、AI中台、运营中台、模型中台、算法中台七大核心中台构成的完整全域中台矩阵，彻底解决企业系统烟囱、能力重复建设、数据割裂、业务标准化不足、运营碎片化、智能算法零散、模型无法工程化落地、AI能力无法沉淀复用、经验无法固化、智能治理无体系等数字化、智能化痛点，实现一次建设、全域复用、智能场景快速创新、算法与模型资产持续沉淀、AI能力持续迭代、数智经营闭环增长的企业高阶数智化终极架构。
+        </div>
+        
+        <div class="section-title">1.2 核心本质与定位</div>
+        <div class="content-text">
+          企业全域中台是衔接底层基础设施与前台创新场景的中间核心层，是企业数字化、智能化、精细化、规模化经营的统一载体，核心本质是企业通用能力资产化、专属能力标准化、创新场景轻量化、全域体系治理化。
+        </div>
+        <ol class="normal-list">
+          <li><strong>战略定位：</strong>企业数智化转型核心底座、全域数字资产沉淀中心、通用能力复用中心、场景创新赋能中心、全域统一治理中心、智能经营决策中心；</li>
+          <li><strong>核心本质：</strong>打破部门、系统、业务线壁垒，将企业所有通用技术、数据、业务、智能算法、智能模型、运营能力拆解为原子化组件，沉淀为可复用数字资产，支撑前台低成本、高效率、快速试错、持续创新；</li>
+          <li><strong>核心特征：</strong>全域统一、解耦复用、组件化拼装、标准化输出、数据驱动、智能赋能、知识沉淀、算法工程化、模型工程化、全链路治理、可持续迭代；</li>
+          <li><strong>七大子中台精准边界与协同关系</strong><br>
+          - 技术中台：管底层技术底座、研发运维、云原生资源，解决「系统稳、迭代快、架构统一」；<br>
+          - 数据中台：管全域数据治理、数据资产、指标体系，解决「数据可信、数据统一、数据价值释放」；<br>
+          - 业务中台：管通用业务实体、业务流程、业务规则，解决「业务标准化、业务复用、前台业务快速落地」；<br>
+          - AI中台：管顶层智能能力、知识推理、智能决策编排，解决「场景智能化、知识赋能业务」；<br>
+          - 运营中台：管用户、内容、活动、渠道、策略、自动化运营，解决「运营标准化、精细化、自动化、经营可量化」；<br>
+          - 模型中台：管算力资源、模型全生命周期、特征工程、样本资产、模型服务化、模型治理迭代，解决「AI模型零散、落地难、不可控、不可复用、无法持续优化」的工程化痛点，是企业AI能力工业化落地的核心工程底座；<br>
+          - 算法中台（新增核心）：管全域通用算法、行业专属算法、规则引擎、智能算子、算法流水线、算法资产与推理调度，解决「算法零散、定制化严重、无法复用、迭代混乱、智能逻辑无法沉淀」的痛点，是企业智能逻辑标准化、组件化、可编排的核心算法中枢。</li>
+        </ol>
+        
+        <div class="section-title">1.3 建设核心目标</div>
+        <ol class="normal-list">
+          <li><strong>打破企业系统烟囱、数据孤岛、业务壁垒、运营割裂、AI模型与算法碎片化，</strong>构建全域统一的数智化中台架构；</li>
+          <li><strong>统一沉淀技术、数据、业务、AI、运营、模型、算法七大类企业核心数字资产，</strong>实现全域能力复用，杜绝重复建设；</li>
+          <li><strong>实现企业研发、数据、业务、智能、运营、模型、算法全流程标准化、组件化、自动化、智能化，</strong>大幅降低数字化与AI落地成本；</li>
+          <li><strong>轻量化赋能前台创新场景，</strong>支持新业务、新场景、新模式、新AI应用快速落地、灵活试错、快速迭代；</li>
+          <li><strong>构建企业全域中台知识体系、全域中台知识图谱与模型专项知识体系、模型知识图谱、算法专项知识体系、算法知识图谱，</strong>沉淀企业数字化、AI建模、算法落地、智能迭代全量经验；</li>
+          <li><strong>形成「技术底座支撑、数据原料供给、业务标准承载、算法逻辑驱动、模型工程落地、AI智能赋能、运营落地增收」的全域数智化闭环；</strong></li>
+          <li><strong>建立全域统一的中台治理体系，</strong>实现资产可控、流程可控、数据可控、模型可控、算法可控、合规可控、效果可量化；</li>
+          <li><strong>支撑企业从信息化、数字化向智能化、知识化、模型化、算法化、精细化、规模化高阶数智化转型。</strong></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== S1 算法中台专项 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-calculator"></i> 算法中台专项完整定义</h2>
+        <span class="badge-count">核心专项</span>
+      </div>
+      <div class="card-body">
+        <div class="section-title">2.1 算法中台标准定义</div>
+        <div class="content-text">
+          算法中台是企业智能逻辑标准化、组件化、可编排、可复用的核心算法中枢与智能推理底座，隶属于企业全域中台核心智能能力层，承接数据中台标准化数据资产、业务中台业务规则、模型中台模型服务能力、AI中台智能场景需求，基于传统机器学习算法、深度学习算子、图算法、规则算法、统计算法、行业专属算法、智能调度算法体系，实现企业全量算法资源、智能算子、推理逻辑、算法流水线、算法策略的统一纳管、统一封装、统一编排、统一调度、统一评测、统一服务、统一治理、统一迭代。
+        </div>
+        <div class="content-text">
+          算法中台彻底解决传统智能建设「算法零散定制、场景重复开发、逻辑无法复用、算法标准混乱、编排能力弱、迭代无体系、智能逻辑无法沉淀、算法效果不可控」的核心痛点，将企业所有通用智能逻辑、行业算法能力、规则策略、计算算子沉淀为标准化、组件化、可拖拽、可组合、可自动化的企业智能数字资产，为全域业务、智能模型、AI场景、经营决策提供标准化、高灵活、可迭代的算法逻辑支撑，是企业AI从「模型单点落地」走向「算法+模型双驱动智能化规模化落地」的核心逻辑载体。
+        </div>
+        
+        <div class="section-title">2.2 算法中台核心本质与定位</div>
+        <div class="content-text">
+          <strong>战略定位：</strong>企业智能逻辑唯一标准化底座、全域算法资产沉淀中心、算法能力复用中心、智能场景逻辑编排中心、算法全生命周期治理中心、企业数智化逻辑升级核心引擎。
+        </div>
+        <div class="content-text">
+          <strong>核心本质：</strong>智能算法资产标准化、算法逻辑组件化、算法流程编排化、智能推理工程化、算法迭代闭环化。
+        </div>
+        <div class="content-text">
+          <strong>核心边界：</strong>上承AI中台场景智能编排需求、对接模型中台模型推理能力、下接数据中台数据与特征资产、依托技术中台云原生底座、服务业务与运营中台全场景，聚焦「算法资产沉淀、算法编排、算法调度、算法推理、算法治理、算法迭代」全逻辑链路，负责智能逻辑与计算规则标准化，与负责模型工程化落地的模型中台形成互补协同，不重叠、不替代、深度联动。
+        </div>
+        
+        <div class="section-title">2.3 算法中台核心特征</div>
+        <ol class="normal-list">
+          <li><strong>全域算法统一纳管：</strong>统一管理统计算法、规则算法、机器学习算法、深度学习算子、图算法、向量算法、行业定制算法、第三方算法，实现算法资产唯一归口；</li>
+          <li><strong>组件化可编排：</strong>所有算法拆解为原子算子，支持可视化拖拽组合、流程编排、多算法串联并联，适配复杂智能场景；</li>
+          <li><strong>全生命周期工程化：</strong>覆盖算法定义、开发、注册、编排、测试、发布、调度、服务、监控、迭代、下线完整闭环；</li>
+          <li><strong>全域可复用：</strong>原子算子、算法模板、编排流水线、规则策略、评测标准全部资产化，跨项目、跨业务、跨场景复用；</li>
+          <li><strong>低代码智能化：</strong>可视化编排、模板复用、自动适配、参数可配置，大幅降低智能场景开发门槛；</li>
+          <li><strong>可观测可治理：</strong>算法执行效率、推理效果、调度稳定性、异常报错、逻辑偏差全链路监控治理；</li>
+          <li><strong>知识可沉淀：</strong>沉淀算法适配经验、场景逻辑、故障方案、编排方法论，形成算法专项知识体系与算法知识图谱。</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== S2 知识体系+图谱 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book"></i> 算法中台专属完整知识体系 + 算法中台知识图谱体系</h2>
+        <span class="badge-count">知识域+图谱体系</span>
+      </div>
+      <div class="card-body">
+        <div class="subsection-title">3.1 算法中台十大核心知识域</div>
+        <div class="content-text" style="margin-bottom: 1.5rem;">算法中台知识体系是企业智能逻辑工程化落地的标准化知识集合，以算法资产工程、算子组件工程、算法编排工程、规则推理工程、算法调度工程、算法评测工程、算法治理工程、行业算法适配工程、图智能推理工程、算法迭代工程为核心底层，覆盖算法从定义开发到场景落地、持续迭代的全链路标准化知识，形成可传承、可复用、可迭代、可推理的企业专属算法知识体系。</div>
+        
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>3.1.1 算法战略与架构规划知识域</h4><ul class="detail-list"><li>企业算法规模化落地顶层规划、算法中台建设路线、智能能力分层建设方法论；算法烟囱改造思路、算法能力解耦、原子算子拆分、算法资产沉淀规范；算法中台成熟度评估、算法建设ROI评估、算力与资源成本管控、算法价值落地方法论；通用算法、行业算法、规则算法、智能算子的差异化建设与场景适配知识</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>3.1.2 算法领域建模知识域</h4><ul class="detail-list"><li>智能场景逻辑建模、算法任务建模、算子输入输出标准化建模规范；算法实体建模、算子实体建模、编排流程实体建模、算法场景实体建模体系；算法生命周期、算子生命周期、编排流水线生命周期全流程建模知识；原子算法能力拆分、多算法组合编排、算法与模型协同适配场景的建模实践</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-calculator"></i></span><h4>3.1.3 基础算法体系知识域</h4><ul class="detail-list"><li>统计类算法：均值、方差、分位数、趋势分析、相关性分析、时序统计算法；规则类算法：阈值规则、分支规则、权重规则、多级联动规则、业务风控规则；传统机器学习算法：分类、回归、聚类、关联挖掘、特征筛选、样本均衡算法；图算法体系：路径分析、社区发现、相似度计算、关联挖掘、网络图分析算法；向量算法体系：向量检索、相似度匹配、向量聚类、语义对齐、向量归一化算法</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>3.1.4 算子组件工程知识域</h4><ul class="detail-list"><li>原子算子拆分标准、算子封装规范、算子参数配置、算子兼容性适配；通用算子库、行业专属算子库、自定义算子开发、算子版本管理；算子质量评估、算子性能优化、算子复用适配、算子迭代升级方法论；多模态算子、时序算子、风控算子、推荐算子专项工程知识</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-random"></i></span><h4>3.1.5 算法编排与流水线知识域</h4><ul class="detail-list"><li>可视化算法编排、算子串联并联、分支循环、条件跳转编排规范；算法流水线模板设计、场景化流水线复用、流水线参数动态配置；离线批量算法流水线、在线实时推理流水线、定时调度流水线搭建体系；流水线异常容错、断点续跑、优先级调度、资源适配落地知识</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tachometer-alt"></i></span><h4>3.1.6 算法调度与推理知识域</h4><ul class="detail-list"><li>算法任务调度、资源配额调度、多任务并发调度、优先级调度体系；实时推理、批量推理、异步推理、流式推理落地规范；算法推理性能优化、时延压缩、并发提升、资源复用方法论；算法与模型协同推理、多算法融合推理、复杂场景联合计算知识</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-star-half-alt"></i></span><h4>3.1.7 算法评测与优选知识域</h4><ul class="detail-list"><li>规则算法、统计算法、机器学习算法、图算法专项评测指标体系；算法准确率、精准率、稳定性、时效性、鲁棒性、适配性评测规范；多版本算法对比、流水线效果对比、场景适配效果评估方法论；算法自动优选、灰度上线、准入校验、版本迭代优选标准体系</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-network-wired"></i></span><h4>3.1.8 算法服务化工程知识域</h4><ul class="detail-list"><li>算法API封装、服务注册、服务发现、负载均衡、熔断限流规范；算法服务多环境部署、灰度发布、一键回滚、版本管控；跨中台算法能力调用、算法与模型服务联动、场景快速适配；算法服务SLA保障、性能监控、异常自愈、服务优化方法论</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-eye"></i></span><h4>3.1.9 算法治理与可观测知识域</h4><ul class="detail-list"><li>算法版本治理、算子资产治理、流水线治理、算法风险合规治理体系；算法执行监控、效果漂移监控、性能衰减监控、异常预警闭环方法论；僵尸算法清理、冗余算子清理、算法资产台账全生命周期管理知识</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cogs"></i></span><h4>3.1.10 算法场景适配知识域</h4><ul class="detail-list"><li>智能风控、智能推荐、智能预测、智能运营、智能决策、知识推理场景算法适配；业务场景与算法算子匹配、多算法组合策略、算法策略迭代优化知识；算法联动数据、模型、知识图谱、业务场景的全链路赋能落地体系</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.2 算法中台专属知识图谱体系（核心专项）</div>
+        <div class="content-text" style="margin-bottom: 1.5rem;">算法中台知识图谱是企业智能算法经验、算子资产关系、编排规范、场景适配、算法故障方案、逻辑迭代打法的结构化知识核心载体。基于算法工程与知识工程领域建模，将企业零散的算法开发经验、算子适配规则、流水线编排标准、推理落地方案、算法治理规范、场景匹配关系抽取为标准化实体与三元组关系，构建全域算法知识网络，实现企业智能逻辑可传承、可检索、可推理、可复用、可自动迭代，解决企业算法落地「经验零散、新人上手慢、场景复刻难、算法问题排查低效、逻辑迭代无依据」的核心痛点。</div>
+        
+        <div class="subsection-title">3.2.1 算法知识图谱核心实体体系</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-calculator"></i></span><h4>算法实体</h4><ul class="detail-list"><li>算法类型、算法版本、参数配置、适用场景、精度指标、性能指标、上线状态、生命周期阶段</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cube"></i></span><h4>算子实体</h4><ul class="detail-list"><li>算子功能、算子输入输出、依赖资源、性能阈值、适配算法、适配场景</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-stream"></i></span><h4>流水线实体</h4><ul class="detail-list"><li>编排流程、算子组合、调度规则、执行周期、适用任务、效果标准</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>资源实体</h4><ul class="detail-list"><li>算法运行CPU/GPU资源、内存配额、并发上限、调度优先级</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-lightbulb"></i></span><h4>场景实体</h4><ul class="detail-list"><li>智能业务场景、算法任务类型、适配算法组合、推理链路、业务效果要求</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tools"></i></span><h4>问题方案实体</h4><ul class="detail-list"><li>算法精度偏差、推理超时、编排报错、调度失败、逻辑失效等问题与对应解决方案</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.2.2 算法知识图谱核心关联关系</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>算法-算子关联</h4><ul class="detail-list"><li>算法依赖原子算子、算子组合构成完整算法、算子迭代影响算法效果</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>算法-流水线关联</h4><ul class="detail-list"><li>算法绑定编排流水线、流水线流程决定算法执行逻辑、流水线优化提升算法效率</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>算法-资源关联</h4><ul class="detail-list"><li>算法适配对应资源规格、资源不足引发执行异常、资源冗余造成成本浪费</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>算法-场景关联</h4><ul class="detail-list"><li>算法适配专属业务场景、场景需求驱动算法迭代、多算法协同支撑复杂智能场景</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>算法-模型关联</h4><ul class="detail-list"><li>算法为模型提供前置计算、特征加工、后处理推理，模型结果反向优化算法策略</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>算法-问题关联</h4><ul class="detail-list"><li>算法异常匹配根因、故障对应修复方案、效果偏差对应迭代优化路径</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.2.3 算法知识图谱核心能力与价值</div>
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-archive"></i></span><h4>算法经验结构化沉淀</h4><ul class="detail-list"><li>将零散算法开发、编排、调参、落地经验结构化入库，形成企业专属算法知识库</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-search"></i></span><h4>智能检索复用</h4><ul class="detail-list"><li>支持算法选型、算子匹配、流水线搭建、报错排查、场景适配方案快速检索复用</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-magic"></i></span><h4>场景智能匹配</h4><ul class="detail-list"><li>根据新智能场景需求，自动匹配最优算法组合、算子配置、流水线模板、资源规格</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-stethoscope"></i></span><h4>算法问题智能诊断</h4><ul class="detail-list"><li>自动推理算法精度下降、推理超时、编排异常、调度失败根因并输出优化方案</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>算法资产联动迭代</h4><ul class="detail-list"><li>实现算法、算子、流水线、资源、场景资产联动更新，保障企业智能逻辑持续进化</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-graduation-cap"></i></span><h4>算法能力标准化传承</h4><ul class="detail-list"><li>实现企业智能算法建设不依赖个人经验，形成体系化、可复制、可规模化的算法工程能力</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S3 六大核心架构 ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> 算法中台六大核心架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span>
+      </div>
+      <div class="card-body">
+        <div class="subsection-title">4.1 产品架构（算法中台分层全景）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">整体分层：算力与资源底座层 → 算法技术底座层 → 原子算子资产层 → 算法编排生产层 → 算法评测优选层 → 算法服务调度层 → 算法开放赋能层 → 智能场景应用层 → 算法全域治理层</div>
+        <div class="arch-diagram" style="margin-bottom: 2rem;">
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-server"></i> 算力与资源底座层</div><div class="layer-blocks"><span class="arch-block">CPU/GPU算力资源、集群调度、存储与网络资源、弹性资源底座</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-cogs"></i> 算法技术底座层</div><div class="layer-blocks"><span class="arch-block">算法运行引擎、规则引擎、图计算引擎、向量计算引擎、流水线调度引擎、基础中间件</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-cubes"></i> 原子算子资产层</div><div class="layer-blocks"><span class="arch-block">通用算子库、行业算子库、自定义算子、算子版本资产、算子参数模板沉淀</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-random"></i> 算法编排生产层</div><div class="layer-blocks"><span class="arch-block">可视化编排、算法组合、流水线配置、自定义算法开发、规则策略配置</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-star-half-alt"></i> 算法评测优选层</div><div class="layer-blocks"><span class="arch-block">多维度算法评测、版本对比、流水线效果校验、自动优选、上线准入管控</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-tachometer-alt"></i> 算法服务调度层</div><div class="layer-blocks"><span class="arch-block">统一服务封装、实时/批量推理、任务调度、负载均衡、服务稳定性保障</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-store"></i> 算法开放赋能层</div><div class="layer-blocks"><span class="arch-block">算法能力市场、算子复用市场、服务授权、跨中台能力调度与调用</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-lightbulb"></i> 智能场景应用层</div><div class="layer-blocks"><span class="arch-block">支撑风控、推荐、预测、运营、决策、知识推理等全前台智能场景</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-sync-alt"></i> 算法全域治理层</div><div class="layer-blocks"><span class="arch-block">算法版本、算子资产、流水线、效果、性能、合规、权限全维度治理</span></div></div>
+        </div>
+        
+        <div class="subsection-title">4.2 业务架构（算法中台三层业务域架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">上层：前台智能场景层 | 中层：算法中台核心能力层（原子算子、通用算法、行业算法、编排流水线、智能推理、算法治理原子能力） | 下层：全域支撑底座层（技术中台资源运维、数据中台数据资产、模型中台模型能力、业务中台场景标准）</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>资源调度运维域</h4><ul class="detail-list"><li>算法资源分配、任务调度、并发管控、弹性扩缩容、成本管控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>原子算子资产域</h4><ul class="detail-list"><li>算子开发、注册、版本管理、算子复用、算子质量优化</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-code"></i></span><h4>算法开发编排域</h4><ul class="detail-list"><li>自定义算法开发、可视化编排、流水线配置、规则策略迭代</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-star-half-alt"></i></span><h4>算法评测发布域</h4><ul class="detail-list"><li>算法效果评测、性能评测、版本对比、灰度发布、上线准入</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tachometer-alt"></i></span><h4>算法推理服务域</h4><ul class="detail-list"><li>实时推理、批量推理、流式计算、服务监控、性能优化</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>算法知识与治理域</h4><ul class="detail-list"><li>算法知识沉淀、知识图谱迭代、算法全生命周期治理</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.2.3 算法中台核心业务流转</div>
+        <div class="content-text" style="margin-bottom: 2rem;">前台智能场景提出逻辑计算需求 → 数据中台输出标准化特征与业务数据 → 算法中台匹配最优算子与算法模板 → 可视化编排构建专属算法流水线 → 执行算法计算与智能推理 → 多维度评测校验效果与性能 → 灰度上线验证 → 正式服务化封装输出标准化API能力 → 前台场景调用赋能 → 推理结果与效果数据回传沉淀 → 算法知识图谱迭代更新 → 监控算法效果漂移与性能衰减 → 自动触发算法参数优化与流水线迭代 → 全链路审计留存。</div>
+        
+        <div class="subsection-title">4.3 数据架构（算法中台专属七层数据架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">算法中台依托全域中台统一数据底座，搭建适配算法工程与智能推理的专属七层数据分层架构，打通数据、算子、算法、流水线、推理、知识全链路数据闭环，支撑算法开发、编排、评测、服务、迭代全流程数据驱动。</div>
+        <div class="arch-diagram" style="margin-bottom: 2rem;">
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-database"></i> AL-ODS</div><div class="layer-blocks"><span class="arch-block">原始数据源层：业务原始数据、用户行为数据、运营数据、模型推理结果数据、多模态原始数据、知识图谱原始素材</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-filter"></i> AL-DWD</div><div class="layer-blocks"><span class="arch-block">算法清洗层：原始数据清洗、去重、降噪、格式标准化、脱敏处理，生成算法计算专用明细数据</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-table"></i> AL-DWB</div><div class="layer-blocks"><span class="arch-block">算法特征宽表层：整合全域统计特征、业务特征、时序特征、向量特征，生成算法计算专属宽表数据</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-project-diagram"></i> AL-DWA</div><div class="layer-blocks"><span class="arch-block">算法知识关联层：构建算法、算子、流水线、场景、问题方案三元组数据，支撑算法知识图谱构建与迭代</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-bar"></i> AL-DWS</div><div class="layer-blocks"><span class="arch-block">算法主题汇总层：按算法类型、场景、执行批次、效果指标、性能指标聚合统计数据</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-line"></i> AL-ADS</div><div class="layer-blocks"><span class="arch-block">算法指标应用层：输出算法准确率、稳定性、推理时延、成功率、资源消耗、适配度标准化指标</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-sync-alt"></i> AL-OPS</div><div class="layer-blocks"><span class="arch-block">算法迭代智能层：沉淀算法效果归因数据、参数优化数据、流水线优化方案、迭代策略数据，支撑算法自动优化</span></div></div>
+        </div>
+        
+        <div class="subsection-title">算法中台核心数据模型体系</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cube"></i></span><h4>算子数据模型</h4><ul class="detail-list"><li>算子基础信息、参数配置、依赖数据、性能阈值、适配场景、版本信息</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-calculator"></i></span><h4>算法数据模型</h4><ul class="detail-list"><li>算法类型、计算逻辑、输入输出、精度标准、性能指标、生命周期</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-stream"></i></span><h4>流水线数据模型</h4><ul class="detail-list"><li>编排节点、执行顺序、调度规则、资源配置、执行日志、效果结果</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-network-wired"></i></span><h4>算法服务数据模型</h4><ul class="detail-list"><li>调用量、响应时延、并发量、成功率、报错类型、资源消耗</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-wave-square"></i></span><h4>算法漂移数据模型</h4><ul class="detail-list"><li>计算结果漂移、参数适配漂移、场景适配漂移、时序监控模型</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>算法知识图谱数据模型</h4><ul class="detail-list"><li>算法实体、算子实体、流水线实体、场景关联三元组模型</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.4 技术架构（算法中台云原生算法工程架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">算法中台基于全域统一云原生底座，叠加算法专属工程技术栈，形成统一底座+算法专属引擎的分层技术架构，实现算子标准化、算法编排化、推理自动化、治理精细化。</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>分层1：算法算力基础设施层</h4><ul class="detail-list"><li>CPU/GPU集群、弹性算力、分布式存储、高速网络、任务调度集群</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>分层2：基础中间件层</h4><ul class="detail-list"><li>数据库、缓存、消息队列、对象存储、图数据库、向量数据库、日志监控组件</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-code-branch"></i></span><h4>分层3：算法研发运维层</h4><ul class="detail-list"><li>算法CI/CD、流水线调度、容器编排、任务运维、可观测监控平台</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-lock"></i></span><h4>分层4：统一安全权限层</h4><ul class="detail-list"><li>多租户隔离、算法权限、算子访问权限、数据脱敏、操作审计、服务授权</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cogs"></i></span><h4>分层5：算法专属引擎层</h4><ul class="detail-list"><li>规则引擎、图计算引擎、向量检索引擎、统计计算引擎、流水线编排引擎、知识计算引擎</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>分层6：算法服务封装层</h4><ul class="detail-list"><li>算法服务注册、API封装、负载均衡、熔断限流、跨中台调度适配</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-desktop"></i></span><h4>分层7：算法应用与迭代层</h4><ul class="detail-list"><li>智能场景赋能、算法效果可视化、问题智能诊断、算法自动迭代优化</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">横向贯穿三大体系</div>
+        <div class="grid-3" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-code"></i></span><h4>算法技术规范体系</h4><ul class="detail-list"><li>算子开发、算法编排、流水线搭建、推理服务、迭代优化统一技术规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>算法安全合规体系</h4><ul class="detail-list"><li>算法逻辑合规、数据计算合规、输出结果风控、操作审计溯源</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tools"></i></span><h4>算法运维保障体系</h4><ul class="detail-list"><li>资源监控、算法服务监控、流水线故障闭环、版本容灾、迭代保障</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.5 应用架构（算法中台全场景赋能应用体系）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">企业所有前台智能场景、AI应用、智能决策系统的通用计算逻辑、业务规则、智能推理流程全部基于算法中台标准化算子与算法能力搭建，杜绝算法重复开发、逻辑定制化混乱，分为七大核心应用场景体系：</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>智能风控算法应用</h4><ul class="detail-list"><li>风险规则计算、异常行为识别、欺诈判定、多级风控拦截、风险评分算法</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-line"></i></span><h4>智能经营算法应用</h4><ul class="detail-list"><li>趋势统计、相关性分析、指标拆解、经营预测计算、异常经营研判算法</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-thumbs-up"></i></span><h4>智能推荐算法应用</h4><ul class="detail-list"><li>相似度计算、用户分群、内容匹配、权重排序、个性化推荐逻辑算法</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-file-alt"></i></span><h4>智能内容算法应用</h4><ul class="detail-list"><li>语义匹配、文本统计、关键词提取、内容分类、多模态内容计算算法</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bullhorn"></i></span><h4>智能运营算法应用</h4><ul class="detail-list"><li>用户生命周期计算、流失概率测算、复购评分、触达策略优选算法</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-lightbulb"></i></span><h4>智能决策算法应用</h4><ul class="detail-list"><li>数据归因分析、多维度对比、方案评分、最优策略推演、辅助决策算法</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>算法治理与知识应用</h4><ul class="detail-list"><li>算法资产盘点、效果监控、性能优化、知识检索、问题智能诊断应用</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">算法中台统一应用访问链路</div>
+        <div class="content-text" style="margin-bottom: 2rem;">前台智能场景应用 → 全域中台统一网关 → 权限与合规校验 → 调用算法中台标准化算子/流水线服务 → 算法智能计算推理输出结果 → 场景业务执行落地 → 效果数据回传算法中台 → 算法知识图谱更新沉淀 → 算法效果与性能监控迭代 → 全链路审计留存。</div>
+        
+        <div class="subsection-title">4.6 治理架构（算法中台六大统一治理体系）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">聚焦算法全生命周期与智能逻辑全链路管控，构建算法资产治理、算子组件治理、流水线治理、算法效果性能治理、算法安全合规治理、算法知识迭代治理六大闭环治理域，实现企业智能逻辑全维度可控、可量化、可迭代、可增值。</div>
+        <div class="grid-3">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-archive"></i></span><h4>算法资产治理</h4><ul class="detail-list"><li>算法台账、版本管控、资产复用、僵尸算法清理、算法生命周期全流程管控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>算子组件治理</h4><ul class="detail-list"><li>算子质量管控、版本迭代、权限管控、冗余算子清理、算子资产沉淀</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-stream"></i></span><h4>流水线治理</h4><ul class="detail-list"><li>编排流程标准化、调度规则管控、流水线效果校验、故障闭环治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-line"></i></span><h4>效果性能治理</h4><ul class="detail-list"><li>算法精度管控、稳定性管控、推理时延管控、效果漂移预警、迭代优化治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>安全合规治理</h4><ul class="detail-list"><li>算法访问权限、计算数据脱敏、输出结果风控、操作审计、逻辑合规治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>知识迭代治理</h4><ul class="detail-list"><li>算法知识入库、审核、更新、复用、沉淀闭环、知识质量管控</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S4 产品功能模块 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> 算法中台完整产品功能模块</h2>
+        <span class="badge-count">全维度全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>模块1：算法资源调度与运维模块</h4><ul class="detail-list"><li>算力资源纳管；智能任务调度；弹性扩缩容；多租户资源隔离；资源成本统计；资源异常预警</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>模块2：原子算子资产库模块</h4><ul class="detail-list"><li>通用算子库管理；行业专属算子库；自定义算子开发；算子版本管理；算子质量评测；算子资产复用</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-random"></i></span><h4>模块3：可视化算法编排模块</h4><ul class="detail-list"><li>拖拽式可视化编排；流水线模板管理；多模式流水线搭建；流水线参数配置；流水线容错配置；流水线预览调试</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-calculator"></i></span><h4>模块4：规则与智能算法开发模块</h4><ul class="detail-list"><li>业务规则配置；统计算法开发；智能算法适配；自定义算法开发；算法参数迭代；算法组合优化</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-star-half-alt"></i></span><h4>模块5：算法评测与版本优选模块</h4><ul class="detail-list"><li>多类型算法专项评测；全方位指标评测；流水线整体评测；多版本算法对比；自动算法优选；上线准入管控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tachometer-alt"></i></span><h4>模块6：算法服务与推理调度模块</h4><ul class="detail-list"><li>多模式服务部署；算法服务封装；灰度发布与回滚；弹性推理服务；离线批量推理；流式实时计算</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-eye"></i></span><h4>模块7：算法可观测与监控告警模块</h4><ul class="detail-list"><li>算法服务监控；算法效果监控；算法漂移监控；资源消耗监控；全链路日志追踪；异常告警自愈</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>模块8：算法知识图谱与算法知识库专项模块</h4><ul class="detail-list"><li>算法知识源统一入库；算法知识三元组抽取；算法知识网络构建；算法知识库管理；智能知识问答；算法智能推理诊断；知识自动迭代更新</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-network-wired"></i></span><h4>模块9：算法资产与开放治理模块</h4><ul class="detail-list"><li>算法资产台账；算法能力市场；服务授权管控；算法生命周期治理；僵尸资产清理；全链路审计溯源</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S5 全套指标体系 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> 算法中台全套指标体系</h2>
+        <span class="badge-count">资源+资产+效果+服务+知识+治理</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>资源调度稳定与效率指标</strong></td><td>算法集群整体可用率≥99.95%；算法任务执行成功率≥99.9%；在线推理服务成功率≥99.95%；集群资源平均利用率55%-80%（最优区间）；任务平均排队时长≤20s、超时任务占比≤0.3%；资源故障MTTR平均恢复时间≤2分钟</td></tr>
+              <tr><td><strong>算法与算子资产复用指标</strong></td><td>通用算法资产复用率≥92%；原子算子资产复用率≥95%；流水线模板复用率≥96%；新场景算法复用覆盖率≥99%；算法重复开发率≤1%；僵尸算法与冗余算子占比≤1.5%</td></tr>
+              <tr><td><strong>算法服务SLA指标</strong></td><td>算法服务整体可用率≥99.99%；轻量算法P95响应时延≤50ms、复杂组合算法P95时延≤200ms；服务报错率≤0.03%；流水线灰度发布成功率100%；算法版本回滚成功率100%</td></tr>
+              <tr><td><strong>算法效果质量指标</strong></td><td>通用业务算法准确率≥96%；风控规则算法精准率≥97%、拦截有效率≥95%；推荐匹配算法相似度准确率≥95%；算法月度结果漂移发生率≤1.5%；算法迭代后场景适配效果提升率≥4%；算法在线运行稳定性达标率100%</td></tr>
+              <tr><td><strong>算法工程效能指标</strong></td><td>智能场景算法开发周期缩短率≥85%；自动化流水线执行占比≥95%；算法自动评测覆盖率100%；算法故障复盘闭环率100%；算法人工开发干预成本下降≥75%</td></tr>
+              <tr><td><strong>算法知识图谱专项指标</strong></td><td>算法场景知识覆盖率≥99.5%；算法知识三元组完整率≥99.8%；算法知识更新及时率≥99%；算法问题智能诊断准确率≥97%；知识复用场景落地成功率≥96%；算法知识迭代闭环率100%</td></tr>
+              <tr><td><strong>合规与治理指标</strong></td><td>算法逻辑与计算结果合规率100%；算法操作审计完整率100%；算法风险输出拦截率100%；计算数据脱敏覆盖率100%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S6 完整内容体系 ===== -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> 算法中台完整内容体系</h2>
+        <span class="badge-count">交付物+标准+资产+文档全集</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>7.1 顶层规划类内容</h4><ul class="detail-list"><li>企业算法中台建设总体方案、智能算法规模化落地白皮书；算法中台全域架构规划、智能算法能力建设路线图、资源规划；算法中台成熟度评估报告、分阶段落地清单、算法建设ROI评估报告；企业智能算法工程化统一总则、算法资产复用整体规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>7.2 全域标准规范类内容</h4><ul class="detail-list"><li>算法资源调度、集群运维、任务执行标准化规范；原子算子开发、封装、版本管理、质量验收标准化规范；算法可视化编排、流水线搭建、参数配置、容错配置规范；算法开发、调参、评测、准入上线、灰度发布标准化规范；算法推理服务、接口对接、跨中台调用、服务运维规范；算法知识图谱构建、知识沉淀、知识迭代、智能应用规范；算法安全、合规、权限、审计、资产治理统一规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>7.3 算法中台核心资产内容</h4><ul class="detail-list"><li>算力资源资产库：算法算力台账、调度模板、最优资源配置方案；原子算子资产库：通用算子、行业专属算子、自定义算子全量资产；算法模板资产库：统计、规则、图、向量、机器学习算法标准化模板；流水线资产库：场景化流水线模板、通用编排流程、容错流程资产；策略规则资产库：风控规则、运营策略、推荐规则、决策规则资产；算法知识资产包：算法知识图谱、算法落地经验库、故障解决方案库、场景适配案例库；算法能力拓扑图、算法-算子-场景-资源映射矩阵</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tools"></i></span><h4>7.4 算法中台落地工程内容</h4><ul class="detail-list"><li>算法中台快速落地实施手册、智能场景轻量化搭建指南；算子开发、算法编排、流水线部署、全流程操作手册；算法API对接文档、前台场景接入规范、服务调用手册；算法知识图谱维护、更新、问答应用、迭代运维手册；算法上线验收标准、效果评估模板、迭代评审模板</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>7.5 算法中台治理运营类内容</h4><ul class="detail-list"><li>月度/季度算法资产运营报告、算子复用率与资源效率分析报告；算法效果复盘报告、结果漂移分析报告、迭代优化方案；算法资源成本分析、ROI优化台账、算法资产优化台账；算法故障复盘报告、智能场景落地效果全域评估报告；算法合规自查报告、全链路审计归档日志</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>7.6 运维保障类文档</h4><ul class="detail-list"><li>算法中台运维手册、流水线/推理故障排查FAQ；算法集群容灾预案、算法版本容灾回滚预案；算法迭代发布流程、灰度上线保障手册；算法知识图谱持续迭代、知识审核与质量保障手册</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S7 协同关系总结 ===== -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-share-alt"></i> 算法中台与六大中台全域协同关系总结</h2>
+        <span class="badge-count">7大中台协同</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>1. 技术中台</h4><ul class="detail-list"><li>提供云原生集群、容器调度、运维监控、服务治理基础能力，保障算法中台算力、集群、服务稳定运行</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>2. 数据中台</h4><ul class="detail-list"><li>提供高质量、标准化、全域统一的数据与特征资产，为算法计算、算子推理、流水线执行提供核心数据原料</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>3. 业务中台</h4><ul class="detail-list"><li>提供标准化业务场景、业务实体、基础规则，为算法适配业务、场景逻辑建模提供标准依据</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-calculator"></i></span><h4>4. 算法中台</h4><ul class="detail-list"><li>承接数据与业务资产，完成智能逻辑标准化、组件化、编排化生产，为模型推理、AI场景提供通用计算与规则能力，是企业智能逻辑的统一输出中枢</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-microchip"></i></span><h4>5. 模型中台</h4><ul class="detail-list"><li>依托算法中台前置特征计算、后置结果解析、规则修正能力，实现模型效果优化、推理精度提升、工程落地更稳定</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-brain"></i></span><h4>6. AI中台</h4><ul class="detail-list"><li>整合算法逻辑+模型能力+知识图谱，实现多维度智能推理、场景智能编排、高阶智能决策</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bullhorn"></i></span><h4>7. 运营中台</h4><ul class="detail-list"><li>调用算法标准化智能逻辑，实现精细化运营、智能风控、精准营销、智能决策，完成智能能力商业价值闭环</li></ul></div>
+        </div>
+        <div class="info-tip" style="margin-top: 1.5rem;"><i class="fas fa-info-circle"></i> 全域七维闭环逻辑：技术筑基、数据供料、业务定标、算法赋逻、模型赋能、AI升维、运营变现，七大中台深度联动，构建企业完整、可组件化、可工程化、可规模化、可持续增值的全域数智化、智能化闭环体系。</div>
+      </div>
+    </section>
+
+    <!-- ===== S8 核心价值总结 ===== -->
+    <section id="s8" class="card banner-card">
+        <div class="card-body">
+            <!-- 顶部图标与标题 -->
+            <div class="value-header">
+                <div class="icon-big"><i class="fas fa-flag"></i></div>
+                <h2>算法中台核心价值总结</h2>
+                <p class="value-subtitle">六大维度 · 重塑企业全域智能逻辑与算法工程体系</p>
+            </div>
+
+            <!-- 价值网格 -->
+            <div class="value-grid">
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-unlink"></i></div>
+                    <div class="value-content">
+                        <h4>破算法孤岛，实现智能逻辑全域统一管控</h4>
+                        <p>彻底打破企业算法零散定制、场景重复开发、逻辑标准混乱的孤岛问题，构建企业唯一的智能算法资产与逻辑标准化底座。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-cubes"></i></div>
+                    <div class="value-content">
+                        <h4>资产沉淀复用，大幅降低智能开发成本</h4>
+                        <p>将原子算子、通用算法、流水线模板、业务规则全部资产化，一次建设、全域复用，杜绝重复开发，大幅降低智能场景落地成本。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-robot"></i></div>
+                    <div class="value-content">
+                        <h4>低代码编排，实现智能场景快速创新</h4>
+                        <p>通过可视化拖拽编排、模板复用，降低智能场景开发门槛，支持新场景、新规则、新智能逻辑快速落地、灵活迭代。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div class="value-content">
+                        <h4>逻辑标准化，实现智能效果可控可治</h4>
+                        <p>建立算法全生命周期治理体系，解决传统智能开发逻辑混乱、效果不可控、迭代无标准、故障难溯源的行业痛点。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="value-content">
+                        <h4>知识固化传承，实现企业智能能力持续进化</h4>
+                        <p>通过算法专属知识体系与算法知识图谱，沉淀企业专属智能算法经验、场景适配打法、故障优化方案，实现智能能力可传承、可迭代、可规模化复制。</p>
+                    </div>
+                </div>
+                <div class="value-item full-width">
+                    <div class="value-icon"><i class="fas fa-sync-alt"></i></div>
+                    <div class="value-content">
+                        <h4>算法模型双驱，驱动企业高阶智能化升级</h4>
+                        <p>与模型中台深度协同，形成「算法定逻辑、模型做推理」的双智能驱动模式，全面支撑企业业务、运营、决策从数字化向算法化、智能化、知识化高阶跃迁。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部注脚 -->
+            <div class="footer-note">算法中台 · 企业全域数智化智能逻辑标准化与工程化核心引擎</div>
+        </div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>

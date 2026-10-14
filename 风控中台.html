@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>风控中台 · 企业级完整体系 · 高保真架构</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ===== 设计系统 Token（完全继承参考样式） ===== */
+    :root {
+      --color-primary: #7a2e1a;
+      --color-primary-light: #fce9e0;
+      --color-primary-dark: #4d1c0e;
+      --color-accent: #b85c3a;
+      --color-accent-soft: #f0c8b8;
+      --color-accent-glow: rgba(184, 92, 58, 0.10);
+      --color-neutral-50: #fcf9f7;
+      --color-neutral-100: #f5ede8;
+      --color-neutral-200: #e5d7ce;
+      --color-neutral-300: #cbb8ab;
+      --color-neutral-400: #a68b7a;
+      --color-neutral-600: #6f5544;
+      --color-neutral-700: #4f3a2e;
+      --color-neutral-800: #34241c;
+      --color-neutral-900: #1e140f;
+      --color-gold: #c29a4a;
+      --color-gold-light: #f3e1b0;
+      --color-jade: #3b7a5e;
+      --color-jade-light: #d4ede0;
+      --color-success: #1f6e4a;
+      --color-warning: #a86b2c;
+      --color-error: #b13a2a;
+      --font-base: 1rem;
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-12: 3rem;
+      --radius-sm: 0.75rem;
+      --radius-md: 1.25rem;
+      --radius-card: 2rem;
+      --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(60, 30, 10, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(60, 30, 10, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(60, 30, 10, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+      --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ===== 重置 & 基础 ===== */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    /* ===== 布局 ===== */
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(255, 249, 245, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(255, 235, 220, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); letter-spacing:-0.01em; }
+    .sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+    .sidebar nav ul { list-style:none; padding:0; margin:0; }
+    .sidebar nav ul li { margin-bottom:0.1rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:12px;
+      padding:0.55rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.85rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+    }
+    .sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+    .sidebar nav ul li a:hover,
+    .sidebar nav ul li a:focus-visible {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateX(4px);
+    }
+    .sidebar-footer {
+      margin-top:24px; padding:12px; text-align:center;
+      font-size:0.7rem; color:var(--color-neutral-600);
+      border-top:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 主内容 ===== */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+    /* ===== 页面头部 ===== */
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+      font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+    .page-header .header-meta {
+      font-size:0.9rem; color:var(--color-neutral-600);
+      background:var(--color-neutral-100);
+      padding:0.4rem 1.2rem;
+      border-radius:var(--radius-pill);
+      border:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 卡片系统 ===== */
+    .card {
+      background:rgba(255,252,248,0.92);
+      backdrop-filter: blur(4px);
+      border-radius:var(--radius-card);
+      box-shadow:var(--shadow-card);
+      margin-bottom:var(--space-6);
+      border:1px solid rgba(255, 235, 220, 0.5);
+      overflow:hidden;
+      transition: box-shadow var(--transition-default), transform 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6);
+      background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft);
+      display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 {
+      font-size:clamp(1.2rem, 2.2vw, 1.6rem);
+      font-weight:700; color:var(--color-primary-dark);
+      display:flex; align-items:center; gap:12px;
+      letter-spacing:-0.01em;
+    }
+    .card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+    .card-header .badge-count {
+      margin-left:auto;
+      background:var(--color-accent);
+      color:white;
+      border-radius:var(--radius-pill);
+      padding:0.15rem 0.9rem;
+      font-size:0.7rem;
+      font-weight:600;
+      letter-spacing:0.3px;
+    }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* ===== 网格 & 卡片（数据治理卡片风格） ===== */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } .grid-4 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; } }
+
+    /* 数据治理卡片 (复用九字卡片) */
+    .gov-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md);
+      padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: all var(--transition-default);
+      position:relative;
+      overflow:hidden;
+      border-left: 4px solid var(--color-accent);
+    }
+    .gov-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft));
+      opacity:0;
+      transition: opacity var(--transition-default);
+    }
+    .gov-card:hover::before { opacity:1; }
+    .gov-card:hover {
+      border-color:var(--color-accent-soft);
+      box-shadow: 0 8px 24px -8px rgba(184,92,58,0.15);
+      transform:translateY(-3px);
+    }
+    .gov-card .gov-icon {
+      font-size:1.8rem;
+      color:var(--color-primary);
+      display:inline-block;
+      margin-right:6px;
+      background: var(--color-primary-light);
+      padding:0.2rem 0.6rem;
+      border-radius:12px;
+    }
+    .gov-card h4 {
+      color:var(--color-primary-dark);
+      font-size:1.05rem;
+      margin-bottom:0.4rem;
+      display:flex; align-items:center; gap:8px;
+      flex-wrap:wrap;
+    }
+    .gov-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+    .gov-card .detail-list {
+      padding-left:0; margin:0.4rem 0 0 0;
+      list-style:none;
+    }
+    .gov-card .detail-list li {
+      margin-bottom:0.25rem;
+      padding-left:1.2rem;
+      position:relative;
+      font-size:0.85rem;
+      color:var(--color-neutral-700);
+    }
+    .gov-card .detail-list li::before {
+      content:'▹'; position:absolute; left:0;
+      color:var(--color-accent);
+      font-weight:600;
+    }
+    .gov-card .detail-list li strong { color:var(--color-neutral-800); }
+    .gov-card .tag-layer {
+      display:inline-block;
+      background:var(--color-gold-light);
+      color:var(--color-primary-dark);
+      border-radius:20px;
+      padding:0.05rem 0.8rem;
+      font-size:0.6rem;
+      font-weight:700;
+      letter-spacing:0.3px;
+      margin-left:0.5rem;
+    }
+
+    /* ===== 架构层（继承九层闭环） ===== */
+    .arch-diagram {
+      display:flex;
+      flex-direction:column;
+      gap:0.6rem;
+      padding:0.5rem 0;
+    }
+    .arch-layer {
+      display:flex;
+      align-items:stretch;
+      gap:0.75rem;
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.6rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: var(--transition-default);
+    }
+    .arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+    .arch-layer .layer-label {
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      min-width:120px;
+      padding-right:1rem;
+      border-right:2px solid var(--color-neutral-200);
+      font-weight:700;
+      font-size:0.8rem;
+      color:var(--color-primary-dark);
+      letter-spacing:0.3px;
+    }
+    .arch-layer .layer-label i {
+      font-size:1.1rem;
+      color:var(--color-accent);
+      margin-bottom:0.1rem;
+    }
+    .arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+    .arch-layer .layer-blocks {
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:0.5rem;
+      flex:1;
+      padding:0.2rem 0;
+    }
+    .arch-block {
+      background:white;
+      border-radius:var(--radius-sm);
+      padding:0.3rem 0.9rem;
+      border:1px solid var(--color-neutral-200);
+      font-size:0.75rem;
+      font-weight:500;
+      color:var(--color-neutral-700);
+      transition: var(--transition-default);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .arch-block:hover {
+      border-color:var(--color-accent);
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateY(-1px);
+    }
+    .arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+    .arch-block.highlight-block {
+      background:var(--color-accent);
+      color:white;
+      border-color:var(--color-accent);
+    }
+    .arch-block.highlight-block i { color:white; }
+    .arch-layer.inner-layer { background:linear-gradient(135deg, #f5efe8, #f0e4da); border-color:var(--color-accent-soft); }
+    .arch-layer.outer-layer { background:linear-gradient(135deg, #f0f2ed, #e6ece2); border-color:#b8c8aa; }
+    .arch-layer.outer-layer .layer-label { border-right-color:#b8c8aa; color:#2d5a3a; }
+    .arch-layer.outer-layer .layer-label i { color:#3b7a5e; }
+    .arch-layer.outer-layer .arch-block { border-color:#c8d8b8; }
+    .arch-layer.outer-layer .arch-block:hover { border-color:#3b7a5e; background:#e0ede0; }
+    .arch-layer.ultimate-layer { background:linear-gradient(135deg, #f0ede8, #e8e0d8); border-color:#c8b8a8; }
+    .arch-layer.ultimate-layer .layer-label { border-right-color:#c8b8a8; color:#6a4a3a; }
+    .arch-layer.ultimate-layer .layer-label i { color:#8a6a5a; }
+    .arch-layer.ultimate-layer .arch-block { border-color:#d8c8b8; }
+    .arch-layer.ultimate-layer .arch-block:hover { border-color:#8a6a5a; background:#ede0d8; }
+
+    /* ===== 表格 ===== */
+    .table-wrapper {
+      overflow-x:auto;
+      border-radius:var(--radius-md);
+      border:1px solid var(--color-neutral-200);
+      background:white;
+    }
+    table {
+      width:100%; border-collapse:collapse; font-size:0.78rem;
+    }
+    th {
+      background:var(--color-neutral-100);
+      padding:12px 10px;
+      font-weight:600;
+      color:var(--color-primary-dark);
+      text-align:left;
+      border-bottom:2px solid var(--color-neutral-200);
+      font-size:0.7rem;
+      text-transform:uppercase;
+      letter-spacing:0.4px;
+    }
+    td {
+      padding:10px 10px;
+      border-bottom:1px solid var(--color-neutral-200);
+      vertical-align:middle;
+      color:var(--color-neutral-700);
+    }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--color-neutral-50); }
+    .level-tag {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      border-radius:var(--radius-pill);
+      padding:0.05rem 0.7rem;
+      font-size:0.65rem;
+      font-weight:600;
+      display:inline-block;
+    }
+
+    /* ===== 信息提示 ===== */
+    .info-tip {
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.7rem 1.5rem;
+      border-left:5px solid var(--color-accent);
+      margin-top:var(--space-4);
+      display:flex; align-items:center; gap:0.8rem;
+      font-size:0.9rem;
+      color:var(--color-neutral-700);
+    }
+    .info-tip i { color:var(--color-accent); font-size:1rem; }
+
+    /* ===== 横幅 ===== */
+    .banner-card {
+      background: linear-gradient(135deg, #f5ede6, #e8dcd2);
+      text-align:center;
+      border-color:var(--color-accent-soft);
+    }
+    .banner-card .card-body { padding:2.5rem var(--space-6); }
+    .banner-card .icon-big { font-size:3rem; color:var(--color-primary); opacity:0.7; margin-bottom:var(--space-3); }
+    .banner-card h2 { color:var(--color-primary-dark); font-size:clamp(1.4rem, 2.5vw, 1.9rem); margin-bottom:var(--space-2); }
+    .banner-card p { max-width:680px; margin:0 auto; color:var(--color-neutral-700); font-size:1rem; }
+    .banner-card .footer-note { margin-top:var(--space-6); font-size:0.8rem; color:var(--color-primary); }
+
+    /* ===== 响应式 ===== */
+    @media (max-width:1024px) { .sidebar { width:220px; } }
+    @media (max-width:760px) {
+      .sidebar { display:none; }
+      .layout { padding:0.5rem; }
+      .main-content { padding:0; }
+      .card-body { padding:1.25rem var(--space-4); }
+      .card-header { padding:1rem var(--space-4); }
+      .page-header { flex-direction:column; align-items:flex-start; }
+    }
+
+    /* ===== 暗色 ===== */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #1a1410;
+        --color-neutral-100: #221c18;
+        --color-neutral-200: #3a2c24;
+        --color-neutral-300: #5a4a3e;
+        --color-neutral-400: #8a7a6e;
+        --color-neutral-600: #b8a89c;
+        --color-neutral-700: #d0c4b8;
+        --color-neutral-800: #e8dcd0;
+        --color-neutral-900: #f5ede6;
+        --color-primary-light: #3a2a20;
+        --color-accent-soft: #6a4a3a;
+        --color-primary: #d08a6a;
+        --color-primary-dark: #f0c8b0;
+        --color-accent: #c07a5a;
+        --color-gold: #c29a4a;
+        --color-gold-light: #4a3a20;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6);
+        --shadow-card-hover: 0 20px 48px -12px rgba(0,0,0,0.7);
+        --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #120e0a; }
+      .card { background: #1a1410; border-color: #3a2c24; }
+      .card-header { background: #1a1410; border-bottom-color: #4a3a2e; }
+      .gov-card { background: #1a1410; border-color: #3a2c24; }
+      .gov-card .gov-icon { background: #2a1e16; color: #d08a6a; }
+      .gov-card .detail-list li { color: #c0b4a8; }
+      .gov-card .detail-list li strong { color: #e0d4c8; }
+      .table-wrapper { background: #1a1410; border-color: #3a2c24; }
+      th { background: #221c18; color: #e0d4c8; border-bottom-color: #4a3a2e; }
+      td { border-bottom-color: #2a241e; color: #c0b4a8; }
+      tr:hover td { background: #2a241e; }
+      .sidebar { background: rgba(20, 16, 12, 0.92); border-color: #3a2c24; }
+      .sidebar-brand { border-bottom-color: #4a3a2e; }
+      .sidebar-brand h3 { color: #d08a6a; }
+      .sidebar nav ul li a { color: #c0b4a8; }
+      .sidebar nav ul li a:hover { background: #3a2c24; color: white; }
+      .info-tip { background: #1a1410; border-left-color: #c07a5a; color: #c0b4a8; }
+      .banner-card { background:linear-gradient(135deg,#1a1410,#2a241e); }
+      .banner-card p { color: #c0b4a8; }
+      .page-header h1 { background:linear-gradient(135deg,#f0c8b0,#d08a6a); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#2a241e; border-color:#4a3a2e; color:#b8a89c; }
+      .arch-layer { background:#1a1410; border-color:#3a2c24; }
+      .arch-layer:hover { background:#2a1e16; border-color:#5a4a3e; }
+      .arch-layer .layer-label { border-right-color:#3a2c24; color:#e0d4c8; }
+      .arch-block { background:#1a1410; border-color:#3a2c24; color:#c0b4a8; }
+      .arch-block:hover { background:#3a2c24; border-color:#c07a5a; }
+      .arch-layer.inner-layer { background:linear-gradient(135deg,#1a1410,#2a1e16); border-color:#5a3a2a; }
+      .arch-layer.outer-layer { background:linear-gradient(135deg,#141a12,#1a2618); border-color:#2a4a2a; }
+      .arch-layer.outer-layer .layer-label { border-right-color:#2a4a2a; color:#8aba8a; }
+      .arch-layer.outer-layer .layer-label i { color:#5a9a6a; }
+      .arch-layer.outer-layer .arch-block { border-color:#2a4a2a; color:#a0c8a0; }
+      .arch-layer.outer-layer .arch-block:hover { border-color:#5a9a6a; background:#1a2a1a; }
+      .arch-layer.ultimate-layer { background:linear-gradient(135deg,#1a1410,#221c18); border-color:#4a3a2e; }
+      .arch-layer.ultimate-layer .layer-label { border-right-color:#4a3a2e; color:#c8b0a0; }
+      .arch-layer.ultimate-layer .layer-label i { color:#a08070; }
+      .arch-layer.ultimate-layer .arch-block { border-color:#4a3a2e; color:#c8b8a8; }
+      .arch-layer.ultimate-layer .arch-block:hover { border-color:#a08070; background:#2a241e; }
+    }
+    
+    /* ===== 优化新增样式 ===== */
+    /* 核心价值区域优化样式 */
+    .value-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .value-header .icon-big {
+        font-size: 2.8rem;
+        color: var(--color-primary);
+        opacity: 0.8;
+        margin-bottom: 0.5rem;
+    }
+    .value-header h2 {
+        font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+        color: var(--color-primary-dark);
+        margin-bottom: 0.25rem;
+    }
+    .value-subtitle {
+        font-size: 1rem;
+        color: var(--color-neutral-600);
+        letter-spacing: 2px;
+        font-weight: 300;
+    }
+
+    /* 价值网格 */
+    .value-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin: 1.5rem 0 2rem 0;
+    }
+    .value-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(4px);
+        padding: 1.2rem 1.4rem;
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 235, 220, 0.5);
+        transition: all 0.3s ease;
+    }
+    .value-item:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-card-hover);
+        border-color: var(--color-accent-soft);
+        background: rgba(255, 255, 255, 0.85);
+    }
+    .value-item .value-icon {
+        flex-shrink: 0;
+        width: 2.8rem;
+        height: 2.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--color-primary-light);
+        border-radius: 50%;
+        color: var(--color-accent);
+        font-size: 1.2rem;
+    }
+    .value-item .value-content h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--color-primary-dark);
+        margin-bottom: 0.3rem;
+        line-height: 1.3;
+    }
+    .value-item .value-content p {
+        font-size: 0.9rem;
+        color: var(--color-neutral-700);
+        line-height: 1.6;
+        margin: 0;
+    }
+    /* 最后一项占满整行 */
+    .value-item.full-width {
+        grid-column: 1 / -1;
+    }
+
+    /* 暗色主题适配 */
+    @media (prefers-color-scheme: dark) {
+        .value-item {
+            background: rgba(30, 24, 20, 0.7);
+            border-color: var(--color-neutral-200);
+        }
+        .value-item:hover {
+            background: rgba(40, 32, 26, 0.9);
+            border-color: var(--color-accent-soft);
+        }
+        .value-item .value-content p {
+            color: var(--color-neutral-600);
+        }
+        .value-subtitle {
+            color: var(--color-neutral-400);
+        }
+    }
+
+    /* 响应式布局 */
+    @media (max-width: 768px) {
+        .value-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        .value-item {
+            padding: 1rem 1.2rem;
+        }
+        .value-item .value-content h4 {
+            font-size: 0.95rem;
+        }
+        .value-item .value-content p {
+            font-size: 0.85rem;
+        }
+    }
+    
+    /* 正文文本样式补充 */
+    .content-text {
+      font-size: 0.95rem;
+      color: var(--color-neutral-700);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+    .content-text strong {
+      color: var(--color-primary-dark);
+    }
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--color-primary-dark);
+      margin: 1.5rem 0 1rem 0;
+      border-bottom: 2px solid var(--color-primary-light);
+      padding-bottom: 0.5rem;
+    }
+    .subsection-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--color-neutral-800);
+      margin: 1.2rem 0 0.8rem 0;
+    }
+    .normal-list {
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--color-neutral-700);
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+    .normal-list li {
+      margin-bottom: 0.3rem;
+    }
+    .normal-list li strong {
+      color: var(--color-neutral-800);
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-shield-alt" aria-hidden="true"></i>
+      <h3>风控中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-book-open"></i> 全域标准定义</a></li>
+        <li><a href="#s1"><i class="fas fa-layer-group"></i> 核心特征</a></li>
+        <li><a href="#s2"><i class="fas fa-book"></i> 知识体系</a></li>
+        <li><a href="#s3"><i class="fas fa-project-diagram"></i> RiskGraph</a></li>
+        <li><a href="#s4"><i class="fas fa-sitemap"></i> 六大架构</a></li>
+        <li><a href="#s5"><i class="fas fa-puzzle-piece"></i> 功能模块</a></li>
+        <li><a href="#s6"><i class="fas fa-chart-line"></i> 指标体系</a></li>
+        <li><a href="#s7"><i class="fas fa-boxes"></i> 资产体系</a></li>
+        <li><a href="#s8"><i class="fas fa-share-alt"></i> 协同关系</a></li>
+        <li><a href="#s9"><i class="fas fa-flag"></i> 核心价值</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-shield-alt"></i> 风控中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-shield-alt"></i> 企业级风控中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> 前沿完整版</span>
+    </header>
+
+    <!-- ===== S0 全域标准定义 ===== -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> 风控中台全域标准定义</h2>
+        <span class="badge-count">当下落地+未来AI演进</span>
+      </div>
+      <div class="card-body">
+        <div class="arch-diagram">
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-database"></i> 底层依赖 <span class="sub">技术中台/算力/存储/数据源</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-cubes"></i> 技术中台</span>
+              <span class="arch-block"><i class="fas fa-microchip"></i> 算力中台</span>
+              <span class="arch-block"><i class="fas fa-database"></i> 数据中台</span>
+              <span class="arch-block"><i class="fas fa-cloud"></i> AI中台</span>
+            </div>
+          </div>
+          <div class="arch-layer outer-layer">
+            <div class="layer-label"><i class="fas fa-cogs"></i> 核心能力 <span class="sub">规则/模型/图谱/决策/处置/合规</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block highlight-block"><i class="fas fa-ruler"></i> 风控规则</span>
+              <span class="arch-block"><i class="fas fa-brain"></i> 风控模型</span>
+              <span class="arch-block"><i class="fas fa-project-diagram"></i> RiskGraph</span>
+              <span class="arch-block"><i class="fas fa-sitemap"></i> 风险决策</span>
+              <span class="arch-block"><i class="fas fa-cogs"></i> 自动处置</span>
+              <span class="arch-block"><i class="fas fa-shield-alt"></i> 合规审计</span>
+            </div>
+          </div>
+          <div class="arch-layer ultimate-layer">
+            <div class="layer-label"><i class="fas fa-rocket"></i> 上层赋能 <span class="sub">业务中台/营销/服务/财务/AI/数据</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-box"></i> 业务中台</span>
+              <span class="arch-block"><i class="fas fa-chart-pie"></i> 营销中台</span>
+              <span class="arch-block"><i class="fas fa-headset"></i> 服务中台</span>
+              <span class="arch-block"><i class="fas fa-file-invoice-dollar"></i> 财务中台</span>
+              <span class="arch-block"><i class="fas fa-cloud"></i> AI中台</span>
+              <span class="arch-block"><i class="fas fa-database"></i> 数据中台</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section-title">1.1 权威标准定义</div>
+        <div class="content-text">
+          风控中台是企业全域经营、业务流转、资金交易、用户行为、数据合规、内容安全、人员权责的全域风险管控中枢与智能风控资产复用底座，属于企业十大全域中台体系中的全域治理保障级核心中台。基于「全域感知、规则标准化、风险量化、智能识别、实时拦截、溯源归因、闭环处置、知识沉淀、持续迭代、合规可控」的前沿治理理念，全域整合企业交易数据、用户行为数据、业务流程数据、资金流水数据、合规台账、内容数据、人员权责数据、外部征信与舆情风险数据，通过标准化风控建模、规则引擎封装、风险知识图谱构建、AI智能推理、全链路风险监控、自动化处置与溯源治理，将企业分散、人工化、事后补救、碎片化、无标准、不可追溯的风控能力，沉淀为可复用、可编排、可量化、可实时、可智能、可审计、可合规、可迭代的企业全域风险治理数字资产。
+        </div>
+        <div class="content-text">
+          风控中台横向贯通、全域赋能，向上统一支撑业务中台、营销中台、服务中台、财务中台、AI中台、数据中台所有业务场景、交易场景、运营场景、服务场景、资金场景、内容场景的风险防控需求，是企业事前预防、事中拦截、事后溯源、长效治理的唯一全域风控底座。彻底解决传统企业风控碎片化、人工审核低效、风险滞后发现、风险标准不统一、跨场景风险盲区、风控经验流失、合规审计困难、风险无法量化、治理无法迭代的核心痛点，实现企业风控从「人工事后救火、单点零散管控」向风险前置化、管控标准化、识别智能化、处置自动化、治理全域化、知识资产化、合规常态化的未来高阶演进，构建企业数智化经营的安全底线与合规壁垒。
+        </div>
+        
+        <div class="section-title">1.2 风控中台核心定位与层级边界</div>
+        <div class="content-text">
+          <strong>战略定位：</strong>企业全域数智化安全治理中枢、全场景风险统一管控底座、合规审计长效保障中心、智能风险识别处置中心、风控能力资产复用中心、企业经营风险降本止损中心、全域风险知识沉淀迭代中心。
+        </div>
+        <div class="content-text">
+          <strong>层级边界：</strong>风控中台属于全域中台体系的治理保障层，向下对接数据中台全域数据、技术中台系统底座、算力中台智能算力；向上为所有前台业务场景、所有业务中台提供标准化风控服务；横向联动财务、业务、营销、服务、AI、运维中台形成「业务开展-风险管控-合规审计-迭代优化」完整治理闭环，不直接承载业务经营逻辑，专注全域风险识别、量化评估、实时管控、闭环处置、合规治理、知识沉淀、能力复用，守住企业经营、资金、数据、内容、人员、合规六大安全底线。
+        </div>
+        
+        <div class="section-title">1.3 风控中台核心特征（当下落地+未来AI演进）</div>
+        <ol class="normal-list">
+          <li><strong>全域风险一体化治理：</strong>打通交易、资金、业务、营销、服务、数据、内容、人员、合规全场景风险，破除风控孤岛，实现全域风险统一视图；</li>
+          <li><strong>风控能力资产化复用：</strong>风控规则、策略模型、审核SOP、处置预案、风险标签、合规标准全部资产化、组件化、可跨场景复用；</li>
+          <li><strong>事前事中事后全闭环：</strong>实现风险前置预警、事中实时拦截、事后溯源复盘、长效治理迭代的全链路闭环管控；</li>
+          <li><strong>规则+AI双引擎智能风控：</strong>融合传统确定性规则引擎与机器学习、图神经网络、大模型推理，兼顾风控精准性与泛化性，适配未知风险识别；</li>
+          <li><strong>风险可量化可审计：</strong>所有风险可评分、可定级、可溯源、可留痕、可审计，解决风控模糊化、无依据、不可追溯问题；</li>
+          <li><strong>风控知识结构化可推理：</strong>构建专属风控知识体系与风控知识图谱，沉淀风险关联、风险因果、处置经验，实现智能推理与经验传承；</li>
+          <li><strong>多场景自适应可编排：</strong>支持金融、电商、营销、服务、政务、企业经营等多场景差异化风控策略，支持可视化策略编排；</li>
+          <li><strong>合规常态化持续迭代：</strong>适配国家法律法规、行业监管政策动态更新，实现风控标准、合规体系、策略模型持续迭代升级。</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== S1 核心特征 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-layer-group"></i> 风控中台核心特征</h2>
+        <span class="badge-count">8大核心特征</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-globe"></i></span><h4>全域风险一体化治理</h4><ul class="detail-list"><li>打通交易、资金、业务、营销、服务、数据、内容、人员、合规全场景风险，破除风控孤岛，实现全域风险统一视图</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>风控能力资产化复用</h4><ul class="detail-list"><li>风控规则、策略模型、审核SOP、处置预案、风险标签、合规标准全部资产化、组件化、可跨场景复用</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>事前事中事后全闭环</h4><ul class="detail-list"><li>实现风险前置预警、事中实时拦截、事后溯源复盘、长效治理迭代的全链路闭环管控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-brain"></i></span><h4>规则+AI双引擎智能风控</h4><ul class="detail-list"><li>融合传统确定性规则引擎与机器学习、图神经网络、大模型推理，兼顾风控精准性与泛化性，适配未知风险识别</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-bar"></i></span><h4>风险可量化可审计</h4><ul class="detail-list"><li>所有风险可评分、可定级、可溯源、可留痕、可审计，解决风控模糊化、无依据、不可追溯问题</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>风控知识结构化可推理</h4><ul class="detail-list"><li>构建专属风控知识体系与风控知识图谱，沉淀风险关联、风险因果、处置经验，实现智能推理与经验传承</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sliders-h"></i></span><h4>多场景自适应可编排</h4><ul class="detail-list"><li>支持金融、电商、营销、服务、政务、企业经营等多场景差异化风控策略，支持可视化策略编排</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>合规常态化持续迭代</h4><ul class="detail-list"><li>适配国家法律法规、行业监管政策动态更新，实现风控标准、合规体系、策略模型持续迭代升级</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S2 知识体系 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book"></i> 风控中台专属完整知识体系</h2>
+        <span class="badge-count">十大知识域全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="content-text" style="margin-bottom: 1.5rem;">风控中台知识体系是企业全域风险治理、智能风控落地、合规长效经营的标准化、可传承、可推理、可迭代的专业知识合集，覆盖风控顶层规划、场景风控、规则模型、合规审计、风险处置、智能风控、数据风控、资产风控、人员风控、风控迭代十大维度，支撑企业从单点人工风控走向全域数智风控的全链路知识赋能。</div>
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>2.1 风控顶层规划与体系建设</h4><ul class="detail-list"><li>顶层架构规划、数智风控转型方法论、成熟度评估、分层分级标准、四级能力迭代建设、跨部门协同治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-briefcase"></i></span><h4>2.2 全场景业务风控</h4><ul class="detail-list"><li>交易风控、营销风控、用户风控、服务风控、经营风控、内容风控全场景风险防控知识</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-ruler-combined"></i></span><h4>2.3 风控规则与模型</h4><ul class="detail-list"><li>规则引擎设计、评分卡模型、机器学习风控、图神经网络、大模型语义风控、规则与模型融合策略</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-clipboard-check"></i></span><h4>2.4 合规审计与监管风控</h4><ul class="detail-list"><li>网络安全法/数安法/个保法合规、全链路留痕审计、数据合规、监管政策动态适配、合规体系迭代</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exclamation-triangle"></i></span><h4>2.5 风险处置与闭环治理</h4><ul class="detail-list"><li>预警/拦截/冻结/解封/追偿标准化SOP、分级处置、溯源归因、跨场景风险传导处置、应急防控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-robot"></i></span><h4>2.6 智能AI风控</h4><ul class="detail-list"><li>大模型语义风控、图计算关联挖掘、实时流式风控、毫秒级决策、AI可解释性、未知风险预判</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>2.7 数据风控与特征工程</h4><ul class="detail-list"><li>多源数据融合、风险特征提取衍生、特征有效性评估、隐私计算、脱敏风控、数据安全风控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-user-lock"></i></span><h4>2.8 人员与权限风控</h4><ul class="detail-list"><li>内部人员操作风控、权限滥用防控、分级授权、操作留痕、敏感操作二次校验、内控漏洞整改</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>2.9 风控资产与经营</h4><ul class="detail-list"><li>规则/模型/案例/知识资产管理、风控止损价值量化、资产跨场景复用、风控效能评估</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-rocket"></i></span><h4>2.10 风控迭代与前沿演进</h4><ul class="detail-list"><li>策略增量更新、零信任风控、主动预判风控、分布式风控、AI原生风控、大模型自主推理演进</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S3 RiskGraph ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-project-diagram"></i> 风控中台专属风控知识图谱（RiskGraph）体系</h2>
+        <span class="badge-count">核心实体 · 关联 · 智能能力</span>
+      </div>
+      <div class="card-body">
+        <div class="content-text" style="margin-bottom: 1.5rem;">风控知识图谱（RiskGraph）是企业全域风险主体、风险行为、风险规则、风险关联、风险因果、处置策略、合规标准的结构化智能知识网络，是风控中台从「规则匹配」走向「智能推理、关联挖掘、未知预判」的核心核心支撑。通过抽取风控全链路三元组数据，构建「风险主体-风险行为-风险场景-风险特征-风险等级-关联风险-处置策略-合规条款-复盘优化」的全域风控知识关联网络，解决传统风控「单点识别、无关联分析、未知风险漏判、经验依赖人工、风险无法溯源、治理无法沉淀」的痛点，实现关联风险挖掘、团伙风险识别、风险因果推理、处置方案智能推荐、风控经验自动传承、合规智能适配。</div>
+        
+        <div class="subsection-title">3.1 风控知识图谱核心实体体系</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-users"></i></span><h4>风险主体实体</h4><ul class="detail-list"><li>个人用户、企业商户、合作供应商、内部员工、设备终端、IP地址、账号主体、机构主体</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-store"></i></span><h4>风险场景实体</h4><ul class="detail-list"><li>交易支付、营销活动、用户注册登录、客服售后、内容发布、业务审批、资金流转、数据访问</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-running"></i></span><h4>风险行为实体</h4><ul class="detail-list"><li>异常交易、批量操作、恶意薅羊毛、虚假投诉、违规发布、越权操作、频繁异动、资金异常流转</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-fingerprint"></i></span><h4>风险特征实体</h4><ul class="detail-list"><li>行为特征、设备特征、时序特征、关联特征、内容特征、交易特征、地域特征、权限特征</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exclamation-circle"></i></span><h4>风险等级实体</h4><ul class="detail-list"><li>高风险、中风险、低风险、疑似风险、正常主体、团伙风险、传导风险</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-gavel"></i></span><h4>风控规则实体</h4><ul class="detail-list"><li>准入规则、拦截规则、预警规则、复核规则、解封规则、限流规则、封禁规则</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tasks"></i></span><h4>处置策略实体</h4><ul class="detail-list"><li>实时拦截、弹窗复核、人工审核、限流管控、冻结关停、风险追偿、整改预警、白名单豁免</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-balance-scale"></i></span><h4>合规条款实体</h4><ul class="detail-list"><li>国家法规、行业监管、企业内控标准、隐私合规、数据安全合规条款</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-folder-open"></i></span><h4>风险案例实体</h4><ul class="detail-list"><li>历史风险事件、欺诈案例、违规案例、团伙作案案例、风控漏杀误杀案例</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>风控资产实体</h4><ul class="detail-list"><li>风控策略、评分模型、风险标签、处置SOP、审计台账、风控知识库</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.2 风控知识图谱核心关联关系</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>主体-行为关联</h4><ul class="detail-list"><li>风险主体绑定历史风险行为、高频异常操作、违规记录、行为画像</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>行为-场景关联</h4><ul class="detail-list"><li>各类异常行为归属对应业务场景、适配对应场景风控标准</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>行为-特征关联</h4><ul class="detail-list"><li>异常行为匹配专属风险特征、多维度特征组合判定风险类型</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>行为-规则关联</h4><ul class="detail-list"><li>风险行为触发对应风控规则、匹配阈值条件、生成风控动作</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>风险-等级关联</h4><ul class="detail-list"><li>根据行为严重度、频次、关联度自动判定风险等级与影响范围</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>风险-策略关联</h4><ul class="detail-list"><li>不同类型、不同等级风险自动匹配标准化处置策略与预案</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>风险-合规关联</h4><ul class="detail-list"><li>风险行为对应违规条款、监管要求、合规整改标准</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>主体-主体关联</h4><ul class="detail-list"><li>账号-设备-IP-团伙-关联企业-关联人员多跳关联，挖掘隐形团伙风险</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>案例-规则关联</h4><ul class="detail-list"><li>历史风险案例反向优化风控规则、迭代模型阈值、完善知识体系</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>风险-复盘关联</h4><ul class="detail-list"><li>风险事件归因、漏洞定位、优化策略反向沉淀为风控资产</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.3 风控知识图谱核心智能能力</div>
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-archive"></i></span><h4>风控经验结构化沉淀</h4><ul class="detail-list"><li>将人工风控审核、风险处置、漏洞整改的零散经验结构化入库，彻底摆脱人工经验依赖</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-search"></i></span><h4>团伙关联风险智能挖掘</h4><ul class="detail-list"><li>基于多跳关联关系，识别隐形批量账号、团伙作弊、关联欺诈、风险传导链条</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-lightbulb"></i></span><h4>未知风险智能推理</h4><ul class="detail-list"><li>通过知识网络关联推理，识别传统规则无法覆盖的新型、变异、隐形风险</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sort-amount-up"></i></span><h4>风险等级智能定级</h4><ul class="detail-list"><li>结合行为、特征、关联关系、历史案例自动精准判定风险等级与影响范围</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-magic"></i></span><h4>处置策略智能推荐</h4><ul class="detail-list"><li>针对不同风险场景、风险类型、风险等级，自动匹配最优处置方案</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-balance-scale-right"></i></span><h4>违规合规智能归因</h4><ul class="detail-list"><li>精准定位风险对应的合规条款、违规原因、管控漏洞，支撑合规审计</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>风控策略自动迭代</h4><ul class="detail-list"><li>基于新增风险案例与知识关联，自动优化规则阈值、模型参数、防控策略</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-graduation-cap"></i></span><h4>风控新人快速赋能</h4><ul class="detail-list"><li>实现风控知识可查询、可推理、可复用，降低风控运营与审核门槛</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S4 六大架构 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> 风控中台六大核心架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span>
+      </div>
+      <div class="card-body">
+        <div class="subsection-title">4.1 产品架构（九层分层全景架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">整体分层：全域风险数据接入层 → 风控数据标准化层 → 风控规则模型层 → 智能知识推理层 → 全场景风险决策层 → 自动化处置编排层 → 风险监控可观测层 → 合规审计台账层 → 风控资产迭代层</div>
+        <div class="arch-diagram" style="margin-bottom: 2rem;">
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-plug"></i> 接入层</div><div class="layer-blocks"><span class="arch-block">全域风险数据接入</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-filter"></i> 标准化层</div><div class="layer-blocks"><span class="arch-block">多源数据清洗</span><span class="arch-block">特征提取</span><span class="arch-block">标签打标</span><span class="arch-block">风险归一化</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-cogs"></i> 规则模型层</div><div class="layer-blocks"><span class="arch-block">硬规则引擎</span><span class="arch-block">评分模型</span><span class="arch-block">机器学习模型</span><span class="arch-block">图计算模型</span><span class="arch-block">大模型风控</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-brain"></i> 知识推理层</div><div class="layer-blocks"><span class="arch-block">知识图谱</span><span class="arch-block">关联风险挖掘</span><span class="arch-block">因果推理</span><span class="arch-block">未知风险预判</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-sitemap"></i> 决策层</div><div class="layer-blocks"><span class="arch-block">场景自适应判定</span><span class="arch-block">动态阈值</span><span class="arch-block">差异化决策</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-cogs"></i> 处置编排层</div><div class="layer-blocks"><span class="arch-block">预警</span><span class="arch-block">拦截</span><span class="arch-block">复核</span><span class="arch-block">限流</span><span class="arch-block">冻结</span><span class="arch-block">解封</span><span class="arch-block">追偿</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-line"></i> 监控层</div><div class="layer-blocks"><span class="arch-block">风险态势</span><span class="arch-block">趋势分析</span><span class="arch-block">漏杀误杀复盘</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-clipboard-check"></i> 审计层</div><div class="layer-blocks"><span class="arch-block">全链路留痕</span><span class="arch-block">合规台账</span><span class="arch-block">监管报送</span><span class="arch-block">整改闭环</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-sync-alt"></i> 迭代层</div><div class="layer-blocks"><span class="arch-block">规则/模型/案例/知识沉淀</span><span class="arch-block">持续迭代优化</span></div></div>
+        </div>
+        
+        <div class="subsection-title">4.2 业务架构（三层全域业务架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">上层：前台全场景风控赋能层 | 中层：风控中台核心能力层（数据接入、规则建模、智能推理、风险决策、自动处置、监控预警、合规审计、知识迭代八大原子能力） | 下层：全域底座支撑层（技术中台、数据中台、算力中台）</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-eye"></i></span><h4>全域风险感知业务域</h4><ul class="detail-list"><li>多源风险数据采集、行为感知、异常识别、风险态势感知</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-ruler-combined"></i></h4><h4>风控规则模型业务域</h4><ul class="detail-list"><li>规则配置、模型训练、评分定级、策略组合、阈值调优</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-brain"></i></span><h4>智能风险推理业务域</h4><ul class="detail-list"><li>知识图谱关联分析、团伙挖掘、未知风险预判、因果归因</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>全场景风险决策业务域</h4><ul class="detail-list"><li>场景化风控、动态策略、差异化判定、实时决策输出</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cogs"></i></span><h4>风险自动化处置业务域</h4><ul class="detail-list"><li>分级处置、自动拦截、人工复核、应急管控、追偿闭环</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-line"></i></span><h4>风险监控运营业务域</h4><ul class="detail-list"><li>态势监控、趋势分析、漏误杀复盘、风险治理优化</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-clipboard-check"></i></span><h4>合规审计治理业务域</h4><ul class="detail-list"><li>全链路留痕、台账管理、监管适配、自查整改、合规闭环</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>风控知识资产业务域</h4><ul class="detail-list"><li>风控知识沉淀、图谱迭代、案例复用、经验传承、能力升级</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.3 数据架构（七层风控专属数据架构）</div>
+        <div class="arch-diagram" style="margin-bottom: 2rem;">
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-database"></i> RISK-ODS</div><div class="layer-blocks"><span class="arch-block">原始接入层：用户行为、交易流水、营销操作、内容发布、服务工单、权限操作、舆情征信、设备IP</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-filter"></i> RISK-DWD</div><div class="layer-blocks"><span class="arch-block">明细清洗层：清洗、去重、脱敏、标准化、时序对齐、异常剔除</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-table"></i> RISK-DWB</div><div class="layer-blocks"><span class="arch-block">业务宽表层：主体+行为+场景+特征+处置结果+风险等级+合规信息</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-project-diagram"></i> RISK-DWA</div><div class="layer-blocks"><span class="arch-block">知识关联层：三元组抽取、主体-行为-风险-策略知识网络</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-bar"></i> RISK-DWS</div><div class="layer-blocks"><span class="arch-block">主题汇总层：交易/营销/用户/内容/合规/团伙风险六大主题聚合</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-line"></i> RISK-ADS</div><div class="layer-blocks"><span class="arch-block">指标应用层：识别率、拦截率、误杀率、漏杀率、处置时效、合规率、止损金额</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-sync-alt"></i> RISK-OPT</div><div class="layer-blocks"><span class="arch-block">迭代优化层：漏洞沉淀、误漏杀案例、新型风险特征、规则模型迭代</span></div></div>
+        </div>
+        
+        <div class="subsection-title">4.4 技术架构（云原生+AI智能风控前沿技术架构）</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-plug"></i></span><h4>多源数据接入层</h4><ul class="detail-list"><li>实时数据流、离线批量数据、外部舆情征信、内部业务操作统一接入</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>数据计算与存储层</h4><ul class="detail-list"><li>Flink实时计算、Spark离线计算、时序数据库、图数据库、对象存储、缓存集群</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cogs"></i></span><h4>风控核心引擎层</h4><ul class="detail-list"><li>规则引擎、评分引擎、ML推理引擎、图计算引擎、大模型语义风控引擎、知识推理引擎</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sliders-h"></i></span><h4>统一策略编排层</h4><ul class="detail-list"><li>可视化策略配置、场景化编排、动态阈值调整、灰度发布、A/B测试</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exclamation-triangle"></i></span><h4>风险处置服务层</h4><ul class="detail-list"><li>预警服务、拦截服务、复核服务、冻结解封服务、追偿服务、告警服务</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-clipboard-check"></i></span><h4>审计与监控层</h4><ul class="detail-list"><li>全链路日志留存、合规审计、风险态势监控、异常告警、复盘分析</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.5 应用架构（全域赋能应用体系）</div>
+        <div class="grid-3" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-money-bill-wave"></i></span><h4>交易资金风控</h4><ul class="detail-list"><li>支付、转账、退款、批量交易、洗钱套现、资金异常流转实时防控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tags"></i></span><h4>营销活动风控</h4><ul class="detail-list"><li>活动作弊、薅羊毛、虚假裂变、刷单套利、恶意领奖全场景防控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-user"></i></span><h4>用户账号风控</h4><ul class="detail-list"><li>批量注册、养号控号、异常登录、账号盗用、用户欺诈防控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-video"></i></span><h4>内容合规风控</h4><ul class="detail-list"><li>文本、图片、音视频、评论UGC违规、涉敏、侵权、舆情风险智能审核</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-headset"></i></span><h4>服务售后风控</h4><ul class="detail-list"><li>恶意客诉、虚假工单、重复维权、售后套利、服务欺诈闭环管控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-user-shield"></i></span><h4>内部权限内控</h4><ul class="detail-list"><li>内部越权操作、违规审批、权限滥用、人员异常行为风控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-building"></i></span><h4>企业经营风控</h4><ul class="detail-list"><li>合作方、供应商、客户失信、舆情风险、关联风险传导防控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-brain"></i></span><h4>智能知识风控</h4><ul class="detail-list"><li>团伙风险挖掘、未知风险推理、处置方案推荐、风控知识赋能</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.6 治理架构（六大全域治理体系）</div>
+        <div class="grid-3">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>风险全生命周期治理</h4><ul class="detail-list"><li>识别、预警、处置、复盘、整改、长效防控全流程闭环</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-ruler-combined"></i></span><h4>风控策略模型治理</h4><ul class="detail-list"><li>规则准入、模型迭代、阈值调优、灰度发布、误漏杀治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>风控数据治理</h4><ul class="detail-list"><li>多源数据标准化、特征治理、数据质量、隐私脱敏、数据合规</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-clipboard-check"></i></span><h4>合规审计治理</h4><ul class="detail-list"><li>法规适配、台账管理、审计留痕、自查整改、监管报送闭环</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-line"></i></span><h4>风控运营治理</h4><ul class="detail-list"><li>风险态势运营、处置效率优化、止损价值量化、风控效能提升</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>风控知识迭代治理</h4><ul class="detail-list"><li>知识入库、图谱更新、案例沉淀、经验复用、策略持续优化</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S5 功能模块 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> 风控中台全量产品功能模块</h2>
+        <span class="badge-count">10大模块全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-plug"></i></span><h4>模块1：全域多源风险数据接入</h4><ul class="detail-list"><li>实时/离线数据接入；外部征信/舆情/司法数据对接；多源适配；脱敏与隐私防护；数据质量监控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-ruler-combined"></i></span><h4>模块2：风控规则与策略配置</h4><ul class="detail-list"><li>可视化规则配置；黑白名单管理；风险标签体系；场景化策略包；灰度发布；动态阈值调控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-brain"></i></span><h4>模块3：智能风控模型引擎</h4><ul class="detail-list"><li>评分卡模型；机器学习模型；图计算团伙模型；大模型语义风控；模型管理迭代；规则AI融合引擎</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>模块4：风控知识图谱智能推理</h4><ul class="detail-list"><li>三元组自动抽取；知识图谱可视化；多跳关联挖掘；因果智能归因；处置策略推荐；知识自动迭代</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>模块5：全场景风险智能决策</h4><ul class="detail-list"><li>实时风险判定；风险分级定级；场景自适应决策；批量风险判定；新型风险预判；决策效果评估</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cogs"></i></span><h4>模块6：风险自动化处置编排</h4><ul class="detail-list"><li>多级处置动作；人工审核工作台；风险解封申诉；风险追偿处置；应急风控编排；处置结果闭环</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-line"></i></span><h4>模块7：全域风险监控态势</h4><ul class="detail-list"><li>风险态势大屏；实时风险告警；漏误杀监控；风险趋势分析；处置效率监控；风控漏洞扫描</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-clipboard-check"></i></span><h4>模块8：合规审计与台账管理</h4><ul class="detail-list"><li>全链路操作留痕；合规台账自动生成；监管报送适配；合规自查整改；权限审计管控；版本归档</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>模块9：风控运营复盘优化</h4><ul class="detail-list"><li>风险案例库管理；风控效能复盘；策略优化迭代；风险漏洞整改；风控价值量化；运营报表</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>模块10：风控知识与赋能</h4><ul class="detail-list"><li>风控知识库沉淀；知识图谱运维；风控智能问答；新人培训赋能；最佳实践沉淀；知识合规校验</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S6 指标体系 ===== -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> 风控中台全套指标体系</h2>
+        <span class="badge-count">风险+效能+合规+运营+知识+价值</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>风险识别防控</strong></td><td>全域风险识别覆盖率≥99% · 已知风险拦截率≥99.5% · 新型未知风险识别率≥95% · 风控误杀率≤0.3% · 风控漏杀率≤0.1% · 团伙风险挖掘准确率≥98%</td></tr>
+              <tr><td><strong>风险处置效率</strong></td><td>实时风控决策时延≤100ms · 高风险处置及时率100% · 风险工单平均办结时长≤5分钟 · 自动化处置占比≥95% · 风险闭环率100% · 申诉复核处理及时率100%</td></tr>
+              <tr><td><strong>风控模型策略</strong></td><td>风控模型精准率≥99% · 风控模型召回率≥98% · 策略有效率≥98% · 模型劣化发生率≤0.5% · 策略迭代及时率100% · 灰度策略上线成功率100%</td></tr>
+              <tr><td><strong>合规审计</strong></td><td>风控操作留痕覆盖率100% · 合规问题整改闭环率100% · 监管零违规零处罚100% · 合规台账完整率100% · 隐私数据风控合规率100% · 权限违规发生率0</td></tr>
+              <tr><td><strong>风控运营价值</strong></td><td>年度风险损失同比下降≥30% · 人工风控成本同比下降≥40% · 批量风险事件发生率同比下降≥50% · 风控自动化率持续提升 · 风控投入产出比持续优化 · 业务风控体验投诉率≤0.01%</td></tr>
+              <tr><td><strong>RiskGraph专项</strong></td><td>全场景风控知识覆盖率100% · 风控知识三元组完整率≥99.5% · 关联风险推理准确率≥97% · 处置方案推荐准确率≥96% · 知识迭代更新及时率≥99% · 知识赋能风控解决率≥92%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S7 资产体系 ===== -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> 风控中台完整内容资产体系</h2>
+        <span class="badge-count">6大资产包</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>顶层规划类资产</h4><ul class="detail-list"><li>整体建设方案 · 数智风控白皮书 · 建设路线图 · 风控成熟度评估 · 全域合规风控长效治理方案</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>全域标准规范类资产</h4><ul class="detail-list"><li>多源数据接入标准 · 规则配置标准 · 风险分级定级标准 · 模型建设标准 · 知识图谱构建规范 · 合规审计标准</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>风控核心数字资产</h4><ul class="detail-list"><li>全域风险策略资产库 · 风控模型资产库 · 风险案例资产库 · 风险特征资产库 · 风控知识资产包 · 全域映射矩阵</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tools"></i></span><h4>落地工程实施资产</h4><ul class="detail-list"><li>实施手册 · 策略搭建指南 · 知识图谱部署手册 · API对接文档 · 全流程操作手册 · 验收标准</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>治理运营分析资产</h4><ul class="detail-list"><li>风控运营报告 · 风险态势分析 · 漏误杀复盘报告 · 止损价值报告 · 合规审计报告 · 长效治理方案</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>应急保障资产</h4><ul class="detail-list"><li>批量风险/大规模作弊应急预案 · 策略失效/模型劣化保障方案 · 重大合规风险应急手册 · 知识图谱迭代保障方案</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S8 协同关系 ===== -->
+    <section id="s8" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-share-alt"></i> 风控中台与九大中台全域协同关系</h2>
+        <span class="badge-count">9 大中台协同</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-3">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>技术中台</h4><ul class="detail-list"><li>提供云原生、微服务、高可用系统底座，支撑风控中台高并发、低时延、高稳定运行</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>数据中台</h4><ul class="detail-list"><li>提供全域标准化业务数据，是风控数据核心来源；风控反向沉淀风险标签数据反哺数据中台</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-microchip"></i></span><h4>算力中台</h4><ul class="detail-list"><li>为风控实时计算、模型推理、图计算、知识图谱推演提供充足智能算力，保障毫秒级决策</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cloud"></i></span><h4>AI/模型/算法中台</h4><ul class="detail-list"><li>提供机器学习、大模型、图计算算法能力，风控中台实现算法模型的业务落地与场景验证</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>业务中台</h4><ul class="detail-list"><li>为所有业务流程、业务节点提供嵌入式风控，保障业务合规、安全、有序开展</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tags"></i></span><h4>营销中台</h4><ul class="detail-list"><li>全程保障营销活动、用户增长的防作弊、防薅羊毛、防资源套利，保障营销预算安全</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-headset"></i></span><h4>服务中台</h4><ul class="detail-list"><li>管控售后客诉、工单服务场景的恶意风险，净化服务环境，降低服务损耗</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-file-invoice-dollar"></i></span><h4>财务中台</h4><ul class="detail-list"><li>联动资金风控、交易风控、成本风控，保障企业资金安全、财务合规、成本可控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tasks"></i></span><h4>运维中台</h4><ul class="detail-list"><li>保障风控系统稳定运维、故障快速处置，风控中台为运维异常行为、系统风险提供安全管控</li></ul></div>
+        </div>
+        <div class="info-tip" style="margin-top: 1.5rem;"><i class="fas fa-info-circle"></i> 全域闭环逻辑：风控中台是企业全域数智化经营的安全底线与合规屏障，为所有中台、所有前台场景提供安全护航，实现「业务创新、安全可控、合规经营、长效发展」的全域闭环。</div>
+      </div>
+    </section>
+
+    <!-- ===== S9 核心价值 ===== -->
+    <section id="s9" class="card banner-card">
+        <div class="card-body">
+            <!-- 顶部图标与标题 -->
+            <div class="value-header">
+                <div class="icon-big"><i class="fas fa-flag"></i></div>
+                <h2>风控中台核心价值总结</h2>
+                <p class="value-subtitle">七大维度 · 重塑企业全域安全底座</p>
+            </div>
+
+            <!-- 价值网格 -->
+            <div class="value-grid">
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div class="value-content">
+                        <h4>终结碎片化风控，构建企业全域统一安全底座</h4>
+                        <p>彻底打破各业务场景风控孤岛、标准不一、管控零散的痛点，实现交易、营销、服务、内容、资金、内控全域风险一体化治理，搭建企业统一的数智安全风控底座。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-robot"></i></div>
+                    <div class="value-content">
+                        <h4>实现风控从事后补救到事前预判的范式升级</h4>
+                        <p>通过知识图谱关联推理+AI智能预判，提前识别隐形风险、关联风险、新型变异风险，将风控从被动处置升级为主动预防、前置管控，大幅降低风险损失。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-cubes"></i></div>
+                    <div class="value-content">
+                        <h4>风控能力资产化，实现全域复用降本增效</h4>
+                        <p>将风控规则、模型、案例、知识、策略全部资产化，跨场景复用、快速适配新业务，避免重复建设，大幅降低人工审核与风险损失成本。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-balance-scale"></i></div>
+                    <div class="value-content">
+                        <h4>规则+AI+知识三重驱动，兼顾精准与体验</h4>
+                        <p>硬规则兜底保障合规底线，AI模型提升泛化能力，知识图谱挖掘关联风险，平衡风控严格性与用户体验，实现低误杀、低漏杀的极致风控效果。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-clipboard-check"></i></div>
+                    <div class="value-content">
+                        <h4>构建闭环合规体系，规避监管风险</h4>
+                        <p>实现全链路留痕、可审计、可追溯、可整改，常态化适配法律法规与行业监管更新，彻底解决合规漏洞、监管处罚风险。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-brain"></i></div>
+                    <div class="value-content">
+                        <h4>沉淀企业专属风控知识资产，实现能力自主迭代</h4>
+                        <p>通过完整知识体系与风控知识图谱，沉淀企业独家风控经验、案例、逻辑，摆脱外部依赖与人工经验依赖，实现风控能力自主进化、持续升级。</p>
+                    </div>
+                </div>
+                <div class="value-item full-width">
+                    <div class="value-icon"><i class="fas fa-rocket"></i></div>
+                    <div class="value-content">
+                        <h4>护航企业全域数智化长期稳健经营</h4>
+                        <p>作为企业十大中台的安全治理核心底座，持续为业务创新、营销增长、服务升级、资金安全、合规经营保驾护航，支撑企业数智化转型的安全、稳定、合规、长效高质量发展。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部注脚 -->
+            <div class="footer-note">风控中台 · 前沿完整版 · 企业全域风险管控中枢</div>
+        </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

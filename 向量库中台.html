@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>向量库中台 · 企业级完整体系 · 高保真架构</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ===== 设计系统 Token（完全继承参考样式） ===== */
+    :root {
+      --color-primary: #7a2e1a;
+      --color-primary-light: #fce9e0;
+      --color-primary-dark: #4d1c0e;
+      --color-accent: #b85c3a;
+      --color-accent-soft: #f0c8b8;
+      --color-accent-glow: rgba(184, 92, 58, 0.10);
+      --color-neutral-50: #fcf9f7;
+      --color-neutral-100: #f5ede8;
+      --color-neutral-200: #e5d7ce;
+      --color-neutral-300: #cbb8ab;
+      --color-neutral-400: #a68b7a;
+      --color-neutral-600: #6f5544;
+      --color-neutral-700: #4f3a2e;
+      --color-neutral-800: #34241c;
+      --color-neutral-900: #1e140f;
+      --color-gold: #c29a4a;
+      --color-gold-light: #f3e1b0;
+      --color-jade: #3b7a5e;
+      --color-jade-light: #d4ede0;
+      --color-success: #1f6e4a;
+      --color-warning: #a86b2c;
+      --color-error: #b13a2a;
+      --font-base: 1rem;
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-12: 3rem;
+      --radius-sm: 0.75rem;
+      --radius-md: 1.25rem;
+      --radius-card: 2rem;
+      --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(60, 30, 10, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(60, 30, 10, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(60, 30, 10, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+      --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ===== 重置 & 基础 ===== */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    /* ===== 布局 ===== */
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(255, 249, 245, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(255, 235, 220, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); letter-spacing:-0.01em; }
+    .sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+    .sidebar nav ul { list-style:none; padding:0; margin:0; }
+    .sidebar nav ul li { margin-bottom:0.1rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:12px;
+      padding:0.55rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.85rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+    }
+    .sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+    .sidebar nav ul li a:hover,
+    .sidebar nav ul li a:focus-visible {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateX(4px);
+    }
+    .sidebar-footer {
+      margin-top:24px; padding:12px; text-align:center;
+      font-size:0.7rem; color:var(--color-neutral-600);
+      border-top:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 主内容 ===== */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+    /* ===== 页面头部 ===== */
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+      font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+    .page-header .header-meta {
+      font-size:0.9rem; color:var(--color-neutral-600);
+      background:var(--color-neutral-100);
+      padding:0.4rem 1.2rem;
+      border-radius:var(--radius-pill);
+      border:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 卡片系统 ===== */
+    .card {
+      background:rgba(255,252,248,0.92);
+      backdrop-filter: blur(4px);
+      border-radius:var(--radius-card);
+      box-shadow:var(--shadow-card);
+      margin-bottom:var(--space-6);
+      border:1px solid rgba(255, 235, 220, 0.5);
+      overflow:hidden;
+      transition: box-shadow var(--transition-default), transform 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6);
+      background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft);
+      display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 {
+      font-size:clamp(1.2rem, 2.2vw, 1.6rem);
+      font-weight:700; color:var(--color-primary-dark);
+      display:flex; align-items:center; gap:12px;
+      letter-spacing:-0.01em;
+    }
+    .card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+    .card-header .badge-count {
+      margin-left:auto;
+      background:var(--color-accent);
+      color:white;
+      border-radius:var(--radius-pill);
+      padding:0.15rem 0.9rem;
+      font-size:0.7rem;
+      font-weight:600;
+      letter-spacing:0.3px;
+    }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* ===== 网格 & 卡片（向量卡片风格） ===== */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } .grid-4 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; } }
+
+    /* 向量卡片 (复用九字卡片) */
+    .vector-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md);
+      padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: all var(--transition-default);
+      position:relative;
+      overflow:hidden;
+      border-left: 4px solid var(--color-accent);
+    }
+    .vector-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft));
+      opacity:0;
+      transition: opacity var(--transition-default);
+    }
+    .vector-card:hover::before { opacity:1; }
+    .vector-card:hover {
+      border-color:var(--color-accent-soft);
+      box-shadow: 0 8px 24px -8px rgba(184,92,58,0.15);
+      transform:translateY(-3px);
+    }
+    .vector-card .vector-icon {
+      font-size:1.8rem;
+      color:var(--color-primary);
+      display:inline-block;
+      margin-right:6px;
+      background: var(--color-primary-light);
+      padding:0.2rem 0.6rem;
+      border-radius:12px;
+    }
+    .vector-card h4 {
+      color:var(--color-primary-dark);
+      font-size:1.05rem;
+      margin-bottom:0.4rem;
+      display:flex; align-items:center; gap:8px;
+      flex-wrap:wrap;
+    }
+    .vector-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+    .vector-card .detail-list {
+      padding-left:0; margin:0.4rem 0 0 0;
+      list-style:none;
+    }
+    .vector-card .detail-list li {
+      margin-bottom:0.25rem;
+      padding-left:1.2rem;
+      position:relative;
+      font-size:0.85rem;
+      color:var(--color-neutral-700);
+    }
+    .vector-card .detail-list li::before {
+      content:'▹'; position:absolute; left:0;
+      color:var(--color-accent);
+      font-weight:600;
+    }
+    .vector-card .detail-list li strong { color:var(--color-neutral-800); }
+    .vector-card .tag-layer {
+      display:inline-block;
+      background:var(--color-gold-light);
+      color:var(--color-primary-dark);
+      border-radius:20px;
+      padding:0.05rem 0.8rem;
+      font-size:0.6rem;
+      font-weight:700;
+      letter-spacing:0.3px;
+      margin-left:0.5rem;
+    }
+
+    /* ===== 架构层（继承九层闭环） ===== */
+    .arch-diagram {
+      display:flex;
+      flex-direction:column;
+      gap:0.6rem;
+      padding:0.5rem 0;
+    }
+    .arch-layer {
+      display:flex;
+      align-items:stretch;
+      gap:0.75rem;
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.6rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: var(--transition-default);
+    }
+    .arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+    .arch-layer .layer-label {
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      min-width:120px;
+      padding-right:1rem;
+      border-right:2px solid var(--color-neutral-200);
+      font-weight:700;
+      font-size:0.8rem;
+      color:var(--color-primary-dark);
+      letter-spacing:0.3px;
+    }
+    .arch-layer .layer-label i {
+      font-size:1.1rem;
+      color:var(--color-accent);
+      margin-bottom:0.1rem;
+    }
+    .arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+    .arch-layer .layer-blocks {
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:0.5rem;
+      flex:1;
+      padding:0.2rem 0;
+    }
+    .arch-block {
+      background:white;
+      border-radius:var(--radius-sm);
+      padding:0.3rem 0.9rem;
+      border:1px solid var(--color-neutral-200);
+      font-size:0.75rem;
+      font-weight:500;
+      color:var(--color-neutral-700);
+      transition: var(--transition-default);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .arch-block:hover {
+      border-color:var(--color-accent);
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateY(-1px);
+    }
+    .arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+    .arch-block.highlight-block {
+      background:var(--color-accent);
+      color:white;
+      border-color:var(--color-accent);
+    }
+    .arch-block.highlight-block i { color:white; }
+    .arch-layer.inner-layer { background:linear-gradient(135deg, #f5efe8, #f0e4da); border-color:var(--color-accent-soft); }
+    .arch-layer.outer-layer { background:linear-gradient(135deg, #f0f2ed, #e6ece2); border-color:#b8c8aa; }
+    .arch-layer.outer-layer .layer-label { border-right-color:#b8c8aa; color:#2d5a3a; }
+    .arch-layer.outer-layer .layer-label i { color:#3b7a5e; }
+    .arch-layer.outer-layer .arch-block { border-color:#c8d8b8; }
+    .arch-layer.outer-layer .arch-block:hover { border-color:#3b7a5e; background:#e0ede0; }
+    .arch-layer.ultimate-layer { background:linear-gradient(135deg, #f0ede8, #e8e0d8); border-color:#c8b8a8; }
+    .arch-layer.ultimate-layer .layer-label { border-right-color:#c8b8a8; color:#6a4a3a; }
+    .arch-layer.ultimate-layer .layer-label i { color:#8a6a5a; }
+    .arch-layer.ultimate-layer .arch-block { border-color:#d8c8b8; }
+    .arch-layer.ultimate-layer .arch-block:hover { border-color:#8a6a5a; background:#ede0d8; }
+
+    /* ===== 表格 ===== */
+    .table-wrapper {
+      overflow-x:auto;
+      border-radius:var(--radius-md);
+      border:1px solid var(--color-neutral-200);
+      background:white;
+    }
+    table {
+      width:100%; border-collapse:collapse; font-size:0.78rem;
+    }
+    th {
+      background:var(--color-neutral-100);
+      padding:12px 10px;
+      font-weight:600;
+      color:var(--color-primary-dark);
+      text-align:left;
+      border-bottom:2px solid var(--color-neutral-200);
+      font-size:0.7rem;
+      text-transform:uppercase;
+      letter-spacing:0.4px;
+    }
+    td {
+      padding:10px 10px;
+      border-bottom:1px solid var(--color-neutral-200);
+      vertical-align:middle;
+      color:var(--color-neutral-700);
+    }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--color-neutral-50); }
+    .level-tag {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      border-radius:var(--radius-pill);
+      padding:0.05rem 0.7rem;
+      font-size:0.65rem;
+      font-weight:600;
+      display:inline-block;
+    }
+
+    /* ===== 信息提示 ===== */
+    .info-tip {
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.7rem 1.5rem;
+      border-left:5px solid var(--color-accent);
+      margin-top:var(--space-4);
+      display:flex; align-items:center; gap:0.8rem;
+      font-size:0.9rem;
+      color:var(--color-neutral-700);
+    }
+    .info-tip i { color:var(--color-accent); font-size:1rem; }
+
+    /* ===== 横幅 ===== */
+    .banner-card {
+      background: linear-gradient(135deg, #f5ede6, #e8dcd2);
+      text-align:center;
+      border-color:var(--color-accent-soft);
+    }
+    .banner-card .card-body { padding:2.5rem var(--space-6); }
+    .banner-card .icon-big { font-size:3rem; color:var(--color-primary); opacity:0.7; margin-bottom:var(--space-3); }
+    .banner-card h2 { color:var(--color-primary-dark); font-size:clamp(1.4rem, 2.5vw, 1.9rem); margin-bottom:var(--space-2); }
+    .banner-card p { max-width:680px; margin:0 auto; color:var(--color-neutral-700); font-size:1rem; }
+    .banner-card .footer-note { margin-top:var(--space-6); font-size:0.8rem; color:var(--color-primary); }
+
+    /* ===== 响应式 ===== */
+    @media (max-width:1024px) { .sidebar { width:220px; } }
+    @media (max-width:760px) {
+      .sidebar { display:none; }
+      .layout { padding:0.5rem; }
+      .main-content { padding:0; }
+      .card-body { padding:1.25rem var(--space-4); }
+      .card-header { padding:1rem var(--space-4); }
+      .page-header { flex-direction:column; align-items:flex-start; }
+    }
+
+    /* ===== 暗色 ===== */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #1a1410;
+        --color-neutral-100: #221c18;
+        --color-neutral-200: #3a2c24;
+        --color-neutral-300: #5a4a3e;
+        --color-neutral-400: #8a7a6e;
+        --color-neutral-600: #b8a89c;
+        --color-neutral-700: #d0c4b8;
+        --color-neutral-800: #e8dcd0;
+        --color-neutral-900: #f5ede6;
+        --color-primary-light: #3a2a20;
+        --color-accent-soft: #6a4a3a;
+        --color-primary: #d08a6a;
+        --color-primary-dark: #f0c8b0;
+        --color-accent: #c07a5a;
+        --color-gold: #c29a4a;
+        --color-gold-light: #4a3a20;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6);
+        --shadow-card-hover: 0 20px 48px -12px rgba(0,0,0,0.7);
+        --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #120e0a; }
+      .card { background: #1a1410; border-color: #3a2c24; }
+      .card-header { background: #1a1410; border-bottom-color: #4a3a2e; }
+      .vector-card { background: #1a1410; border-color: #3a2c24; }
+      .vector-card .vector-icon { background: #2a1e16; color: #d08a6a; }
+      .vector-card .detail-list li { color: #c0b4a8; }
+      .vector-card .detail-list li strong { color: #e0d4c8; }
+      .table-wrapper { background: #1a1410; border-color: #3a2c24; }
+      th { background: #221c18; color: #e0d4c8; border-bottom-color: #4a3a2e; }
+      td { border-bottom-color: #2a241e; color: #c0b4a8; }
+      tr:hover td { background: #2a241e; }
+      .sidebar { background: rgba(20, 16, 12, 0.92); border-color: #3a2c24; }
+      .sidebar-brand { border-bottom-color: #4a3a2e; }
+      .sidebar-brand h3 { color: #d08a6a; }
+      .sidebar nav ul li a { color: #c0b4a8; }
+      .sidebar nav ul li a:hover { background: #3a2c24; color: white; }
+      .info-tip { background: #1a1410; border-left-color: #c07a5a; color: #c0b4a8; }
+      .banner-card { background:linear-gradient(135deg,#1a1410,#2a241e); }
+      .banner-card p { color: #c0b4a8; }
+      .page-header h1 { background:linear-gradient(135deg,#f0c8b0,#d08a6a); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#2a241e; border-color:#4a3a2e; color:#b8a89c; }
+      .arch-layer { background:#1a1410; border-color:#3a2c24; }
+      .arch-layer:hover { background:#2a1e16; border-color:#5a4a3e; }
+      .arch-layer .layer-label { border-right-color:#3a2c24; color:#e0d4c8; }
+      .arch-block { background:#1a1410; border-color:#3a2c24; color:#c0b4a8; }
+      .arch-block:hover { background:#3a2c24; border-color:#c07a5a; }
+      .arch-layer.inner-layer { background:linear-gradient(135deg,#1a1410,#2a1e16); border-color:#5a3a2a; }
+      .arch-layer.outer-layer { background:linear-gradient(135deg,#141a12,#1a2618); border-color:#2a4a2a; }
+      .arch-layer.outer-layer .layer-label { border-right-color:#2a4a2a; color:#8aba8a; }
+      .arch-layer.outer-layer .layer-label i { color:#5a9a6a; }
+      .arch-layer.outer-layer .arch-block { border-color:#2a4a2a; color:#a0c8a0; }
+      .arch-layer.outer-layer .arch-block:hover { border-color:#5a9a6a; background:#1a2a1a; }
+      .arch-layer.ultimate-layer { background:linear-gradient(135deg,#1a1410,#221c18); border-color:#4a3a2e; }
+      .arch-layer.ultimate-layer .layer-label { border-right-color:#4a3a2e; color:#c8b0a0; }
+      .arch-layer.ultimate-layer .layer-label i { color:#a08070; }
+      .arch-layer.ultimate-layer .arch-block { border-color:#4a3a2e; color:#c8b8a8; }
+      .arch-layer.ultimate-layer .arch-block:hover { border-color:#a08070; background:#2a241e; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-vector-square" aria-hidden="true"></i>
+      <h3>向量库中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-cubes"></i> 全域标准定义</a></li>
+        <li><a href="#s1"><i class="fas fa-layer-group"></i> 八大特征</a></li>
+        <li><a href="#s2"><i class="fas fa-book"></i> 知识体系</a></li>
+        <li><a href="#s3"><i class="fas fa-project-diagram"></i> VectorGraph</a></li>
+        <li><a href="#s4"><i class="fas fa-sitemap"></i> 六大架构</a></li>
+        <li><a href="#s5"><i class="fas fa-puzzle-piece"></i> 功能模块</a></li>
+        <li><a href="#s6"><i class="fas fa-chart-line"></i> 指标体系</a></li>
+        <li><a href="#s7"><i class="fas fa-boxes"></i> 资产体系</a></li>
+        <li><a href="#s8"><i class="fas fa-share-alt"></i> 协同关系</a></li>
+        <li><a href="#s9"><i class="fas fa-flag"></i> 核心价值</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-vector-square"></i> 向量库中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-vector-square"></i> 企业级向量库中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> 向量检索底层 AI 基座</span>
+    </header>
+
+    <!-- ===== S0 全域标准定义 ===== -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> 向量库中台全域标准定义</h2>
+        <span class="badge-count">多模态向量 + 向量图谱双引擎演进</span>
+      </div>
+      <div class="card-body">
+        <div class="arch-diagram">
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-database"></i> 底层依赖 <span class="sub">算力/IaaS/数据中台</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-microchip"></i> 算力中台</span>
+              <span class="arch-block"><i class="fas fa-cloud"></i> IaaS/PaaS</span>
+              <span class="arch-block"><i class="fas fa-hdd"></i> 对象存储</span>
+              <span class="arch-block"><i class="fas fa-table"></i> 数据中台</span>
+              <span class="arch-block"><i class="fas fa-database"></i> 时序库</span>
+            </div>
+          </div>
+          <div class="arch-layer outer-layer">
+            <div class="layer-label"><i class="fas fa-cogs"></i> 核心能力 <span class="sub">嵌入/存储/索引/检索/图谱</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block highlight-block"><i class="fas fa-vector-square"></i> 多模态嵌入</span>
+              <span class="arch-block"><i class="fas fa-database"></i> 分布式存储</span>
+              <span class="arch-block"><i class="fas fa-code-branch"></i> ANN混合索引</span>
+              <span class="arch-block"><i class="fas fa-project-diagram"></i> 向量图谱融合</span>
+              <span class="arch-block"><i class="fas fa-snowflake"></i> 冷热分层</span>
+              <span class="arch-block"><i class="fas fa-chart-line"></i> 计量成本</span>
+              <span class="arch-block"><i class="fas fa-lock"></i> 多租户</span>
+            </div>
+          </div>
+          <div class="arch-layer ultimate-layer">
+            <div class="layer-label"><i class="fas fa-rocket"></i> 上层赋能 <span class="sub">RAG/Prompt/Agent/MaaS</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-search"></i> RAG</span>
+              <span class="arch-block"><i class="fas fa-message"></i> Prompt</span>
+              <span class="arch-block"><i class="fas fa-coins"></i> Token</span>
+              <span class="arch-block"><i class="fas fa-toolbox"></i> Skill</span>
+              <span class="arch-block"><i class="fas fa-robot"></i> Agent</span>
+              <span class="arch-block"><i class="fas fa-cloud"></i> MaaS</span>
+            </div>
+          </div>
+        </div>
+        <div class="info-tip"><i class="fas fa-scroll"></i> 向量库中台（Vector Database 中台 / 向量检索统一基座），是企业全域多模态语义向量统一生产、分布式存储、混合索引、高并发相似度检索、向量图谱融合、全生命周期治理、多租户隔离、成本自治的底层 AI 基础中台，属于 AI 原生基础设施层核心底座。</div>
+        <div style="margin-top:0.8rem; font-size:0.9rem; color:var(--color-neutral-600);">
+          <p><strong>战略定位：</strong>企业全域多模态向量统一生产存储中心、分布式向量集群调度中枢、ANN 混合检索引擎、向量图谱融合推理平台、向量资产全生命周期治理中心、多租户隔离管控平台、向量算力成本运营中枢、全 AI 链路标准化向量供给底座。</p>
+          <p><strong>层级边界：</strong>底层依赖层（IaaS 硬件、算力中台 Embedding 推理弹性 GPU/CPU 算力、PaaS 云原生分布式集群、对象存储、时序库、数据中台多源业务原始数据）；核心能力层（专注嵌入调度、向量入库、分布式分片、多路 ANN 索引、相似度检索、向量图谱融合、冷热分层、权限计量、自动化调优）；上层赋能层（统一通过 MCP 协议输出向量检索能力，供给 RAG、Prompt、Token、Skill、Agent、MaaS、行业 Copilot）。</p>
+          <p><strong>全域上下游标准分层链路：</strong>算力 / IaaS/PaaS/ 数据中台 → 向量库中台 → MCP 中台 → RAG 中台 → Prompt 中台 → Token 中台 → Skill 中台 → Agent 中台 → MaaS 大模型</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S1 八大核心特征 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-layer-group"></i> 八大核心特征</h2>
+        <span class="badge-count">全模态 · 分布式 · ANN · 向量图谱</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-vector-square"></i></span><h4>全模态统一资产池</h4><ul class="detail-list"><li>文本/图像/语音/视频/实体/工具向量一站式生产、统一版本管理</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-database"></i></span><h4>分布式弹性集群</h4><ul class="detail-list"><li>分片副本自动扩容、故障自动迁移、冷热分层存储降本</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-code-branch"></i></span><h4>多路ANN混合索引</h4><ul class="detail-list"><li>HNSW/IVF_FLAT/PQ量化自动择优，召回与延迟动态平衡</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-project-diagram"></i></span><h4>向量图谱双融合</h4><ul class="detail-list"><li>稠密向量相似度 + 实体向量关系联合推理</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-project-diagram"></i></span><h4>VectorGraph 图谱</h4><ul class="detail-list"><li>沉淀向量、模型、索引、检索场景关联经验，智能推荐索引策略</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-lock"></i></span><h4>多租户细粒度隔离</h4><ul class="detail-list"><li>独立向量集合、读写权限、存储配额、检索流量限流</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-chart-line"></i></span><h4>全链路计量成本</h4><ul class="detail-list"><li>写入/检索/存储按量统计，冷热分层自动降本</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-sync-alt"></i></span><h4>自治索引调优</h4><ul class="detail-list"><li>检索日志回流 VectorGraph，自动识别劣化索引并重建优化</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S2 十大知识域 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book"></i> 向量库中台专属知识体系</h2>
+        <span class="badge-count">十大完整知识域</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-3">
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-sitemap"></i></span><h4>顶层架构与全域规划</h4><ul class="detail-list"><li>AI分层底座设计；多模态嵌入分层标准；跨中台协同规范；向量迁移方法论</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-vector-square"></i></span><h4>多模态嵌入工程</h4><ul class="detail-list"><li>模型选型与量化；差异化向量生成；调度与负载均衡；语义漂移监控</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-database"></i></span><h4>分布式存储与分片</h4><ul class="detail-list"><li>分片哈希；冷热分层；快照回滚；扩缩容；压缩算法</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-code-branch"></i></span><h4>ANN 混合索引</h4><ul class="detail-list"><li>HNSW/IVF/PQ；自动择优；距离度量；检索缓存；Top-K动态</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-project-diagram"></i></span><h4>向量图谱融合检索</h4><ul class="detail-list"><li>实体向量绑定；两阶段检索；消歧；混合查询；一致性保障</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-project-diagram"></i></span><h4>VectorGraph 推理</h4><ul class="detail-list"><li>三元组抽取；索引策略推荐；故障溯源；冷热方案；增量更新</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-lock"></i></span><h4>多租户资产治理</h4><ul class="detail-list"><li>集合生命周期；RBAC权限；配额限流；脱敏隔离；闲置归档</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-chart-line"></i></span><h4>计量与成本优化</h4><ul class="detail-list"><li>写入/检索/存储计量；冷热迁移；错峰调度；分租户分摊</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-industry"></i></span><h4>行业向量落地</h4><ul class="detail-list"><li>政务/财务/风控/研发/客服方案；RAG配套；端侧轻量化</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-rocket"></i></span><h4>前沿演进</h4><ul class="detail-list"><li>自治嵌入与索引重建；联邦向量库；原生向量-图谱一体化；动态维度</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S3 VectorGraph ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-project-diagram"></i> VectorGraph 向量知识图谱</h2>
+        <span class="badge-count">核心实体 · 关联 · 智能能力</span>
+      </div>
+      <div class="card-body">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+          <div><h4 style="color:var(--color-primary-dark);"><i class="fas fa-circle"></i> 核心实体体系</h4><ul class="detail-list" style="list-style:none; padding-left:0;"><li>嵌入模型、向量集合、索引、检索任务、租户、场景、故障、优化策略、指标、资产</li></ul></div>
+          <div><h4 style="color:var(--color-primary-dark);"><i class="fas fa-link"></i> 核心关联关系</h4><ul class="detail-list" style="list-style:none; padding-left:0;"><li>模型↔集合；集合↔索引；集合↔场景；检索↔故障；故障↔策略；租户↔集合；每日日志增量更新</li></ul></div>
+        </div>
+        <div style="margin-top:1rem; display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.8rem;">
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-magic"></i></span><h4>智能能力</h4><ul class="detail-list"><li>经验自动结构化</li><li>索引+模型推荐</li><li>一键根因溯源</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-broom"></i></span><h4>智能能力</h4><ul class="detail-list"><li>冷热迁移推荐</li><li>检索链路匹配</li><li>闲置集合预警</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-shield-alt"></i></span><h4>智能能力</h4><ul class="detail-list"><li>数据自校准</li><li>新人方案检索</li><li>经验沉淀复用</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S4 六大架构 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> 六大完整架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-cubes"></i></span><h4>产品架构（九层）</h4><ul class="detail-list"><li>嵌入调度 → 分布式资产 → ANN索引 → 向量图谱融合 → VectorGraph → 冷热分层 → 权限计量 → MCP输出 → 自治调优</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-briefcase"></i></span><h4>业务架构</h4><ul class="detail-list"><li>底层底座：算力/IaaS/数据；中层核心：嵌入/存储/索引/融合检索/图谱/计量；上层赋能：MCP输出RAG/Agent</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-database"></i></span><h4>数据架构（七层）</h4><ul class="detail-list"><li>VEC-ODS → VEC-DWD → VEC-DWB → VEC-DWA → VEC-DWS → VEC-ADS → VEC-OPT</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-microchip"></i></span><h4>技术架构（七层）</h4><ul class="detail-list"><li>嵌入网关 → 分布式存储 → 向量核心引擎 → 图谱融合引擎 → VectorGraph → 计量安全 → 管理前端</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-rocket"></i></span><h4>应用架构（八大应用）</h4><ul class="detail-list"><li>嵌入流水线、资产管理、索引运维、调试平台、图谱运维、冷热运营、计量权限、MCP开放</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-balance-scale"></i></span><h4>治理架构（六大体系）</h4><ul class="detail-list"><li>资产生命周期、模型标准化、索引自动化、冷热成本、安全计量、图谱迭代</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S5 功能模块 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> 全量产品功能模块</h2>
+        <span class="badge-count">八大模块全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-vector-square"></i></span><h4>多模态嵌入调度</h4><ul class="detail-list"><li>文本/图像/音频/视频模型纳管；三类任务；灰度负载；归一量化；漂移监控</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-database"></i></span><h4>分布式向量资产池</h4><ul class="detail-list"><li>集合创建；分片副本；批量写入；版本快照；资产盘点；跨集群同步</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-code-branch"></i></span><h4>ANN 索引自动化</h4><ul class="detail-list"><li>HNSW/IVF/PQ内置；自动择优；定时重建；参数配置；劣化告警；内存管控</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-project-diagram"></i></span><h4>向量-图谱融合检索</h4><ul class="detail-list"><li>单向量检索；实体绑定；多跳扩展；结果重排；缓存复用；溯源绑定</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-project-diagram"></i></span><h4>VectorGraph 图谱</h4><ul class="detail-list"><li>三元组抽取；可视化拓扑；方案推荐；故障溯源；冷热方案；增量更新</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-snowflake"></i></span><h4>冷热分层存储</h4><ul class="detail-list"><li>内存热索引；磁盘冷量化；自动迁移；压缩；无中断切换；容量告警</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-lock"></i></span><h4>多租户权限与计量</h4><ul class="detail-list"><li>RBAC隔离；读写检索权限；配额限流；按量计量；成本账单；脱敏隔离</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-code"></i></span><h4>MCP输出与自治调优</h4><ul class="detail-list"><li>MCP Resource封装；鉴权路由；日志回流；劣化识别；自动工单；效果看板</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S6 指标体系 ===== -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> 全套指标体系</h2>
+        <span class="badge-count">资产 · 索引 · 检索 · 存储 · 图谱 · 安全</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>向量资产治理</strong></td><td>覆盖率100% · 索引规范率100% · 冷向量占比≤10% · 快照覆盖率100% · 写入成功率≥99.9%</td></tr>
+              <tr><td><strong>ANN 索引效能</strong></td><td>自动择优准确率≥96% · 无中断达标率100% · 劣化识别率≥98% · 闭环率100% · Recall@5≥88%</td></tr>
+              <tr><td><strong>检索核心性能</strong></td><td>P99≤40ms · QPS线性扩容 · 融合准确率≥93% · 缓存命中率≥35% · 错误率≤0.1%</td></tr>
+              <tr><td><strong>冷热存储成本</strong></td><td>冷向量占比≥60% · 压缩降幅≥45% · 迁移及时率100% · 总成本压降≥30%</td></tr>
+              <tr><td><strong>VectorGraph 图谱</strong></td><td>场景覆盖率100% · 三元组完整率≥99.6% · 推荐准确率≥95% · 根因准确率≥97%</td></tr>
+              <tr><td><strong>多租户安全计量</strong></td><td>隔离合规率100% · 脱敏覆盖率100% · 限流执行率100% · 审计留存率100%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S7 资产体系 ===== -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> 完整内容资产体系</h2>
+        <span class="badge-count">6大资产包</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-sitemap"></i></span><h4>顶层规划资产</h4><ul class="detail-list"><li>建设白皮书 · 转型方案 · 路线图 · 成熟度评估 · 协同方案</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-book"></i></span><h4>全域标准规范</h4><ul class="detail-list"><li>嵌入规范 · 索引配置规范 · 冷热分层标准 · 图谱抽取规范 · MCP对接规范</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-database"></i></span><h4>核心数字资产</h4><ul class="detail-list"><li>嵌入流水线模板 · 索引配置模板 · 迁移策略资产 · 图谱资产 · 查询模板</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-tools"></i></span><h4>落地工程资产</h4><ul class="detail-list"><li>部署手册 · 嵌入操作指南 · 运维手册 · API文档 · 验收模板</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-chart-pie"></i></span><h4>运营复盘资产</h4><ul class="detail-list"><li>月度成本报告 · 检索效能复盘 · 冷热降本报告 · 成本分摊台账</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-shield-alt"></i></span><h4>应急保障资产</h4><ul class="detail-list"><li>集群宕机预案 · 索引重建方案 · 容量溢出处置 · 图谱恢复预案</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S8 协同关系 ===== -->
+    <section id="s8" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-share-alt"></i> 全中台全域协同关系</h2>
+        <span class="badge-count">10 大中台协同</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-3">
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-microchip"></i></span><h4>算力中台</h4><ul class="detail-list"><li>提供Embedding推理、图计算弹性算力</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-cloud"></i></span><h4>IaaS/PaaS</h4><ul class="detail-list"><li>承载分布式向量集群、图数据库、冷热存储</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-table"></i></span><h4>数据中台</h4><ul class="detail-list"><li>输出多源数据作为嵌入原料</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-code"></i></span><h4>MCP 中台</h4><ul class="detail-list"><li>向量检索能力封装为MCP Resource输出</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-search"></i></span><h4>RAG 中台</h4><ul class="detail-list"><li>向量中台作为RAG底层核心检索基座</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-message"></i></span><h4>Prompt 中台</h4><ul class="detail-list"><li>检索片段作为动态上下文素材注入</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-coins"></i></span><h4>Token 中台</h4><ul class="detail-list"><li>精准检索削减无关Token消耗</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-toolbox"></i></span><h4>Skill 中台</h4><ul class="detail-list"><li>向量检索封装为标准工具Skill</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-robot"></i></span><h4>Agent 中台</h4><ul class="detail-list"><li>多智能体依赖向量检索获取私有知识</li></ul></div>
+          <div class="vector-card"><span class="vector-icon"><i class="fas fa-cloud"></i></span><h4>MaaS 中台</h4><ul class="detail-list"><li>接收向量检索可信上下文，抑制幻觉</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S9 核心价值 ===== -->
+    <section id="s9" class="card banner-card">
+      <div class="card-body">
+        <div class="icon-big"><i class="fas fa-flag"></i></div>
+        <h2>向量库中台 · 核心价值总结</h2>
+        <p>统一全域多模态向量底层底座，消除各业务独立向量库烟囱，实现嵌入、存储、检索能力全域资产复用；<br>分布式集群 + 冷热分层 + 量化三重降本，冷向量自动归档压缩，向量存储成本降低 30% 以上；<br>多路 ANN 自动择优索引，无需人工反复调参，平衡检索召回与延迟，大幅降低运维人力；<br>向量 - 图谱双融合检索，同时满足浅层语义匹配与深层实体多跳关联查询，弥补单一向量检索短板；<br>VectorGraph 向量知识图谱沉淀调优经验，自动推荐索引、定位检索故障，实现向量自治迭代；<br>标准化 MCP 协议输出，无缝对接 RAG/Agent/Prompt 全 AI 链路，作为企业所有大模型应用统一语义检索底层基座；<br>多租户精细化权限与计量，兼顾数据隔离与成本可控，满足政务、财务、风控等高合规行业向量检索需求；<br>支撑企业 AI 从关键词检索升级为全域语义智能检索，是 RAG、数字员工、多模态 Copilot 不可或缺的底层基础设施中台。</p>
+        <div class="footer-note">向量库中台 · 向量检索底层 AI 基座 · 对齐算力 / MaaS/RAG/Prompt 统一架构范式</div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

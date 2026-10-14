@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>混淆矩阵中台 · 企业级完整体系 · 高保真架构</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ===== 设计系统 Token（完全继承参考样式） ===== */
+    :root {
+      --color-primary: #7a2e1a;
+      --color-primary-light: #fce9e0;
+      --color-primary-dark: #4d1c0e;
+      --color-accent: #b85c3a;
+      --color-accent-soft: #f0c8b8;
+      --color-accent-glow: rgba(184, 92, 58, 0.10);
+      --color-neutral-50: #fcf9f7;
+      --color-neutral-100: #f5ede8;
+      --color-neutral-200: #e5d7ce;
+      --color-neutral-300: #cbb8ab;
+      --color-neutral-400: #a68b7a;
+      --color-neutral-600: #6f5544;
+      --color-neutral-700: #4f3a2e;
+      --color-neutral-800: #34241c;
+      --color-neutral-900: #1e140f;
+      --color-gold: #c29a4a;
+      --color-gold-light: #f3e1b0;
+      --color-jade: #3b7a5e;
+      --color-jade-light: #d4ede0;
+      --color-success: #1f6e4a;
+      --color-warning: #a86b2c;
+      --color-error: #b13a2a;
+      --font-base: 1rem;
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-12: 3rem;
+      --radius-sm: 0.75rem;
+      --radius-md: 1.25rem;
+      --radius-card: 2rem;
+      --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(60, 30, 10, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(60, 30, 10, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(60, 30, 10, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+      --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ===== 重置 & 基础 ===== */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    /* ===== 布局 ===== */
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(255, 249, 245, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(255, 235, 220, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); letter-spacing:-0.01em; }
+    .sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+    .sidebar nav ul { list-style:none; padding:0; margin:0; }
+    .sidebar nav ul li { margin-bottom:0.1rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:12px;
+      padding:0.55rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.85rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+    }
+    .sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+    .sidebar nav ul li a:hover,
+    .sidebar nav ul li a:focus-visible {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateX(4px);
+    }
+    .sidebar-footer {
+      margin-top:24px; padding:12px; text-align:center;
+      font-size:0.7rem; color:var(--color-neutral-600);
+      border-top:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 主内容 ===== */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+    /* ===== 页面头部 ===== */
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+      font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+    .page-header .header-meta {
+      font-size:0.9rem; color:var(--color-neutral-600);
+      background:var(--color-neutral-100);
+      padding:0.4rem 1.2rem;
+      border-radius:var(--radius-pill);
+      border:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 卡片系统 ===== */
+    .card {
+      background:rgba(255,252,248,0.92);
+      backdrop-filter: blur(4px);
+      border-radius:var(--radius-card);
+      box-shadow:var(--shadow-card);
+      margin-bottom:var(--space-6);
+      border:1px solid rgba(255, 235, 220, 0.5);
+      overflow:hidden;
+      transition: box-shadow var(--transition-default), transform 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6);
+      background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft);
+      display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 {
+      font-size:clamp(1.2rem, 2.2vw, 1.6rem);
+      font-weight:700; color:var(--color-primary-dark);
+      display:flex; align-items:center; gap:12px;
+      letter-spacing:-0.01em;
+    }
+    .card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+    .card-header .badge-count {
+      margin-left:auto;
+      background:var(--color-accent);
+      color:white;
+      border-radius:var(--radius-pill);
+      padding:0.15rem 0.9rem;
+      font-size:0.7rem;
+      font-weight:600;
+      letter-spacing:0.3px;
+    }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* ===== 网格 & 卡片（策略卡片风格） ===== */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } .grid-4 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; } }
+
+    .policy-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md);
+      padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: all var(--transition-default);
+      position:relative;
+      overflow:hidden;
+      border-left: 4px solid var(--color-accent);
+    }
+    .policy-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft));
+      opacity:0;
+      transition: opacity var(--transition-default);
+    }
+    .policy-card:hover::before { opacity:1; }
+    .policy-card:hover {
+      border-color:var(--color-accent-soft);
+      box-shadow: 0 8px 24px -8px rgba(184,92,58,0.15);
+      transform:translateY(-3px);
+    }
+    .policy-card .policy-icon {
+      font-size:1.8rem;
+      color:var(--color-primary);
+      display:inline-block;
+      margin-right:6px;
+      background: var(--color-primary-light);
+      padding:0.2rem 0.6rem;
+      border-radius:12px;
+    }
+    .policy-card h4 {
+      color:var(--color-primary-dark);
+      font-size:1.05rem;
+      margin-bottom:0.4rem;
+      display:flex; align-items:center; gap:8px;
+      flex-wrap:wrap;
+    }
+    .policy-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+    .policy-card .detail-list {
+      padding-left:0; margin:0.4rem 0 0 0;
+      list-style:none;
+    }
+    .policy-card .detail-list li {
+      margin-bottom:0.25rem;
+      padding-left:1.2rem;
+      position:relative;
+      font-size:0.85rem;
+      color:var(--color-neutral-700);
+    }
+    .policy-card .detail-list li::before {
+      content:'▹'; position:absolute; left:0;
+      color:var(--color-accent);
+      font-weight:600;
+    }
+    .policy-card .detail-list li strong { color:var(--color-neutral-800); }
+
+    /* ===== 架构层 ===== */
+    .arch-diagram {
+      display:flex;
+      flex-direction:column;
+      gap:0.6rem;
+      padding:0.5rem 0;
+    }
+    .arch-layer {
+      display:flex;
+      align-items:stretch;
+      gap:0.75rem;
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.6rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: var(--transition-default);
+    }
+    .arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+    .arch-layer .layer-label {
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      min-width:120px;
+      padding-right:1rem;
+      border-right:2px solid var(--color-neutral-200);
+      font-weight:700;
+      font-size:0.8rem;
+      color:var(--color-primary-dark);
+      letter-spacing:0.3px;
+    }
+    .arch-layer .layer-label i {
+      font-size:1.1rem;
+      color:var(--color-accent);
+      margin-bottom:0.1rem;
+    }
+    .arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+    .arch-layer .layer-blocks {
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:0.5rem;
+      flex:1;
+      padding:0.2rem 0;
+    }
+    .arch-block {
+      background:white;
+      border-radius:var(--radius-sm);
+      padding:0.3rem 0.9rem;
+      border:1px solid var(--color-neutral-200);
+      font-size:0.75rem;
+      font-weight:500;
+      color:var(--color-neutral-700);
+      transition: var(--transition-default);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .arch-block:hover {
+      border-color:var(--color-accent);
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateY(-1px);
+    }
+    .arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+    .arch-block.highlight-block {
+      background:var(--color-accent);
+      color:white;
+      border-color:var(--color-accent);
+    }
+    .arch-block.highlight-block i { color:white; }
+    .arch-layer.inner-layer { background:linear-gradient(135deg, #f5efe8, #f0e4da); border-color:var(--color-accent-soft); }
+    .arch-layer.outer-layer { background:linear-gradient(135deg, #f0f2ed, #e6ece2); border-color:#b8c8aa; }
+    .arch-layer.outer-layer .layer-label { border-right-color:#b8c8aa; color:#2d5a3a; }
+    .arch-layer.outer-layer .layer-label i { color:#3b7a5e; }
+    .arch-layer.outer-layer .arch-block { border-color:#c8d8b8; }
+    .arch-layer.outer-layer .arch-block:hover { border-color:#3b7a5e; background:#e0ede0; }
+    .arch-layer.ultimate-layer { background:linear-gradient(135deg, #f0ede8, #e8e0d8); border-color:#c8b8a8; }
+    .arch-layer.ultimate-layer .layer-label { border-right-color:#c8b8a8; color:#6a4a3a; }
+    .arch-layer.ultimate-layer .layer-label i { color:#8a6a5a; }
+    .arch-layer.ultimate-layer .arch-block { border-color:#d8c8b8; }
+    .arch-layer.ultimate-layer .arch-block:hover { border-color:#8a6a5a; background:#ede0d8; }
+
+    /* ===== 表格 ===== */
+    .table-wrapper {
+      overflow-x:auto;
+      border-radius:var(--radius-md);
+      border:1px solid var(--color-neutral-200);
+      background:white;
+    }
+    table {
+      width:100%; border-collapse:collapse; font-size:0.78rem;
+    }
+    th {
+      background:var(--color-neutral-100);
+      padding:12px 10px;
+      font-weight:600;
+      color:var(--color-primary-dark);
+      text-align:left;
+      border-bottom:2px solid var(--color-neutral-200);
+      font-size:0.7rem;
+      text-transform:uppercase;
+      letter-spacing:0.4px;
+    }
+    td {
+      padding:10px 10px;
+      border-bottom:1px solid var(--color-neutral-200);
+      vertical-align:middle;
+      color:var(--color-neutral-700);
+    }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--color-neutral-50); }
+
+    /* ===== 信息提示 ===== */
+    .info-tip {
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.7rem 1.5rem;
+      border-left:5px solid var(--color-accent);
+      margin-top:var(--space-4);
+      display:flex; align-items:center; gap:0.8rem;
+      font-size:0.9rem;
+      color:var(--color-neutral-700);
+    }
+    .info-tip i { color:var(--color-accent); font-size:1rem; }
+
+    /* ===== 横幅 ===== */
+    .banner-card {
+      background: linear-gradient(135deg, #f5ede6, #e8dcd2);
+      text-align:center;
+      border-color:var(--color-accent-soft);
+    }
+    .banner-card .card-body { padding:2.5rem var(--space-6); }
+    .banner-card .icon-big { font-size:3rem; color:var(--color-primary); opacity:0.7; margin-bottom:var(--space-3); }
+    .banner-card h2 { color:var(--color-primary-dark); font-size:clamp(1.4rem, 2.5vw, 1.9rem); margin-bottom:var(--space-2); }
+    .banner-card p { max-width:680px; margin:0 auto; color:var(--color-neutral-700); font-size:1rem; }
+    .banner-card .footer-note { margin-top:var(--space-6); font-size:0.8rem; color:var(--color-primary); }
+
+    /* ===== 正文排版 ===== */
+    .content-section { margin-bottom:1.2rem; }
+    .content-section h3 { color:var(--color-primary-dark); font-size:1.1rem; margin-bottom:0.5rem; font-weight:700; }
+    .content-section h4 { color:var(--color-primary-dark); font-size:1rem; margin-bottom:0.4rem; font-weight:600; }
+    .content-section p { margin-bottom:0.6rem; font-size:0.9rem; color:var(--color-neutral-700); }
+    .content-section ul { padding-left:1.2rem; margin-bottom:0.6rem; }
+    .content-section li { margin-bottom:0.3rem; font-size:0.88rem; color:var(--color-neutral-700); }
+    .content-section strong { color:var(--color-neutral-800); }
+    .text-block { background:var(--color-neutral-50); border-radius:var(--radius-sm); padding:1rem 1.2rem; border:1px solid var(--color-neutral-200); margin-bottom:0.8rem; }
+
+    /* ===== 响应式 ===== */
+    @media (max-width:1024px) { .sidebar { width:220px; } }
+    @media (max-width:760px) {
+      .sidebar { display:none; }
+      .layout { padding:0.5rem; }
+      .main-content { padding:0; }
+      .card-body { padding:1.25rem var(--space-4); }
+      .card-header { padding:1rem var(--space-4); }
+      .page-header { flex-direction:column; align-items:flex-start; }
+    }
+
+    /* ===== 暗色 ===== */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #1a1410;
+        --color-neutral-100: #221c18;
+        --color-neutral-200: #3a2c24;
+        --color-neutral-300: #5a4a3e;
+        --color-neutral-400: #8a7a6e;
+        --color-neutral-600: #b8a89c;
+        --color-neutral-700: #d0c4b8;
+        --color-neutral-800: #e8dcd0;
+        --color-neutral-900: #f5ede6;
+        --color-primary-light: #3a2a20;
+        --color-accent-soft: #6a4a3a;
+        --color-primary: #d08a6a;
+        --color-primary-dark: #f0c8b0;
+        --color-accent: #c07a5a;
+        --color-gold: #c29a4a;
+        --color-gold-light: #4a3a20;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6);
+        --shadow-card-hover: 0 20px 48px -12px rgba(0,0,0,0.7);
+        --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #120e0a; }
+      .card { background: #1a1410; border-color: #3a2c24; }
+      .card-header { background: #1a1410; border-bottom-color: #4a3a2e; }
+      .policy-card { background: #1a1410; border-color: #3a2c24; }
+      .policy-card .policy-icon { background: #2a1e16; color: #d08a6a; }
+      .policy-card .detail-list li { color: #c0b4a8; }
+      .policy-card .detail-list li strong { color: #e0d4c8; }
+      .table-wrapper { background: #1a1410; border-color: #3a2c24; }
+      th { background: #221c18; color: #e0d4c8; border-bottom-color: #4a3a2e; }
+      td { border-bottom-color: #2a241e; color: #c0b4a8; }
+      tr:hover td { background: #2a241e; }
+      .sidebar { background: rgba(20, 16, 12, 0.92); border-color: #3a2c24; }
+      .sidebar-brand { border-bottom-color: #4a3a2e; }
+      .sidebar-brand h3 { color: #d08a6a; }
+      .sidebar nav ul li a { color: #c0b4a8; }
+      .sidebar nav ul li a:hover { background: #3a2c24; color: white; }
+      .info-tip { background: #1a1410; border-left-color: #c07a5a; color: #c0b4a8; }
+      .banner-card { background:linear-gradient(135deg,#1a1410,#2a241e); }
+      .banner-card p { color: #c0b4a8; }
+      .page-header h1 { background:linear-gradient(135deg,#f0c8b0,#d08a6a); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#2a241e; border-color:#4a3a2e; color:#b8a89c; }
+      .arch-layer { background:#1a1410; border-color:#3a2c24; }
+      .arch-layer:hover { background:#2a1e16; border-color:#5a4a3e; }
+      .arch-layer .layer-label { border-right-color:#3a2c24; color:#e0d4c8; }
+      .arch-block { background:#1a1410; border-color:#3a2c24; color:#c0b4a8; }
+      .arch-block:hover { background:#3a2c24; border-color:#c07a5a; }
+      .arch-layer.inner-layer { background:linear-gradient(135deg,#1a1410,#2a1e16); border-color:#5a3a2a; }
+      .arch-layer.outer-layer { background:linear-gradient(135deg,#141a12,#1a2618); border-color:#2a4a2a; }
+      .arch-layer.outer-layer .layer-label { border-right-color:#2a4a2a; color:#8aba8a; }
+      .arch-layer.outer-layer .layer-label i { color:#5a9a6a; }
+      .arch-layer.outer-layer .arch-block { border-color:#2a4a2a; color:#a0c8a0; }
+      .arch-layer.outer-layer .arch-block:hover { border-color:#5a9a6a; background:#1a2a1a; }
+      .arch-layer.ultimate-layer { background:linear-gradient(135deg,#1a1410,#221c18); border-color:#4a3a2e; }
+      .arch-layer.ultimate-layer .layer-label { border-right-color:#4a3a2e; color:#c8b0a0; }
+      .arch-layer.ultimate-layer .layer-label i { color:#a08070; }
+      .arch-layer.ultimate-layer .arch-block { border-color:#4a3a2e; color:#c8b8a8; }
+      .arch-layer.ultimate-layer .arch-block:hover { border-color:#a08070; background:#2a241e; }
+      .text-block { background:#1a1410; border-color:#3a2c24; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-th-large" aria-hidden="true"></i>
+      <h3>混淆矩阵中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-cubes"></i> 全域标准定义</a></li>
+        <li><a href="#s1"><i class="fas fa-layer-group"></i> 八大特征</a></li>
+        <li><a href="#s2"><i class="fas fa-database"></i> 知识体系</a></li>
+        <li><a href="#s3"><i class="fas fa-project-diagram"></i> ConfGraph</a></li>
+        <li><a href="#s4"><i class="fas fa-sitemap"></i> 六大架构</a></li>
+        <li><a href="#s5"><i class="fas fa-puzzle-piece"></i> 功能模块</a></li>
+        <li><a href="#s6"><i class="fas fa-chart-line"></i> 指标体系</a></li>
+        <li><a href="#s7"><i class="fas fa-boxes"></i> 资产体系</a></li>
+        <li><a href="#s8"><i class="fas fa-share-alt"></i> 协同关系</a></li>
+        <li><a href="#s9"><i class="fas fa-flag"></i> 核心价值</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-th-large"></i> 混淆矩阵中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-th-large"></i> 企业级混淆矩阵中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> 分类模型全域评测底座</span>
+    </header>
+
+    <!-- ===== S0 全域标准定义 ===== -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> 混淆矩阵中台全域标准定义</h2>
+        <span class="badge-count">多分类 / 多标签 / 时序分类统一资产 + ConfGraph 图谱自治演进版</span>
+      </div>
+      <div class="card-body">
+        <div class="arch-diagram">
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-database"></i> 底层依赖 <span class="sub">算力/训练/评估/数据</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-microchip"></i> 算力中台</span>
+              <span class="arch-block"><i class="fas fa-brain"></i> 训练中台</span>
+              <span class="arch-block"><i class="fas fa-chart-bar"></i> 评估中台</span>
+              <span class="arch-block"><i class="fas fa-broom"></i> 数据预处理</span>
+              <span class="arch-block"><i class="fas fa-database"></i> 数据湖仓</span>
+              <span class="arch-block"><i class="fas fa-object-group"></i> 对象存储</span>
+              <span class="arch-block"><i class="fas fa-chart-line"></i> 时序库</span>
+              <span class="arch-block"><i class="fas fa-project-diagram"></i> 图数据库</span>
+            </div>
+          </div>
+          <div class="arch-layer outer-layer">
+            <div class="layer-label"><i class="fas fa-cogs"></i> 核心能力 <span class="sub">混淆/图谱/诊断/门禁</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block highlight-block"><i class="fas fa-layer-group"></i> 四层混淆资产</span>
+              <span class="arch-block"><i class="fas fa-th"></i> 统一混淆计算</span>
+              <span class="arch-block"><i class="fas fa-chart-pie"></i> 可视化诊断</span>
+              <span class="arch-block"><i class="fas fa-project-diagram"></i> ConfGraph</span>
+              <span class="arch-block"><i class="fas fa-flask"></i> A/B 对照</span>
+              <span class="arch-block"><i class="fas fa-bug"></i> 缺陷诊断</span>
+            </div>
+          </div>
+          <div class="arch-layer ultimate-layer">
+            <div class="layer-label"><i class="fas fa-rocket"></i> 上层赋能 <span class="sub">预测/风控/场景/SaaS</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-chart-line"></i> 预测中台</span>
+              <span class="arch-block"><i class="fas fa-robot"></i> Agent 中台</span>
+              <span class="arch-block"><i class="fas fa-shield-alt"></i> 风控中台</span>
+              <span class="arch-block"><i class="fas fa-bullhorn"></i> 营销中台</span>
+              <span class="arch-block"><i class="fas fa-layer-group"></i> 场景中台</span>
+            </div>
+          </div>
+        </div>
+        <div class="info-tip"><i class="fas fa-scroll"></i> 混淆矩阵中台（ConfusionMatrix 中台 / 分类模型全域诊断评测中台），是企业二分类、多分类、多标签、时序分类、图像文本多模态分类模型统一真值预测数据接入、混淆矩阵自动化生成、多维分类指标计算、错分样本溯源、ConfusionGraph 混淆知识图谱、多模型横向 A/B 对照、分类缺陷自动诊断、模型迭代优化、多租户隔离的分类 AI 专属核心评测诊断中台。</div>
+
+        <div class="content-section" style="margin-top:1.2rem;">
+          <h3>1.1 权威标准定义</h3>
+          <div class="text-block">
+            <p>定位为所有分类类模型唯一标准化诊断底座，向下对接训练中台、评估中台、数据预处理、数据湖仓、算力中台；向上输出混淆热力图、全套分类指标、错分样本集、缺陷根因报告、优化工单供给预测中台、Agent 中台、业务风控 / 营销 / 场景中台。</p>
+            <p>遵循「四层混淆资产、全类型分类统一计算引擎、多视图可视化诊断、ConfGraph 混淆知识图谱、多模型并行 A/B 对比、错分样本分层溯源、缺陷自治迭代、多租户数据隔离」八大核心建设理念。</p>
+            <p>核心解决行业痛点：各业务独立手写代码生成混淆矩阵、二分类 / 多分类 / 多标签口径不统一、无法批量横向对比多模型、错分样本无法自动归集、缺陷根因依赖人工排查、混淆结果无统一资产沉淀、无行业分类模板、上线分类缺陷无法前置拦截、人工分析成本极高。</p>
+            <p>实现企业分类模型评测从 "零散脚本单次生成、人工看图排查" 升级为全域混淆资产池、自动化矩阵生成、图谱智能错分溯源、批量 A/B 对照、缺陷自治优化的标准化分类诊断底座。</p>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h3>1.2 混淆矩阵中台核心定位与层级边界</h3>
+          <div class="text-block">
+            <p><strong>战略定位：</strong>企业全域分类模型混淆矩阵统一生产中心、多维分类指标计算中枢、错分样本智能溯源平台、ConfGraph 混淆知识推理引擎、多模型 A/B 对照实验中心、分类缺陷自动诊断底座、模型迭代优化运营中枢。</p>
+            <p><strong>层级边界：</strong></p>
+            <p><strong>底层依赖层：</strong>算力中台推理 / 批处理算力、训练中台、评估中台、数据预处理、数据湖仓、对象存储、时序库、图数据库；</p>
+            <p><strong>核心能力层：</strong>专注真值 / 预测数据接入、混淆矩阵计算、多视图可视化、指标体系、错分归集、ConfGraph 图谱、A/B 对照、缺陷诊断，不承载模型训练、业务流程推理；</p>
+            <p><strong>上层赋能层：</strong>输出标准化混淆资产、指标报表、错分样本、优化工单至预测、风控、场景等业务中台。</p>
+            <p><strong>全域上下游标准分层链路：</strong>训练中台 / 评估中台 → 混淆矩阵中台 → 预测中台 / 风控中台 / 场景中台</p>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h3>1.3 混淆矩阵中台八大核心特征（对齐全域中台统一标准）</h3>
+          <div class="grid-2">
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-layer-group"></i></span><h4>四层混淆分层资产体系</h4><ul class="detail-list"><li>测试集资产、单模型混淆快照、多模型对照集、行业分类诊断模板四层隔离复用</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-th"></i></span><h4>全分类类型统一引擎</h4><ul class="detail-list"><li>二分类、多分类、多标签、时序分段、图文多分类一套计算逻辑</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-fire"></i></span><h4>三类混淆视图自动生成</h4><ul class="detail-list"><li>原始计数、行归一召回、列归一精确热力图一体化</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>ConfGraph 混淆专属知识图谱</h4><ul class="detail-list"><li>沉淀类别、样本、模型、错分缺陷关联经验</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-flask"></i></span><h4>全自动多模型并行 A/B 对照</h4><ul class="detail-list"><li>混淆热力图、全套指标并排量化差异</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-search"></i></span><h4>多层错分溯源机制</h4><ul class="detail-list"><li>样本 / 特征 / 标签 / 模型四层根因定位</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-door-closed"></i></span><h4>上线分类缺陷门禁</h4><ul class="detail-list"><li>缺陷超标自动拦截模型发布</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-sync-alt"></i></span><h4>数据驱动自治迭代</h4><ul class="detail-list"><li>每日混淆日志回流图谱，自动输出样本扩充、模型调优工单</li></ul></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S1 八大核心特征 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-layer-group"></i> 八大核心特征</h2>
+        <span class="badge-count">四层 · 统一引擎 · ConfGraph · 错分溯源</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-layer-group"></i></span><h4>四层混淆分层资产体系</h4><ul class="detail-list"><li>测试集资产、单模型混淆快照、多模型对照集、行业分类诊断模板四层隔离复用</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-th"></i></span><h4>全分类类型统一引擎</h4><ul class="detail-list"><li>二分类、多分类、多标签、时序分段、图文多分类一套计算逻辑</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-fire"></i></span><h4>三类混淆视图自动生成</h4><ul class="detail-list"><li>原始计数、行归一召回、列归一精确热力图一体化</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>ConfGraph 混淆专属知识图谱</h4><ul class="detail-list"><li>沉淀类别、样本、模型、错分缺陷关联经验</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-flask"></i></span><h4>全自动多模型并行 A/B 对照</h4><ul class="detail-list"><li>混淆热力图、全套指标并排量化差异</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-search"></i></span><h4>多层错分溯源机制</h4><ul class="detail-list"><li>样本 / 特征 / 标签 / 模型四层根因定位</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-door-closed"></i></span><h4>上线分类缺陷门禁</h4><ul class="detail-list"><li>缺陷超标自动拦截模型发布</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sync-alt"></i></span><h4>数据驱动自治迭代</h4><ul class="detail-list"><li>每日混淆日志回流图谱，自动输出样本扩充、模型调优工单</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S2 十大知识域 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-database"></i> 混淆矩阵中台专属完整知识体系</h2>
+        <span class="badge-count">十大完整知识域全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="content-section">
+          <p style="margin-bottom:1rem; font-weight:500; color:var(--color-primary-dark);">混淆矩阵中台知识体系是分类数据集、混淆计算、指标口径、错分诊断、图谱推理、A/B 实验、行业落地、合规复盘、前沿演进的标准化、结构化、可推理、可复用、自进化专业知识合集。</p>
+        </div>
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sitemap"></i></span><h4>2.1 混淆顶层全域规划知识域</h4><ul class="detail-list"><li>企业 AI 全链路分类模型架构（训练 - 评估 - 混淆 - 预测）顶层设计</li><li>四层混淆资产分层建设标准、跨业务共享规范</li><li>混淆中台与训练 / 评估 / 预测跨中台协同权责、对接标准</li><li>企业分类模型成熟度评估、零散混淆脚本资产化改造方法论</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-database"></i></span><h4>2.2 分类数据集工程知识域</h4><ul class="detail-list"><li>二分类 / 多分类 / 多标签 / 时序分类数据集分层构建规范</li><li>类别均衡、不平衡样本分层采样、分层划分训练 / 验证 / 测试集</li><li>真值标签标准化、脏标签检测、标签冲突清洗流程</li><li>行业黄金测试集、对抗错分样本集落地 SOP</li><li>数据集版本、血缘、脱敏、隐私合规管控</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-calculator"></i></span><h4>2.3 混淆矩阵计算与指标口径知识域</h4><ul class="detail-list"><li>二分类基础单元：TP/TN/FP/FN 标准化计算规则</li><li>多分类全局 / 逐类指标：Acc、Macro/Micro/Precision、Recall、F1、MCC、Kappa</li><li>多标签混淆、IoU、逐标签错分统计计算标准</li><li>三类视图（原始 / 行归一 / 列归一）业务适用场景</li><li>不平衡数据集指标加权修正方法论</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-eye"></i></span><h4>2.4 混淆可视化与错分诊断知识域</h4><ul class="detail-list"><li>热力图交互可视化、错分单元格下钻样本流程</li><li>高频混淆类别自动识别（类别边界模糊、样本稀缺）</li><li>四层根因排查：样本质量 / 标签错误 / 特征缺失 / 模型拟合不足</li><li>错分样本批量导出、分层归档、对抗样本扩充方法</li><li>分类缺陷分级标准（轻微 / 中度 / 严重缺陷）</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>2.5 ConfGraph 混淆图谱推理知识域</h4><ul class="detail-list"><li>类别、样本、模型、错分缺陷三元组抽取标准化流程</li><li>类别混淆关联、样本缺陷、模型优劣关联建模</li><li>新分类任务自动推荐最优测试集与基线模型</li><li>高频错分一键分层根因多跳溯源</li><li>每日混淆快照增量更新图谱权重自校准机制</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-flask"></i></span><h4>2.6 多模型 A/B 对照实验知识域</h4><ul class="detail-list"><li>多模型并行混淆批量生成、并排热力图对比</li><li>指标差值显著性校验、逐类优劣量化</li><li>灰度流量混淆在线持续采集方案</li><li>劣化模型一键切回旧版本流程</li><li>A/B 实验数据沉淀行业分类模板方法</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-industry"></i></span><h4>2.7 行业分类模型落地知识域</h4><ul class="detail-list"><li>金融风控：信贷二分类、欺诈多分类混淆诊断</li><li>营销：用户分层、流失多标签分类评测</li><li>计算机视觉：图像多分类、目标检测 IoU 混淆</li><li>文本：意图多分类、情感二分类落地 SOP</li><li>时序：设备故障分段分类混淆分析</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-door-closed"></i></span><h4>2.8 分类缺陷上线门禁知识域</h4><ul class="detail-list"><li>全局 F1、少数类召回分级准入阈值配置</li><li>严重混淆类别拦截规则、上线灰度管控</li><li>缺陷自动分级告警、人工复审流程</li><li>金融 / 政务高风险分类强门禁规范</li><li>门禁变更审计台账管理</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-pie"></i></span><h4>2.9 混淆资产运营复盘知识域</h4><ul class="detail-list"><li>月度全模型混淆指标大盘、缺陷汇总</li><li>高频错分样本扩充闭环流程</li><li>行业模板复用、开发人力成本量化评估</li><li>A/B 实验成果沉淀、测试集扩充机制</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-rocket"></i></span><h4>2.10 混淆中台前沿演进知识域</h4><ul class="detail-list"><li>自治式自动生成测试集与混淆矩阵</li><li>联邦隐私混淆对比、跨企业模型对标</li><li>端侧轻量化混淆离线计算引擎</li><li>大模型多标签原生混淆一体化架构</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S3 ConfGraph ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-project-diagram"></i> 混淆矩阵中台专属知识图谱（ConfGraph）体系</h2>
+        <span class="badge-count">核心实体 · 关联 · 智能能力</span>
+      </div>
+      <div class="card-body">
+        <div class="content-section">
+          <p style="margin-bottom:1rem;">ConfGraph 混淆知识图谱，是分类测试集、类别、模型、混淆单元格、错分样本、缺陷、优化策略、租户的分类诊断智能关联网络，解决混淆分析依赖人工看图、错分根因无法快速定位、行业经验无沉淀痛点，实现新业务自动匹配标准测试集、高频混淆一键溯源、样本扩充方案智能推荐、模型自治调优。</p>
+        </div>
+        <div class="grid-2" style="margin-bottom:1.5rem;">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-circle"></i></span><h4>3.1 ConfGraph 核心实体体系</h4><ul class="detail-list"><li><strong>测试集实体：</strong>通用基准集、行业黄金集、线上采样集、对抗错分集</li><li><strong>类别实体：</strong>二分类正负类、多分类业务标签、多标签维度</li><li><strong>模型实体：</strong>基线模型、微调分类模型、线上推理模型</li><li><strong>混淆快照实体：</strong>单次模型真值预测生成完整混淆资产</li><li><strong>错分样本实体：</strong>FP/FN 跨类别混淆样本、脏标签样本</li><li><strong>缺陷实体：</strong>少数类召回低、类别边界混淆、标签错误</li><li><strong>优化策略实体：</strong>扩充样本、清洗标签、调整类别权重</li><li><strong>租户实体：</strong>企业、部门、算法项目组</li><li><strong>指标实体：</strong>Acc、F1、少数类 Recall、Kappa</li><li><strong>资产实体：</strong>行业混淆模板、标准测试集包</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-link"></i></span><h4>3.2 ConfGraph 核心关联关系</h4><ul class="detail-list"><li><strong>测试集 ↔ 类别：</strong>数据集包含业务分类标签</li><li><strong>模型 ↔ 混淆快照：</strong>单模型单次评测生成混淆资产</li><li><strong>混淆单元格 ↔ 错分样本：</strong>单元格对应全部误判样本</li><li><strong>类别 ↔ 缺陷：</strong>小众类别易出现召回不足</li><li><strong>缺陷 ↔ 优化：</strong>召回低→扩充该类样本</li><li><strong>租户 ↔ 测试集：</strong>部门私有分类数据集隔离</li><li><strong>业务场景 ↔ 标准混淆模板：</strong>风控二分类专用诊断流程</li><li>每日混淆快照日志自动抽取三元组增量更新图谱权重</li><li><strong>模型 ↔ 指标：</strong>复杂模型全局 F1 更高</li><li><strong>缺陷 ↔ 阈值：</strong>严重缺陷触发上线门禁拦截</li></ul></div>
+        </div>
+        <h3 style="color:var(--color-primary-dark); margin-bottom:0.8rem;">3.3 ConfGraph 八大核心智能能力</h3>
+        <div class="grid-3">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-magic"></i></span><h4>智能能力</h4><ul class="detail-list"><li>分类混淆诊断经验自动结构化入库，脱离人工 Excel 记录</li><li>输入业务分类场景自动推荐行业标准测试集 + 基线模型</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-search"></i></span><h4>智能能力</h4><ul class="detail-list"><li>高频混淆单元格一键分层根因溯源（样本 / 标签 / 模型）</li><li>缺陷自动推送样本扩充、标签清洗优化工单</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-broom"></i></span><h4>智能能力</h4><ul class="detail-list"><li>同行业成熟混淆 A/B 对照方案智能复用推荐</li><li>A/B 实验数据自动校准图谱关联权重，持续提升推荐精度</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-shield-alt"></i></span><h4>智能能力</h4><ul class="detail-list"><li>上线风险缺陷前置预判，提前拦截劣化模型</li><li>分类评测新人快速检索同类业务混淆分析案例</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S4 六大架构 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> 混淆矩阵中台六大完整架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span>
+      </div>
+      <div class="card-body">
+        <div class="content-section">
+          <h3>4.1 产品架构（九层分层全景架构）</h3>
+          <div class="policy-card" style="margin-bottom:1rem;"><span class="policy-icon"><i class="fas fa-cubes"></i></span><h4>整体分层</h4><ul class="detail-list"><li>多租户接入层 → 四层混淆资产池层 → 统一混淆计算引擎层 → 可视化诊断模块 → ConfGraph 图谱推理层 → A/B 多模型对照层 → 缺陷门禁管控层 → 指标报表层 → 自治迭代层</li><li><strong>多租户接入层：</strong>训练 / 评估 / 业务 API 统一接入、租户鉴权数据隔离</li><li><strong>四层混淆资产池层：</strong>测试集 / 单模型快照 / 对照集 / 行业模板分层管控</li><li><strong>统一混淆计算引擎层：</strong>二 / 多 / 多标签全类型矩阵批量生成</li><li><strong>可视化诊断层：</strong>三类热力图、单元格下钻错分样本</li><li><strong>ConfGraph 图谱推理层：</strong>三元组抽取、缺陷根因溯源</li><li><strong>A/B 多模型对照层：</strong>并排混淆热力、指标差值统计</li><li><strong>缺陷门禁层：</strong>分级阈值、上线拦截配置</li><li><strong>指标报表层：</strong>全局 / 逐类指标自动导出</li><li><strong>自治迭代层：</strong>混淆数据回流，生成样本扩充工单</li></ul></div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.2 业务架构（三层全域业务架构 + 八大标准业务域）</h3>
+          <div class="grid-2" style="margin-bottom:1rem;">
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-building"></i></span><h4>三层全域业务架构</h4><ul class="detail-list"><li><strong>底层底座层：</strong>算力、训练、数据湖仓提供模型、真值预测数据</li><li><strong>中层混淆核心能力层：</strong>资产、混淆计算、可视化、图谱、A/B、门禁六大原子服务</li><li><strong>上层诊断赋能层：</strong>混淆资产、缺陷报告、优化工单输出至业务中台</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-briefcase"></i></span><h4>八大标准业务域</h4><ul class="detail-list"><li>四层混淆资产全生命周期业务域：测试集 / 快照创建、测试、归档闭环</li><li>统一混淆计算业务域：全分类类型批量矩阵生成、指标计算</li><li>可视化错分诊断业务域：热力交互、样本下钻归集</li><li>ConfGraph 混淆图谱推理业务域：缺陷溯源、优化推荐</li><li>多模型 A/B 对照业务域：并行混淆、指标差异分析</li><li>分类缺陷上线门禁业务域：阈值配置、拦截审批</li><li>指标报表与审计业务域：多维度分类指标、合规台账</li><li>缺陷自治迭代业务域：高频错分识别、样本扩充工单</li></ul></div>
+          </div>
+          <div class="text-block">
+            <p><strong>核心业务闭环：</strong>训练 / 评估输出真值预测数据 → 匹配行业测试集模板 → 批量生成混淆矩阵与全套指标 → ConfGraph 分析错分缺陷根因 → A/B 多模型并排对照 → 缺陷达标放行上线 / 不达标门禁拦截 → 混淆快照日志回流图谱 → 自动生成样本扩充 / 标签清洗优化工单。</p>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.3 数据架构（七层混淆专属数据架构）</h3>
+          <div class="policy-card" style="margin-bottom:1rem;"><span class="policy-icon"><i class="fas fa-database"></i></span><h4>七层数据架构</h4><ul class="detail-list"><li><strong>CF-ODS 原始接入层：</strong>真值标签、模型预测、测试集、混淆快照、A/B 流量原始日志</li><li><strong>CF-DWD 明细清洗层：</strong>标签对齐、样本去重、脱敏、时序对齐</li><li><strong>CF-DWB 全域宽表层：</strong>测试集、类别、模型、混淆单元格、缺陷全维度宽表</li><li><strong>CF-DWA 知识关联层：</strong>自动抽取三元组构建 ConfGraph 混淆图谱</li><li><strong>CF-DWS 主题汇总层：</strong>测试集资产、混淆快照、缺陷、A/B 四大主题聚合</li><li><strong>CF-ADS 指标应用层：</strong>Acc、F1、少数类 Recall、Kappa 核心指标</li><li><strong>CF-OPT 自主优化层：</strong>高频错分样本沉淀，生成扩充任务</li></ul></div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.4 技术架构（混淆计算 + 图双引擎七层技术架构）</h3>
+          <div class="policy-card" style="margin-bottom:1rem;"><span class="policy-icon"><i class="fas fa-microchip"></i></span><h4>七层技术架构</h4><ul class="detail-list"><li><strong>接入网关层：</strong>训练 / 评估 API 接入、租户鉴权路由</li><li><strong>分布式存储层：</strong>对象存储（测试集 / 混淆快照）、图数据库、时序库</li><li><strong>混淆核心引擎层：</strong>二 / 多 / 多标签统一计算、指标计算器</li><li><strong>ConfGraph 图推理引擎：</strong>三元组抽取、多跳缺陷溯源</li><li><strong>A/B 对照引擎：</strong>多模型并行批量计算、差值统计</li><li><strong>门禁告警引擎：</strong>阈值校验、消息推送</li><li><strong>管理前端：</strong>混淆热力可视化、图谱大屏、报表工作台</li></ul></div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.5 应用架构（八大全域赋能应用）</h3>
+          <div class="grid-2">
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-rocket"></i></span><h4>八大全域赋能应用</h4><ul class="detail-list"><li>四层混淆资产集市应用：行业测试集、混淆模板检索复用</li><li>统一混淆计算平台：批量生成各类分类混淆矩阵</li><li>可视化错分诊断应用：热力图交互、样本下钻导出</li><li>ConfGraph 智能溯源应用：高频混淆一键根因分析</li><li>多模型 A/B 对照应用：并排热力、指标差异对比</li><li>缺陷上线门禁应用：准入阈值配置、拦截记录</li><li>分类指标报表应用：全局 / 逐类指标定时导出</li><li>缺陷自治运营应用：自动生成样本扩充工单</li></ul></div>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.6 治理架构（六大全域混淆治理体系）</h3>
+          <div class="grid-2">
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-balance-scale"></i></span><h4>六大全域混淆治理体系</h4><ul class="detail-list"><li>四层混淆资产全生命周期治理：测试集 / 快照版本闭环</li><li>混淆计算口径标准化治理：统一指标公式</li><li>A/B 实验灰度流量标准化治理</li><li>ConfGraph 图谱每日增量更新治理</li><li>分类缺陷门禁合规闭环治理</li><li>混淆资产运营复盘标准化治理</li></ul></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S5 功能模块 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> 混淆矩阵中台全量产品功能模块</h2>
+        <span class="badge-count">全覆盖无遗漏</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-layer-group"></i></span><h4>模块 1：四层混淆资产池模块</h4><ul class="detail-list"><li>四层分层管理：通用基准测试集、行业黄金集、混淆快照、A/B 对照包</li><li>测试集版本、分层采样、脏标签自动检测</li><li>单次模型混淆快照持久化存储、快照对比</li><li>行业分类诊断模板一键复用</li><li>资产标签、业务分类归类、闲置测试集标记</li><li>私有测试集租户隔离、读写权限管控</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-calculator"></i></span><h4>模块 2：统一混淆计算引擎模块</h4><ul class="detail-list"><li>二分类、多分类、多标签、时序分类统一计算</li><li>自动生成原始 / 行归一 / 列归一三类混淆热力矩阵</li><li>全套指标批量计算：Acc、Macro/Micro-P/R/F1、MCC、Kappa</li><li>不平衡数据集加权指标修正</li><li>批量多模型并行一次性生成混淆资产</li><li>计算任务断点续跑、失败重试</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-eye"></i></span><h4>模块 3：可视化错分诊断模块</h4><ul class="detail-list"><li>交互式热力图，单元格点击下钻全部错分样本</li><li>FP/FN 样本批量筛选、导出 CSV / 图片</li><li>高频混淆类别自动高亮排序</li><li>四类缺陷自动标记：样本少 / 标签错 / 特征缺失 / 模型弱</li><li>错分样本归档至对抗测试集</li><li>诊断图表 PNG/HTML 一键导出</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>模块 4：ConfGraph 混淆知识图谱模块</h4><ul class="detail-list"><li>每日混淆快照自动抽取三元组入库</li><li>图谱可视化展示测试集 - 模型 - 混淆缺陷拓扑</li><li>业务分类自动推荐标准测试基线</li><li>高频混淆一键分层根因多跳溯源</li><li>自动推送样本扩充、标签清洗优化工单</li><li>每日混淆数据自动校准图谱权重</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-flask"></i></span><h4>模块 5：多模型 A/B 对照模块</h4><ul class="detail-list"><li>批量导入多模型真值预测，并行生成混淆</li><li>并排热力图可视化直观对比</li><li>全局 / 逐类指标差值自动计算</li><li>指标显著性校验，输出优劣结论</li><li>劣化模型一键标记，联动上线门禁</li><li>A/B 实验报告自动归档</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-door-closed"></i></span><h4>模块 6：分类缺陷上线门禁模块</h4><ul class="detail-list"><li>全局 F1、少数类召回自定义准入阈值</li><li>严重混淆类别黑名单配置</li><li>不达标自动拦截模型推送 MaaS</li><li>分级告警：预警 / 阻断，企微 / 邮件通知</li><li>临时豁免审批流程、全流程日志</li><li>月度门禁拦截复盘报表</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-bar"></i></span><h4>模块 7：指标报表与审计模块</h4><ul class="detail-list"><li>全局、逐分类别双维度指标看板</li><li>自定义报表周期（日 / 周 / 月）定时推送</li><li>混淆热力图 + 指标合并报告导出</li><li>全混淆计算、门禁操作日志永久留存</li><li>金融 / 政务合规审计台账自动生成</li><li>多租户成本 / 指标分维度下钻</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sync-alt"></i></span><h4>模块 8：缺陷自治迭代模块</h4><ul class="detail-list"><li>每日混淆快照数据回流 ConfGraph</li><li>高频错分自动识别，生成样本扩充任务</li><li>脏标签样本批量导出供标注中台修正</li><li>低效果模型预警，推送训练调优工单</li><li>月度缺陷优化成果统计看板</li><li>行业测试集自动扩充建议</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S6 指标体系 ===== -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> 混淆矩阵中台全套指标体系</h2>
+        <span class="badge-count">资产 · 计算 · 可视化 · 图谱 · A/B · 门禁</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>混淆资产治理指标</strong></td><td>四层资产标准化覆盖率 100%；行业测试集复用率 ≥82%；闲置低效测试集占比 ≤9%；混淆快照版本规范率 100%；资产盘点闭环率 100%；测试集脏标签检出率 100%</td></tr>
+              <tr><td><strong>混淆计算效能指标</strong></td><td>多模型批量计算吞吐达标；混淆矩阵生成成功率 ≥99.9%；全套指标计算准确率 100%；热力图渲染 P95 延迟 ≤150ms；任务故障自愈率 100%；多类型分类兼容覆盖率 100%</td></tr>
+              <tr><td><strong>分类核心质量指标（通用标准）</strong></td><td>
+                <strong>二分类：</strong>全局 Acc ≥90、F1 ≥0.88、少数类 Recall ≥0.85<br>
+                <strong>多分类：</strong>Macro-F1 ≥0.87、每类 Recall 底线阈值、Kappa ≥0.82<br>
+                <strong>多标签：</strong>平均 IoU ≥0.84、单标签 F1 ≥0.86
+              </td></tr>
+              <tr><td><strong>ConfGraph 图谱专项指标</strong></td><td>全行业分类场景知识覆盖率 100%；三元组完整率 ≥99.6%；缺陷根因推理准确率 ≥97%；测试基线推荐准确率 ≥95%；图谱日增量更新及时率 ≥99.5%；图谱赋能缺陷优化贡献率 ≥34%</td></tr>
+              <tr><td><strong>A/B 对照实验指标</strong></td><td>多模型并行计算精准率 100%；指标差值计算无误差；劣化识别及时率 100%；A/B 报告生成及时率 100%；实验数据沉淀闭环率 100%</td></tr>
+              <tr><td><strong>缺陷门禁安全指标</strong></td><td>阈值校验执行率 100%；高风险模型拦截率 100%；门禁操作日志留存率 100%；豁免审批闭环率 100%；告警通知送达率 100%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S7 资产体系 ===== -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> 混淆矩阵中台完整内容资产体系</h2>
+        <span class="badge-count">6大资产包</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sitemap"></i></span><h4>7.1 顶层规划资产</h4><ul class="detail-list"><li>混淆矩阵中台建设白皮书</li><li>分阶段落地实施路线图</li><li>企业分类模型成熟度评估报告</li><li>混淆 - 训练 - 评估协同长效方案</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-book"></i></span><h4>7.2 全域标准规范资产</h4><ul class="detail-list"><li>四层混淆资产分层管理标准</li><li>二 / 多 / 多标签混淆统一计算指标规范</li><li>ConfGraph 三元组抽取构建标准</li><li>A/B 对照实验管理规范</li><li>分类缺陷门禁准入规范</li><li>可视化诊断输出标准</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-database"></i></span><h4>7.3 混淆核心数字资产</h4><ul class="detail-list"><li>全行业标准分类测试集资产库</li><li>各类分类混淆计算模板包</li><li>A/B 多模型对照配置模板</li><li>ConfGraph 混淆知识图谱资产包</li><li>缺陷优化策略资产库</li><li>分类指标报表模板</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-tools"></i></span><h4>7.4 落地工程资产</h4><ul class="detail-list"><li>混淆中台部署实施手册</li><li>热力诊断工作台操作指南</li><li>ConfGraph 可视化运维手册</li><li>训练 / 评估中台对接 API 文档</li><li>上线验收指标评估模板</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-pie"></i></span><h4>7.5 运营复盘资产</h4><ul class="detail-list"><li>月度分类模型混淆质量分析报告</li><li>A/B 对照专项复盘报告</li><li>高频错分缺陷优化成果台账</li><li>门禁拦截月度审计报表</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-shield-alt"></i></span><h4>7.6 应急保障资产</h4><ul class="detail-list"><li>大规模批量混淆计算雪崩应急预案</li><li>真值预测数据不匹配故障处置手册</li><li>ConfGraph 图谱损坏恢复预案</li><li>线上高风险分类模型紧急拦截方案</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S8 协同关系 ===== -->
+    <section id="s8" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-share-alt"></i> 混淆矩阵中台与全中台全域协同关系</h2>
+        <span class="badge-count">10 大中台协同</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-3">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-microchip"></i></span><h4>算力中台</h4><ul class="detail-list"><li>提供批量混淆计算、热力渲染弹性 CPU/GPU 算力</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-brain"></i></span><h4>训练中台</h4><ul class="detail-list"><li>训练完成自动推送真值预测，生成混淆快照</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-bar"></i></span><h4>评估中台</h4><ul class="detail-list"><li>复用混淆中台统一指标体系，补充离线评测</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-broom"></i></span><h4>数据预处理</h4><ul class="detail-list"><li>清洗标准化分类测试集、标签数据集</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-database"></i></span><h4>数据中台</h4><ul class="detail-list"><li>业务分类原始样本供给测试集构建</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-code"></i></span><h4>MCP 中台</h4><ul class="detail-list"><li>混淆计算能力封装标准 MCP Resource 对外输出</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-cloud"></i></span><h4>MaaS 中台</h4><ul class="detail-list"><li>灰度模型实时流量推送在线混淆分析</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-line"></i></span><h4>预测中台</h4><ul class="detail-list"><li>分类推理模型定期调用混淆做线上巡检</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-shield-alt"></i></span><h4>风控 / 场景中台</h4><ul class="detail-list"><li>风控、用户分层分类模型质量门禁依赖混淆指标</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-tachometer-alt"></i></span><h4>效能中台</h4><ul class="detail-list"><li>采集混淆质量指标用于 AI 投入产出 ROI 分析</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S9 核心价值 ===== -->
+    <section id="s9" class="card banner-card">
+      <div class="card-body">
+        <div class="icon-big"><i class="fas fa-flag"></i></div>
+        <h2>混淆矩阵中台 · 核心价值总结</h2>
+        <p>企业全域分类模型统一混淆诊断底座，消除各业务零散 Python 脚本，一套平台兼容二 / 多 / 多标签 / 时序全分类任务，评测标准化、口径统一；<br>三类热力可视化 + 错分样本一键下钻，大幅降低人工看图排查时间，分类缺陷定位效率提升 70% 以上；<br>ConfGraph 混淆知识图谱沉淀分类评测经验，高频错分自动分层溯源，自动输出样本扩充、标签清洗优化工单；<br>多模型并行 A/B 对照，热力并排 + 指标差值量化，新旧模型优劣直观对比，规避上线分类劣化；<br>可配置分类缺陷上线门禁，高风险模型自动拦截，满足金融、政务强监管场景质量管控；<br>全链路混淆快照资产化持久存储，完整留存模型迭代评测历史，审计可追溯；<br>无缝打通训练 - 评估 - 预测全 AI 链路，是所有分类类模型唯一标准化诊断评测基础设施，支撑风控、营销、计算机视觉等业务模型质量长效管控。</p>
+        <div class="footer-note">混淆矩阵中台 · 分类模型全域评测底座 · 全链路对齐训练 / 评估 / 预测全中台统一架构范式</div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>模型任务中台 · 企业级完整体系说明书</title>
+<meta name="description" content="企业级模型任务中台完整体系说明书，模型调度+任务编排+TaskGraph自治演进版。" />
+
+<!-- 结构化数据 -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"TechArticle",
+  "headline":"企业级模型任务中台完整体系说明书",
+  "about":"模型调度+任务编排+TaskGraph自治演进版"
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/solid.min.css">
+
+<style>
+/* ===================== 设计令牌 ===================== */
+:root {
+  --brand-50:#EEF2FF;--brand-100:#E0E7FF;--brand-200:#C7D2FE;
+  --brand-400:#818CF8;--brand-500:#6366F1;--brand-600:#4F46E5;
+  --brand-700:#4338CA;--brand-900:#312E81;
+
+  --gray-50:#FAFAFA;--gray-100:#F4F4F5;--gray-200:#E4E4E7;
+  --gray-300:#D4D4D8;--gray-500:#71717A;--gray-600:#52525B;
+  --gray-700:#3F3F46;--gray-800:#27272A;--gray-900:#18181B;
+
+  --success:#16A34A;--warning:#D97706;--danger:#DC2626;--info:#0284C7;
+
+  --bg:var(--gray-50);--surface:rgba(255,255,255,0.82);
+  --surface-solid:#FFFFFF;--border:var(--gray-200);
+  --text:var(--gray-800);--text-muted:var(--gray-600);
+  --heading:var(--gray-900);--shadow:0 10px 30px rgba(15,23,42,.08);
+
+  --radius-sm:8px;--radius-md:14px;--radius-lg:22px;
+  --fluid-min:320;--fluid-max:1440;
+}
+
+[data-theme="dark"] {
+  --bg:#0B0F19;--surface:rgba(17,24,39,.72);
+  --surface-solid:#111827;--border:rgba(255,255,255,.12);
+  --text:#CBD5E1;--text-muted:#94A3B8;--heading:#F8FAFC;
+  --shadow:0 20px 50px rgba(0,0,0,.45);
+}
+
+/* ===================== 流体排版 ===================== */
+:root{
+  --step--1:clamp(.75rem,.7rem+0.2vw, .813rem);
+  --step-0:clamp(.875rem,.8rem+0.3vw,1rem);
+  --step-1:clamp(1rem, .9rem+.4vw,1.2rem);
+  --step-2:clamp(1.2rem,1rem+.8vw,1.5rem);
+  --step-3:clamp(1.5rem,1.2rem+1.2vw,2rem);
+  --step-4:clamp(1.8rem,1.4rem+1.8vw,2.8rem);
+}
+
+/* ===================== 全局 ===================== */
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  margin:0;font-family:"Inter","Noto Sans SC",system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--text);font-size:var(--step-0);line-height:1.75;
+  transition:background .35s,color .35s;
+}
+h1,h2,h3,h4{color:var(--heading);line-height:1.3;margin:.2em 0 .6em;font-weight:700}
+h1{font-size:var(--step-4)}h2{font-size:var(--step-3)}h3{font-size:var(--step-2)}
+p{margin:0 0 1em}
+a{color:var(--brand-600);text-decoration:none}
+a:hover{text-decoration:underline}
+strong{color:var(--heading);font-weight:600}
+::selection{background:var(--brand-200);color:var(--brand-900)}
+
+/* ===================== 网格系统 ===================== */
+.shell{
+  display:grid;
+  grid-template-columns:260px minmax(0,1fr);
+  gap:clamp(1rem,2vw,2rem);
+  max-width:1440px;margin:0 auto;
+  padding:clamp(1rem,2vw,2rem);
+  align-items:start;
+}
+
+/* ===================== 玻璃拟态 ===================== */
+.glass{
+  background:var(--surface);
+  backdrop-filter:saturate(140%) blur(18px);
+  -webkit-backdrop-filter:saturate(140%) blur(18px);
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+}
+
+/* ===================== 侧边导航 ===================== */
+.nav{
+  position:sticky;top:1.5rem;
+  border-radius:var(--radius-lg);
+  padding:1.2rem 1rem;
+  height:calc(100vh - 3rem);
+  overflow-y:auto;
+}
+.brand{
+  display:flex;align-items:center;gap:.8rem;
+  font-weight:800;font-size:var(--step-1);color:var(--heading);
+  padding-bottom:.8rem;border-bottom:1px solid var(--border);
+}
+.brand i{color:var(--brand-500)}
+.nav a{
+  display:flex;align-items:center;gap:.7rem;
+  padding:.55rem .8rem;border-radius:999px;
+  color:var(--text-muted);font-size:var(--step--1);font-weight:500;
+  transition:.2s;
+}
+.nav a:hover,.nav a:focus-visible{
+  background:var(--brand-50);color:var(--brand-700);outline:none;
+}
+.nav a.active{
+  background:var(--brand-600);color:#fff;
+}
+.nav i{width:18px;text-align:center}
+
+/* ===================== 面包屑 ===================== */
+.breadcrumbs{
+  display:flex;gap:.5rem;flex-wrap:wrap;
+  font-size:var(--step--1);color:var(--text-muted);
+  margin-bottom:1rem;
+}
+.breadcrumbs a:hover{text-decoration:underline}
+
+/* ===================== Hero ===================== */
+.hero{
+  border-radius:var(--radius-lg);
+  padding:clamp(1.5rem,4vw,3rem);
+  background:linear-gradient(135deg,var(--brand-700),var(--brand-500));
+  color:#fff;position:relative;overflow:hidden;
+}
+.hero h1,.hero p{color:#fff}
+.hero p{opacity:.9;max-width:60ch}
+
+/* ===================== 卡片 ===================== */
+.card{
+  border-radius:var(--radius-lg);
+  margin-bottom:1.5rem;
+  overflow:hidden;
+}
+.card-header{
+  padding:1rem 1.2rem;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;
+}
+.card-header h2{margin:0;font-size:var(--step-2)}
+.badge{
+  margin-left:auto;
+  background:var(--brand-50);color:var(--brand-700);
+  border:1px solid var(--brand-100);
+  padding:.2rem .8rem;border-radius:999px;
+  font-size:var(--step--1);font-weight:600;
+}
+.card-body{padding:1.2rem}
+
+/* ===================== Tabs ===================== */
+.tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem}
+.tab{
+  padding:.45rem 1rem;border-radius:999px;
+  border:1px solid var(--border);
+  background:transparent;cursor:pointer;
+  color:var(--text-muted);font-size:var(--step--1);
+}
+.tab.active{background:var(--brand-600);color:#fff;border-color:transparent}
+
+/* ===================== 网格内容 ===================== */
+.grid{display:grid;gap:1rem}
+.grid.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:980px){.shell{grid-template-columns:1fr}.nav{display:none}.grid.c2,.grid.c3{grid-template-columns:1fr}}
+
+/* ===================== 特性卡 ===================== */
+.feature{
+  border-radius:var(--radius-md);
+  padding:1rem 1.1rem;
+  background:var(--surface-solid);
+  border:1px solid var(--border);
+  transition:.25s;
+}
+.feature:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.feature h4{font-size:var(--step-0);margin-bottom:.4em;display:flex;align-items:center;gap:.5rem}
+.feature h4 i{color:var(--brand-500)}
+.feature ul{padding-left:1.1rem;margin:0;font-size:var(--step--1);color:var(--text-muted)}
+.feature li+li{margin-top:.3em}
+
+/* ===================== 架构图 ===================== */
+.arch{
+  display:flex;flex-direction:column;gap:.6rem;
+  background:var(--surface-solid);border:1px solid var(--border);
+  border-radius:var(--radius-md);padding:1rem;
+}
+.arch-row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+.arch-label{
+  min-width:120px;font-weight:700;font-size:var(--step--1);
+  color:var(--heading);padding-right:.6rem;border-right:2px dashed var(--border);
+}
+.tag{
+  padding:.3rem .7rem;border-radius:6px;
+  background:var(--bg);border:1px solid var(--border);
+  font-size:var(--step--1);color:var(--text);
+}
+.tag.primary{background:var(--brand-50);color:var(--brand-700);border-color:var(--brand-100)}
+
+/* ===================== 表格 ===================== */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:var(--step--1)}
+th,td{padding:.75rem 1rem;border-bottom:1px solid var(--border);text-align:left}
+th{background:var(--surface-solid);color:var(--heading);font-weight:700}
+tr:hover td{background:var(--brand-50)}
+
+/* ===================== 状态色 ===================== */
+.alert{
+  display:flex;gap:.8rem;align-items:flex-start;
+  border-left:4px solid var(--info);
+  background:var(--surface-solid);padding:1rem;border-radius:var(--radius-sm);
+}
+.alert.info{border-color:var(--info)}
+.alert.success{border-color:var(--success)}
+.alert.warning{border-color:var(--warning)}
+.alert.danger{border-color:var(--danger)}
+
+/* ===================== 工具提示 ===================== */
+tip{position:relative;cursor:help;border-bottom:1px dotted var(--text-muted)}
+tip::after{
+  content:attr(data-tip);position:absolute;left:50%;bottom:120%;
+  transform:translateX(-50%) scale(.95);opacity:0;pointer-events:none;
+  background:var(--gray-900);color:#fff;padding:.4rem .7rem;border-radius:6px;
+  font-size:.7rem;white-space:nowrap;transition:.2s;
+}
+tip:hover::after{opacity:1;transform:translateX(-50%) scale(1)}
+
+/* ===================== 搜索 ===================== */
+.search{
+  width:100%;padding:.7rem 1rem;border-radius:999px;
+  border:1px solid var(--border);background:var(--surface-solid);
+  color:var(--text);margin-bottom:1rem;
+}
+
+/* ===================== 骨架屏 ===================== */
+.skeleton{
+  background:linear-gradient(90deg,var(--border),var(--surface-solid),var(--border));
+  background-size:200% 100%;animation:sk 1.4s infinite;
+  border-radius:6px;height:1rem;margin-bottom:.6rem;
+}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ===================== 空状态 ===================== */
+.empty{
+  text-align:center;padding:2rem;
+  color:var(--text-muted);border:1px dashed var(--border);border-radius:var(--radius-md);
+}
+
+/* ===================== 模态 ===================== */
+.modal-mask{
+  position:fixed;inset:0;background:rgba(0,0,0,.45);
+  display:none;place-items:center;z-index:1000;
+}
+.modal{
+  background:var(--surface-solid);border-radius:var(--radius-lg);
+  width:min(520px,90%);padding:1.5rem;
+}
+.modal-actions{display:flex;justify-content:flex-end;gap:.6rem;margin-top:1rem}
+
+/* ===================== 拖拽 ===================== */
+.drag-list{list-style:none;padding:0;margin:0}
+.drag-item{
+  padding:.6rem .8rem;border:1px solid var(--border);border-radius:6px;
+  margin-bottom:.4rem;background:var(--surface-solid);cursor:grab;
+}
+.drag-item.dragging{opacity:.5}
+
+/* ===================== 主题切换 ===================== */
+.theme-switch{
+  position:fixed;right:1rem;top:1rem;z-index:200;
+  background:var(--surface-solid);border:1px solid var(--border);
+  padding:.5rem .8rem;border-radius:999px;cursor:pointer;font-size:var(--step--1);
+}
+
+/* ===================== 键盘可达 ===================== */
+:focus-visible{outline:2px solid var(--brand-500);outline-offset:2px}
+</style>
+</head>
+
+<body>
+<button class="theme-switch glass" onclick="toggleTheme()" aria-label="切换主题">🌓 主题</button>
+
+<div class="shell">
+
+  <!-- ==================== 导航 ==================== -->
+  <aside class="nav glass" aria-label="主导航">
+    <div class="brand"><i class="fa-solid fa-cubes"></i> 模型任务中台</div>
+    <nav id="navLinks">
+      <a href="#s0" class="active"><i class="fa-solid fa-cube"></i>全域标准定义</a>
+      <a href="#s1"><i class="fa-solid fa-layer-group"></i>知识体系</a>
+      <a href="#s2"><i class="fa-solid fa-project-diagram"></i>TaskGraph</a>
+      <a href="#s3"><i class="fa-solid fa-sitemap"></i>六大完整架构</a>
+      <a href="#s4"><i class="fa-solid fa-puzzle-piece"></i>功能模块</a>
+      <a href="#s5"><i class="fa-solid fa-chart-line"></i>指标体系</a>
+      <a href="#s6"><i class="fa-solid fa-boxes"></i>资产体系</a>
+      <a href="#s7"><i class="fa-solid fa-share-alt"></i>协同关系</a>
+      <a href="#s8"><i class="fa-solid fa-flag"></i>核心价值</a>
+    </nav>
+  </aside>
+
+  <!-- ==================== 主内容 ==================== -->
+  <main>
+
+    <!-- 面包屑 -->
+    <nav class="breadcrumbs" aria-label="面包屑">
+      <a href="#">中台体系</a> / <a href="#">AI 工程化</a> / <span>模型任务中台</span>
+    </nav>
+
+    <!-- Hero -->
+    <header class="hero glass">
+      <h1>企业级模型任务中台完整体系说明书</h1>
+      <p>模型调度+任务编排+TaskGraph自治演进版</p>
+    </header>
+
+    <!-- 预测搜索 -->
+    <input class="search" id="searchInput" placeholder="🔍 预测搜索：输入关键词如 DAG / 算力 / TaskGraph…" aria-label="搜索">
+
+    <!-- 骨架屏 -->
+    <div id="skeleton" style="margin-bottom:1rem">
+      <div class="skeleton"></div><div class="skeleton" style="width:80%"></div>
+    </div>
+
+    <!-- ==================== S0 ==================== -->
+    <section id="s0" class="card glass">
+      <div class="card-header">
+        <h2><i class="fa-solid fa-cube"></i> 模型任务中台全域标准定义</h2>
+        <span class="badge">模型调度 + 任务编排 + TaskGraph 自治演进版</span>
+      </div>
+      <div class="card-body">
+
+        <div class="tabs" role="tablist">
+          <button class="tab active" onclick="switchTab(this,'arch')">架构链路</button>
+          <button class="tab" onclick="switchTab(this,'def')">权威定义</button>
+        </div>
+
+        <div id="arch">
+          <div class="arch">
+            <div class="arch-row"><div class="arch-label">底层依赖</div>
+              <span class="tag">算力中台</span><span class="tag">训练中台</span><span class="tag">Embedding中台</span><span class="tag">记忆中台</span><span class="tag">数据预处理</span><span class="tag">MCP中台</span>
+            </div>
+            <div class="arch-row"><div class="arch-label">核心能力</div>
+              <span class="tag primary">任务注册</span><span class="tag primary">DAG编排</span><span class="tag primary">算力调度</span><span class="tag primary">故障自愈</span><span class="tag primary">TaskGraph</span>
+            </div>
+            <div class="arch-row"><div class="arch-label">上层赋能</div>
+              <span class="tag">RAG</span><span class="tag">Agent</span><span class="tag">Copilot</span><span class="tag">具身智能</span><span class="tag">知识库</span><span class="tag">场景中台</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="def" hidden>
+          <div class="alert info">
+            <i class="fa-solid fa-circle-info"></i>
+            <div>模型任务中台（Model Task中台/AI全链路任务调度编排中台），是企业面向大模型、多模态模型、微调模型、具身模型、向量模型，统一实现模型任务注册、分层编排、算力调度、批量/实时/流式任务托管、依赖管理、失败自愈、任务溯源、模型版本联动、任务知识图谱、全链路评测、多租户成本管控、自治迭代优化的AI工程化统一任务底座中台。</div>
+          </div>
+        </div>
+
+        <h3>1.1 权威标准定义</h3>
+        <p>向下深度对接算力中台、训练中台、Embedding中台、记忆中台、数据预处理中台、MCP中台；向上统一支撑RAG、Agent、Copilot、具身智能、知识库、场景中台的所有模型推理、微调、向量生成、记忆更新、仿真评测全类型AI任务。</p>
+        <p>遵循「五层模型任务资产、全类型任务统一托管、多级依赖编排、算力弹性错峰、TaskGraph任务知识图谱、任务全链路可观测、故障自愈闭环、任务驱动模型迭代、多租户精细化治理」九大核心建设理念。</p>
+        <p>核心解决行业痛点：企业AI任务零散无统一管控，训练/推理/向量/记忆任务割裂；任务依赖混乱、执行无序、死锁频发；算力资源争抢、高低峰失衡成本高；任务失败人工重试、排查效率极低；任务经验无法沉淀复用；模型版本与任务不联动导致上线故障；任务质量、耗时、成本无统一指标体系；各业务AI任务重复开发、无法资产化复用。</p>
+        <p>实现企业AI任务从「零散脚本、单机执行、人工运维」升级为标准化资产、自动化编排、智能化调度、图谱化溯源、自治化迭代的全域AI任务统一生产运营底座，支撑企业规模化、低成本、高稳定落地全场景AI应用。</p>
+
+        <h3>1.2 模型任务中台核心定位与层级边界</h3>
+        <p><strong>战略定位：</strong>企业全域AI模型任务统一托管中心、多类型任务智能编排中枢、算力资源弹性调度平台、TaskGraph任务知识推理引擎、AI任务全链路可观测评测中心、多租户任务成本运营中枢、模型工程化自治迭代核心底座。</p>
+        <p><strong>层级边界：</strong></p>
+        <p>底层依赖层：算力中台GPU/NPU异构集群、训练中台、Embedding中台、记忆中台、数据预处理、向量库、MCP中台、数据湖仓、消息队列、对象存储、容器集群。</p>
+        <p>核心能力层：专注模型任务注册、编排、调度、执行、监控、溯源、自愈、图谱沉淀、指标评测、成本计量，不承载模型训练权重更新、业务场景流程执行、终端用户交互能力。</p>
+        <p>上层赋能层：输出标准化模型任务服务、任务编排模板、算力调度策略，支撑全品类AI中台与业务场景。</p>
+        <p><strong>全域上下游标准分层链路：</strong>数据预处理/算力中台 → 模型任务中台 → 训练/Embedding/记忆中台 → MCP中台 → Copilot/Agent/RAG/具身智能中台</p>
+
+        <h3>1.3 模型任务中台九大核心特征（统一中台标准）</h3>
+        <div class="grid c2">
+          <div class="feature"><h4><i class="fa-solid fa-layer-group"></i>五层分层模型任务资产体系</h4><ul><li>基础原子任务、组合编排任务、行业场景任务、模型专属任务、自定义脚本任务全域分层复用</li></ul></div>
+          <div class="feature"><h4><i class="fa-solid fa-list-check"></i>全任务类型统一托管</h4><ul><li>覆盖训练、微调、推理、向量化、记忆蒸馏、仿真、评测、数据清洗全AI任务</li></ul></div>
+          <div class="feature"><h4><i class="fa-solid fa-diagram-project"></i>多级依赖智能编排</h4><ul><li>支持串行、并行、分支、循环、重试、兜底、人工复核复杂任务链路</li></ul></div>
+          <div class="feature"><h4><i class="fa-solid fa-server"></i>算力弹性错峰调度</h4><ul><li>实时任务高优保障、批量任务错峰执行，最大化算力利用率、降低成本</li></ul></div>
+          <div class="feature"><h4><i class="fa-solid fa-brain"></i>TaskGraph专属模型任务知识图谱</h4><ul><li>沉淀任务流程、依赖关系、故障诱因、优化策略全量经验</li></ul></div>
+          <div class="feature"><h4><i class="fa-solid fa-heart-pulse"></i>全链路可观测自愈</h4><ul><li>任务超时、报错、死锁自动识别、重试、降级、兜底</li></ul></div>
+          <div class="feature"><h4><i class="fa-solid fa-link"></i>模型-任务强联动</h4><ul><li>模型版本更新自动联动任务适配、灰度上线、版本回滚</li></ul></div>
+          <div class="feature"><h4><i class="fa-solid fa-users"></i>多租户精细化治理</h4><ul><li>任务权限、算力消耗、任务数量全维度隔离计量</li></ul></div>
+          <div class="feature"><h4><i class="fa-solid fa-rotate"></i>任务驱动自治迭代</h4><ul><li>故障、低效任务自动回流图谱，生成编排优化、算力调优工单</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== S1 ==================== -->
+    <section id="s1" class="card glass">
+      <div class="card-header"><h2><i class="fa-solid fa-layer-group"></i> 模型任务中台专属完整知识体系</h2><span class="badge">十大完整知识域全覆盖</span></div>
+      <div class="card-body">
+        <div class="grid c2">
+          <div class="feature"><h4>2.1 模型任务顶层架构与全域规划知识域</h4><ul><li>企业AI全链路任务分层架构（算力-任务-模型-能力-应用）顶层设计</li><li>五层模型任务资产分层建设标准、跨业务跨模型资产共享规范</li><li>模型任务中台与训练/Embedding/记忆/MCP跨中台协同权责、对接标准</li><li>企业AI任务工程化成熟度评估、零散脚本任务资产化改造方法论</li><li>大规模AI任务集群并发、容灾、扩容顶层设计规范</li></ul></div>
+          <div class="feature"><h4>2.2 全类型AI任务识别与标准化知识域</h4><ul><li>模型训练、增量微调、蒸馏量化任务标准化定义</li><li>文本/多模态Embedding向量生成、索引构建任务规范</li><li>记忆抽取、蒸馏、更新、过期清理任务标准流程</li><li>仿真评测、模型回归测试、数据集批量生成任务体系</li><li>实时推理、流式增量更新、定时批量运维任务分类规范</li><li>具身智能感知、规划、仿真训练专属任务标准</li></ul></div>
+          <div class="feature"><h4>2.3 任务可视化编排与依赖调度知识域</h4><ul><li>拖拽式DAG任务编排、节点依赖、上下游关联配置</li><li>串行/并行/分支/循环/条件判断/子流程嵌套编排规则</li><li>任务优先级、权重、队列分级、资源配额配置方法论</li><li>跨任务数据依赖、模型版本依赖、算力资源依赖治理</li><li>复杂长链路任务拆分、解耦、断点续跑工程方案</li></ul></div>
+          <div class="feature"><h4>2.4 算力弹性调度与资源优化知识域</h4><ul><li>GPU/CPU/NPU异构算力适配、任务算力智能匹配规则</li><li>实时任务低延迟保障、批量任务错峰降本调度策略</li><li>算力负载均衡、资源抢占规避、空闲资源复用机制</li><li>任务超时、算力不足、资源抖动应急调度方案</li><li>多租户算力配额管控、超支限流、成本优化方法论</li></ul></div>
+          <div class="feature"><h4>2.5 任务故障自愈与可观测知识域</h4><ul><li>任务报错、超时、卡死、死锁、资源不足故障分类体系</li><li>自动重试、降级兜底、断点续跑、任务重启自愈机制</li><li>全链路日志追踪、耗时拆解、节点监控、异常告警规则</li><li>任务成功率、耗时、失败率、算力利用率指标监控体系</li><li>批量任务雪崩、任务堆积应急处置SOP</li></ul></div>
+          <div class="feature"><h4>2.6 TaskGraph任务知识图谱推理知识域</h4><ul><li>任务-模型-算力-故障-优化策略三元组抽取标准</li><li>任务依赖、时序执行、故障诱因、优化方案关联建模</li><li>任务失败多跳根因溯源（编排/算力/模型/数据四层）</li><li>场景自动推荐最优任务编排模板与算力调度方案</li><li>每日任务执行日志增量更新图谱权重、自治校准</li></ul></div>
+          <div class="feature"><h4>2.7 模型版本联动与灰度发布知识域</h4><ul><li>模型版本升级、回滚、灰度与任务链路联动规则</li><li>新旧模型任务并行对照、A/B实验流量分配机制</li><li>模型下线关联任务清理、资产归档闭环流程</li><li>自定义任务与通用模型的适配兼容规范</li><li>模型迭代驱动任务流程优化方法论</li></ul></div>
+          <div class="feature"><h4>2.8 多租户安全与成本治理知识域</h4><ul><li>企业/部门/项目三级任务权限隔离、资源隔离规范</li><li>任务算力消耗、Token消耗、存储占用精准计量规则</li><li>高危任务拦截、敏感数据任务脱敏、操作审计规范</li><li>任务配额管控、超支预警、梯度限流治理体系</li><li>月度任务成本复盘、资源利用率优化方法</li></ul></div>
+          <div class="feature"><h4>2.9 行业AI任务落地知识域</h4><ul><li>研发场景：模型微调、代码向量生成、文档批量向量化任务</li><li>办公场景：纪要生成、文档解析、知识库更新定时任务</li><li>政务场景：政策批量入库、语义更新、合规校验任务</li><li>工业场景：具身仿真训练、设备感知数据处理任务</li><li>客服场景：对话记忆更新、意图模型迭代任务SOP</li></ul></div>
+          <div class="feature"><h4>2.10 模型任务前沿演进知识域</h4><ul><li>零代码智能任务生成、自然语言转DAG编排技术</li><li>联邦任务调度、跨节点隐私安全任务执行方案</li><li>端云协同任务分流、轻量化边缘任务调度</li><li>任务-模型-数据-算力全域自治闭环迭代架构</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== S2 ==================== -->
+    <section id="s2" class="card glass">
+      <div class="card-header"><h2><i class="fa-solid fa-project-diagram"></i> 模型任务中台专属知识图谱（TaskGraph）体系</h2><span class="badge">核心实体 · 关联 · 智能能力</span></div>
+      <div class="card-body">
+        <p>TaskGraph模型任务知识图谱，是企业AI任务、模型、算力、依赖关系、故障类型、执行指标、优化策略、租户场景的全域任务智能关联网络。解决AI任务经验无法沉淀、故障排查低效、编排依赖混乱、算力调度无依据、重复开发痛点，实现场景智能推荐任务模板、故障一键多层溯源、低效任务自动优化、任务经验自治迭代。</p>
+        <div class="grid c2">
+          <div class="feature"><h4>3.1 TaskGraph核心实体体系</h4><ul><li>任务实体：训练、微调、推理、向量化、记忆更新、仿真评测、定时运维任务</li><li>模型实体：大语言、多模态、Embedding、具身世界模型、微调专项模型</li><li>算力实体：GPU/CPU/NPU、算力配额、算力负载、集群节点</li><li>依赖实体：数据依赖、模型版本依赖、前置任务依赖、资源依赖</li><li>场景实体：研发、办公、政务、工业、客服、具身机器人场景</li><li>故障实体：任务超时、执行失败、死锁、算力不足、数据异常、版本不兼容</li><li>指标实体：任务成功率、平均耗时、算力利用率、失败率、重试次数</li><li>优化策略实体：调整编排、错峰调度、扩容算力、优化依赖、更新模板</li><li>租户实体：企业、部门、项目组</li><li>资产模板实体：行业标准化DAG任务模板、算力调度模板</li></ul></div>
+          <div class="feature"><h4>3.2 TaskGraph核心关联关系</h4><ul><li>场景 ↔ 任务：工业场景绑定具身仿真、感知数据处理任务</li><li>任务 ↔ 模型：向量生成任务绑定Embedding专属模型</li><li>任务 ↔ 算力：微调任务适配高算力GPU节点</li><li>任务 ↔ 依赖：记忆更新任务依赖前置向量生成任务</li><li>故障 ↔ 诱因：任务超时多因算力负载过高、依赖节点阻塞</li><li>故障 ↔ 优化：任务失败率高→优化DAG编排、增加重试机制</li><li>租户 ↔ 任务：各租户任务资源物理隔离、配额独立管控</li><li>任务 ↔ 指标：复杂长链路任务耗时更高、失败风险更高</li><li>模型 ↔ 任务：模型版本更新联动关联任务适配升级</li><li>每日任务日志自动抽取三元组，增量更新图谱关联权重</li></ul></div>
+        </div>
+        <h3>3.3 TaskGraph八大核心智能能力</h3>
+        <div class="grid c2">
+          <div class="feature"><ul><li>AI任务编排、算力调度、故障处置经验自动结构化入库沉淀</li><li>输入业务场景，自动推荐最优任务DAG模板与算力调度方案</li></ul></div>
+          <div class="feature"><ul><li>任务失败、超时、死锁一键四层根因溯源（编排/算力/模型/数据）</li><li>自动识别低效、高耗时、高失败任务，推送编排优化、错峰调度工单</li></ul></div>
+          <div class="feature"><ul><li>同行业成熟任务模板智能复用推荐，大幅降低重复开发成本</li><li>每日任务执行数据自校准图谱权重，持续提升匹配与溯源精度</li></ul></div>
+          <div class="feature"><ul><li>模型版本迭代自动匹配适配任务，规避版本不兼容故障</li><li>任务运维新人快速检索同类场景任务落地案例与故障方案</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== S3 ==================== -->
+    <section id="s3" class="card glass">
+      <div class="card-header"><h2><i class="fa-solid fa-sitemap"></i> 模型任务中台六大完整架构</h2><span class="badge">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span></div>
+      <div class="card-body">
+        <h3>4.1 产品架构（九层分层全景架构）</h3>
+        <div class="feature"><ul><li>整体分层：多租户接入层 → 五层任务资产池层 → 可视化DAG编排层 → 智能算力调度层 → 全类型任务执行层 → TaskGraph任务图谱层 → 故障自愈可观测层 → 多租户计量安全层 → 自治迭代优化层</li><li>多租户接入层：全中台任务请求统一接入、租户鉴权、权限隔离、流量限流</li><li>五层任务资产池层：原子任务、组合任务、行业任务、模型专属任务、自定义脚本任务分层资产管控</li><li>可视化DAG编排层：拖拽式任务组装、依赖配置、分支循环、参数定义</li><li>智能算力调度层：算力匹配、错峰调度、负载均衡、配额管控</li><li>全类型任务执行层：批量/实时/流式/定时任务统一托管执行</li><li>TaskGraph图谱层：三元组抽取、任务溯源、方案推荐、权重自校准</li><li>故障自愈可观测层：全链路监控、异常告警、自动重试降级、断点续跑</li><li>多租户计量安全层：算力/任务成本计量、高危任务拦截、审计留存</li><li>自治迭代层：任务日志回流图谱，自动生成优化工单、资产迭代</li></ul></div>
+
+        <h3>4.2 业务架构（三层全域业务架构+八大标准业务域）</h3>
+        <div class="grid c2">
+          <div class="feature"><h4>三层全域业务架构</h4><ul><li>底层底座层：算力集群、数据预处理、存储、消息队列提供算力与数据底座</li><li>中层任务核心能力层：资产、编排、调度、执行、图谱、自愈、计量七大原子服务</li><li>上层赋能层：标准化任务能力输出至全品类AI中台与业务场景</li></ul></div>
+          <div class="feature"><h4>八大标准业务域</h4><ul><li>五层模型任务资产全生命周期业务域（注册-编排-上线-灰度-归档）</li><li>可视化DAG任务编排与依赖治理业务域</li><li>算力智能调度与资源优化业务域</li><li>全类型任务统一执行托管业务域</li><li>TaskGraph任务图谱推理与溯源业务域</li><li>任务故障自愈与全链路可观测业务域</li><li>模型版本联动与灰度发布业务域</li><li>多租户成本计量与安全合规业务域</li></ul></div>
+        </div>
+        <div class="alert success"><i class="fa-solid fa-circle-check"></i><div><strong>核心业务闭环：</strong>业务AI任务请求接入 → 匹配行业任务资产模板 → DAG编排校验依赖 → 智能分配算力资源 → 批量/实时任务执行 → 全链路监控采集指标 → 故障自动自愈兜底 → 任务日志回流TaskGraph → 图谱分析低效/故障任务 → 自动推送编排、算力优化工单 → 任务资产迭代升级。</div></div>
+
+        <h3>4.3 数据架构（七层模型任务专属数据架构）</h3>
+        <div class="feature"><ul><li>TSK-ODS原始接入层：任务请求、执行日志、算力消耗、故障告警、模型版本、租户操作原始数据</li><li>TSK-DWD明细清洗层：数据脱敏、时序对齐、无效任务过滤、字段标准化清洗</li><li>TSK-DWB全域宽表层：任务、模型、算力、租户、故障、指标、依赖全维度宽表</li><li>TSK-DWA知识关联层：自动抽取三元组，构建迭代更新TaskGraph任务知识图谱</li><li>TSK-DWS主题汇总层：任务资产、调度效能、故障质量、算力成本四大主题聚合</li><li>TSK-ADS指标应用层：任务成功率、算力利用率、失败率、耗时、成本核心指标</li><li>TSK-OPT自主优化层：低效、高故障、高成本任务沉淀，生成优化迭代工单</li></ul></div>
+
+        <h3>4.4 技术架构（任务编排+图推理双引擎七层技术架构）</h3>
+        <div class="feature"><ul><li>统一接入网关层：多中台任务接入、租户鉴权、路由分发、流量管控</li><li>分布式资源调度层：K8s集群、GPU异构算力调度、任务队列管理</li><li>DAG编排核心引擎：可视化任务组装、依赖解析、流程校验、执行驱动</li><li>TaskGraph图推理引擎：三元组抽取、多跳溯源、智能推荐、权重自校准</li><li>任务执行自愈引擎：多类型任务托管、重试降级、断点续跑、异常兜底</li><li>可观测计量引擎：全链路监控、指标统计、算力计量、安全审计</li><li>管理前端平台：任务编排工作台、图谱可视化、运维监控大屏、账单中心</li></ul></div>
+
+        <h3>4.5 应用架构（八大全域赋能应用）</h3>
+        <div class="grid c2">
+          <div class="feature"><ul><li>五层任务资产集市应用：行业任务模板检索、复用、版本管理</li><li>可视化DAG编排应用：零代码拖拽搭建复杂AI任务链路</li><li>智能算力调度应用：错峰调度、资源扩容、配额管控</li><li>全类型任务运维应用：任务启停、监控、重试、归档全流程管控</li><li>TaskGraph智能溯源应用：任务故障一键多层根因排查</li><li>模型版本灰度联动应用：模型迭代任务适配、A/B实验管理</li><li>多租户成本账单应用：分部门任务算力成本统计导出</li><li>自治优化运营应用：低效任务预警、自动生成优化工单</li></ul></div>
+        </div>
+
+        <h3>4.6 治理架构（六大全域模型任务治理体系）</h3>
+        <div class="grid c2">
+          <div class="feature"><ul><li>五层模型任务资产全生命周期治理规范</li><li>DAG任务编排与依赖关系标准化治理</li><li>算力调度资源常态化优化治理</li><li>TaskGraph图谱每日增量更新与权重校准治理</li><li>任务故障自愈与质量闭环治理</li><li>多租户任务权限、成本、安全合规治理</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== S4 ==================== -->
+    <section id="s4" class="card glass">
+      <div class="card-header"><h2><i class="fa-solid fa-puzzle-piece"></i> 模型任务中台全量产品功能模块</h2><span class="badge">全覆盖无遗漏</span></div>
+      <div class="card-body">
+        <div class="grid c2">
+          <div class="feature"><h4>模块1：五层模型任务资产池模块</h4><ul><li>原子基础任务库：数据清洗、模型推理、向量生成、日志采集基础单元</li><li>组合编排任务库：多原子任务组装的复合AI流程任务</li><li>行业场景任务库：研发/政务/工业/客服标准化任务模板包</li><li>模型专属任务库：大模型微调、Embedding生成、具身仿真专属任务</li><li>自定义脚本任务库：用户自定义脚本、第三方工具任务托管</li><li>资产版本管理、灰度发布、一键回滚、闲置资产归档</li></ul></div>
+          <div class="feature"><h4>模块2：可视化DAG任务编排模块</h4><ul><li>零代码拖拽式任务节点组装、流程可视化编辑</li><li>串行/并行/分支/循环/子流程/人工复核全节点支持</li><li>上下游依赖配置、参数传递、变量全局定义</li><li>任务优先级、超时时间、重试次数、降级策略配置</li><li>编排流程预跑校验、语法检测、依赖冲突检测</li><li>编排模板保存、一键复用、批量导出导入</li></ul></div>
+          <div class="feature"><h4>模块3：智能算力调度模块</h4><ul><li>GPU/CPU/NPU异构算力自动匹配对应任务类型</li><li>实时任务高优抢占、批量任务夜间错峰调度</li><li>算力负载均衡、节点自动扩容缩容、空闲资源复用</li><li>租户算力配额管控、超支梯度限流、任务排队机制</li><li>算力占用实时监控、资源瓶颈智能识别</li><li>算力调度策略模板化、场景一键适配</li></ul></div>
+          <div class="feature"><h4>模块4：全类型任务统一执行模块</h4><ul><li>定时任务：周期批量数据处理、模型更新、记忆刷新</li><li>实时任务：即时推理、即时向量生成、即时记忆更新</li><li>流式任务：Kafka增量数据持续处理、实时迭代</li><li>批量任务：海量数据集训练、微调、批量向量化</li><li>任务断点续跑、异常暂停、手动启停、强制终止</li><li>任务执行状态实时推送、进度可视化展示</li></ul></div>
+          <div class="feature"><h4>模块5：TaskGraph任务知识图谱模块</h4><ul><li>每日任务执行日志自动抽取三元组、增量入库图谱</li><li>图谱可视化展示任务-模型-算力-故障全域拓扑关系</li><li>业务场景自动推荐最优任务模板与算力调度方案</li><li>任务失败、超时、死锁一键四层根因溯源</li><li>自动识别低效高成本任务，推送编排优化、错峰调度工单</li><li>每日任务数据自校准图谱权重，持续提升智能精度</li></ul></div>
+          <div class="feature"><h4>模块6：故障自愈与全链路可观测模块</h4><ul><li>任务超时、报错、卡死、资源不足实时异常识别</li><li>自定义重试策略、自动降级、兜底任务执行</li><li>全链路日志追踪、节点耗时拆解、请求ID全局溯源</li><li>任务堆积、算力瓶颈、依赖阻塞实时告警</li><li>批量任务雪崩防护、流量削峰、任务队列管控</li><li>每日任务质量报表、故障复盘自动生成</li></ul></div>
+          <div class="feature"><h4>模块7：模型版本联动与灰度模块</h4><ul><li>模型版本更新自动检测、关联任务适配校验</li><li>新旧模型任务并行A/B对照、灰度流量比例配置</li><li>模型下线自动关联清理闲置任务、归档资产</li><li>任务版本与模型版本绑定溯源、全程可追溯</li><li>版本不兼容风险预检测、提前预警拦截</li><li>一键版本回滚、任务链路快速恢复</li></ul></div>
+          <div class="feature"><h4>模块8：多租户安全与计量模块</h4><ul><li>企业/部门/项目三级任务权限、算力资源隔离</li><li>任务算力消耗、运行时长、资源占用精准计量</li><li>高危任务、违规编排任务智能拦截</li><li>任务操作全链路审计、日志永久留存</li><li>租户月度算力成本账单自动生成、导出</li><li>任务数据脱敏、隐私合规防护</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== S5 ==================== -->
+    <section id="s5" class="card glass">
+      <div class="card-header"><h2><i class="fa-solid fa-chart-line"></i> 模型任务中台全套指标体系</h2><span class="badge">资产 · 编排 · 调度 · 执行 · 图谱 · 成本</span></div>
+      <div class="card-body">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td>任务资产治理指标</td><td>五层任务资产标准化覆盖率100%；行业任务模板复用率 ≥85%；闲置低效任务资产占比 ≤8%；任务版本规范率100%；资产盘点归档闭环率100%</td></tr>
+              <tr><td>DAG编排质量指标</td><td>任务依赖冲突检出率100%；编排预跑校验通过率 ≥99.5%；复杂任务拆解合理率 ≥96%；模板标准化适配率100%；编排故障发生率 ≤1%</td></tr>
+              <tr><td>算力调度效能指标</td><td>集群GPU综合利用率 ≥80%；批量任务错峰成本降幅 ≥35%；算力资源匹配准确率 ≥97%；任务排队超时率 ≤2%；算力扩容响应时长 ≤30s</td></tr>
+              <tr><td>任务执行核心指标</td><td>全局任务成功率 ≥99.2%；任务故障自愈率 ≥99%；断点续跑恢复成功率100%；实时任务P95延迟 ≤100ms；批量任务按期完成率100%</td></tr>
+              <tr><td>TaskGraph图谱专项指标</td><td>全AI任务场景覆盖率100%；任务三元组完整率 ≥99.7%；任务模板推荐准确率 ≥96%；故障四层根因推理准确率 ≥98%；图谱日增量更新及时率 ≥99.5%；图谱赋能任务优化贡献率 ≥38%</td></tr>
+              <tr><td>安全与成本治理指标</td><td>多租户任务隔离合规率100%；算力计量误差趋近0；高危任务拦截率100%；全链路审计日志留存率100%；超支限流执行率100%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== S6 ==================== -->
+    <section id="s6" class="card glass">
+      <div class="card-header"><h2><i class="fa-solid fa-boxes"></i> 模型任务中台完整内容资产体系</h2><span class="badge">6大资产包</span></div>
+      <div class="card-body">
+        <div class="grid c2">
+          <div class="feature"><h4>7.1 顶层规划资产</h4><ul><li>模型任务中台建设白皮书</li><li>分阶段落地实施路线图</li><li>企业AI任务工程化成熟度评估报告</li><li>模型任务与全AI中台协同长效方案</li></ul></div>
+          <div class="feature"><h4>7.2 全域标准规范资产</h4><ul><li>五层模型任务资产分层标准</li><li>DAG任务编排与依赖配置规范</li><li>算力智能调度资源分配标准</li><li>TaskGraph三元组抽取与更新标准</li><li>任务故障自愈与评测指标规范</li><li>多租户任务计量与安全合规规范</li></ul></div>
+          <div class="feature"><h4>7.3 模型任务核心数字资产</h4><ul><li>全行业AI任务标准化DAG模板资产库</li><li>算力调度策略配置资产包</li><li>模型版本联动适配规则库</li><li>TaskGraph模型任务知识图谱资产包</li><li>任务故障自愈策略资产库</li><li>任务质量评测标准数据集</li></ul></div>
+          <div class="feature"><h4>7.4 落地工程资产</h4><ul><li>模型任务中台部署实施手册</li><li>DAG可视化编排操作指南</li><li>TaskGraph可视化运维手册</li><li>跨中台任务对接API文档</li><li>上线验收指标评估模板</li></ul></div>
+          <div class="feature"><h4>7.5 运营复盘资产</h4><ul><li>月度任务质量与算力成本分析报告</li><li>任务故障专项复盘报告</li><li>行业任务落地优化成果报告</li><li>多租户算力成本台账</li></ul></div>
+          <div class="feature"><h4>7.6 应急保障资产</h4><ul><li>大规模任务雪崩应急预案</li><li>算力集群负载过载处置方案</li><li>大批量任务失败自愈恢复手册</li><li>TaskGraph图谱损坏应急恢复预案</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== S7 ==================== -->
+    <section id="s7" class="card glass">
+      <div class="card-header"><h2><i class="fa-solid fa-share-alt"></i> 模型任务中台与全中台全域协同关系</h2><span class="badge">12 大中台协同</span></div>
+      <div class="card-body">
+        <div class="grid c3">
+          <div class="feature"><h4>算力中台</h4><ul><li>承接任务中台算力调度指令，提供GPU/CPU/NPU弹性异构算力，支撑全类型AI任务执行</li></ul></div>
+          <div class="feature"><h4>数据预处理中台</h4><ul><li>接收任务调度指令，执行数据清洗、脱敏、分块预处理任务</li></ul></div>
+          <div class="feature"><h4>训练中台</h4><ul><li>由任务中台托管训练、微调、蒸馏、量化全流程任务</li></ul></div>
+          <div class="feature"><h4>Embedding中台</h4><ul><li>批量/实时向量生成任务由模型任务中台统一编排调度</li></ul></div>
+          <div class="feature"><h4>记忆中台</h4><ul><li>记忆抽取、蒸馏、更新、过期清理任务统一托管执行</li></ul></div>
+          <div class="feature"><h4>向量库中台</h4><ul><li>向量索引构建、增量更新任务由任务中台统一调度</li></ul></div>
+          <div class="feature"><h4>RAG中台</h4><ul><li>知识库更新、检索优化、评测任务统一编排</li></ul></div>
+          <div class="feature"><h4>Agent中台</h4><ul><li>智能体链式任务、工具调用任务底层调度支撑</li></ul></div>
+          <div class="feature"><h4>Copilot中台</h4><ul><li>副驾驶后台模型推理、记忆更新、技能迭代任务托管</li></ul></div>
+          <div class="feature"><h4>具身智能中台</h4><ul><li>仿真训练、感知处理、运动策略迭代任务统一调度</li></ul></div>
+          <div class="feature"><h4>MCP中台</h4><ul><li>任务能力标准化封装为MCP资源，对外统一输出</li></ul></div>
+          <div class="feature"><h4>效能中台</h4><ul><li>采集任务成功率、算力利用率、成本指标，输出AI工程化ROI分析</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== S8 ==================== -->
+    <section id="s8" class="card glass">
+      <div class="card-header"><h2><i class="fa-solid fa-flag"></i> 模型任务中台核心价值总结</h2></div>
+      <div class="card-body">
+        <div class="alert success"><i class="fa-solid fa-circle-check"></i>
+        <div>
+          1. 企业全域AI任务统一管控底座，彻底消除各AI中台任务零散、脚本化、无治理的烟囱问题，一套平台托管训练、推理、向量、记忆、仿真全类型AI任务，AI工程化研发运维成本下降75%以上；<br>
+          2. 可视化DAG零代码编排，复杂AI长链路任务标准化资产化，大幅降低AI任务开发门槛，支持快速复用迭代；<br>
+          3. 算力智能弹性调度，错峰执行批量任务、高优保障实时任务，算力综合利用率提升35%+，显著降低企业AI算力成本；<br>
+          4. TaskGraph专属任务知识图谱，沉淀全量任务运维经验，实现故障多层溯源、场景智能推荐、低效任务自治优化，持续提升AI任务稳定性；<br>
+          5. 全链路故障自愈与可观测体系，实现任务异常自动重试、降级、兜底，AI任务成功率、稳定性大幅提升，减少人工运维干预；<br>
+          6. 模型版本与任务强联动，实现灰度发布、版本回滚、风险预控，保障AI模型迭代平稳落地；<br>
+          7. 多租户精细化算力成本计量与权限隔离，实现AI任务资源可管、可控、可核算、可复盘；<br>
+          8. 全域打通AI全中台链路，是企业AI工程化落地、规模化迭代、低成本运维的核心任务调度中枢与自动化底座。
+        </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ==================== 模态 ==================== -->
+<div class="modal-mask" id="modal" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3>模块详情</h3>
+    <p>这里是渐进式披露的详细内容示例。</p>
+    <div class="modal-actions">
+      <button class="tab" onclick="closeModal()">取消</button>
+      <button class="tab active" onclick="closeModal()">确定</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ========= 主题切换 ========= */
+function toggleTheme(){
+  const html=document.documentElement;
+  html.dataset.theme=html.dataset.theme==='dark'?'light':'dark';
+}
+/* ========= Tabs ========= */
+function switchTab(el,id){
+  el.parentElement.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('arch').hidden=true;
+  document.getElementById('def').hidden=true;
+  document.getElementById(id).hidden=false;
+}
+/* ========= 搜索预测 ========= */
+let debounce;
+document.getElementById('searchInput').addEventListener('input',e=>{
+  clearTimeout(debounce);
+  debounce=setTimeout(()=>{
+    const v=e.target.value.toLowerCase();
+    document.querySelectorAll('.feature').forEach(f=>{
+      f.style.display=f.textContent.toLowerCase().includes(v)?'':'none';
+    });
+  },200);
+});
+/* ========= 骨架屏 ========= */
+setTimeout(()=>document.getElementById('skeleton').style.display='none',1200);
+/* ========= 模态 ========= */
+function openModal(){document.getElementById('modal').style.display='grid'}
+function closeModal(){document.getElementById('modal').style.display='none'}
+/* ========= 拖拽 ========= */
+const list=document.createElement('ul');
+list.className='drag-list';
+['任务资产','DAG编排','算力调度'].forEach(t=>{
+  const li=document.createElement('li');
+  li.className='drag-item';li.textContent=t;
+  li.draggable=true;
+  li.addEventListener('dragstart',()=>li.classList.add('dragging'));
+  li.addEventListener('dragend',()=>li.classList.remove('dragging'));
+  list.appendChild(li);
+});
+document.querySelector('.card-body').appendChild(list);
+
+list.addEventListener('dragover',e=>{
+  e.preventDefault();
+  const after=getDragAfterElement(list,e.clientY);
+  const drag=document.querySelector('.dragging');
+  if(after==null)list.appendChild(drag);
+  else list.insertBefore(drag,after);
+});
+function getDragAfterElement(container,y){
+  return [...container.querySelectorAll('.drag-item:not(.dragging)')].reduce((closest,child)=>{
+    const box=child.getBoundingClientRect();
+    const offset=y-box.top-box.height/2;
+    if(offset<0 && offset>closest.offset)return{offset,element:child};
+    return closest;
+  },{offset:Number.NEGATIVE_INFINITY}).element;
+}
+/* ========= 滚动监听 ========= */
+const sections=[...document.querySelectorAll('section[id]')];
+window.addEventListener('scroll',()=>{
+  let cur='';
+  sections.forEach(s=>{if(pageYOffset>=s.offsetTop-120)cur=s.id});
+  document.querySelectorAll('#navLinks a').forEach(a=>{
+    a.classList.toggle('active',a.getAttribute('href')==='#'+cur);
+  });
+});
+</script>
+</body>
+</html>

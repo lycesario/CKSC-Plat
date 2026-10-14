@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>企业级业务中台完整体系说明书</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ===== 设计系统 Token ===== */
+    :root {
+      --color-primary: #7a2e1a;
+      --color-primary-light: #fce9e0;
+      --color-primary-dark: #4d1c0e;
+      --color-accent: #b85c3a;
+      --color-accent-soft: #f0c8b8;
+      --color-neutral-50: #fcf9f7;
+      --color-neutral-100: #f5ede8;
+      --color-neutral-200: #e5d7ce;
+      --color-neutral-300: #cbb8ab;
+      --color-neutral-400: #a68b7a;
+      --color-neutral-600: #6f5544;
+      --color-neutral-700: #4f3a2e;
+      --color-neutral-800: #34241c;
+      --color-neutral-900: #1e140f;
+      --color-gold: #c29a4a;
+      --color-gold-light: #f3e1b0;
+      --font-base: 1rem;
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --radius-sm: 0.75rem;
+      --radius-md: 1.25rem;
+      --radius-card: 2rem;
+      --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(60, 30, 10, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(60, 30, 10, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(60, 30, 10, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(255, 249, 245, 0.88);
+      backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(255, 235, 220, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); }
+    .sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+    .sidebar nav ul { list-style:none; padding:0; margin:0; }
+    .sidebar nav ul li { margin-bottom:0.1rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:12px;
+      padding:0.55rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.85rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+    }
+    .sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+    .sidebar nav ul li a:hover { background:var(--color-primary-light); color:var(--color-primary-dark); transform:translateX(4px); }
+    .sidebar-footer { margin-top:24px; padding:12px; text-align:center; font-size:0.7rem; color:var(--color-neutral-600); border-top:1px solid var(--color-neutral-200); }
+
+    /* ===== 主内容 ===== */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex; align-items:center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem); font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+    .page-header .header-meta { font-size:0.9rem; color:var(--color-neutral-600); background:var(--color-neutral-100); padding:0.4rem 1.2rem; border-radius:var(--radius-pill); border:1px solid var(--color-neutral-200); }
+
+    /* ===== 卡片 ===== */
+    .card {
+      background:rgba(255,252,248,0.92); backdrop-filter: blur(4px);
+      border-radius:var(--radius-card); box-shadow:var(--shadow-card); margin-bottom:var(--space-6);
+      border:1px solid rgba(255, 235, 220, 0.5); overflow:hidden; transition: box-shadow var(--transition-default), transform 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6); background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft); display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 { font-size:clamp(1.2rem, 2.2vw, 1.6rem); font-weight:700; color:var(--color-primary-dark); display:flex; align-items:center; gap:12px; }
+    .card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+    .card-header .badge-count { margin-left:auto; background:var(--color-accent); color:white; border-radius:var(--radius-pill); padding:0.15rem 0.9rem; font-size:0.7rem; font-weight:600; }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* ===== 网格 ===== */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3 { grid-template-columns:1fr; } .sidebar { display:none; } .layout { padding:0.5rem; } .card-body { padding:1.25rem var(--space-4); } }
+
+    /* ===== 知识卡片 ===== */
+    .gov-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md); padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200); transition: all var(--transition-default);
+      position:relative; overflow:hidden; border-left: 4px solid var(--color-accent);
+    }
+    .gov-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft)); opacity:0; transition: opacity var(--transition-default); }
+    .gov-card:hover::before { opacity:1; }
+    .gov-card:hover { border-color:var(--color-accent-soft); box-shadow: 0 8px 24px -8px rgba(184,92,58,0.15); transform:translateY(-3px); }
+    .gov-card .gov-icon { font-size:1.8rem; color:var(--color-primary); display:inline-block; margin-right:6px; background: var(--color-primary-light); padding:0.2rem 0.6rem; border-radius:12px; }
+    .gov-card h4 { color:var(--color-primary-dark); font-size:1.05rem; margin-bottom:0.4rem; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .gov-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+    .gov-card .detail-list { padding-left:0; margin:0.4rem 0 0 0; list-style:none; }
+    .gov-card .detail-list li { margin-bottom:0.25rem; padding-left:1.2rem; position:relative; font-size:0.85rem; color:var(--color-neutral-700); }
+    .gov-card .detail-list li::before { content:'▹'; position:absolute; left:0; color:var(--color-accent); font-weight:600; }
+    .gov-card .detail-list li strong { color:var(--color-neutral-800); }
+
+    /* ===== 架构层 ===== */
+    .arch-diagram { display:flex; flex-direction:column; gap:0.6rem; padding:0.5rem 0; }
+    .arch-layer {
+      display:flex; align-items:stretch; gap:0.75rem; background:var(--color-neutral-50);
+      border-radius:var(--radius-md); padding:0.6rem 1rem; border:1px solid var(--color-neutral-200); transition: var(--transition-default);
+    }
+    .arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+    .arch-layer .layer-label { display:flex; flex-direction:column; justify-content:center; min-width:120px; padding-right:1rem; border-right:2px solid var(--color-neutral-200); font-weight:700; font-size:0.8rem; color:var(--color-primary-dark); }
+    .arch-layer .layer-label i { font-size:1.1rem; color:var(--color-accent); margin-bottom:0.1rem; }
+    .arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+    .arch-layer .layer-blocks { display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem; flex:1; padding:0.2rem 0; }
+    .arch-block { background:white; border-radius:var(--radius-sm); padding:0.3rem 0.9rem; border:1px solid var(--color-neutral-200); font-size:0.75rem; font-weight:500; color:var(--color-neutral-700); transition: var(--transition-default); }
+    .arch-block:hover { border-color:var(--color-accent); background:var(--color-primary-light); color:var(--color-primary-dark); transform:translateY(-1px); }
+    .arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+
+    /* ===== 表格 ===== */
+    .table-wrapper { overflow-x:auto; border-radius:var(--radius-md); border:1px solid var(--color-neutral-200); background:white; }
+    table { width:100%; border-collapse:collapse; font-size:0.78rem; }
+    th { background:var(--color-neutral-100); padding:12px 10px; font-weight:600; color:var(--color-primary-dark); text-align:left; border-bottom:2px solid var(--color-neutral-200); font-size:0.7rem; text-transform:uppercase; }
+    td { padding:10px 10px; border-bottom:1px solid var(--color-neutral-200); vertical-align:middle; color:var(--color-neutral-700); }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--color-neutral-50); }
+
+    /* ===== 文本 ===== */
+    .content-text { font-size: 0.95rem; color: var(--color-neutral-700); line-height: 1.8; margin-bottom: 1rem; }
+    .content-text strong { color: var(--color-primary-dark); }
+    .section-title { font-size: 1.2rem; font-weight: 700; color: var(--color-primary-dark); margin: 1.5rem 0 1rem 0; border-bottom: 2px solid var(--color-primary-light); padding-bottom: 0.5rem; }
+    .subsection-title { font-size: 1.05rem; font-weight: 600; color: var(--color-neutral-800); margin: 1.2rem 0 0.8rem 0; }
+    .normal-list { padding-left: 1.5rem; margin-bottom: 1rem; color: var(--color-neutral-700); font-size: 0.9rem; line-height: 1.7; }
+    .normal-list li { margin-bottom: 0.3rem; }
+    .normal-list li strong { color: var(--color-neutral-800); }
+    .info-tip { background:var(--color-neutral-50); border-radius:var(--radius-md); padding:0.7rem 1.5rem; border-left:5px solid var(--color-accent); margin-top:var(--space-4); display:flex; align-items:center; gap:0.8rem; font-size:0.9rem; color:var(--color-neutral-700); }
+    .info-tip i { color:var(--color-accent); font-size:1rem; }
+
+    /* ===== 价值 ===== */
+    .value-header { text-align: center; margin-bottom: 2rem; }
+    .value-header .icon-big { font-size: 2.8rem; color: var(--color-primary); opacity: 0.8; margin-bottom: 0.5rem; }
+    .value-header h2 { font-size: clamp(1.6rem, 2.8vw, 2.2rem); color: var(--color-primary-dark); margin-bottom: 0.25rem; }
+    .value-subtitle { font-size: 1rem; color: var(--color-neutral-600); letter-spacing: 2px; font-weight: 300; }
+    .value-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin: 1.5rem 0 2rem 0; }
+    .value-item { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(4px); padding: 1.2rem 1.4rem; border-radius: var(--radius-md); border: 1px solid rgba(255, 235, 220, 0.5); transition: all 0.3s ease; }
+    .value-item:hover { transform: translateY(-3px); box-shadow: var(--shadow-card-hover); border-color: var(--color-accent-soft); background: rgba(255, 255, 255, 0.85); }
+    .value-item .value-icon { flex-shrink: 0; width: 2.8rem; height: 2.8rem; display: flex; align-items: center; justify-content: center; background: var(--color-primary-light); border-radius: 50%; color: var(--color-accent); font-size: 1.2rem; }
+    .value-item .value-content h4 { font-size: 1rem; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 0.3rem; line-height: 1.3; }
+    .value-item .value-content p { font-size: 0.9rem; color: var(--color-neutral-700); line-height: 1.6; margin: 0; }
+    .value-item.full-width { grid-column: 1 / -1; }
+    @media (max-width: 768px) { .value-grid { grid-template-columns: 1fr; gap: 1rem; } }
+
+    /* ===== 暗色 ===== */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #1a1410; --color-neutral-100: #221c18; --color-neutral-200: #3a2c24; --color-neutral-700: #d0c4b8; --color-neutral-800: #e8dcd0; --color-neutral-900: #f5ede6;
+        --color-primary-light: #3a2a20; --color-accent-soft: #6a4a3a; --color-primary: #d08a6a; --color-primary-dark: #f0c8b0; --color-accent: #c07a5a; --color-gold: #c29a4a; --color-gold-light: #4a3a20;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6); --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #120e0a; }
+      .card { background: #1a1410; border-color: #3a2c24; }
+      .card-header { background: #1a1410; border-bottom-color: #4a3a2e; }
+      .gov-card { background: #1a1410; border-color: #3a2c24; }
+      .gov-card .gov-icon { background: #2a1e16; color: #d08a6a; }
+      .gov-card .detail-list li { color: #c0b4a8; }
+      .table-wrapper { background: #1a1410; border-color: #3a2c24; }
+      th { background: #221c18; color: #e0d4c8; border-bottom-color: #4a3a2e; }
+      td { border-bottom-color: #2a241e; color: #c0b4a8; }
+      .sidebar { background: rgba(20, 16, 12, 0.92); border-color: #3a2c24; }
+      .sidebar-brand { border-bottom-color: #4a3a2e; }
+      .sidebar nav ul li a { color: #c0b4a8; }
+      .sidebar nav ul li a:hover { background: #3a2c24; color: white; }
+      .info-tip { background: #1a1410; border-left-color: #c07a5a; color: #c0b4a8; }
+      .page-header h1 { background:linear-gradient(135deg,#f0c8b0,#d08a6a); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#2a241e; border-color:#4a3a2e; color:#b8a89c; }
+      .arch-layer { background:#1a1410; border-color:#3a2c24; }
+      .arch-layer .layer-label { border-right-color:#3a2c24; color:#e0d4c8; }
+      .arch-block { background:#1a1410; border-color:#3a2c24; color:#c0b4a8; }
+      .value-item { background: rgba(30, 24, 20, 0.7); border-color: var(--color-neutral-200); }
+      .value-item:hover { background: rgba(40, 32, 26, 0.9); border-color: var(--color-accent-soft); }
+      .value-item .value-content p { color: var(--color-neutral-600); }
+      .value-subtitle { color: var(--color-neutral-400); }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-sitemap" aria-hidden="true"></i>
+      <h3>业务中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-book-open"></i> 业务中台定义</a></li>
+        <li><a href="#s1"><i class="fas fa-book"></i> 知识体系+图谱</a></li>
+        <li><a href="#s2"><i class="fas fa-sitemap"></i> 六大核心架构</a></li>
+        <li><a href="#s3"><i class="fas fa-puzzle-piece"></i> 产品功能模块</a></li>
+        <li><a href="#s4"><i class="fas fa-chart-line"></i> 全套指标体系</a></li>
+        <li><a href="#s5"><i class="fas fa-boxes"></i> 完整内容体系</a></li>
+        <li><a href="#s6"><i class="fas fa-share-alt"></i> 四大中台对照</a></li>
+        <li><a href="#s7"><i class="fas fa-flag"></i> 核心价值总结</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-sitemap"></i> 业务中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-sitemap"></i> 企业级业务中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> 全结构化完整版</span>
+    </header>
+
+    <!-- ===== S0 业务中台定义 ===== -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> 业务中台完整定义</h2>
+        <span class="badge-count">通用总述</span>
+      </div>
+      <div class="card-body">
+        <div class="section-title">1.1 标准官方定义</div>
+        <div class="content-text">
+          业务中台（Business Middle Platform）是企业级全域通用业务能力标准化、组件化、服务化、可复用的核心业务能力中枢。基于领域驱动设计思想，拆解企业各业务线重复、共性、通用的核心业务能力，通过统一业务标准、统一业务流程、统一业务规则、统一业务服务封装，沉淀为标准化可复用的业务组件与微服务，彻底解决企业业务碎片化、能力重复建设、流程不统一、前台迭代慢、多业态无法协同、业务口径混乱等核心问题，实现一次沉淀、全域复用、前台快速创新、多业态统一管控、业务能力资产化的数字化业务核心中台。
+        </div>
+        
+        <div class="section-title">1.2 核心本质与定位</div>
+        <div class="content-text">
+          业务中台是承接上层前台业务场景、下层技术/数据/AI中台底座的核心业务能力中间层，聚焦「通用业务能力沉淀、业务流程标准化、业务规则统一、多业态能力复用」，承载企业所有非场景化的通用核心业务逻辑，为全渠道、多业态前台业务提供标准化业务能力支撑，是企业数字化业务架构的核心载体。
+        </div>
+        <ol class="normal-list">
+          <li><strong>战略定位：</strong>企业业务能力复用中心、业务标准化管控中心、前台快速创新赋能中心、多业态统一协同中枢；</li>
+          <li><strong>核心本质：</strong>将零散、重复、定制化的共性业务能力，沉淀为标准化、组件化、可编排、可扩展、可运营的企业业务资产；</li>
+          <li><strong>核心特征：</strong>领域化拆分、能力原子化、服务标准化、流程可编排、规则可配置、多业态适配、全链路可复用、业务可运营；</li>
+          <li><strong>四大中台精准边界区分</strong><br>
+          - 技术中台：管技术底座、研发运维、架构治理，解决「系统怎么建、怎么稳、怎么快迭代」；<br>
+          - 数据中台：管数据资产、数据治理、数据服务，解决「数据可信、数据复用、数据价值释放」；<br>
+          - 业务中台：管业务能力、业务流程、业务规则、业务实体，解决「业务逻辑复用、业务标准统一、前台快速创新」；<br>
+          - AI中台：管算法模型、智能推理、智能决策，解决「业务智能化赋能」。</li>
+        </ol>
+        
+        <div class="section-title">1.3 建设核心目标</div>
+        <ol class="normal-list">
+          <li>拆解全域通用业务能力，消除各业务线重复业务开发，实现业务能力全域复用；</li>
+          <li>统一企业业务标准、业务口径、业务流程、业务规则，解决业务混乱、业态割裂问题；</li>
+          <li>原子化、组件化业务能力，支持前台场景快速拼装、快速创新、试错迭代；</li>
+          <li>实现多业态、全渠道业务统一管控、统一协同、统一运营；</li>
+          <li>沉淀企业核心业务资产，构建可积累、可迭代、可演进的业务能力体系；</li>
+          <li>支撑精细化运营、全域用户经营、全链路交易履约、合规业务管控；</li>
+          <li>实现业务与技术解耦、业务与场景解耦，大幅降低前台创新成本与周期。</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== S1 知识体系+图谱 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book"></i> 业务中台完整知识体系 + 业务知识图谱体系</h2>
+        <span class="badge-count">知识域+图谱体系</span>
+      </div>
+      <div class="card-body">
+        <div class="content-text" style="margin-bottom: 1.5rem;">以领域驱动设计DDD、企业业务架构、业务流程管理、业务规则引擎、业务资产运营为核心底层，融合阿里业务中台方法论、TOGAF企业架构、BPM流程体系、业务建模标准，形成7大核心知识域，并配套完整业务知识图谱体系，实现业务知识结构化、关联化、可视化、可检索复用。</div>
+        
+        <div class="subsection-title">2.1 业务战略与架构规划知识域</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>企业业务战略拆解、全域业务域划分、业务能力图谱规划</li>
+          <li>企业业务架构方法论、多业态业务统一与差异化设计</li>
+          <li>业务能力成熟度评估、业务架构演进路线、业务资产沉淀规划</li>
+          <li>大中台小前台架构设计、业务解耦与分层复用原则</li>
+        </ul></div>
+        
+        <div class="subsection-title">2.2 DDD领域建模知识域（核心基础）</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>领域边界划分、限界上下文设计、业务实体与值对象定义</li>
+          <li>聚合根、领域服务、领域事件、仓储模型设计规范</li>
+          <li>业务能力原子化拆分、能力粒度标准、服务拆分最佳实践</li>
+          <li>领域模型迭代、模型兼容性、业务模型与场景解耦设计</li>
+        </ul></div>
+        
+        <div class="subsection-title">2.3 业务流程与编排知识域</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-stream"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>BPM业务流程管理、流程建模、流程编排、流程分支与会签</li>
+          <li>全域业务链路梳理、跨域业务协同、流程标准化与个性化适配</li>
+          <li>流程自动化、流程优化、流程效率评估、流程版本管控</li>
+          <li>事件驱动业务、领域事件分发、业务流程联动机制</li>
+        </ul></div>
+        
+        <div class="subsection-title">2.4 业务规则与策略知识域</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-gavel"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>业务规则拆解、规则配置化、规则热更新、规则优先级管控</li>
+          <li>营销规则、定价规则、会员规则、风控规则、履约规则体系</li>
+          <li>多业态差异化规则适配、规则冲突检测、规则版本管理</li>
+          <li>业务策略组合、策略动态路由、场景化策略匹配</li>
+        </ul></div>
+        
+        <div class="subsection-title">2.5 业务资产与运营知识域</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>业务组件资产、业务服务资产、业务规则资产、流程资产盘点</li>
+          <li>业务资产复用度、活跃度、健康度评估体系</li>
+          <li>业务能力运营、业务效率优化、业务价值量化</li>
+          <li>业务资产生命周期管理（创建、上线、迭代、下线、归档）</li>
+        </ul></div>
+        
+        <div class="subsection-title">2.6 业务集成与协同知识域</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>跨业务域协同、中台与前台集成、中台与数据/技术中台协同</li>
+          <li>业务服务API标准化、服务编排、服务组合调用规范</li>
+          <li>异构系统业务对接、业务数据同步、业务事件联动</li>
+          <li>多终端、多渠道、多业态业务统一接入适配</li>
+        </ul></div>
+        
+        <div class="subsection-title">2.7 业务合规与治理知识域</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>行业业务监管规范、业务合规流程、业务风控规范</li>
+          <li>业务权限治理、业务操作审计、业务风险管控</li>
+          <li>业务标准治理、口径统一治理、流程规范治理</li>
+          <li>业务变更治理、业务版本治理、业务故障治理</li>
+        </ul></div>
+        
+        <div class="subsection-title">2.8 业务专属知识图谱体系（新增专项内容）</div>
+        <div class="content-text" style="margin-bottom: 1.5rem;">业务知识图谱是业务中台结构化、关联化、可视化的全域业务知识资产库，将零散的业务术语、实体、流程、规则、能力、口径、案例构建为关联网络，实现业务知识可检索、可溯源、可复用、可推演，支撑业务标准化与智能化。</div>
+        
+        <div class="subsection-title">1. 知识图谱核心构成维度</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-users"></i></span><h4>业务实体图谱</h4><ul class="detail-list"><li>用户、商品、订单、支付、会员、营销、库存、供应商、渠道等全域业务实体及属性</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>业务关系图谱</h4><ul class="detail-list"><li>实体间关联关系（用户-下单-商品-履约-支付-售后）、跨域业务依赖关系</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-stream"></i></span><h4>业务流程图谱</h4><ul class="detail-list"><li>全域标准业务链路、流程节点、分支逻辑、协同关系、流转规则</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-gavel"></i></span><h4>业务规则图谱</h4><ul class="detail-list"><li>各类业务规则、策略条件、执行结果、规则依赖、冲突关联</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cogs"></i></span><h4>业务能力图谱</h4><ul class="detail-list"><li>所有中台业务组件、服务能力、适用场景、输入输出、复用范围</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>业务口径图谱</h4><ul class="detail-list"><li>业务术语、指标口径、业务定义、统计规则、口径关联关系</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">2. 知识图谱核心能力</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>全域业务可视化拓扑</h4><ul class="detail-list"><li>直观展示企业完整业务架构与业务链路</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-search"></i></span><h4>业务知识智能检索</h4><ul class="detail-list"><li>按业务场景、实体、规则、能力快速检索对应业务资产</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-code-branch"></i></span><h4>业务血缘溯源</h4><ul class="detail-list"><li>业务能力、流程、规则的来源、变更、影响范围溯源</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exclamation-triangle"></i></span><h4>业务冲突智能检测</h4><ul class="detail-list"><li>流程冲突、规则冲突、口径冲突、能力冗余检测</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-magic"></i></span><h4>业务场景智能推荐</h4><ul class="detail-list"><li>基于场景自动匹配可复用业务组件与规则模板</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>业务知识迭代沉淀</h4><ul class="detail-list"><li>业务变更自动更新图谱，持续积累企业业务知识库</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3. 知识图谱应用价值</div>
+        <div class="content-text">解决企业业务知识零散、人员经验不可传承、业务标准不统一、新人上手慢、场景复用难的问题，实现企业业务经验资产化、业务知识结构化、业务能力智能化复用。</div>
+      </div>
+    </section>
+
+    <!-- ===== S2 六大核心架构 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> 业务中台六大核心架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span>
+      </div>
+      <div class="card-body">
+        <div class="subsection-title">3.1 产品架构（平台产品分层全景）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">整体分层：底层技术&数据底座层 → 全域业务治理层 → 核心业务组件服务层 → 业务流程规则编排层 → 业务能力开放服务层 → 业务运营可视化层</div>
+        <div class="arch-diagram" style="margin-bottom: 2rem;">
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-cubes"></i> 底层支撑底座产品</div><div class="layer-blocks"><span class="arch-block">依托技术中台云原生底座、微服务治理、DevOps、安全能力；依托数据中台数据资产、指标、标签、数据服务能力，为业务中台提供技术与数据支撑</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-shield-alt"></i> 全域业务治理产品</div><div class="layer-blocks"><span class="arch-block">业务标准中心、业务口径管理、业务权限管控、业务版本治理、业务审计中心、业务知识图谱平台</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-box"></i> 核心业务组件服务产品</div><div class="layer-blocks"><span class="arch-block">用户中心、会员中心、商品产品中心、订单中心、支付结算中心、履约物流中心、营销活动中心、优惠券积分中心、库存中心、供应商中心、售后客服中心、风控业务中心、财务业务中心</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-cogs"></i> 业务编排能力产品</div><div class="layer-blocks"><span class="arch-block">BPM流程引擎、业务规则引擎、业务策略引擎、场景编排平台、事件驱动中心</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-store"></i> 业务开放服务产品</div><div class="layer-blocks"><span class="arch-block">业务API网关、业务服务市场、服务注册发布、服务授权调用、服务监控计量</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-pie"></i> 业务运营可视化产品</div><div class="layer-blocks"><span class="arch-block">业务运营大屏、业务效率看板、组件复用分析、业务健康度监控、业务问题预警平台</span></div></div>
+        </div>
+        
+        <div class="subsection-title">3.2 业务架构（全域业务分层与域架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">上层：前台场景消费层 | 中层：业务中台能力层（全域通用业务组件、标准化业务流程、可配置业务规则） | 下层：基础底座支撑层（技术中台、数据中台、硬件与云资源）</div>
+        
+        <div class="subsection-title">3.2.1 三层业务架构</div>
+        <ol class="normal-list" style="margin-bottom: 1.5rem;">
+          <li><strong>上层：前台场景消费层</strong><br>APP、小程序、官网、线下门店、第三方渠道、运营后台、营销场景、交易场景、服务场景、风控场景、财务场景等所有个性化业务前台。</li>
+          <li><strong>中层：业务中台能力层（核心）</strong><br>沉淀全域通用业务组件、标准化业务流程、可配置业务规则，为所有前台场景提供无差别通用业务能力支撑，实现场景个性化、能力通用化。</li>
+          <li><strong>下层：基础底座支撑层</strong><br>技术中台提供技术底座，数据中台提供数据资产与分析能力，硬件与云资源提供基础设施支撑。</li>
+        </ol>
+        
+        <div class="subsection-title">3.2.2 企业标准业务域划分（全行业通用全域业务域）</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-users"></i></span><h4>1. 用户会员域</h4><ul class="detail-list"><li>用户账号、会员等级、权益、积分、成长体系、用户画像对接</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>2. 商品产品域</h4><ul class="detail-list"><li>产品管理、品类、规格、价格、套餐、上架下架、内容管理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shopping-cart"></i></span><h4>3. 交易订单域</h4><ul class="detail-list"><li>订单创建、编辑、状态流转、拆分合并、订单履约、订单查询</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-credit-card"></i></span><h4>4. 支付结算域</h4><ul class="detail-list"><li>支付渠道、收银、退款、对账、分账、结算、发票</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bullhorn"></i></span><h4>5. 营销运营域</h4><ul class="detail-list"><li>活动、优惠券、红包、秒杀、拼团、投放、人群营销</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-truck"></i></span><h4>6. 供应链履约域</h4><ul class="detail-list"><li>库存、采购、仓储、物流、发货、签收、退换货履约</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-headset"></i></span><h4>7. 售后服务域</h4><ul class="detail-list"><li>工单、投诉、退换货、维修、客服对接、服务评价</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-user-shield"></i></span><h4>8. 风控合规域</h4><ul class="detail-list"><li>业务风控、黑名单、权限风控、合规校验、业务审计</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-file-invoice-dollar"></i></span><h4>9. 财务业务域</h4><ul class="detail-list"><li>营收、成本、费用、对账、台账、业务财务联动</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cog"></i></span><h4>10. 公共基础域</h4><ul class="detail-list"><li>字典、渠道、组织、租户、通用流程、通用规则</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.2.3 核心业务流转</div>
+        <div class="content-text" style="margin-bottom: 2rem;">前台场景发起业务请求 → 业务中台统一网关接收 → 调用标准化业务组件能力 → 规则引擎+流程引擎自动编排执行 → 完成业务逻辑处理 → 同步业务数据至数据中台沉淀资产 → 返回业务结果至前台 → 全程业务审计与监控。</div>
+        
+        <div class="subsection-title">3.3 数据架构（业务中台专属五层数据架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">业务中台数据架构聚焦业务行为数据、业务实体数据、业务流程数据、业务规则数据、业务运营数据，完全适配数据中台OneData分层规范，实现业务数据与全域数据体系打通统一。</div>
+        <div class="arch-diagram" style="margin-bottom: 1.5rem;">
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-database"></i> ODS</div><div class="layer-blocks"><span class="arch-block">原始业务数据层：采集各业务组件原始数据、业务操作日志、流程流转日志、规则执行日志、前台业务请求日志，原样落地存储，保留原始业务明细</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-filter"></i> DWD</div><div class="layer-blocks"><span class="arch-block">业务明细清洗层：完成业务数据清洗、去重、标准化、字段统一、状态统一，输出用户、商品、订单、支付、营销、库存等标准业务明细事实数据</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-table"></i> DWM</div><div class="layer-blocks"><span class="arch-block">业务中间宽表层：构建业务宽表模型，整合单业务域全维度信息，消除重复关联计算，支撑上层业务汇总与场景复用</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-bar"></i> DWS</div><div class="layer-blocks"><span class="arch-block">业务主题汇总层：按用户、交易、营销、库存、售后、风控等业务主题聚合，形成业务汇总指标、业务统计数据，支撑运营分析</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-line"></i> ADS</div><div class="layer-blocks"><span class="arch-block">业务应用层：面向业务运营、报表统计、大屏展示、业务复盘、监管报送输出定制化业务数据与结果数据</span></div></div>
+        </div>
+        <div class="subsection-title">业务中台核心数据模型体系</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>业务实体模型</h4><ul class="detail-list"><li>用户、商品、订单、支付、库存、会员等核心实体模型</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-stream"></i></span><h4>业务流程模型</h4><ul class="detail-list"><li>流程节点、流转状态、审批记录、协同关系模型</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-gavel"></i></span><h4>业务规则模型</h4><ul class="detail-list"><li>规则条件、执行动作、优先级、版本、生效范围模型</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-history"></i></span><h4>业务行为模型</h4><ul class="detail-list"><li>业务操作、业务请求、业务变更、业务结果日志模型</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>业务资产模型</h4><ul class="detail-list"><li>业务组件、服务、流程、规则资产台账模型</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.4 技术架构（依托云原生、微服务、事件驱动架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">业务中台无独立底层技术底座，完全复用技术中台全套技术架构，在此基础上叠加业务专属技术分层，七层架构横向贯穿业务治理、业务安全、业务监控三大体系。</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>分层1：基础设施层</h4><ul class="detail-list"><li>复用技术中台K8s集群、云资源、存储、网络、负载均衡</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>分层2：统一中间件层</h4><ul class="detail-list"><li>复用缓存、消息队列、注册配置、定时任务、链路追踪中间件</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-network-wired"></i></span><h4>分层3：业务网关与治理层</h4><ul class="detail-list"><li>业务专属API网关、业务服务路由、业务鉴权、业务流量管控、服务版本治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cogs"></i></span><h4>分层4：核心业务服务层</h4><ul class="detail-list"><li>各领域标准化业务微服务、原子业务组件、公共业务能力</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-random"></i></span><h4>分层5：业务编排引擎层</h4><ul class="detail-list"><li>BPM流程引擎、业务规则引擎、策略引擎、事件驱动引擎</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exchange-alt"></i></span><h4>分层6：业务数据联动层</h4><ul class="detail-list"><li>与数据中台数据同步、指标联动、标签调用、数据服务对接</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-desktop"></i></span><h4>分层7：业务运营监控层</h4><ul class="detail-list"><li>业务链路监控、业务异常监控、业务效率统计、业务告警</li></ul></div>
+        </div>
+        <div class="subsection-title">横向贯穿三大体系</div>
+        <div class="grid-3" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>业务规范体系</h4><ul class="detail-list"><li>业务命名、接口、流程、规则统一规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-lock"></i></span><h4>业务安全体系</h4><ul class="detail-list"><li>业务权限、业务操作审计、业务数据脱敏</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tools"></i></span><h4>业务运维体系</h4><ul class="detail-list"><li>业务故障监控、业务异常处理、业务版本迭代运维</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.5 应用架构（业务中台对外赋能应用体系）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">所有前台业务场景、业务系统、运营平台全部复用业务中台标准化能力，无重复业务逻辑开发，分为四大应用场景：</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shopping-bag"></i></span><h4>前台交易经营类应用</h4><ul class="detail-list"><li>线上商城、线下门店、小程序/APP交易、会员经营、商品售卖、全渠道交易场景，复用订单、支付、商品、会员核心能力</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tachometer-alt"></i></span><h4>后台运营管理类应用</h4><ul class="detail-list"><li>商品管理后台、订单运营后台、营销管理后台、库存管控后台、售后客服后台、结算对账后台</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-rocket"></i></span><h4>快速创新场景类应用</h4><ul class="detail-list"><li>新营销玩法、新渠道拓展、新业务业态、临时活动场景，通过中台组件快速拼装落地</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-user-shield"></i></span><h4>合规风控决策类应用</h4><ul class="detail-list"><li>业务风控系统、合规校验系统、业务审计系统、财务对账系统、监管业务报送系统</li></ul></div>
+        </div>
+        <div class="subsection-title">统一应用访问链路</div>
+        <div class="content-text" style="margin-bottom: 2rem;">前台场景/第三方系统 → 业务API网关 → 业务权限校验 → 调用中台标准化业务组件/流程/规则 → 完成业务处理 → 同步数据至数据中台 → 输出业务结果并留存审计日志。</div>
+        
+        <div class="subsection-title">3.6 治理架构（业务中台专属全域治理体系）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">聚焦业务标准、业务能力、业务流程、业务规则、业务权限、业务资产、业务质量七大治理域，形成闭环治理：</div>
+        <div class="grid-3">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>业务标准治理</h4><ul class="detail-list"><li>统一业务术语、业务口径、业务状态、业务编码标准</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>业务能力治理</h4><ul class="detail-list"><li>业务组件复用管控、服务迭代、能力冗余清理、能力标准化</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-stream"></i></span><h4>业务流程治理</h4><ul class="detail-list"><li>流程标准化、流程优化、流程版本管控、跨域流程协同治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-gavel"></i></span><h4>业务规则治理</h4><ul class="detail-list"><li>规则统一、冲突检测、版本管理、灰度生效、规则合规治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-user-lock"></i></span><h4>业务权限治理</h4><ul class="detail-list"><li>业务操作权限、数据权限、功能权限分级管控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>业务资产治理</h4><ul class="detail-list"><li>业务组件、服务、流程、规则资产盘点、评级、生命周期治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-line"></i></span><h4>业务质量治理</h4><ul class="detail-list"><li>业务成功率、流程通过率、异常率、问题闭环治理</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S3 产品功能模块 ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> 业务中台完整产品功能模块</h2>
+        <span class="badge-count">全模块无遗漏细分</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>模块1：全域业务治理与知识图谱模块</h4><ul class="detail-list"><li>业务标准管理；业务版本治理；业务权限治理；业务审计中心；业务知识图谱平台；业务资产盘点</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-users"></i></span><h4>模块2：用户与会员业务中心模块</h4><ul class="detail-list"><li>账号管理；会员体系；积分体系；用户标签对接；用户行为记录；多端统一用户</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>模块3：商品与产品业务中心模块</h4><ul class="detail-list"><li>品类管理；商品管理；规格参数；价格体系；套餐组合；商品内容</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shopping-cart"></i></span><h4>模块4：订单与交易业务中心模块</h4><ul class="detail-list"><li>订单创建；订单状态流转；订单拆分合并；订单履约调度；订单查询统计；订单异常处理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-credit-card"></i></span><h4>模块5：支付与结算业务中心模块</h4><ul class="detail-list"><li>支付渠道管理；支付交易；退款管理；对账管理；分账结算；发票管理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bullhorn"></i></span><h4>模块6：营销活动业务中心模块</h4><ul class="detail-list"><li>活动管理；券码管理；人群营销；活动规则配置；活动效果统计；营销风控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-truck"></i></span><h4>模块7：库存与供应链业务中心模块</h4><ul class="detail-list"><li>库存管理；仓库管理；采购管理；物流履约；库存预警</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-headset"></i></span><h4>模块8：售后与客服业务中心模块</h4><ul class="detail-list"><li>售后工单；售后审核；退换货履约；评价管理；客服对接</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cogs"></i></span><h4>模块9：业务流程与规则编排模块</h4><ul class="detail-list"><li>BPM流程引擎；业务规则引擎；业务策略引擎；事件驱动编排；流程规则模板</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-store"></i></span><h4>模块10：业务服务开放与监控模块</h4><ul class="detail-list"><li>业务API网关；服务市场；服务监控；业务链路监控；业务告警</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S4 全套指标体系 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> 业务中台全套指标体系</h2>
+        <span class="badge-count">运营+效能+资产+价值</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>业务稳定性指标（SLA核心指标）</strong></td><td>整体业务服务可用率≥99.99%；核心业务成功率（下单/支付/核销）≥99.95%；业务接口P95响应耗时≤200ms；业务异常率≤0.01%；业务流程流转成功率≥99.9%；业务故障平均恢复时间MTTR≤5分钟；业务数据一致性准确率100%</td></tr>
+              <tr><td><strong>业务资产复用指标（中台核心价值指标）</strong></td><td>通用业务组件复用率≥95%；新业务场景组件复用覆盖率≥90%；单业务组件支撑前台场景数量；重复业务开发率≤5%；僵尸业务组件/废弃服务占比≤2%；业务知识图谱资产完善率≥98%</td></tr>
+              <tr><td><strong>业务运营效能指标</strong></td><td>前台新场景上线周期缩短率；业务流程平均流转时长、流程节点效率；人工操作替代率、流程自动化率≥90%；业务问题闭环率、业务异常处理及时率；多业态业务统一管控覆盖率100%</td></tr>
+              <tr><td><strong>业务质量与合规指标</strong></td><td>业务口径统一率100%；业务规则冲突率为0；业务审计日志完整率100%；违规业务操作拦截率100%；业务数据差错率≤0.001%</td></tr>
+              <tr><td><strong>业务价值收益指标</strong></td><td>业务研发人力成本节约比例；业务迭代效率提升比例；多业态协同效率提升值；基于中台能力新增业务营收、转化提升率；业务运营人工成本降低金额</td></tr>
+              <tr><td><strong>知识图谱运营指标（新增专项指标）</strong></td><td>业务知识图谱实体覆盖率、关系完整率；业务知识检索使用率、知识复用次数；业务问题通过图谱溯源解决占比；业务知识更新及时率、知识准确率</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S5 完整内容体系 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> 业务中台完整内容体系</h2>
+        <span class="badge-count">交付物+标准+资产+文档全集</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>6.1 顶层规划类内容</h4><ul class="detail-list"><li>业务中台整体建设方案、业务架构白皮书；企业全域业务域划分规范、业务能力图谱规划文档；业务中台建设路线图、分阶段落地清单、ROI评估报告；企业业务能力沉淀标准、业务解耦与复用总则</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>6.2 标准规范类内容</h4><ul class="detail-list"><li>DDD领域建模规范、业务服务拆分与命名规范；业务术语标准、业务口径统一规范、业务状态码规范；业务流程设计规范、流程编排与优化标准；业务规则配置规范、策略迭代与灰度规范；业务服务API开发规范、接口兼容性规范；业务治理规范、业务审计与合规管控规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>6.3 业务核心资产内容</h4><ul class="detail-list"><li>全域业务组件资产库、组件说明书、复用场景案例；标准化业务服务清单、服务接口文档、版本履历；标准业务流程模板库、行业通用流程模板；业务规则模板库、营销/风控/履约通用规则模板；业务知识图谱资产包：全域业务实体、关系、流程、规则、能力图谱文件与知识库；全域业务架构总图、业务依赖拓扑、业务能力矩阵</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tools"></i></span><h4>6.4 业务落地工程内容</h4><ul class="detail-list"><li>新业务场景快速搭建模板、场景拼装指南；业务服务接入文档、前台系统对接规范；业务流程配置手册、业务规则配置操作指南；业务测试标准、业务验收规范、上线评审模板</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>6.5 治理运营类内容</h4><ul class="detail-list"><li>月度业务资产运营报告、组件复用分析报告；业务健康度评估报告、业务问题整改台账；业务故障复盘报告、业务优化迭代方案；业务合规自查报告、业务审计归档日志</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>6.6 运维手册与落地文档</h4><ul class="detail-list"><li>业务中台运维手册、业务故障排查FAQ；业务版本迭代与发布手册、业务回滚预案；前台业务接入中台标准化流程、落地指南；业务知识图谱维护与更新操作手册</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S6 四大中台对照 ===== -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-share-alt"></i> 四大中台全域精准对照</h2>
+        <span class="badge-count">业务/数据/技术/AI</span>
+      </div>
+      <div class="card-body">
+        <ol class="normal-list">
+          <li><strong>技术中台：</strong>技术底座、研发运维、架构治理，解决「系统怎么建、怎么稳、怎么快」；</li>
+          <li><strong>数据中台：</strong>数据资产、数据治理、数据服务，解决「数据可信、复用、价值释放」；</li>
+          <li><strong>业务中台：</strong>业务能力、流程规则、业务资产，解决「业务复用、标准统一、前台创新」；</li>
+          <li><strong>AI中台：</strong>算法模型、智能推理、智能决策，解决「业务智能化升级」。</li>
+        </ol>
+        <div class="info-tip" style="margin-top: 1.5rem;"><i class="fas fa-info-circle"></i> 协同关系：技术中台为底座、数据中台为数据支撑、业务中台为业务核心、AI中台为智能赋能，四中台联动形成企业完整数字化闭环。</div>
+      </div>
+    </section>
+
+    <!-- ===== S7 核心价值总结 ===== -->
+    <section id="s7" class="card banner-card">
+        <div class="card-body">
+            <div class="value-header">
+                <div class="icon-big"><i class="fas fa-flag"></i></div>
+                <h2>业务中台四大核心价值总结</h2>
+                <p class="value-subtitle">四大维度 · 重塑企业全域业务能力体系</p>
+            </div>
+            <div class="value-grid">
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-coins"></i></div>
+                    <div class="value-content">
+                        <h4>降本</h4>
+                        <p>杜绝业务重复建设，全域通用业务能力一次沉淀、全域复用，大幅降低业务开发、运营、维护成本。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-rocket"></i></div>
+                    <div class="value-content">
+                        <h4>提效</h4>
+                        <p>前台场景极速创新，组件化拼装、配置化迭代，新业务、新玩法上线周期缩短80%以上。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-link"></i></div>
+                    <div class="value-content">
+                        <h4>统一</h4>
+                        <p>全域业务标准可控，统一流程、规则、口径、状态，彻底解决多业态业务混乱、数据打架问题。</p>
+                    </div>
+                </div>
+                <div class="value-item full-width">
+                    <div class="value-icon"><i class="fas fa-cubes"></i></div>
+                    <div class="value-content">
+                        <h4>资产化</h4>
+                        <p>沉淀企业核心业务资产，通过业务知识图谱结构化沉淀业务经验与能力，实现企业业务能力可积累、可传承、可迭代、可复用。</p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-note" style="margin-top: 2rem; font-size:0.8rem; color:var(--color-primary);">业务中台 · 企业数字化业务架构的核心载体与能力中枢</div>
+        </div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>

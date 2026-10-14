@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>记忆（Memory）中台 · 企业级完整体系 · 高保真架构</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      --color-primary: #7a2e1a;
+      --color-primary-light: #fce9e0;
+      --color-primary-dark: #4d1c0e;
+      --color-accent: #b85c3a;
+      --color-accent-soft: #f0c8b8;
+      --color-neutral-50: #fcf9f7;
+      --color-neutral-100: #f5ede8;
+      --color-neutral-200: #e5d7ce;
+      --color-neutral-300: #cbb8ab;
+      --color-neutral-400: #a68b7a;
+      --color-neutral-600: #6f5544;
+      --color-neutral-700: #4f3a2e;
+      --color-neutral-800: #34241c;
+      --color-neutral-900: #1e140f;
+      --color-gold: #c29a4a;
+      --color-gold-light: #f3e1b0;
+      --color-jade: #3b7a5e;
+      --color-success: #1f6e4a;
+      --color-warning: #a86b2c;
+      --color-error: #b13a2a;
+      --font-base: 1rem;
+      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem;
+      --space-4: 1rem; --space-6: 1.5rem; --space-8: 2rem; --space-12: 3rem;
+      --radius-sm: 0.75rem; --radius-md: 1.25rem; --radius-card: 2rem; --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(60, 30, 10, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(60, 30, 10, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(60, 30, 10, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* Sidebar */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(255, 249, 245, 0.88);
+      backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(255, 235, 220, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); }
+    .sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+    .sidebar nav ul { list-style:none; }
+    .sidebar nav ul li { margin-bottom:0.1rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:12px;
+      padding:0.55rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.85rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+    }
+    .sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+    .sidebar nav ul li a:hover { background:var(--color-primary-light); color:var(--color-primary-dark); transform:translateX(4px); }
+    .sidebar-footer { margin-top:24px; padding:12px; text-align:center; font-size:0.7rem; color:var(--color-neutral-600); border-top:1px solid var(--color-neutral-200); }
+
+    /* Main */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+      font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+    .page-header .header-meta {
+      font-size:0.9rem; color:var(--color-neutral-600);
+      background:var(--color-neutral-100); padding:0.4rem 1.2rem;
+      border-radius:var(--radius-pill); border:1px solid var(--color-neutral-200);
+    }
+
+    /* Card */
+    .card {
+      background:rgba(255,252,248,0.92); backdrop-filter: blur(4px);
+      border-radius:var(--radius-card); box-shadow:var(--shadow-card);
+      margin-bottom:var(--space-6); border:1px solid rgba(255, 235, 220, 0.5);
+      overflow:hidden; transition: box-shadow var(--transition-default), transform 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6);
+      background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft);
+      display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 { font-size:clamp(1.2rem, 2.2vw, 1.6rem); font-weight:700; color:var(--color-primary-dark); display:flex; align-items:center; gap:12px; }
+    .card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+    .card-header .badge-count { margin-left:auto; background:var(--color-accent); color:white; border-radius:var(--radius-pill); padding:0.15rem 0.9rem; font-size:0.7rem; font-weight:600; }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* Grid & Policy Card */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3 { grid-template-columns:1fr; } .sidebar { display:none; } .layout { padding:0.5rem; } .card-body { padding:1.25rem 1rem; } }
+
+    .policy-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md); padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200); transition: all var(--transition-default);
+      position:relative; overflow:hidden; border-left: 4px solid var(--color-accent);
+    }
+    .policy-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft)); opacity:0; transition: opacity var(--transition-default); }
+    .policy-card:hover::before { opacity:1; }
+    .policy-card:hover { border-color:var(--color-accent-soft); box-shadow: 0 8px 24px -8px rgba(184,92,58,0.15); transform:translateY(-3px); }
+    .policy-card .policy-icon { font-size:1.8rem; color:var(--color-primary); display:inline-block; margin-right:6px; background: var(--color-primary-light); padding:0.2rem 0.6rem; border-radius:12px; }
+    .policy-card h4 { color:var(--color-primary-dark); font-size:1.05rem; margin-bottom:0.4rem; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .policy-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+    .policy-card .detail-list { padding-left:0; margin:0.4rem 0 0 0; list-style:none; }
+    .policy-card .detail-list li { margin-bottom:0.25rem; padding-left:1.2rem; position:relative; font-size:0.85rem; color:var(--color-neutral-700); }
+    .policy-card .detail-list li::before { content:'▹'; position:absolute; left:0; color:var(--color-accent); font-weight:600; }
+    .policy-card .detail-list li strong { color:var(--color-neutral-800); }
+
+    /* Arch Diagram */
+    .arch-diagram { display:flex; flex-direction:column; gap:0.6rem; padding:0.5rem 0; }
+    .arch-layer { display:flex; align-items:stretch; gap:0.75rem; background:var(--color-neutral-50); border-radius:var(--radius-md); padding:0.6rem 1rem; border:1px solid var(--color-neutral-200); transition: var(--transition-default); }
+    .arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+    .arch-layer .layer-label { display:flex; flex-direction:column; justify-content:center; min-width:120px; padding-right:1rem; border-right:2px solid var(--color-neutral-200); font-weight:700; font-size:0.8rem; color:var(--color-primary-dark); letter-spacing:0.3px; }
+    .arch-layer .layer-label i { font-size:1.1rem; color:var(--color-accent); margin-bottom:0.1rem; }
+    .arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+    .arch-layer .layer-blocks { display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem; flex:1; padding:0.2rem 0; }
+    .arch-block { background:white; border-radius:var(--radius-sm); padding:0.3rem 0.9rem; border:1px solid var(--color-neutral-200); font-size:0.75rem; font-weight:500; color:var(--color-neutral-700); transition: var(--transition-default); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    .arch-block:hover { border-color:var(--color-accent); background:var(--color-primary-light); color:var(--color-primary-dark); transform:translateY(-1px); }
+    .arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+    .arch-block.highlight-block { background:var(--color-accent); color:white; border-color:var(--color-accent); }
+    .arch-block.highlight-block i { color:white; }
+    .arch-layer.inner-layer { background:linear-gradient(135deg, #f5efe8, #f0e4da); border-color:var(--color-accent-soft); }
+    .arch-layer.outer-layer { background:linear-gradient(135deg, #f0f2ed, #e6ece2); border-color:#b8c8aa; }
+    .arch-layer.outer-layer .layer-label { border-right-color:#b8c8aa; color:#2d5a3a; }
+    .arch-layer.outer-layer .layer-label i { color:#3b7a5e; }
+    .arch-layer.outer-layer .arch-block { border-color:#c8d8b8; }
+    .arch-layer.outer-layer .arch-block:hover { border-color:#3b7a5e; background:#e0ede0; }
+    .arch-layer.ultimate-layer { background:linear-gradient(135deg, #f0ede8, #e8e0d8); border-color:#c8b8a8; }
+    .arch-layer.ultimate-layer .layer-label { border-right-color:#c8b8a8; color:#6a4a3a; }
+    .arch-layer.ultimate-layer .layer-label i { color:#8a6a5a; }
+    .arch-layer.ultimate-layer .arch-block { border-color:#d8c8b8; }
+    .arch-layer.ultimate-layer .arch-block:hover { border-color:#8a6a5a; background:#ede0d8; }
+
+    /* Table */
+    .table-wrapper { overflow-x:auto; border-radius:var(--radius-md); border:1px solid var(--color-neutral-200); background:white; }
+    table { width:100%; border-collapse:collapse; font-size:0.78rem; }
+    th { background:var(--color-neutral-100); padding:12px 10px; font-weight:600; color:var(--color-primary-dark); text-align:left; border-bottom:2px solid var(--color-neutral-200); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.4px; }
+    td { padding:10px 10px; border-bottom:1px solid var(--color-neutral-200); vertical-align:middle; color:var(--color-neutral-700); }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--color-neutral-50); }
+
+    /* Tip & Banner */
+    .info-tip { background:var(--color-neutral-50); border-radius:var(--radius-md); padding:0.7rem 1.5rem; border-left:5px solid var(--color-accent); margin-top:var(--space-4); display:flex; align-items:center; gap:0.8rem; font-size:0.9rem; color:var(--color-neutral-700); }
+    .info-tip i { color:var(--color-accent); font-size:1rem; }
+    .banner-card { background: linear-gradient(135deg, #f5ede6, #e8dcd2); text-align:center; border-color:var(--color-accent-soft); }
+    .banner-card .card-body { padding:2.5rem var(--space-6); }
+    .banner-card .icon-big { font-size:3rem; color:var(--color-primary); opacity:0.7; margin-bottom:var(--space-3); }
+    .banner-card h2 { color:var(--color-primary-dark); font-size:clamp(1.4rem, 2.5vw, 1.9rem); margin-bottom:var(--space-2); }
+    .banner-card p { max-width:680px; margin:0 auto; color:var(--color-neutral-700); font-size:1rem; }
+    .banner-card .footer-note { margin-top:var(--space-6); font-size:0.8rem; color:var(--color-primary); }
+
+    /* Content Typography */
+    .content-section { margin-bottom:1.2rem; }
+    .content-section h3 { color:var(--color-primary-dark); font-size:1.1rem; margin-bottom:0.5rem; font-weight:700; }
+    .content-section h4 { color:var(--color-primary-dark); font-size:1rem; margin-bottom:0.4rem; font-weight:600; }
+    .content-section p { margin-bottom:0.6rem; font-size:0.9rem; color:var(--color-neutral-700); }
+    .content-section ul { padding-left:1.2rem; margin-bottom:0.6rem; }
+    .content-section li { margin-bottom:0.3rem; font-size:0.88rem; color:var(--color-neutral-700); }
+    .content-section strong { color:var(--color-neutral-800); }
+    .text-block { background:var(--color-neutral-50); border-radius:var(--radius-sm); padding:1rem 1.2rem; border:1px solid var(--color-neutral-200); margin-bottom:0.8rem; }
+
+    /* Dark Mode */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #1a1410; --color-neutral-100: #221c18; --color-neutral-200: #3a2c24;
+        --color-neutral-400: #8a7a6e; --color-neutral-600: #b8a89c; --color-neutral-700: #d0c4b8;
+        --color-neutral-800: #e8dcd0; --color-neutral-900: #f5ede6;
+        --color-primary-light: #3a2a20; --color-accent-soft: #6a4a3a;
+        --color-primary: #d08a6a; --color-primary-dark: #f0c8b0; --color-accent: #c07a5a;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6); --shadow-card-hover: 0 20px 48px -12px rgba(0,0,0,0.7); --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #120e0a; }
+      .card { background: #1a1410; border-color: #3a2c24; }
+      .card-header { background: #1a1410; border-bottom-color: #4a3a2e; }
+      .policy-card { background: #1a1410; border-color: #3a2c24; }
+      .policy-card .policy-icon { background: #2a1e16; color: #d08a6a; }
+      .policy-card .detail-list li { color: #c0b4a8; }
+      .policy-card .detail-list li strong { color: #e0d4c8; }
+      .table-wrapper { background: #1a1410; border-color: #3a2c24; }
+      th { background: #221c18; color: #e0d4c8; border-bottom-color: #4a3a2e; }
+      td { border-bottom-color: #2a241e; color: #c0b4a8; }
+      tr:hover td { background: #2a241e; }
+      .sidebar { background: rgba(20, 16, 12, 0.92); border-color: #3a2c24; }
+      .sidebar-brand { border-bottom-color: #4a3a2e; }
+      .sidebar-brand h3 { color: #d08a6a; }
+      .sidebar nav ul li a { color: #c0b4a8; }
+      .sidebar nav ul li a:hover { background: #3a2c24; color: white; }
+      .info-tip { background: #1a1410; border-left-color: #c07a5a; color: #c0b4a8; }
+      .banner-card { background:linear-gradient(135deg,#1a1410,#2a241e); }
+      .banner-card p { color: #c0b4a8; }
+      .page-header h1 { background:linear-gradient(135deg,#f0c8b0,#d08a6a); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#2a241e; border-color:#4a3a2e; color:#b8a89c; }
+      .arch-layer { background:#1a1410; border-color:#3a2c24; }
+      .arch-layer:hover { background:#2a1e16; border-color:#5a4a3e; }
+      .arch-layer .layer-label { border-right-color:#3a2c24; color:#e0d4c8; }
+      .arch-block { background:#1a1410; border-color:#3a2c24; color:#c0b4a8; }
+      .arch-block:hover { background:#3a2c24; border-color:#c07a5a; }
+      .arch-layer.inner-layer { background:linear-gradient(135deg,#1a1410,#2a1e16); border-color:#5a3a2a; }
+      .arch-layer.outer-layer { background:linear-gradient(135deg,#141a12,#1a2618); border-color:#2a4a2a; }
+      .arch-layer.outer-layer .layer-label { border-right-color:#2a4a2a; color:#8aba8a; }
+      .arch-layer.outer-layer .layer-label i { color:#5a9a6a; }
+      .arch-layer.outer-layer .arch-block { border-color:#2a4a2a; color:#a0c8a0; }
+      .arch-layer.outer-layer .arch-block:hover { border-color:#5a9a6a; background:#1a2a1a; }
+      .arch-layer.ultimate-layer { background:linear-gradient(135deg,#1a1410,#221c18); border-color:#4a3a2e; }
+      .arch-layer.ultimate-layer .layer-label { border-right-color:#4a3a2e; color:#c8b0a0; }
+      .arch-layer.ultimate-layer .layer-label i { color:#a08070; }
+      .arch-layer.ultimate-layer .arch-block { border-color:#4a3a2e; color:#c8b8a8; }
+      .arch-layer.ultimate-layer .arch-block:hover { border-color:#a08070; background:#2a241e; }
+      .text-block { background:#1a1410; border-color:#3a2c24; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-brain" aria-hidden="true"></i>
+      <h3>记忆（Memory）中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-cubes"></i> 全域标准定义</a></li>
+        <li><a href="#s1"><i class="fas fa-layer-group"></i> 八大特征</a></li>
+        <li><a href="#s2"><i class="fas fa-database"></i> 知识体系</a></li>
+        <li><a href="#s3"><i class="fas fa-project-diagram"></i> MemoryGraph</a></li>
+        <li><a href="#s4"><i class="fas fa-sitemap"></i> 六大架构</a></li>
+        <li><a href="#s5"><i class="fas fa-puzzle-piece"></i> 功能模块</a></li>
+        <li><a href="#s6"><i class="fas fa-chart-line"></i> 指标体系</a></li>
+        <li><a href="#s7"><i class="fas fa-boxes"></i> 资产体系</a></li>
+        <li><a href="#s8"><i class="fas fa-share-alt"></i> 协同关系</a></li>
+        <li><a href="#s9"><i class="fas fa-flag"></i> 核心价值</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-brain"></i> 记忆中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-brain"></i> 企业级记忆（Memory）中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> 长短记忆 + MemoryGraph 图谱一体化底座</span>
+    </header>
+
+    <!-- S0 -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> 记忆中台全域标准定义</h2>
+        <span class="badge-count">分层记忆 + 记忆图谱自治演进版</span>
+      </div>
+      <div class="card-body">
+        <div class="arch-diagram">
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-microchip"></i> 底层依赖 <span class="sub">算力/Embedding/存储</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-microchip"></i> 算力中台</span>
+              <span class="arch-block"><i class="fas fa-vector-square"></i> Embedding</span>
+              <span class="arch-block"><i class="fas fa-database"></i> 向量库</span>
+              <span class="arch-block"><i class="fas fa-project-diagram"></i> 图数据库</span>
+              <span class="arch-block"><i class="fas fa-broom"></i> 数据预处理</span>
+              <span class="arch-block"><i class="fas fa-book"></i> 知识库</span>
+              <span class="arch-block"><i class="fas fa-plug"></i> MCP</span>
+            </div>
+          </div>
+          <div class="arch-layer outer-layer">
+            <div class="layer-label"><i class="fas fa-cogs"></i> 核心能力 <span class="sub">抽取/压缩/检索/图谱</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block highlight-block"><i class="fas fa-memory"></i> 记忆抽取</span>
+              <span class="arch-block"><i class="fas fa-layer-group"></i> 分层存储</span>
+              <span class="arch-block"><i class="fas fa-compress"></i> 蒸馏压缩</span>
+              <span class="arch-block"><i class="fas fa-search"></i> 混合检索</span>
+              <span class="arch-block"><i class="fas fa-exclamation-triangle"></i> 冲突遗忘</span>
+              <span class="arch-block"><i class="fas fa-brain"></i> 记忆图谱</span>
+              <span class="arch-block"><i class="fas fa-chart-bar"></i> 质量评测</span>
+            </div>
+          </div>
+          <div class="arch-layer ultimate-layer">
+            <div class="layer-label"><i class="fas fa-rocket"></i> 上层赋能 <span class="sub">RAG/Agent/Copilot</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-search"></i> RAG</span>
+              <span class="arch-block"><i class="fas fa-robot"></i> Agent</span>
+              <span class="arch-block"><i class="fas fa-copilot"></i> Copilot</span>
+              <span class="arch-block"><i class="fas fa-robot"></i> 具身智能</span>
+              <span class="arch-block"><i class="fas fa-cloud"></i> MaaS</span>
+            </div>
+          </div>
+        </div>
+        <div class="info-tip"><i class="fas fa-scroll"></i> 记忆中台（Memory 中台 / 全域分层记忆统一管控底座），是面向大模型、智能体、Copilot、RAG、具身机器人，统一实现感官瞬时记忆、短期工作记忆、长期语义记忆、程序流程记忆、多模态记忆的全生命周期提取、压缩、分层存储、混合检索、MemoryGraph 记忆知识图谱、冲突消解、遗忘机制、多租户隔离、Token 优化、自治迭代的企业级统一记忆基础设施中台。</div>
+
+        <div class="content-section" style="margin-top:1.2rem;">
+          <h3>1.1 权威标准定义</h3>
+          <div class="text-block">
+            <p>向下对接算力、Embedding、向量库、图数据库、数据预处理、知识库、MCP；向上统一为 RAG、Agent、Copilot、具身智能、MaaS 提供标准化记忆读写、检索、上下文注入能力。</p>
+            <p>遵循「五层分层记忆资产、向量 + 图谱双混合检索、自动记忆蒸馏压缩、时序遗忘冲突消解、MemoryGraph 记忆图谱、多维度记忆评测、Token 成本自治优化、多租户数据隔离」八大核心建设理念。</p>
+            <p>核心解决行业痛点：各 AI 应用独立维护会话记忆，上下文无限膨胀、Token 消耗极高；长短记忆无分层管理，跨会话无法复用历史经验；记忆事实冲突、过期信息无法自动淘汰；记忆抽取、压缩逻辑重复开发；无统一记忆质量评测；用户 / 项目记忆隔离缺失；记忆关联经验无法沉淀；复杂多跳业务无法串联历史交互信息。</p>
+            <p>实现 AI 记忆管理从 "单会话临时缓存、全量上下文拼接" 升级为五层标准化记忆资产、图谱驱动关联检索、自动蒸馏降本、冲突自治、全链路可管控的统一认知记忆底座。</p>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h3>1.2 记忆中台核心定位与层级边界</h3>
+          <div class="text-block">
+            <p><strong>战略定位：</strong>企业全域分层记忆统一生产存储中心、记忆提取压缩调度中枢、向量 + 图谱混合检索平台、MemoryGraph 记忆知识推理引擎、记忆质量评测中心、Token 成本运营中枢、AI 认知自治迭代底座。</p>
+            <p><strong>层级边界：</strong></p>
+            <p><strong>底层依赖层：</strong>算力中台、Embedding 中台、向量库、图数据库、数据预处理、知识库、MCP、对象存储、时序库；</p>
+            <p><strong>核心能力层：</strong>专注记忆抽取、分层存储、蒸馏压缩、混合检索、冲突遗忘、记忆图谱、质量评测、算力 Token 计量，不承载大模型生成、业务流程执行；</p>
+            <p><strong>上层赋能层：</strong>标准化 MCP 记忆读写服务供给 RAG/Agent/Copilot/ 具身智能 / MaaS。</p>
+            <p><strong>全域上下游标准分层链路：</strong>算力 / Embedding / 向量库 → 记忆中台 → MCP → Copilot/Agent/RAG/ 具身智能中台</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S1 -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-layer-group"></i> 记忆中台八大核心特征</h2>
+        <span class="badge-count">五层 · 混合检索 · 蒸馏 · 图谱</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-layer-group"></i></span><h4>五层分层记忆资产体系</h4><ul class="detail-list"><li>感官瞬时记忆、短期工作记忆、长期语义记忆、程序流程记忆、多模态记忆分层隔离管控</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-search-plus"></i></span><h4>向量语义 + Memory 图谱双引擎融合检索</h4><ul class="detail-list"><li>兼顾相似度匹配与时序 / 因果多跳历史关联</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-compress-arrows-alt"></i></span><h4>全自动记忆蒸馏、摘要压缩</h4><ul class="detail-list"><li>大幅削减上下文 Token 消耗</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-clock"></i></span><h4>时序遗忘 + 事实冲突双自治机制</h4><ul class="detail-list"><li>自动淘汰过期、修正矛盾记忆</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>MemoryGraph 专属记忆知识图谱</h4><ul class="detail-list"><li>沉淀用户、任务、事件、偏好关联经验</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-users"></i></span><h4>多租户四级隔离</h4><ul class="detail-list"><li>企业 / 部门 / 项目 / 用户，记忆数据完全隔离</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-bar"></i></span><h4>记忆质量 + Token 消耗双维度自动化评测</h4><ul class="detail-list"><li>量化记忆效果与成本控制</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sync-alt"></i></span><h4>交互日志回流图谱</h4><ul class="detail-list"><li>自动生成记忆抽取 / 压缩优化工单</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S2 -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-database"></i> 记忆中台专属完整知识体系</h2>
+        <span class="badge-count">十大完整知识域全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="content-section">
+          <p style="margin-bottom:1rem; font-weight:500; color:var(--color-primary-dark);">记忆中台知识体系是分层记忆、蒸馏压缩、混合检索、图谱推理、遗忘冲突、评测、行业落地、运营复盘的标准化、结构化、可推理、可复用、自进化专业知识合集。</p>
+        </div>
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sitemap"></i></span><h4>2.1 记忆顶层架构与全域规划知识域</h4><ul class="detail-list"><li>企业 AI 全链路记忆分层架构（Embedding - 记忆 - Agent-Copilot）顶层设计</li><li>五层记忆分层建设标准、跨应用资产共享规范</li><li>记忆中台与 Embedding/RAG/Agent 跨中台协同权责、对接标准</li><li>企业 AI 记忆成熟度评估、零散会话记忆改造方法论</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-layer-group"></i></span><h4>2.2 五层记忆分层工程知识域</h4><ul class="detail-list"><li>感官瞬时记忆：原始交互流毫秒级临时缓存、自动丢弃规则</li><li>短期工作记忆：当前会话上下文、滑动窗口、动态裁剪</li><li>长期语义记忆：用户偏好、历史事实、项目经验持久化</li><li>程序记忆：固定业务流程、工具调用步骤、任务模板</li><li>多模态记忆：对话文本、截图、音频、表格结构化存储</li><li>五层记忆流转、自动晋升 / 淘汰时序机制</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-compress"></i></span><h4>2.3 记忆抽取与蒸馏压缩知识域</h4><ul class="detail-list"><li>LLM 原子事实、实体、偏好、任务自动抽取算法</li><li>摘要蒸馏、分层压缩、关键信息保留优化方案</li><li>长短记忆差异化压缩策略（短期轻压缩、长期深度蒸馏）</li><li>冗余对话过滤、重复记忆合并落地 SOP</li><li>压缩质量与 Token 消耗平衡方法论</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-search"></i></span><h4>2.4 混合检索与时序遗忘知识域</h4><ul class="detail-list"><li>稠密向量语义检索 + MemoryGraph 多跳图谱检索融合策略</li><li>时序衰减遗忘曲线配置、过期记忆自动标记失效</li><li>新旧事实冲突检测、时序优先自动消解机制</li><li>自适应 Top-K 动态召回、长短记忆分级注入 Prompt</li><li>冷热记忆分层存储、检索加速工程方案</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>2.5 MemoryGraph 记忆图谱推理知识域</h4><ul class="detail-list"><li>用户 - 任务 - 事件 - 事实三元组自动抽取标准流程</li><li>时序、因果、偏好记忆关联建模</li><li>用户提问多跳历史记忆自动推演</li><li>记忆劣化（缺失 / 冲突 / 过期）根因多跳溯源</li><li>每日交互日志增量更新图谱权重自校准</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-line"></i></span><h4>2.6 记忆质量与 Token 评测知识域</h4><ul class="detail-list"><li>记忆召回率、事实准确率、冲突率核心指标口径</li><li>压缩降幅、单轮平均 Token 消耗计量标准</li><li>离线记忆集批量评测、线上 A/B 对照</li><li>过期记忆检出、事实冲突识别评测方法</li><li>上线记忆准入阈值规范</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-shield-alt"></i></span><h4>2.7 多租户安全与计量知识域</h4><ul class="detail-list"><li>四级租户记忆数据隔离、读写 RBAC 权限</li><li>记忆抽取 / 检索 / 注入 Token 精准分摊规则</li><li>用户隐私记忆脱敏、涉密内容过滤规范</li><li>全交互记忆日志审计、留存合规标准</li><li>租户预算阈值、超支限流机制</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-briefcase"></i></span><h4>2.8 行业记忆落地知识域</h4><ul class="detail-list"><li>研发 IDE Copilot：代码偏好、历史方案记忆</li><li>财务：报销、发票、历史审批流程记忆</li><li>客服：客户诉求、历史工单长期记忆</li><li>具身机器人：操作轨迹、环境感知记忆</li><li>政务：政策交互、办事历史记忆落地 SOP</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-pie"></i></span><h4>2.9 记忆资产运营复盘知识域</h4><ul class="detail-list"><li>分层记忆存储成本、Token 消耗月度复盘</li><li>冲突 / 过期记忆清理闭环流程</li><li>记忆压缩优化收益量化评估</li><li>行业记忆模板复用机制</li><li>记忆质量劣化整改流程</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-rocket"></i></span><h4>2.10 记忆中台前沿演进知识域</h4><ul class="detail-list"><li>自治式零人工记忆抽取与动态压缩</li><li>联邦隐私记忆跨企业安全互通</li><li>端侧轻量化离线记忆引擎</li><li>记忆 - 知识库 - RAG 原生一体化融合架构</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S3 -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-project-diagram"></i> 记忆中台专属知识图谱（MemoryGraph）体系</h2>
+        <span class="badge-count">核心实体 · 关联 · 智能能力</span>
+      </div>
+      <div class="card-body">
+        <div class="content-section">
+          <p style="margin-bottom:1rem;">MemoryGraph 记忆知识图谱，是用户、会话、任务、事实、事件、工具、记忆故障、优化策略的时序因果智能关联网络，解决记忆零散、历史关联无法检索、冲突过期难发现、抽取压缩依赖人工经验痛点，实现用户提问自动召回多跳相关历史、记忆劣化一键溯源、压缩优化智能推荐、交互经验自治沉淀。</p>
+        </div>
+        <div class="grid-2" style="margin-bottom:1.5rem;">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-circle"></i></span><h4>3.1 MemoryGraph 核心实体体系</h4><ul class="detail-list"><li><strong>用户实体：</strong>企业员工、客户、项目账号</li><li><strong>会话实体：</strong>单次对话 / 任务交互会话</li><li><strong>记忆单元实体：</strong>短期片段、长期事实、程序流程、多模态记录</li><li><strong>任务实体：</strong>代码编写、报销、客户咨询、机器人操作</li><li><strong>事件实体：</strong>大促、项目变更、设备故障、政策更新</li><li><strong>故障实体：</strong>记忆冲突、过期失效、召回缺失、Token 过高</li><li><strong>优化策略实体：</strong>深度蒸馏、扩充抽取维度、调遗忘权重</li><li><strong>租户实体：</strong>企业 / 部门 / 项目</li><li><strong>指标实体：</strong>召回率、冲突率、Token 压缩降幅</li><li><strong>资产实体：</strong>行业记忆抽取压缩模板</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-link"></i></span><h4>3.2 MemoryGraph 核心关联关系</h4><ul class="detail-list"><li><strong>用户 ↔ 会话：</strong>用户产生多条交互会话</li><li><strong>会话 ↔ 记忆单元：</strong>会话抽取生成长短记忆</li><li><strong>记忆 ↔ 任务：</strong>记忆绑定对应业务任务</li><li><strong>记忆 ↔ 事件：</strong>事件触发新增 / 更新事实记忆</li><li><strong>故障 ↔ 诱因：</strong>冲突多因新旧时序事实矛盾</li><li><strong>故障 ↔ 优化：</strong>Token 过高→提升蒸馏压缩力度</li><li><strong>租户 ↔ 记忆：</strong>租户记忆数据物理隔离</li><li><strong>时序有向边：</strong>记录事件发生先后、记忆更新时间</li><li>每日交互日志自动抽取三元组增量更新图谱权重</li><li><strong>任务 ↔ 记忆模板：</strong>财务任务专属抽取规则</li></ul></div>
+        </div>
+        <h3 style="color:var(--color-primary-dark); margin-bottom:0.8rem;">3.3 MemoryGraph 八大核心智能能力</h3>
+        <div class="grid-3">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-magic"></i></span><h4>智能能力</h4><ul class="detail-list"><li>用户交互、记忆抽取压缩经验自动结构化入库</li><li>用户自然提问自动多跳串联关联历史记忆</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-search"></i></span><h4>智能能力</h4><ul class="detail-list"><li>记忆冲突、过期、召回不足一键分层根因溯源</li><li>自动推送蒸馏压缩、抽取维度优化方案</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-broom"></i></span><h4>智能能力</h4><ul class="detail-list"><li>同行业记忆配置模板智能复用推荐</li><li>A/B 记忆实验数据自动校准图谱关联权重</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sync-alt"></i></span><h4>智能能力</h4><ul class="detail-list"><li>过期 / 冲突记忆批量自动识别预警</li><li>记忆运维新人快速检索同类场景落地案例</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S4 -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> 记忆中台六大完整架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span>
+      </div>
+      <div class="card-body">
+        <div class="content-section">
+          <h3>4.1 产品架构（九层分层全景架构）</h3>
+          <div class="policy-card" style="margin-bottom:1rem;"><span class="policy-icon"><i class="fas fa-cubes"></i></span><h4>整体分层</h4><ul class="detail-list"><li>多租户接入层 → 五层记忆资产池层 → 记忆抽取蒸馏层 → 混合检索引擎层 → MemoryGraph 记忆图谱层 → 遗忘冲突治理层 → 记忆质量评测层 → Token 计量安全层 → 自治迭代层</li><li><strong>多租户接入层：</strong>Agent/Copilot/MCP 统一接入、租户鉴权隔离</li><li><strong>五层资产池层：</strong>瞬时 / 短期 / 长期 / 程序 / 多模态记忆分层管控</li><li><strong>抽取蒸馏层：</strong>事实抽取、分层摘要压缩</li><li><strong>混合检索层：</strong>向量 + 图谱双路径融合召回</li><li><strong>MemoryGraph 图谱层：</strong>三元组抽取、多跳记忆推理</li><li><strong>遗忘冲突层：</strong>时序衰减、矛盾消解、失效标记</li><li><strong>评测层：</strong>记忆召回、冲突率批量计算</li><li><strong>计量安全层：</strong>Token 分摊、隐私脱敏、审计</li><li><strong>自治迭代层：</strong>日志回流，生成压缩优化工单</li></ul></div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.2 业务架构（三层全域业务架构 + 八大标准业务域）</h3>
+          <div class="grid-2" style="margin-bottom:1rem;">
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-building"></i></span><h4>三层全域业务架构</h4><ul class="detail-list"><li><strong>底层底座层：</strong>算力、Embedding、向量库、图数据库提供算力存储</li><li><strong>中层记忆核心能力层：</strong>资产、抽取、检索、图谱、遗忘、评测六大原子服务</li><li><strong>上层赋能层：</strong>MCP 记忆服务输出至 Agent/Copilot/RAG</li></ul></div>
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-briefcase"></i></span><h4>八大标准业务域</h4><ul class="detail-list"><li>五层记忆资产全生命周期业务域：抽取、存储、归档、淘汰闭环</li><li>记忆抽取与蒸馏压缩业务域</li><li>向量 + 图谱混合检索业务域</li><li>MemoryGraph 记忆图谱推理业务域</li><li>时序遗忘与事实冲突治理业务域</li><li>记忆质量 A/B 评测业务域</li><li>多租户 Token 计量与隐私合规业务域</li><li>记忆自治压缩迭代业务域</li></ul></div>
+          </div>
+          <div class="text-block">
+            <p><strong>核心业务闭环：</strong>AI 交互请求流入 → 抽取事实并分层记忆存储 → 混合向量 + 图谱检索历史记忆 → 遗忘冲突自动清洗 → 标准化记忆注入 Prompt → 交互日志回流 MemoryGraph → 识别高 Token / 冲突记忆 → 推送蒸馏优化工单。</p>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.3 数据架构（七层记忆专属数据架构）</h3>
+          <div class="policy-card" style="margin-bottom:1rem;"><span class="policy-icon"><i class="fas fa-database"></i></span><h4>七层数据架构</h4><ul class="detail-list"><li><strong>MEM-ODS 原始接入层：</strong>原始对话、交互流、抽取任务、检索、Token 原始日志</li><li><strong>MEM-DWD 明细清洗层：</strong>文本脱敏、时序对齐、冗余对话剔除</li><li><strong>MEM-DWB 全域宽表层：</strong>用户、会话、记忆单元、租户、指标全维度宽表</li><li><strong>MEM-DWA 知识关联层：</strong>自动抽取三元组构建 MemoryGraph</li><li><strong>MEM-DWS 主题汇总层：</strong>记忆资产、检索效能、Token 成本、质量四大主题</li><li><strong>MEM-ADS 指标应用层：</strong>记忆召回率、冲突率、压缩降幅核心指标</li><li><strong>MEM-OPT 自主优化层：</strong>高 Token、冲突记忆沉淀优化任务</li></ul></div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.4 技术架构（向量 + 图双引擎七层技术架构）</h3>
+          <div class="policy-card" style="margin-bottom:1rem;"><span class="policy-icon"><i class="fas fa-microchip"></i></span><h4>七层技术架构</h4><ul class="detail-list"><li><strong>MCP 接入网关层：</strong>多应用统一接入、租户鉴权路由</li><li><strong>分布式存储层：</strong>时序缓存、向量库、图数据库、对象存储</li><li><strong>记忆抽取压缩引擎：</strong>LLM 事实提取、分层蒸馏</li><li><strong>混合检索引擎：</strong>稠密向量 + 图谱多跳融合</li><li><strong>MemoryGraph 图推理引擎：</strong>三元组抽取、时序多跳查询</li><li><strong>遗忘冲突 & 评测引擎：</strong>时序衰减、冲突检测、指标计算</li><li><strong>管理前端：</strong>记忆资产、图谱可视化、Token 大屏</li></ul></div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.5 应用架构（八大全域赋能应用）</h3>
+          <div class="grid-2">
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-rocket"></i></span><h4>八大全域赋能应用</h4><ul class="detail-list"><li>五层记忆资产集市应用：行业抽取压缩模板复用</li><li>记忆抽取压缩工作台：可视化配置蒸馏策略</li><li>混合检索调试平台：模拟提问召回历史记忆</li><li>MemoryGraph 智能溯源应用：冲突 / 高 Token 一键根因</li><li>遗忘冲突治理平台：时序衰减参数配置</li><li>记忆质量 A/B 实验平台：新旧压缩方案对照</li><li>多租户 Token 账单应用：分部门消耗报表</li><li>自治优化运营应用：自动生成压缩工单</li></ul></div>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h3>4.6 治理架构（六大全域记忆治理体系）</h3>
+          <div class="grid-2">
+            <div class="policy-card"><span class="policy-icon"><i class="fas fa-balance-scale"></i></span><h4>六大全域记忆治理体系</h4><ul class="detail-list"><li>五层记忆资产全生命周期治理</li><li>抽取蒸馏标准化治理</li><li>混合检索常态化治理</li><li>MemoryGraph 每日图谱增量更新治理</li><li>遗忘冲突闭环治理</li><li>多租户隐私与 Token 计量合规治理</li></ul></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S5 -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> 记忆中台全量产品功能模块</h2>
+        <span class="badge-count">全覆盖无遗漏</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-layer-group"></i></span><h4>模块 1：五层记忆资产池模块</h4><ul class="detail-list"><li>感官瞬时记忆：毫秒级缓存、会话结束自动丢弃</li><li>短期工作记忆：滑动窗口、动态裁剪、会话隔离</li><li>长期语义记忆：用户事实、项目经验持久存储</li><li>程序记忆：标准化业务流程、工具调用模板</li><li>多模态记忆：图文 / 音频 / 表格统一结构化存储</li><li>记忆版本、过期标记、批量归档清理</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-compress"></i></span><h4>模块 2：记忆抽取与蒸馏压缩模块</h4><ul class="detail-list"><li>LLM 自动抽取实体、偏好、任务、事件事实</li><li>短期轻量摘要、长期深度分层蒸馏</li><li>冗余对话、重复记忆自动合并过滤</li><li>行业专属抽取规则可视化配置</li><li>压缩力度梯度调节、Token 降幅预览</li><li>抽取任务批量调度、断点续跑</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-search"></i></span><h4>模块 3：向量 + 图谱混合检索模块</h4><ul class="detail-list"><li>稠密向量语义相似度召回</li><li>MemoryGraph 时序因果多跳关联检索</li><li>两路结果 Cross-Encoder 重排序融合</li><li>自适应 Top-K、长短记忆分层注入</li><li>冷热记忆自动路由加速检索</li><li>检索结果完整溯源绑定会话 ID</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>模块 4：MemoryGraph 记忆图谱模块</h4><ul class="detail-list"><li>每日交互日志自动抽取三元组入库</li><li>图谱可视化用户 - 会话 - 记忆时序拓扑</li><li>用户提问自动多跳召回关联历史</li><li>冲突、高 Token 记忆一键分层根因</li><li>自动推送蒸馏、抽取维度优化方案</li><li>每日交互数据自校准图谱权重</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-clock"></i></span><h4>模块 5：时序遗忘与冲突消解模块</h4><ul class="detail-list"><li>可配置时序遗忘衰减曲线</li><li>新旧事实自动冲突检测</li><li>时序优先自动覆盖失效旧记忆</li><li>手动 / 自动批量标记过期记忆</li<li>冲突记忆人工复审工作台</li><li>过期记忆定时批量归档</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-bar"></i></span><h4>模块 6：记忆质量 A/B 评测模块</h4><ul class="detail-list"><li>离线标准记忆集批量计算召回、冲突率</li><li>新旧压缩方案线上灰度对照</li><li>Token 压缩降幅自动统计</li><li>记忆质量上线准入阈值配置</li><li>劣化抽取策略自动预警</li><li>评测报告定时导出归档</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-shield-alt"></i></span><h4>模块 7：多租户 Token 计量 & 隐私模块</h4><ul class="detail-list"><li>企业 / 部门 / 项目四级记忆数据隔离</li><li>抽取 / 检索 / 注入全链路 Token 计量</li><li>租户月度消耗账单自动生成</li><li>个人隐私记忆自动脱敏</li><li>涉密记忆白名单管控</li><li>全交互日志永久审计留存</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sync-alt"></i></span><h4>模块 8：记忆自治迭代运营模块</h4><ul class="detail-list"><li>交互日志自动回流 MemoryGraph</li><li>高 Token、冲突记忆自动识别</li><li>自动生成蒸馏、抽取优化工单</li><li>月度记忆质量 & Token 复盘报表</li><li>行业抽取模板扩充建议</li><li>低效记忆资产批量清理</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S6 -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> 记忆中台全套指标体系</h2>
+        <span class="badge-count">资产 · 抽取 · 检索 · 图谱 · 质量 · 成本</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>记忆资产治理指标</strong></td><td>五层记忆分层覆盖率 100%；行业抽取模板复用率 ≥84%；过期冲突闲置记忆占比 ≤9%；记忆版本规范率 100%；资产盘点闭环率 100%</td></tr>
+              <tr><td><strong>抽取压缩效能指标</strong></td><td>事实抽取完整率 ≥91%；平均 Token 压缩降幅 ≥60%；冗余记忆合并率 ≥85%；抽取任务成功率 ≥99.9%；压缩仿真预览准确率 ≥96%</td></tr>
+              <tr><td><strong>混合检索效能指标</strong></td><td>记忆 Recall@5 ≥87%；检索 P95 延迟 ≤35ms；向量 + 图谱融合召回提升 ≥32%；自适应 Top-K 匹配准确率 ≥94%；冷热存储加速达标</td></tr>
+              <tr><td><strong>MemoryGraph 图谱专项指标</strong></td><td>全业务记忆场景覆盖率 100%；三元组完整率 ≥99.6%；多跳记忆召回推荐准确率 ≥95%；记忆故障根因推理准确率 ≥97%；图谱日增量更新及时率 ≥99.5%；图谱赋能 Token 降本贡献率 ≥36%</td></tr>
+              <tr><td><strong>记忆质量核心指标</strong></td><td>记忆事实准确率 ≥92%；事实冲突率 ≤4%；过期记忆检出率 100%；A/B 评测指标计算准确率 100%；劣化策略识别及时率 100%</td></tr>
+              <tr><td><strong>多租户成本安全指标</strong></td><td>租户记忆隔离合规率 100%；Token 计量误差趋近 0；隐私脱敏覆盖率 100%；审计日志留存率 100%；超支限流执行率 100%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- S7 -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> 记忆中台完整内容资产体系</h2>
+        <span class="badge-count">6大资产包</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sitemap"></i></span><h4>7.1 顶层规划资产</h4><ul class="detail-list"><li>记忆中台建设白皮书</li><li>分阶段落地实施路线图</li><li>企业 AI 记忆成熟度评估报告</li><li>记忆 - Agent-Copilot 协同长效方案</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-book"></i></span><h4>7.2 全域标准规范资产</h4><ul class="detail-list"><li>五层记忆分层管理标准</li><li>事实抽取与蒸馏压缩统一规范</li><li>向量 + 图谱混合检索配置规范</li><li>MemoryGraph 三元组抽取标准</li><li>记忆质量评测指标标准</li><li>多租户 Token 计量合规规范</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-database"></i></span><h4>7.3 记忆核心数字资产</h4><ul class="detail-list"><li>全行业记忆抽取压缩模板库</li><li>时序遗忘衰减配置资产</li><li>混合检索策略模板</li><li>MemoryGraph 记忆知识图谱资产包</li><li>离线记忆评测标准数据集</li><li>冲突消解优化策略库</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-tools"></i></span><h4>7.4 落地工程资产</h4><ul class="detail-list"><li>记忆中台部署实施手册</li><li>抽取压缩工作台操作指南</li><li>MemoryGraph 可视化运维手册</li><li>MCP 对接 API 文档</li><li>上线验收指标评估模板</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-pie"></i></span><h4>7.5 运营复盘资产</h4><ul class="detail-list"><li>月度记忆质量 & Token 成本分析报告</li><li>A/B 压缩专项复盘报告</li><li>行业记忆落地成果分析</li><li>隐私审计月度台账</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-shield-alt"></i></span><h4>7.6 应急保障资产</h4><ul class="detail-list"><li>大规模抽取任务雪崩应急预案</li><li>记忆图谱损坏恢复预案</li><li>大量事实冲突处置手册</li><li>Token 突增成本管控方案</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S8 -->
+    <section id="s8" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-share-alt"></i> 记忆中台与全中台全域协同关系</h2>
+        <span class="badge-count">12 大中台协同</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-3">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-microchip"></i></span><h4>算力中台</h4><ul class="detail-list"><li>提供抽取蒸馏 LLM、图谱推理弹性 GPU 算力</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-vector-square"></i></span><h4>Embedding 中台</h4><ul class="detail-list"><li>记忆单元批量生成稠密向量</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-database"></i></span><h4>向量库中台</h4><ul class="detail-list"><li>存储记忆语义向量，支撑相似度检索</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>图数据库</h4><ul class="detail-list"><li>依托中台管理 MemoryGraph 三元组</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-book"></i></span><h4>知识库中台</h4><ul class="detail-list"><li>业务静态知识补充长期记忆</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-search"></i></span><h4>RAG 中台</h4><ul class="detail-list"><li>记忆作为对话上下文增强检索</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-comment"></i></span><h4>Prompt 中台</h4><ul class="detail-list"><li>标准化注入分层记忆片段</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-key"></i></span><h4>Token 中台</h4><ul class="detail-list"><li>统一归集记忆抽取 / 注入消耗计量</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-robot"></i></span><h4>Agent 中台</h4><ul class="detail-list"><li>多智能体长期任务记忆唯一供给</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-copilot"></i></span><h4>Copilot 中台</h4><ul class="detail-list"><li>研发 / 办公副驾驶核心记忆底座</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-robot"></i></span><h4>具身智能中台</h4><ul class="detail-list"><li>机器人感知轨迹记忆存储</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-plug"></i></span><h4>MCP 中台</h4><ul class="detail-list"><li>封装记忆读写标准化资源</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-tachometer-alt"></i></span><h4>效能中台</h4><ul class="detail-list"><li>采集记忆质量、Token 消耗做 ROI 分析</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- S9 -->
+    <section id="s9" class="card banner-card">
+      <div class="card-body">
+        <div class="icon-big"><i class="fas fa-flag"></i></div>
+        <h2>记忆中台 · 核心价值总结</h2>
+        <p>企业全域分层记忆统一管控底座，消除各 Agent/Copilot 独立会话记忆烟囱，一套平台覆盖瞬时 / 短期 / 长期 / 程序 / 多模态五类记忆；<br>自动蒸馏分层压缩，平均降低 60% 以上上下文 Token 消耗，大幅削减大模型推理成本；<br>向量语义 + MemoryGraph 时序因果双引擎混合检索，支持跨会话多跳历史关联，记忆召回率提升 30%+；<br>内置时序遗忘 + 事实冲突自治机制，自动淘汰过期、修正矛盾记忆，从源头降低 AI 幻觉；<br>MemoryGraph 沉淀用户交互经验，自动推荐相关历史记忆、一键定位冲突 / 高 Token 根因；<br>多租户四级隔离 + 精准 Token 分摊，兼顾业务数据隐私与 AI 成本精细化核算；<br>标准化 MCP 对外输出记忆能力，无缝打通 RAG/Agent/Copilot 全 AI 链路，是所有长交互智能应用的底层认知记忆核心基础设施。</p>
+        <div class="footer-note">记忆（Memory）中台 · 长短记忆 + MemoryGraph 图谱一体化底座 · 全链路对齐 Embedding/RAG/Agent/Copilot 统一中台架构范式</div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

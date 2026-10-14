@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>企业级全域中台完整体系说明书</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ===== 设计系统 Token（完全继承参考样式） ===== */
+    :root {
+      --color-primary: #7a2e1a;
+      --color-primary-light: #fce9e0;
+      --color-primary-dark: #4d1c0e;
+      --color-accent: #b85c3a;
+      --color-accent-soft: #f0c8b8;
+      --color-accent-glow: rgba(184, 92, 58, 0.10);
+      --color-neutral-50: #fcf9f7;
+      --color-neutral-100: #f5ede8;
+      --color-neutral-200: #e5d7ce;
+      --color-neutral-300: #cbb8ab;
+      --color-neutral-400: #a68b7a;
+      --color-neutral-600: #6f5544;
+      --color-neutral-700: #4f3a2e;
+      --color-neutral-800: #34241c;
+      --color-neutral-900: #1e140f;
+      --color-gold: #c29a4a;
+      --color-gold-light: #f3e1b0;
+      --color-jade: #3b7a5e;
+      --color-jade-light: #d4ede0;
+      --color-success: #1f6e4a;
+      --color-warning: #a86b2c;
+      --color-error: #b13a2a;
+      --font-base: 1rem;
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-12: 3rem;
+      --radius-sm: 0.75rem;
+      --radius-md: 1.25rem;
+      --radius-card: 2rem;
+      --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(60, 30, 10, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(60, 30, 10, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(60, 30, 10, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+      --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ===== 重置 & 基础 ===== */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    /* ===== 布局 ===== */
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(255, 249, 245, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(255, 235, 220, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); letter-spacing:-0.01em; }
+    .sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+    .sidebar nav ul { list-style:none; padding:0; margin:0; }
+    .sidebar nav ul li { margin-bottom:0.1rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:12px;
+      padding:0.55rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.85rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+    }
+    .sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+    .sidebar nav ul li a:hover,
+    .sidebar nav ul li a:focus-visible {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateX(4px);
+    }
+    .sidebar-footer {
+      margin-top:24px; padding:12px; text-align:center;
+      font-size:0.7rem; color:var(--color-neutral-600);
+      border-top:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 主内容 ===== */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+    /* ===== 页面头部 ===== */
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+      font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+    .page-header .header-meta {
+      font-size:0.9rem; color:var(--color-neutral-600);
+      background:var(--color-neutral-100);
+      padding:0.4rem 1.2rem;
+      border-radius:var(--radius-pill);
+      border:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 卡片系统 ===== */
+    .card {
+      background:rgba(255,252,248,0.92);
+      backdrop-filter: blur(4px);
+      border-radius:var(--radius-card);
+      box-shadow:var(--shadow-card);
+      margin-bottom:var(--space-6);
+      border:1px solid rgba(255, 235, 220, 0.5);
+      overflow:hidden;
+      transition: box-shadow var(--transition-default), transform 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6);
+      background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft);
+      display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 {
+      font-size:clamp(1.2rem, 2.2vw, 1.6rem);
+      font-weight:700; color:var(--color-primary-dark);
+      display:flex; align-items:center; gap:12px;
+      letter-spacing:-0.01em;
+    }
+    .card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+    .card-header .badge-count {
+      margin-left:auto;
+      background:var(--color-accent);
+      color:white;
+      border-radius:var(--radius-pill);
+      padding:0.15rem 0.9rem;
+      font-size:0.7rem;
+      font-weight:600;
+      letter-spacing:0.3px;
+    }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* ===== 网格 & 卡片（数据治理卡片风格） ===== */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } .grid-4 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; } }
+
+    /* 数据治理卡片 (复用九字卡片) */
+    .gov-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md);
+      padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: all var(--transition-default);
+      position:relative;
+      overflow:hidden;
+      border-left: 4px solid var(--color-accent);
+    }
+    .gov-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft));
+      opacity:0;
+      transition: opacity var(--transition-default);
+    }
+    .gov-card:hover::before { opacity:1; }
+    .gov-card:hover {
+      border-color:var(--color-accent-soft);
+      box-shadow: 0 8px 24px -8px rgba(184,92,58,0.15);
+      transform:translateY(-3px);
+    }
+    .gov-card .gov-icon {
+      font-size:1.8rem;
+      color:var(--color-primary);
+      display:inline-block;
+      margin-right:6px;
+      background: var(--color-primary-light);
+      padding:0.2rem 0.6rem;
+      border-radius:12px;
+    }
+    .gov-card h4 {
+      color:var(--color-primary-dark);
+      font-size:1.05rem;
+      margin-bottom:0.4rem;
+      display:flex; align-items:center; gap:8px;
+      flex-wrap:wrap;
+    }
+    .gov-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+    .gov-card .detail-list {
+      padding-left:0; margin:0.4rem 0 0 0;
+      list-style:none;
+    }
+    .gov-card .detail-list li {
+      margin-bottom:0.25rem;
+      padding-left:1.2rem;
+      position:relative;
+      font-size:0.85rem;
+      color:var(--color-neutral-700);
+    }
+    .gov-card .detail-list li::before {
+      content:'▹'; position:absolute; left:0;
+      color:var(--color-accent);
+      font-weight:600;
+    }
+    .gov-card .detail-list li strong { color:var(--color-neutral-800); }
+    .gov-card .tag-layer {
+      display:inline-block;
+      background:var(--color-gold-light);
+      color:var(--color-primary-dark);
+      border-radius:20px;
+      padding:0.05rem 0.8rem;
+      font-size:0.6rem;
+      font-weight:700;
+      letter-spacing:0.3px;
+      margin-left:0.5rem;
+    }
+
+    /* ===== 架构层（继承九层闭环） ===== */
+    .arch-diagram {
+      display:flex;
+      flex-direction:column;
+      gap:0.6rem;
+      padding:0.5rem 0;
+    }
+    .arch-layer {
+      display:flex;
+      align-items:stretch;
+      gap:0.75rem;
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.6rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: var(--transition-default);
+    }
+    .arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+    .arch-layer .layer-label {
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      min-width:120px;
+      padding-right:1rem;
+      border-right:2px solid var(--color-neutral-200);
+      font-weight:700;
+      font-size:0.8rem;
+      color:var(--color-primary-dark);
+      letter-spacing:0.3px;
+    }
+    .arch-layer .layer-label i {
+      font-size:1.1rem;
+      color:var(--color-accent);
+      margin-bottom:0.1rem;
+    }
+    .arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+    .arch-layer .layer-blocks {
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:0.5rem;
+      flex:1;
+      padding:0.2rem 0;
+    }
+    .arch-block {
+      background:white;
+      border-radius:var(--radius-sm);
+      padding:0.3rem 0.9rem;
+      border:1px solid var(--color-neutral-200);
+      font-size:0.75rem;
+      font-weight:500;
+      color:var(--color-neutral-700);
+      transition: var(--transition-default);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .arch-block:hover {
+      border-color:var(--color-accent);
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateY(-1px);
+    }
+    .arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+    .arch-block.highlight-block {
+      background:var(--color-accent);
+      color:white;
+      border-color:var(--color-accent);
+    }
+    .arch-block.highlight-block i { color:white; }
+    .arch-layer.inner-layer { background:linear-gradient(135deg, #f5efe8, #f0e4da); border-color:var(--color-accent-soft); }
+    .arch-layer.outer-layer { background:linear-gradient(135deg, #f0f2ed, #e6ece2); border-color:#b8c8aa; }
+    .arch-layer.outer-layer .layer-label { border-right-color:#b8c8aa; color:#2d5a3a; }
+    .arch-layer.outer-layer .layer-label i { color:#3b7a5e; }
+    .arch-layer.outer-layer .arch-block { border-color:#c8d8b8; }
+    .arch-layer.outer-layer .arch-block:hover { border-color:#3b7a5e; background:#e0ede0; }
+    .arch-layer.ultimate-layer { background:linear-gradient(135deg, #f0ede8, #e8e0d8); border-color:#c8b8a8; }
+    .arch-layer.ultimate-layer .layer-label { border-right-color:#c8b8a8; color:#6a4a3a; }
+    .arch-layer.ultimate-layer .layer-label i { color:#8a6a5a; }
+    .arch-layer.ultimate-layer .arch-block { border-color:#d8c8b8; }
+    .arch-layer.ultimate-layer .arch-block:hover { border-color:#8a6a5a; background:#ede0d8; }
+
+    /* ===== 表格 ===== */
+    .table-wrapper {
+      overflow-x:auto;
+      border-radius:var(--radius-md);
+      border:1px solid var(--color-neutral-200);
+      background:white;
+    }
+    table {
+      width:100%; border-collapse:collapse; font-size:0.78rem;
+    }
+    th {
+      background:var(--color-neutral-100);
+      padding:12px 10px;
+      font-weight:600;
+      color:var(--color-primary-dark);
+      text-align:left;
+      border-bottom:2px solid var(--color-neutral-200);
+      font-size:0.7rem;
+      text-transform:uppercase;
+      letter-spacing:0.4px;
+    }
+    td {
+      padding:10px 10px;
+      border-bottom:1px solid var(--color-neutral-200);
+      vertical-align:middle;
+      color:var(--color-neutral-700);
+    }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--color-neutral-50); }
+    .level-tag {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      border-radius:var(--radius-pill);
+      padding:0.05rem 0.7rem;
+      font-size:0.65rem;
+      font-weight:600;
+      display:inline-block;
+    }
+
+    /* ===== 信息提示 ===== */
+    .info-tip {
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.7rem 1.5rem;
+      border-left:5px solid var(--color-accent);
+      margin-top:var(--space-4);
+      display:flex; align-items:center; gap:0.8rem;
+      font-size:0.9rem;
+      color:var(--color-neutral-700);
+    }
+    .info-tip i { color:var(--color-accent); font-size:1rem; }
+
+    /* ===== 横幅 ===== */
+    .banner-card {
+      background: linear-gradient(135deg, #f5ede6, #e8dcd2);
+      text-align:center;
+      border-color:var(--color-accent-soft);
+    }
+    .banner-card .card-body { padding:2.5rem var(--space-6); }
+    .banner-card .icon-big { font-size:3rem; color:var(--color-primary); opacity:0.7; margin-bottom:var(--space-3); }
+    .banner-card h2 { color:var(--color-primary-dark); font-size:clamp(1.4rem, 2.5vw, 1.9rem); margin-bottom:var(--space-2); }
+    .banner-card p { max-width:680px; margin:0 auto; color:var(--color-neutral-700); font-size:1rem; }
+    .banner-card .footer-note { margin-top:var(--space-6); font-size:0.8rem; color:var(--color-primary); }
+
+    /* ===== 响应式 ===== */
+    @media (max-width:1024px) { .sidebar { width:220px; } }
+    @media (max-width:760px) {
+      .sidebar { display:none; }
+      .layout { padding:0.5rem; }
+      .main-content { padding:0; }
+      .card-body { padding:1.25rem var(--space-4); }
+      .card-header { padding:1rem var(--space-4); }
+      .page-header { flex-direction:column; align-items:flex-start; }
+    }
+
+    /* ===== 暗色 ===== */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #1a1410;
+        --color-neutral-100: #221c18;
+        --color-neutral-200: #3a2c24;
+        --color-neutral-300: #5a4a3e;
+        --color-neutral-400: #8a7a6e;
+        --color-neutral-600: #b8a89c;
+        --color-neutral-700: #d0c4b8;
+        --color-neutral-800: #e8dcd0;
+        --color-neutral-900: #f5ede6;
+        --color-primary-light: #3a2a20;
+        --color-accent-soft: #6a4a3a;
+        --color-primary: #d08a6a;
+        --color-primary-dark: #f0c8b0;
+        --color-accent: #c07a5a;
+        --color-gold: #c29a4a;
+        --color-gold-light: #4a3a20;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6);
+        --shadow-card-hover: 0 20px 48px -12px rgba(0,0,0,0.7);
+        --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #120e0a; }
+      .card { background: #1a1410; border-color: #3a2c24; }
+      .card-header { background: #1a1410; border-bottom-color: #4a3a2e; }
+      .gov-card { background: #1a1410; border-color: #3a2c24; }
+      .gov-card .gov-icon { background: #2a1e16; color: #d08a6a; }
+      .gov-card .detail-list li { color: #c0b4a8; }
+      .gov-card .detail-list li strong { color: #e0d4c8; }
+      .table-wrapper { background: #1a1410; border-color: #3a2c24; }
+      th { background: #221c18; color: #e0d4c8; border-bottom-color: #4a3a2e; }
+      td { border-bottom-color: #2a241e; color: #c0b4a8; }
+      tr:hover td { background: #2a241e; }
+      .sidebar { background: rgba(20, 16, 12, 0.92); border-color: #3a2c24; }
+      .sidebar-brand { border-bottom-color: #4a3a2e; }
+      .sidebar-brand h3 { color: #d08a6a; }
+      .sidebar nav ul li a { color: #c0b4a8; }
+      .sidebar nav ul li a:hover { background: #3a2c24; color: white; }
+      .info-tip { background: #1a1410; border-left-color: #c07a5a; color: #c0b4a8; }
+      .banner-card { background:linear-gradient(135deg,#1a1410,#2a241e); }
+      .banner-card p { color: #c0b4a8; }
+      .page-header h1 { background:linear-gradient(135deg,#f0c8b0,#d08a6a); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#2a241e; border-color:#4a3a2e; color:#b8a89c; }
+      .arch-layer { background:#1a1410; border-color:#3a2c24; }
+      .arch-layer:hover { background:#2a1e16; border-color:#5a4a3e; }
+      .arch-layer .layer-label { border-right-color:#3a2c24; color:#e0d4c8; }
+      .arch-block { background:#1a1410; border-color:#3a2c24; color:#c0b4a8; }
+      .arch-block:hover { background:#3a2c24; border-color:#c07a5a; }
+      .arch-layer.inner-layer { background:linear-gradient(135deg,#1a1410,#2a1e16); border-color:#5a3a2a; }
+      .arch-layer.outer-layer { background:linear-gradient(135deg,#141a12,#1a2618); border-color:#2a4a2a; }
+      .arch-layer.outer-layer .layer-label { border-right-color:#2a4a2a; color:#8aba8a; }
+      .arch-layer.outer-layer .layer-label i { color:#5a9a6a; }
+      .arch-layer.outer-layer .arch-block { border-color:#2a4a2a; color:#a0c8a0; }
+      .arch-layer.outer-layer .arch-block:hover { border-color:#5a9a6a; background:#1a2a1a; }
+      .arch-layer.ultimate-layer { background:linear-gradient(135deg,#1a1410,#221c18); border-color:#4a3a2e; }
+      .arch-layer.ultimate-layer .layer-label { border-right-color:#4a3a2e; color:#c8b0a0; }
+      .arch-layer.ultimate-layer .layer-label i { color:#a08070; }
+      .arch-layer.ultimate-layer .arch-block { border-color:#4a3a2e; color:#c8b8a8; }
+      .arch-layer.ultimate-layer .arch-block:hover { border-color:#a08070; background:#2a241e; }
+    }
+    
+    /* ===== 优化新增样式 ===== */
+    /* 核心价值区域优化样式 */
+    .value-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .value-header .icon-big {
+        font-size: 2.8rem;
+        color: var(--color-primary);
+        opacity: 0.8;
+        margin-bottom: 0.5rem;
+    }
+    .value-header h2 {
+        font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+        color: var(--color-primary-dark);
+        margin-bottom: 0.25rem;
+    }
+    .value-subtitle {
+        font-size: 1rem;
+        color: var(--color-neutral-600);
+        letter-spacing: 2px;
+        font-weight: 300;
+    }
+
+    /* 价值网格 */
+    .value-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin: 1.5rem 0 2rem 0;
+    }
+    .value-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(4px);
+        padding: 1.2rem 1.4rem;
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 235, 220, 0.5);
+        transition: all 0.3s ease;
+    }
+    .value-item:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-card-hover);
+        border-color: var(--color-accent-soft);
+        background: rgba(255, 255, 255, 0.85);
+    }
+    .value-item .value-icon {
+        flex-shrink: 0;
+        width: 2.8rem;
+        height: 2.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--color-primary-light);
+        border-radius: 50%;
+        color: var(--color-accent);
+        font-size: 1.2rem;
+    }
+    .value-item .value-content h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--color-primary-dark);
+        margin-bottom: 0.3rem;
+        line-height: 1.3;
+    }
+    .value-item .value-content p {
+        font-size: 0.9rem;
+        color: var(--color-neutral-700);
+        line-height: 1.6;
+        margin: 0;
+    }
+    /* 最后一项占满整行 */
+    .value-item.full-width {
+        grid-column: 1 / -1;
+    }
+
+    /* 暗色主题适配 */
+    @media (prefers-color-scheme: dark) {
+        .value-item {
+            background: rgba(30, 24, 20, 0.7);
+            border-color: var(--color-neutral-200);
+        }
+        .value-item:hover {
+            background: rgba(40, 32, 26, 0.9);
+            border-color: var(--color-accent-soft);
+        }
+        .value-item .value-content p {
+            color: var(--color-neutral-600);
+        }
+        .value-subtitle {
+            color: var(--color-neutral-400);
+        }
+    }
+
+    /* 响应式布局 */
+    @media (max-width: 768px) {
+        .value-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        .value-item {
+            padding: 1rem 1.2rem;
+        }
+        .value-item .value-content h4 {
+            font-size: 0.95rem;
+        }
+        .value-item .value-content p {
+            font-size: 0.85rem;
+        }
+    }
+    
+    /* 正文文本样式补充 */
+    .content-text {
+      font-size: 0.95rem;
+      color: var(--color-neutral-700);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+    .content-text strong {
+      color: var(--color-primary-dark);
+    }
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--color-primary-dark);
+      margin: 1.5rem 0 1rem 0;
+      border-bottom: 2px solid var(--color-primary-light);
+      padding-bottom: 0.5rem;
+    }
+    .subsection-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--color-neutral-800);
+      margin: 1.2rem 0 0.8rem 0;
+    }
+    .normal-list {
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--color-neutral-700);
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+    .normal-list li {
+      margin-bottom: 0.3rem;
+    }
+    .normal-list li strong {
+      color: var(--color-neutral-800);
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-sitemap" aria-hidden="true"></i>
+      <h3>全域中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-book-open"></i> 全域中台定义</a></li>
+        <li><a href="#s1"><i class="fas fa-tasks"></i> 运维中台专项</a></li>
+        <li><a href="#s2"><i class="fas fa-book"></i> 知识体系+图谱</a></li>
+        <li><a href="#s3"><i class="fas fa-sitemap"></i> 六大核心架构</a></li>
+        <li><a href="#s4"><i class="fas fa-puzzle-piece"></i> 产品功能模块</a></li>
+        <li><a href="#s5"><i class="fas fa-chart-line"></i> 全套指标体系</a></li>
+        <li><a href="#s6"><i class="fas fa-boxes"></i> 完整内容体系</a></li>
+        <li><a href="#s7"><i class="fas fa-share-alt"></i> 协同关系总结</a></li>
+        <li><a href="#s8"><i class="fas fa-flag"></i> 核心价值总结</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-sitemap"></i> 全域中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-sitemap"></i> 企业级全域中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> 全结构化完整版</span>
+    </header>
+
+    <!-- ===== S0 全域中台定义 ===== -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> 企业全域中台完整定义</h2>
+        <span class="badge-count">通用总述</span>
+      </div>
+      <div class="card-body">
+        <div class="arch-diagram">
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-cogs"></i> 技术底座 <span class="sub">技术/数据/业务/AI/运营/模型/算法/运维</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-server"></i> 技术中台</span>
+              <span class="arch-block"><i class="fas fa-database"></i> 数据中台</span>
+              <span class="arch-block"><i class="fas fa-box"></i> 业务中台</span>
+              <span class="arch-block"><i class="fas fa-brain"></i> AI中台</span>
+              <span class="arch-block"><i class="fas fa-bullhorn"></i> 运营中台</span>
+              <span class="arch-block"><i class="fas fa-microchip"></i> 模型中台</span>
+              <span class="arch-block"><i class="fas fa-calculator"></i> 算法中台</span>
+              <span class="arch-block"><i class="fas fa-tasks"></i> 运维中台</span>
+            </div>
+          </div>
+          <div class="arch-layer outer-layer">
+            <div class="layer-label"><i class="fas fa-rocket"></i> 核心能力 <span class="sub">资产化沉淀/服务化封装/智能化赋能/全域化治理</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block highlight-block"><i class="fas fa-cubes"></i> 能力复用</span>
+              <span class="arch-block"><i class="fas fa-sync-alt"></i> 迭代升级</span>
+              <span class="arch-block"><i class="fas fa-shield-alt"></i> 风险可控</span>
+              <span class="arch-block"><i class="fas fa-chart-line"></i> 经营闭环</span>
+            </div>
+          </div>
+          <div class="arch-layer ultimate-layer">
+            <div class="layer-label"><i class="fas fa-star"></i> 终极价值 <span class="sub">技术筑基/数据供料/业务定标/算法赋逻/模型赋能/AI升维/运营增收/运维稳盘</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-building"></i> 全域数智闭环</span>
+              <span class="arch-block"><i class="fas fa-expand-arrows-alt"></i> 场景快速创新</span>
+              <span class="arch-block"><i class="fas fa-gem"></i> 资产持续沉淀</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section-title">1.1 标准官方定义</div>
+        <div class="content-text">
+          企业全域中台是企业数字化转型的核心能力中枢与全域资产复用底座，是基于领域驱动设计、资产化沉淀、服务化封装、智能化赋能、全域化治理思想，整合企业底层技术资源、全域数据资产、通用业务能力、智能模型知识、全域运营能力、算法能力、运维能力，通过标准化、模块化、组件化、知识化、可编排的体系化建设，将企业零散、重复、烟囱式、定制化的技术、数据、业务、AI、算法、运维、运营能力统一沉淀为可复用、可迭代、可自动化、可治理的企业数字资产，为前台所有业务场景、创新应用、全域经营、系统稳定运行提供统一支撑的企业级全域能力复用平台与数智化赋能中枢。
+        </div>
+        <div class="content-text">
+          企业全域中台并非单一系统，而是由技术中台、数据中台、业务中台、AI中台、运营中台、模型中台、算法中台、运维中台八大核心中台构成的完整全域中台矩阵，彻底解决企业系统烟囱、能力重复建设、数据割裂、业务标准化不足、运营碎片化、AI模型零散、算法逻辑混乱、运维碎片化、故障不可控、运维经验无法沉淀等数字化、智能化、工程化痛点，实现一次建设、全域复用、场景快速创新、资产持续沉淀、能力持续迭代、经营与运维双闭环增长的企业高阶数智化终极架构。
+        </div>
+        
+        <div class="section-title">1.2 八大子中台精准边界与协同关系</div>
+        <div class="content-text">
+          - <strong>技术中台：</strong>管底层技术底座、研发运维、云原生资源，解决「系统稳、迭代快、架构统一」；<br>
+          - <strong>数据中台：</strong>管全域数据治理、数据资产、指标体系，解决「数据可信、数据统一、数据价值释放」；<br>
+          - <strong>业务中台：</strong>管通用业务实体、业务流程、业务规则，解决「业务标准化、业务复用、前台业务快速落地」；<br>
+          - <strong>AI中台：</strong>管顶层智能能力、知识推理、智能决策编排，解决「场景智能化、知识赋能业务」；<br>
+          - <strong>运营中台：</strong>管用户、内容、活动、渠道、策略、自动化运营，解决「运营标准化、精细化、自动化、经营可量化」；<br>
+          - <strong>模型中台：</strong>管算力、模型全生命周期、样本特征、模型工程化，解决「AI模型落地难、不可控、无法规模化」；<br>
+          - <strong>算法中台：</strong>管全域算法、算子组件、智能编排、规则推理，解决「智能逻辑零散、无法复用、迭代混乱」；<br>
+          - <strong>运维中台（新增核心）：</strong>管全域IT资源、监控告警、故障处置、变更发布、巡检容灾、运维知识、自动化运维，解决「运维分散、人工低效、故障频发、无体系、无沉淀、无智能」，是企业全域系统稳定、安全、高效运行的智能运维工程底座与运维资产中枢。
+        </div>
+        
+        <div class="section-title">1.3 全域中台核心建设目标</div>
+        <ol class="normal-list">
+          <li><strong>彻底打破企业信息化、数字化、智能化建设烟囱，</strong>构建技术、数据、业务、AI、算法、模型、运营、运维八位一体全域统一架构；</li>
+          <li><strong>实现企业所有通用能力资产化、标准化、组件化、可复用，</strong>杜绝重复建设与资源浪费；</li>
+          <li><strong>实现研发、数据、业务、智能、运营、运维全流程自动化、智能化、可治理、可追溯；</li>
+          <li><strong>轻量化支撑前台业务创新、场景迭代、系统稳定运行、风险可控；</strong></li>
+          <li><strong>构建全域知识体系与多专项知识图谱，</strong>沉淀企业数字化、智能化、运维工程化全量经验；</li>
+          <li><strong>形成「技术筑基、数据供料、业务定标、算法赋逻、模型赋能、AI升维、运营增收、运维稳盘」的完整全域数智闭环。</strong></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== S1 运维中台专项 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-tasks"></i> 运维中台专项完整定义</h2>
+        <span class="badge-count">核心专项</span>
+      </div>
+      <div class="card-body">
+        <div class="section-title">2.1 运维中台标准定义</div>
+        <div class="content-text">
+          运维中台是企业全域IT系统、云资源、业务应用、智能服务的统一智能运维中枢与运维资产复用底座，隶属于企业全域中台工程保障层，承接技术中台基础设施、数据中台监控数据、模型与算法中台智能能力、业务中台业务场景，基于AIOps智能运维、可观测工程、自动化运维、ITIL标准体系、运维知识工程，实现企业全域资源监控、告警处置、故障定位、变更发布、日常巡检、容灾备份、权限审计、运维流程、运维经验的统一纳管、统一标准、统一调度、统一自动化、统一智能分析、统一知识沉淀、统一全域治理。
+        </div>
+        <div class="content-text">
+          运维中台彻底解决传统运维「工具零散、数据割裂、人工依赖重、故障响应慢、变更风险高、巡检不标准、运维经验流失、无统一规范、无智能分析、无资产沉淀」的核心痛点，将企业所有运维能力、运维流程、运维标准、故障案例、处置预案、资源拓扑沉淀为标准化、自动化、智能化、可复用的运维数字资产，为企业全域系统、业务、AI智能服务提供高可用、高稳定、高安全、低成本、可自治、可迭代的全域运维保障，是企业数智化体系稳定运行的核心基石。
+        </div>
+        
+        <div class="section-title">2.2 运维中台核心本质与定位</div>
+        <div class="content-text">
+          <strong>战略定位：</strong>企业全域IT稳定运行唯一保障底座、运维资产沉淀中心、自动化运维能力中心、智能故障处置中心、运维标准统一中心、运维风险治理中心、数智体系稳态运营核心引擎。
+        </div>
+        <div class="content-text">
+          <strong>核心本质：</strong>运维能力标准化、运维流程自动化、运维故障智能化、运维经验资产化、运维风险可控化、运维体系可迭代化。
+        </div>
+        <div class="content-text">
+          <strong>核心边界：</strong>向下纳管全域基础设施与云资源、向上支撑所有业务与智能场景、横向联动七大中台，专注系统稳态保障、故障治理、变更治理、运维自动化、运维知识沉淀，不参与业务经营与智能算法建模，专注全域数智体系的稳定、安全、可控、可运营。
+        </div>
+        
+        <div class="section-title">2.3 运维中台核心特征</div>
+        <ol class="normal-list">
+          <li><strong>全域统一纳管：</strong>统一纳管服务器、容器、中间件、数据库、网络、业务应用、AI服务、算法服务全层级资源；</li>
+          <li><strong>全链路可观测：</strong>覆盖指标、日志、链路、拓扑、告警、变更、故障全链路可观测体系；</li>
+          <li><strong>运维自动化：</strong>巡检、发布、重启、备份、清理、自愈、告警处置全流程自动化编排；</li>
+          <li><strong>故障智能化：</strong>依托算法与知识图谱实现告警收敛、根因定位、故障推理、预案智能匹配；</li>
+          <li><strong>资产可复用：</strong>运维流程、预案、脚本、标准、案例、拓扑全部资产化跨场景复用；</li>
+          <li><strong>全流程可追溯：</strong>所有运维操作、变更、故障、审批、日志全链路留存审计；</li>
+          <li><strong>知识可沉淀迭代：</strong>构建专属运维知识体系与运维知识图谱，实现运维经验结构化、可推理、可传承。</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== S2 知识体系+图谱 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book"></i> 运维中台专属完整知识体系 + 运维知识图谱体系</h2>
+        <span class="badge-count">知识域+图谱体系</span>
+      </div>
+      <div class="card-body">
+        <div class="subsection-title">3.1 运维中台十大核心知识域</div>
+        <div class="content-text" style="margin-bottom: 1.5rem;">运维中台知识体系是企业全域智能运维工程落地的标准化知识集合，以可观测工程知识、ITIL流程知识、自动化运维知识、故障治理知识、变更发布知识、容灾备份知识、资源运维知识、安全合规运维知识、AIOps智能运维知识、运维资产迭代知识为核心底层，覆盖运维从日常保障、故障处置、风险管控到经验沉淀的全链路标准化知识，形成企业可传承、可复用、可智能推理的专属运维知识体系。</div>
+        
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>3.1.1 运维战略与架构规划知识域</h4><ul class="detail-list"><li>企业全域运维体系顶层规划、运维中台建设路线、稳态运维建设方法论；传统人工运维改造、运维工具整合、运维能力解耦、运维资产沉淀规范；运维成熟度评估、运维SLA体系建设、运维成本优化、运维价值落地知识；基础运维、自动化运维、智能运维、自治运维四级能力迭代建设知识</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-eye"></i></span><h4>3.1.2 全域可观测工程知识域</h4><ul class="detail-list"><li>指标监控、日志分析、链路追踪、拓扑感知、用户体验监控五维可观测体系；基础设施、容器、应用、中间件、数据库、AI服务分层监控规范；告警分级、降噪、收敛、聚合、关联分析、预警预判方法论；监控指标体系建设、阈值优化、数据校准、观测精度优化知识</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-clipboard-list"></i></span><h4>3.1.3 ITIL标准流程知识域</h4><ul class="detail-list"><li>事件管理、问题管理、变更管理、发布管理、配置管理、容量管理标准流程；运维工单流转、审批流程、故障闭环、复盘改进标准化体系；运维角色分工、权限体系、岗位职责、运维考核标准知识；日常运维、紧急运维、重大故障运维分级处置规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-robot"></i></span><h4>3.1.4 自动化运维工程知识域</h4><ul class="detail-list"><li>运维脚本标准化、自动化任务编排、定时任务管理、批量运维体系；自动化巡检、自动备份、自动清理、自动重启、自动自愈落地方法论；运维流水线搭建、发布流水线、故障处置流水线标准化知识；低代码运维编排、跨资源自动化协同、无人值守运维建设规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exclamation-triangle"></i></span><h4>3.1.5 故障治理与根因分析知识域</h4><ul class="detail-list"><li>硬件故障、系统故障、网络故障、数据库故障、应用故障、AI服务故障分类处置；故障分级定级、响应时效、处置步骤、升级机制、复盘整改体系；基于拓扑与链路的故障根因推理、故障传播分析、故障影响评估知识；典型故障案例库、故障预案、故障预防策略、迭代优化方法论</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-code-branch"></i></span><h4>3.1.6 变更与发布治理知识域</h4><ul class="detail-list"><li>应用变更、配置变更、参数变更、版本变更标准化管控规范；灰度发布、分批发布、回滚机制、变更风险评估、变更稽核体系；紧急变更、常规变更、重大变更分级审批与管控知识；变更故障预防、变更复盘、变更标准化迭代优化体系</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>3.1.7 资源与配置运维知识域</h4><ul class="detail-list"><li>服务器、容器、云资源、数据库、中间件资源台账与生命周期运维；资源容量评估、资源扩容缩容、闲置资源清理、成本优化知识；配置资产纳管、配置版本回溯、配置漂移检测、配置合规治理；全域IT拓扑构建、资源依赖关系梳理、架构运维保障知识</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-life-ring"></i></span><h4>3.1.8 容灾与备份运维知识域</h4><ul class="detail-list"><li>数据备份、增量备份、定时备份、异地备份、备份校验体系；系统容灾、应用容灾、数据库容灾、故障切换、灾备演练知识；极端故障应急处置、停机恢复、业务快速回迁落地方法论；容灾等级评估、备份有效性治理、灾备体系迭代优化规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>3.1.9 安全与合规运维知识域</h4><ul class="detail-list"><li>运维操作安全、权限安全、账号安全、日志审计、访问管控知识；运维合规标准、等保合规、操作合规、变更合规、备份合规体系；高危操作拦截、风险运维预警、违规行为追溯、安全整改知识；日常安全巡检、月度合规自查、年度运维审计落地规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>3.1.10 AIOps智能运维迭代知识域</h4><ul class="detail-list"><li>运维数据智能分析、告警智能收敛、故障智能预测、趋势智能研判；运维效果量化评估、SLA达成分析、运维效率提升、风险趋势分析；运维经验AI化、故障案例智能复用、处置方案智能推荐方法论；运维体系持续迭代、自动化覆盖率提升、故障率压降优化知识</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.2 运维中台专属知识图谱体系（核心专项）</div>
+        <div class="content-text" style="margin-bottom: 1.5rem;">运维知识图谱（OpsGraph）是企业全域运维资源、运维关系、故障因果、处置经验、流程规范、风险规则的结构化智能知识网络。基于可观测数据、IT配置资产、运维工单、故障案例、变更记录、拓扑关系，通过知识抽取、三元组构建、关系补全、因果推理，搭建覆盖「资源-应用-故障-告警-变更-预案-人员」的全域运维知识网络，解决传统运维「经验依赖个人、故障排查慢、因果看不清、案例无法复用、风险无法预判」的痛点，实现运维可感知、可推理、可自愈、可传承、可迭代。</div>
+        
+        <div class="subsection-title">3.2.1 运维知识图谱核心实体体系</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>资源实体</h4><ul class="detail-list"><li>服务器、容器、节点、数据库、中间件、网络设备、AI服务、应用系统、域名资源</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>拓扑实体</h4><ul class="detail-list"><li>资源依赖、调用链路、集群关系、层级架构、业务归属、部署关系</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bell"></i></span><h4>告警实体</h4><ul class="detail-list"><li>告警类型、告警级别、告警指标、触发阈值、告警时间、关联资源</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exclamation-circle"></i></span><h4>故障实体</h4><ul class="detail-list"><li>故障类型、故障现象、故障影响、故障时长、根因标签、处置结果</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-code-commit"></i></span><h4>变更实体</h4><ul class="detail-list"><li>变更类型、变更范围、变更时间、变更内容、审批记录、变更风险</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book-medical"></i></span><h4>预案案例实体</h4><ul class="detail-list"><li>处置步骤、适用场景、操作脚本、复盘结论、优化策略</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-clipboard-check"></i></span><h4>运维流程实体</h4><ul class="detail-list"><li>工单流程、审批流程、巡检流程、发布流程、应急流程</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-user-tie"></i></span><h4>人员权限实体</h4><ul class="detail-list"><li>运维角色、权限范围、负责资源、操作记录、岗位职责</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.2.2 运维知识图谱核心关联关系</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>资源-拓扑关联</h4><ul class="detail-list"><li>资源归属集群、资源依赖上下游、服务调用关联、层级部署关联</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>资源-告警关联</h4><ul class="detail-list"><li>资源异常触发告警、告警绑定具体资源、多告警同源关联收敛</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>告警-故障关联</h4><ul class="detail-list"><li>多条告警聚合形成故障、告警时序推导故障发生链路</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>故障-变更关联</h4><ul class="detail-list"><li>变更引发故障、变更时间与故障时间因果匹配</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>故障-预案关联</h4><ul class="detail-list"><li>故障类型匹配最优处置预案、历史相似案例关联复用</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>故障-流程关联</h4><ul class="detail-list"><li>故障触发工单、工单流转对应处置流程、流程闭环对应复盘</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-link"></i></span><h4>资源-运维人员关联</h4><ul class="detail-list"><li>专人专责、权限匹配、操作溯源、责任归属关联</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.2.3 运维知识图谱核心能力与价值</div>
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-archive"></i></span><h4>运维经验结构化沉淀</h4><ul class="detail-list"><li>将零散运维经验、故障处置技巧、变更规范、巡检标准结构化入库</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-volume-mute"></i></span><h4>告警智能收敛降噪</h4><ul class="detail-list"><li>通过图谱关系识别同源告警、关联告警，大幅减少无效告警</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-search"></i></span><h4>故障根因智能推理</h4><ul class="detail-list"><li>基于拓扑与因果关系，自动推导故障根因、传播路径、影响范围</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-magic"></i></span><h4>处置方案智能匹配</h4><ul class="detail-list"><li>根据故障类型、资源类型、场景自动匹配最优历史案例与处置预案</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>变更风险智能预判</h4><ul class="detail-list"><li>根据变更范围、资源依赖关系预判变更影响与故障风险</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-graduation-cap"></i></span><h4>运维能力标准化传承</h4><ul class="detail-list"><li>摆脱个人经验依赖，实现运维体系可复制、可规模化、可自治迭代</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>全域运维态势可视化</h4><ul class="detail-list"><li>全景展示资源健康、故障态势、变更态势、运维风险态势</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S3 六大核心架构 ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> 运维中台六大核心架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span>
+      </div>
+      <div class="card-body">
+        <div class="subsection-title">4.1 产品架构（运维中台九层分层全景）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">整体分层：基础设施采集层 → 全域可观测层 → 运维资产配置层 → 自动化运维编排层 → 故障智能处置层 → 变更发布管控层 → 运维流程服务层 → 智能运维应用层 → 运维全域治理层</div>
+        <div class="arch-diagram" style="margin-bottom: 2rem;">
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-download"></i> 采集层</div><div class="layer-blocks"><span class="arch-block">基础设施采集：服务器、云资源、容器、数据库、中间件、网络、应用、AI服务统一采集指标、日志、链路、配置数据</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-eye"></i> 可观测层</div><div class="layer-blocks"><span class="arch-block">监控告警、日志分析、链路追踪、拓扑感知、体验监测，构建五维可观测体系</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-database"></i> 资产配置层</div><div class="layer-blocks"><span class="arch-block">CMDB配置资产、资源台账、拓扑资产、运维知识资产统一沉淀</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-robot"></i> 自动化编排层</div><div class="layer-blocks"><span class="arch-block">自动化巡检、备份、自愈、批量运维、运维流水线编排</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-tools"></i> 故障处置层</div><div class="layer-blocks"><span class="arch-block">告警收敛、根因分析、故障推理、预案匹配、故障闭环管理</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-code-branch"></i> 变更发布层</div><div class="layer-blocks"><span class="arch-block">变更审批、灰度发布、版本管控、回滚机制、变更风险稽核</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-clipboard-list"></i> 流程服务层</div><div class="layer-blocks"><span class="arch-block">工单管理、事件问题管理、审批流程、运维SLA服务输出</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-desktop"></i> 智能应用层</div><div class="layer-blocks"><span class="arch-block">运维大屏、态势感知、智能问答、故障复盘、运维分析应用</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-sync-alt"></i> 治理层</div><div class="layer-blocks"><span class="arch-block">资产治理、故障治理、变更治理、合规治理、知识迭代治理</span></div></div>
+        </div>
+        
+        <div class="subsection-title">4.2 业务架构（运维中台三层业务域架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">上层：前台稳态业务场景层 | 中层：运维中台核心能力层（可观测、自动化、故障治理、变更治理、容灾备份、运维知识原子能力） | 下层：全域支撑底座层（技术中台云原生底座、数据中台数据能力、模型算法中台智能能力）</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-eye"></i></span><h4>全域可观测业务域</h4><ul class="detail-list"><li>监控采集、告警管理、日志分析、链路追踪、态势感知</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>资产配置管理业务域</h4><ul class="detail-list"><li>CMDB资产、拓扑管理、配置管理、资源生命周期管理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-robot"></i></span><h4>自动化运维业务域</h4><ul class="detail-list"><li>自动巡检、自动备份、批量运维、自愈运维、流水线运维</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exclamation-triangle"></i></span><h4>故障治理业务域</h4><ul class="detail-list"><li>告警处置、故障定位、根因分析、故障复盘、故障压降</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-code-branch"></i></span><h4>变更发布业务域</h4><ul class="detail-list"><li>变更管控、灰度发布、版本回滚、风险稽核、发布保障</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-life-ring"></i></span><h4>容灾合规业务域</h4><ul class="detail-list"><li>备份容灾、灾备演练、安全运维、合规审计、风险预警</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>运维知识与智能业务域</h4><ul class="detail-list"><li>运维知识沉淀、知识图谱推理、智能问答、经验迭代</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.2.3 运维中台核心业务流转</div>
+        <div class="content-text" style="margin-bottom: 2rem;">全域资源数据统一采集 → 可观测体系实时监测 → 异常触发告警 → 知识图谱收敛降噪、根因推理 → 匹配最优处置预案 → 自动化/人工处置 → 故障闭环归档 → 工单与变更记录沉淀 → 运维知识图谱迭代更新 → 复盘优化流程与阈值 → 运维标准迭代升级 → 全链路审计留存，形成「监测-告警-定位-处置-复盘-迭代」完整运维闭环。</div>
+        
+        <div class="subsection-title">4.3 数据架构（运维中台专属七层数据架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">运维中台依托全域中台统一数据底座，搭建适配智能运维、故障治理、可观测分析的七层专属数据架构，打通观测数据、资产数据、故障数据、变更数据、知识数据全链路闭环，支撑运维自动化、智能化、可量化治理。</div>
+        <div class="arch-diagram" style="margin-bottom: 2rem;">
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-database"></i> OPS-ODS</div><div class="layer-blocks"><span class="arch-block">运维原始采集层：时序指标、系统日志、链路追踪、配置快照、告警记录、工单记录、变更记录、备份日志原始数据</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-filter"></i> OPS-DWD</div><div class="layer-blocks"><span class="arch-block">运维明细清洗层：原始运维数据清洗、去重、降噪、格式标准化、时间对齐、字段规整，生成运维明细标准数据</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-table"></i> OPS-DWB</div><div class="layer-blocks"><span class="arch-block">运维资产宽表层：整合资源资产、配置信息、拓扑关系、运维人员信息，生成运维资产宽表与关联宽表</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-project-diagram"></i> OPS-DWA</div><div class="layer-blocks"><span class="arch-block">运维知识关联层：抽取故障、告警、变更、资源、预案三元组数据，构建运维知识图谱结构化数据源</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-bar"></i> OPS-DWS</div><div class="layer-blocks"><span class="arch-block">运维主题汇总层：按故障主题、告警主题、变更主题、巡检主题、容灾主题聚合统计</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-line"></i> OPS-ADS</div><div class="layer-blocks"><span class="arch-block">运维指标应用层：输出SLA达成率、故障故障率、告警有效率、自动化率、变更故障率等标准运维指标</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-sync-alt"></i> OPS-OPS</div><div class="layer-blocks"><span class="arch-block">运维智能迭代层：沉淀故障归因、阈值优化、流程优化、预案优化数据，支撑运维体系智能迭代升级</span></div></div>
+        </div>
+        
+        <div class="subsection-title">运维中台核心数据模型体系</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>资源资产数据模型</h4><ul class="detail-list"><li>资源类型、部署信息、配置版本、归属业务、运维责任人、健康状态</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-eye"></i></span><h4>可观测数据模型</h4><ul class="detail-list"><li>指标数据、日志数据、链路数据、告警数据、阈值配置模型</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exclamation-circle"></i></span><h4>故障事件数据模型</h4><ul class="detail-list"><li>故障级别、发生时间、影响范围、根因标签、处置时长、闭环状态</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-code-commit"></i></span><h4>变更发布数据模型</h4><ul class="detail-list"><li>变更内容、风险等级、审批链路、执行结果、回滚记录</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-clipboard-list"></i></span><h4>运维工单数据模型</h4><ul class="detail-list"><li>工单类型、流转节点、处理人、处理时长、办结质量</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>运维知识图谱数据模型</h4><ul class="detail-list"><li>运维实体、关联关系、因果三元组、案例标签、场景匹配模型</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.4 技术架构（运维中台云原生智能运维架构）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">运维中台基于全域统一云原生底座，叠加AIOps智能运维技术栈，形成统一底座+运维专属引擎的七层技术架构，实现全域可观测、运维自动化、故障智能化、治理精细化。</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-download"></i></span><h4>分层1：全域采集层</h4><ul class="detail-list"><li>Agent采集、Exporter采集、日志采集器、链路探针、配置同步工具，实现多源异构数据统一接入</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>分层2：基础中间件层</h4><ul class="detail-list"><li>时序数据库、日志存储、图数据库、缓存、消息队列、对象存储、监控中间件</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>分层3：云原生运维底座层</h4><ul class="detail-list"><li>容器编排、资源调度、服务治理、CI/CD发布底座、自动化调度引擎</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-lock"></i></span><h4>分层4：统一安全权限层</h4><ul class="detail-list"><li>多租户隔离、运维权限管控、操作脱敏、访问风控、全链路审计</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cogs"></i></span><h4>分层5：运维专属引擎层</h4><ul class="detail-list"><li>可观测引擎、告警收敛引擎、故障推理引擎、自动化编排引擎、知识图谱计算引擎</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>分层6：运维服务封装层</h4><ul class="detail-list"><li>运维能力API封装、服务注册、统一网关、跨中台运维能力调度</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-desktop"></i></span><h4>分层7：运维智能应用层</h4><ul class="detail-list"><li>运维态势大屏、智能诊断、智能问答、复盘分析、迭代优化应用</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">横向贯穿三大体系</div>
+        <div class="grid-3" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-code"></i></span><h4>运维技术规范体系</h4><ul class="detail-list"><li>采集规范、监控规范、自动化规范、变更规范、故障处置统一技术标准</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>运维安全合规体系</h4><ul class="detail-list"><li>操作安全、数据安全、变更安全、备份合规、审计合规体系</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tools"></i></span><h4>运维运维保障体系</h4><ul class="detail-list"><li>7 * 24值守保障、故障应急保障、容灾保障、迭代运维保障</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">4.5 应用架构（运维中台全场景赋能应用体系）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">运维中台为企业全域八大中台、所有前台业务与智能场景提供统一稳态运维保障，所有系统监控、故障处置、变更发布、日常运维、风险治理全部统一收口，形成七大运维应用场景体系：</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>全域系统稳态保障应用</h4><ul class="detail-list"><li>业务系统、中台系统、AI服务、算法服务、底层资源全天候稳定保障</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tools"></i></span><h4>智能故障处置应用</h4><ul class="detail-list"><li>告警收敛、根因定位、自动处置、故障自愈、闭环复盘应用</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-robot"></i></span><h4>自动化运维应用</h4><ul class="detail-list"><li>无人值守巡检、自动备份、批量运维、定时运维、自愈运维应用</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-code-branch"></i></span><h4>变更发布安全应用</h4><ul class="detail-list"><li>灰度发布、风险预判、变更稽核、一键回滚、发布保障应用</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>资产配置治理应用</h4><ul class="detail-list"><li>资产盘点、拓扑可视化、配置管控、闲置资源治理应用</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-life-ring"></i></span><h4>容灾合规审计应用</h4><ul class="detail-list"><li>灾备管理、演练执行、合规自查、操作审计、风险预警应用</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>运维知识智能应用</h4><ul class="detail-list"><li>运维智能问答、故障案例检索、方案智能推荐、经验沉淀应用</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">运维中台统一应用访问链路</div>
+        <div class="content-text" style="margin-bottom: 2rem;">全域系统/资源运行 → 统一数据采集 → 运维中台可观测分析 → 异常智能识别与推理 → 自动化/人工处置赋能 → 系统恢复稳态 → 运维数据与案例回传沉淀 → 运维知识图谱迭代更新 → 运维标准与阈值优化迭代 → 全流程审计归档。</div>
+        
+        <div class="subsection-title">4.6 治理架构（运维中台六大统一治理体系）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">聚焦运维全生命周期与全域稳态风险，构建运维资产治理、可观测质量治理、故障闭环治理、变更发布治理、容灾合规治理、运维知识迭代治理六大闭环治理域，实现企业全域运维可控、可量化、可追溯、可迭代、可自治。</div>
+        <div class="grid-3">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>运维资产治理</h4><ul class="detail-list"><li>全域资产台账、配置版本、拓扑关系、闲置资产、僵尸资源全生命周期治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-eye"></i></span><h4>可观测质量治理</h4><ul class="detail-list"><li>监控覆盖率、告警准确率、日志完整性、链路完整性治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exclamation-triangle"></i></span><h4>故障闭环治理</h4><ul class="detail-list"><li>故障定级、响应时效、处置质量、复盘整改、故障压降闭环治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-code-branch"></i></span><h4>变更发布治理</h4><ul class="detail-list"><li>变更风险、发布质量、回滚率、变更故障率、审批合规治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-life-ring"></i></span><h4>容灾合规治理</h4><ul class="detail-list"><li>备份有效性、容灾可用性、操作合规、审计完整、风险预警治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sync-alt"></i></span><h4>知识迭代治理</h4><ul class="detail-list"><li>运维知识入库、审核、更新、复用、案例迭代、知识质量管控</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S4 产品功能模块 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> 运维中台完整产品功能模块</h2>
+        <span class="badge-count">全维度全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>模块1：全域资产与CMDB配置管理模块</h4><ul class="detail-list"><li>多源资产自动发现；资产台账统一管理；配置项管理；全域拓扑管理；资产变更溯源；闲置与僵尸资产治理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bell"></i></span><h4>模块2：五维可观测监控告警模块</h4><ul class="detail-list"><li>时序指标监控；日志集中分析；链路追踪监控；拓扑态势监控；分级告警管理；智能告警收敛</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-robot"></i></span><h4>模块3：自动化运维编排模块</h4><ul class="detail-list"><li>可视化运维编排；自动化巡检体系；批量自动化运维；自动自愈运维；定时任务管理；运维模板资产化</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tools"></i></span><h4>模块4：智能故障处置与根因分析模块</h4><ul class="detail-list"><li>故障工单闭环；故障智能分级；知识图谱根因推理；故障影响评估；预案智能匹配；故障复盘管理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-code-branch"></i></span><h4>模块5：变更与发布管控模块</h4><ul class="detail-list"><li>变更全流程管控；分级变更管理；灰度发布管理；一键回滚机制；变更风险稽核；发布台账统计</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-life-ring"></i></span><h4>模块6：容灾备份与应急管理模块</h4><ul class="detail-list"><li>多模式备份管理；备份有效性校验；容灾体系管理；灾备演练管理；重大故障应急；业务连续性保障</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-clipboard-list"></i></span><h4>模块7：ITIL工单与SLA管理模块</h4><ul class="detail-list"><li>多类型工单管理；工单智能分派；SLA时效管控；工单流转管控；工单质量评价；工单数据统计</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>模块8：运维知识图谱与智能知识库模块</h4><ul class="detail-list"><li>运维知识统一入库；运维知识三元组抽取；知识图谱可视化；智能知识检索；运维智能问答；知识自动迭代；知识质量管控</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>模块9：安全合规与审计治理模块</h4><ul class="detail-list"><li>运维权限管控；高危操作拦截；全链路操作审计；合规自查体系；风险预警治理；运维安全报告</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S5 全套指标体系 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> 运维中台全套指标体系</h2>
+        <span class="badge-count">资产+观测+故障+变更+自动化+知识+合规</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>资源资产管控指标</strong></td><td>全域资产纳管覆盖率≥99.8%；资产信息准确率≥99.9%；配置信息完整率≥99.9%；闲置僵尸资源占比≤2%；资产变更溯源完整率100%</td></tr>
+              <tr><td><strong>可观测质量指标</strong></td><td>核心资源监控覆盖率100%；核心服务链路追踪覆盖率100%；有效告警占比≥95%；告警收敛降噪率≥80%；监控数据可用率≥99.95%</td></tr>
+              <tr><td><strong>故障治理核心指标</strong></td><td>系统全年可用率≥99.99%；核心业务重大故障0发生；故障平均响应时长≤5分钟；故障平均恢复时长≤15分钟；故障闭环率100%；同类故障重复发生率≤1%；故障复盘整改落地率100%</td></tr>
+              <tr><td><strong>变更发布质量指标</strong></td><td>变更审批合规率100%；发布成功率≥99.5%；变更故障率≤0.5%；版本回滚率≤1%；重大变更零事故达成率100%</td></tr>
+              <tr><td><strong>运维自动化效能指标</strong></td><td>日常运维自动化覆盖率≥90%；自动化巡检执行成功率≥99.9%；故障自动自愈成功率≥85%；人工运维工作量压降率≥75%；运维任务标准化率≥98%</td></tr>
+              <tr><td><strong>容灾备份保障指标</strong></td><td>核心数据备份覆盖率100%；备份有效可用率100%；容灾切换成功率100%；灾备演练按期完成率100%；数据丢失风险趋近于0</td></tr>
+              <tr><td><strong>运维知识图谱专项指标</strong></td><td>典型故障案例知识覆盖率100%；运维知识三元组完整率≥99.5%；故障智能诊断准确率≥96%；知识方案复用落地率≥95%；运维知识迭代更新及时率≥99%；新人运维上手效率提升≥80%</td></tr>
+              <tr><td><strong>合规与审计指标</strong></td><td>运维操作审计完整率100%；高危操作拦截率100%；运维合规自查通过率100%；权限风险整改闭环率100%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S6 完整内容体系 ===== -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> 运维中台完整内容体系</h2>
+        <span class="badge-count">交付物+标准+资产+文档全集</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>7.1 顶层规划类内容</h4><ul class="detail-list"><li>企业运维中台整体建设方案、全域智能运维体系白皮书；运维中台架构规划、稳态运维建设路线图、自动化运维迭代规划；运维成熟度评估报告、分阶段落地清单、运维SLA体系建设方案；企业全域运维标准化总则、运维资产复用与迭代整体规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>7.2 全域标准规范类内容</h4><ul class="detail-list"><li>资产CMDB管理规范、拓扑维护规范、配置管理标准化规范；可观测建设规范、监控指标规范、告警分级与处置规范；自动化运维编排规范、巡检标准、自愈运维落地规范；故障分级、响应、处置、复盘、整改全流程标准化规范；变更发布分级管控、灰度、回滚、稽核标准化规范；容灾备份、应急演练、业务连续性保障规范；运维知识图谱构建、知识沉淀、知识迭代、智能应用规范；运维安全、权限、审计、合规、风险治理统一规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>7.3 运维中台核心资产内容</h4><ul class="detail-list"><li>全域IT资产库：资源台账、配置资产、拓扑资产、业务归属资产全集；运维模板资产库：巡检模板、运维流水线模板、脚本模板、SLA模板；故障预案资产库：各类故障处置预案、应急方案、复盘整改模板；变更发布资产库：变更流程模板、灰度策略、风险评估模板；容灾备份资产库：备份策略、容灾方案、演练模板、恢复方案资产；运维知识资产包：运维知识图谱、故障案例库、运维FAQ、最佳实践库、问题整改库；运维能力拓扑图、资源-故障-变更-知识全域映射矩阵</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tools"></i></span><h4>7.4 运维中台落地工程内容</h4><ul class="detail-list"><li>运维中台快速落地实施手册、智能运维轻量化搭建指南；资产纳管、监控搭建、自动化编排、故障处置全流程操作手册；运维能力API对接文档、系统接入规范、跨中台运维调用手册；运维知识图谱维护、知识更新、智能问答应用运维手册；运维上线验收标准、SLA评估模板、体系迭代评审模板</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>7.5 运维中台治理运营类内容</h4><ul class="detail-list"><li>月度/季度运维质量报告、SLA达成报告、故障压降分析报告；自动化运维效能分析、人工成本压降、资源优化分析报告；变更发布质量复盘、风险治理台账、资产优化台账；重大故障复盘报告、体系优化方案、运维能力迭代规划；运维合规审计报告、安全风险自查报告、整改闭环台账</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>7.6 运维保障类文档</h4><ul class="detail-list"><li>运维中台运维手册、监控/自动化/故障排查FAQ；全域系统容灾预案、重大故障应急处置预案、业务恢复预案；变更发布保障手册、灰度上线风险防控手册；运维知识图谱持续迭代、知识质量保障、案例更新手册</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S7 协同关系总结 ===== -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-share-alt"></i> 运维中台与七大中台全域协同关系总结</h2>
+        <span class="badge-count">8大中台协同</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cubes"></i></span><h4>1. 技术中台</h4><ul class="detail-list"><li>提供云原生集群、容器、资源、调度底座，为运维中台提供统一运维对象与基础设施支撑</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>2. 数据中台</h4><ul class="detail-list"><li>汇聚全域指标、日志、统计数据，为可观测分析、故障研判、运维量化提供数据原料</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>3. 业务中台</h4><ul class="detail-list"><li>提供业务层级、业务权重、业务场景标准，支撑运维分级保障、故障影响评估</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-calculator"></i></span><h4>4. 算法中台</h4><ul class="detail-list"><li>提供告警收敛算法、时序异常算法、关联分析算法，提升运维智能研判能力</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-microchip"></i></span><h4>5. 模型中台</h4><ul class="detail-list"><li>依托时序模型、异常检测模型，实现故障预判、趋势预测、风险提前预警</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-brain"></i></span><h4>6. AI中台</h4><ul class="detail-list"><li>结合运维知识图谱实现智能问答、智能诊断、智能复盘、自治运维</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bullhorn"></i></span><h4>7. 运营中台</h4><ul class="detail-list"><li>将运维SLA、故障率、稳定性指标纳入经营评估，实现稳态运维可量化、可经营</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tasks"></i></span><h4>8. 运维中台</h4><ul class="detail-list"><li>反向保障七大中台稳定运行，为所有数字化、智能化能力提供兜底稳态保障，是全域数智体系安全、稳定、持续迭代的核心基石</li></ul></div>
+        </div>
+        <div class="info-tip" style="margin-top: 1.5rem;"><i class="fas fa-info-circle"></i> 全域八维闭环逻辑：技术筑基、数据供料、业务定标、算法赋逻、模型赋能、AI升维、运营增收、运维稳盘，八大中台深度协同，构建企业可建设、可复用、可智能、可治理、可稳态、可增长的完整全域数智化闭环体系。</div>
+      </div>
+    </section>
+
+    <!-- ===== S8 核心价值总结 ===== -->
+    <section id="s8" class="card banner-card">
+        <div class="card-body">
+            <!-- 顶部图标与标题 -->
+            <div class="value-header">
+                <div class="icon-big"><i class="fas fa-flag"></i></div>
+                <h2>运维中台核心价值总结</h2>
+                <p class="value-subtitle">六大维度 · 重塑企业全域智能运维与稳态保障体系</p>
+            </div>
+
+            <!-- 价值网格 -->
+            <div class="value-grid">
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-unlink"></i></div>
+                    <div class="value-content">
+                        <h4>破运维孤岛，构建全域统一运维体系</h4>
+                        <p>彻底打破工具零散、数据割裂、运维标准不统一的传统运维孤岛，实现全域资源、故障、变更、流程、知识统一收口管控。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-cubes"></i></div>
+                    <div class="value-content">
+                        <h4>运维资产沉淀，实现能力可复用可传承</h4>
+                        <p>将运维标准、模板、预案、案例、拓扑、经验全部资产化，摆脱个人经验依赖，实现团队能力整体沉淀。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-robot"></i></div>
+                    <div class="value-content">
+                        <h4>自动化提效，大幅降低人工运维成本</h4>
+                        <p>实现日常运维无人值守、故障快速处置、变更安全可控，大幅压降人工工作量，提升运维效率。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div class="value-content">
+                        <h4>智能化赋能，实现故障从被动处置到主动预判</h4>
+                        <p>依托知识图谱与AI智能能力，实现告警降噪、根因推理、风险预判、自愈运维，从「救火式运维」升级为「预防式运维」。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="value-content">
+                        <h4>全流程可控可治，筑牢企业数智稳态底线</h4>
+                        <p>建立全链路标准化、可观测、可审计、可复盘的运维治理体系，彻底解决运维风险不可控、故障无复盘、问题重复发生的痛点。</p>
+                    </div>
+                </div>
+                <div class="value-item full-width">
+                    <div class="value-icon"><i class="fas fa-sync-alt"></i></div>
+                    <div class="value-content">
+                        <h4>知识体系迭代，驱动运维能力持续升级</h4>
+                        <p>通过专属运维知识体系与知识图谱，实现运维经验结构化、智能化、迭代化，推动企业运维从人工运维、工具运维向自动化运维、智能运维、自治运维高阶跃迁。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部注脚 -->
+            <div class="footer-note">运维中台 · 企业全域数智化体系稳定运行的核心基石</div>
+        </div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>

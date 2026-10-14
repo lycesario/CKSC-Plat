@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>AI Native原生智能中台（ANMP）完整体系说明书（标准范式版）</title>
+  <style>
+    /* ===== 设计系统 Token ===== */
+    :root {
+      --color-primary: #1a4a7a;
+      --color-primary-light: #e8f0fa;
+      --color-primary-dark: #0d2b4d;
+      --color-accent: #2e7db5;
+      --color-accent-soft: #b8d4e8;
+      --color-accent-glow: rgba(46, 125, 181, 0.10);
+      --color-neutral-50: #f8fafc;
+      --color-neutral-100: #eef3f8;
+      --color-neutral-200: #d6e1ec;
+      --color-neutral-300: #b0bfd0;
+      --color-neutral-400: #8899ad;
+      --color-neutral-600: #5a6d80;
+      --color-neutral-700: #3d4d5c;
+      --color-neutral-800: #2a3640;
+      --color-neutral-900: #1a2228;
+      --color-gold: #c29a4a;
+      --color-gold-light: #f3e1b0;
+      --color-jade: #3b7a5e;
+      --color-jade-light: #d4ede0;
+      --color-success: #1f6e4a;
+      --color-warning: #a86b2c;
+      --color-error: #b13a2a;
+      --font-base: 1rem;
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-12: 3rem;
+      --radius-sm: 0.75rem;
+      --radius-md: 1.25rem;
+      --radius-card: 2rem;
+      --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(26, 74, 122, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(26, 74, 122, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(26, 74, 122, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+      --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      --transition-fade: 0.6s ease-out;
+    }
+
+    /* ===== 重置 & 基础 ===== */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Microsoft YaHei', sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.7;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      animation: fadeInPage var(--transition-fade) both;
+    }
+    @keyframes fadeInPage { from { opacity:0; } to { opacity:1; } }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    /* ===== 布局 ===== */
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(248, 250, 252, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(200, 215, 230, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+      z-index:100;
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand .brand-icon {
+      width:36px; height:36px; border-radius:10px;
+      background:linear-gradient(135deg, var(--color-primary), var(--color-accent));
+      display:flex; align-items:center; justify-content:center;
+      color:#fff; font-size:1.1rem; font-weight:800;
+      flex-shrink:0;
+    }
+    .sidebar-brand h3 { font-size:1.05rem; font-weight:700; color:var(--color-primary); letter-spacing:-0.01em; line-height:1.3; }
+    .sidebar nav ul { list-style:none; padding:0; margin:0; }
+    .sidebar nav > ul > li { margin-bottom:0.15rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:10px;
+      padding:0.5rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.84rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+      cursor:pointer;
+    }
+    .sidebar nav ul li a .nav-icon {
+      width:22px; height:22px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      background:var(--color-primary-light); color:var(--color-accent);
+      border-radius:6px; font-size:0.75rem; font-weight:700;
+    }
+    .sidebar nav ul li a:hover,
+    .sidebar nav ul li a:focus-visible {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateX(4px);
+    }
+    .sidebar nav ul li a.active {
+      background:var(--color-primary);
+      color:#fff;
+    }
+    .sidebar nav ul li a.active .nav-icon {
+      background:rgba(255,255,255,0.25);
+      color:#fff;
+    }
+    .sidebar nav ul li a .arrow {
+      margin-left:auto; font-size:0.7rem; opacity:0.5;
+      transition: transform var(--transition-default);
+    }
+    .sidebar nav ul li a.expanded .arrow { transform:rotate(90deg); }
+    .sidebar nav ul li .sub-menu {
+      list-style:none; padding:0; margin:0;
+      max-height:0; overflow:hidden;
+      transition: max-height 0.4s ease;
+    }
+    .sidebar nav ul li .sub-menu.open { max-height:800px; }
+    .sidebar nav ul li .sub-menu li a {
+      padding:0.35rem 1rem 0.35rem 2.4rem;
+      font-size:0.78rem;
+      border-radius:8px;
+    }
+    .sidebar-footer {
+      margin-top:24px; padding:12px; text-align:center;
+      font-size:0.7rem; color:var(--color-neutral-600);
+      border-top:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 主内容 ===== */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+    /* ===== 页面头部 ===== */
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.4rem, 2.8vw, 2.2rem);
+      font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+      line-height:1.3;
+    }
+    .page-header .header-meta {
+      font-size:0.85rem; color:var(--color-neutral-600);
+      background:var(--color-neutral-100);
+      padding:0.4rem 1.2rem;
+      border-radius:var(--radius-pill);
+      border:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 卡片系统 ===== */
+    .card {
+      background:rgba(255,255,255,0.94);
+      backdrop-filter: blur(4px);
+      border-radius:var(--radius-card);
+      box-shadow:var(--shadow-card);
+      margin-bottom:var(--space-6);
+      border:1px solid rgba(200, 215, 230, 0.5);
+      overflow:hidden;
+      transition: box-shadow var(--transition-default), transform 0.25s;
+      animation: slideUp 0.7s var(--transition-default) both;
+    }
+    .card:nth-child(odd) { animation-delay: 0.1s; }
+    .card:nth-child(even) { animation-delay: 0.2s; }
+    @keyframes slideUp {
+      from { opacity:0; transform: translateY(20px); }
+      to { opacity:1; transform: translateY(0); }
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6);
+      background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft);
+      display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 {
+      font-size:clamp(1.1rem, 2vw, 1.5rem);
+      font-weight:700; color:var(--color-primary-dark);
+      display:flex; align-items:center; gap:10px;
+      letter-spacing:-0.01em;
+    }
+    .card-header h2 .header-icon {
+      width:32px; height:32px; border-radius:8px;
+      background:linear-gradient(135deg, var(--color-primary), var(--color-accent));
+      color:#fff; display:flex; align-items:center; justify-content:center;
+      font-size:0.9rem; font-weight:700;
+    }
+    .card-header .badge-count {
+      margin-left:auto;
+      background:var(--color-accent);
+      color:white;
+      border-radius:var(--radius-pill);
+      padding:0.15rem 0.9rem;
+      font-size:0.7rem;
+      font-weight:600;
+      letter-spacing:0.3px;
+    }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* ===== 网格 & 卡片 ===== */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-2 { grid-template-columns:repeat(2,1fr); } .grid-3 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3 { grid-template-columns:1fr; } }
+
+    .policy-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md);
+      padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: all var(--transition-default);
+      position:relative;
+      overflow:hidden;
+      border-left: 4px solid var(--color-accent);
+    }
+    .policy-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft));
+      opacity:0;
+      transition: opacity var(--transition-default);
+    }
+    .policy-card:hover::before { opacity:1; }
+    .policy-card:hover {
+      border-color:var(--color-accent-soft);
+      box-shadow: 0 8px 24px -8px rgba(46,125,181,0.15);
+      transform:translateY(-3px);
+    }
+    .policy-card .policy-icon {
+      font-size:1.6rem;
+      color:var(--color-primary);
+      display:inline-flex;
+      align-items:center; justify-content:center;
+      margin-right:6px;
+      background: var(--color-primary-light);
+      padding:0.25rem 0.7rem;
+      border-radius:10px;
+      font-weight:700;
+    }
+    .policy-card h4 {
+      color:var(--color-primary-dark);
+      font-size:1rem;
+      margin-bottom:0.4rem;
+      display:flex; align-items:center; gap:8px;
+      flex-wrap:wrap;
+    }
+    .policy-card .detail-list {
+      padding-left:0; margin:0.4rem 0 0 0;
+      list-style:none;
+    }
+    .policy-card .detail-list li {
+      margin-bottom:0.28rem;
+      padding-left:1.2rem;
+      position:relative;
+      font-size:0.85rem;
+      color:var(--color-neutral-700);
+      line-height:1.6;
+    }
+    .policy-card .detail-list li::before {
+      content:'▹'; position:absolute; left:0;
+      color:var(--color-accent);
+      font-weight:600;
+    }
+    .policy-card .detail-list li strong { color:var(--color-neutral-800); }
+
+    /* ===== 正文排版 ===== */
+    .content-section { margin-bottom:1.2rem; }
+    .content-section h3 { color:var(--color-primary-dark); font-size:1.08rem; margin-bottom:0.5rem; font-weight:700; }
+    .content-section h4 { color:var(--color-primary-dark); font-size:0.98rem; margin-bottom:0.4rem; font-weight:600; }
+    .content-section p { margin-bottom:0.6rem; font-size:0.9rem; color:var(--color-neutral-700); line-height:1.75; }
+    .content-section ul { padding-left:1.2rem; margin-bottom:0.6rem; }
+    .content-section li { margin-bottom:0.3rem; font-size:0.88rem; color:var(--color-neutral-700); line-height:1.7; }
+    .content-section strong { color:var(--color-neutral-800); }
+    .content-section ol { padding-left:1.4rem; margin-bottom:0.6rem; }
+    .content-section ol li { margin-bottom:0.3rem; font-size:0.88rem; color:var(--color-neutral-700); line-height:1.7; }
+    .text-block { background:var(--color-neutral-50); border-radius:var(--radius-sm); padding:1rem 1.2rem; border:1px solid var(--color-neutral-200); margin-bottom:0.8rem; }
+    .text-block p { margin-bottom:0.5rem; font-size:0.88rem; color:var(--color-neutral-700); line-height:1.75; }
+    .text-block p:last-child { margin-bottom:0; }
+
+    /* ===== 数据表格 ===== */
+    .data-table {
+      width:100%; border-collapse:collapse; margin:0.8rem 0 1rem 0;
+      font-size:0.85rem; border-radius:var(--radius-sm); overflow:hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .data-table thead th {
+      background:linear-gradient(135deg, var(--color-primary), var(--color-accent));
+      color:#fff; padding:0.7rem 1rem; text-align:left;
+      font-weight:600; font-size:0.82rem;
+    }
+    .data-table tbody td {
+      padding:0.65rem 1rem; border-bottom:1px solid var(--color-neutral-200);
+      color:var(--color-neutral-700); vertical-align:top; line-height:1.6;
+    }
+    .data-table tbody tr:nth-child(even) { background:var(--color-neutral-50); }
+    .data-table tbody tr:hover { background:var(--color-primary-light); }
+
+    /* ===== 横幅 ===== */
+    .banner-card {
+      background: linear-gradient(135deg, #e8f0fa, #d6e1ec);
+      text-align:center;
+      border-color:var(--color-accent-soft);
+    }
+    .banner-card .card-body { padding:2.5rem var(--space-6); }
+    .banner-card .icon-big {
+      width:64px; height:64px; border-radius:16px;
+      background:linear-gradient(135deg, var(--color-primary), var(--color-accent));
+      color:#fff; display:inline-flex; align-items:center; justify-content:center;
+      font-size:1.8rem; font-weight:800; margin-bottom:var(--space-3);
+    }
+    .banner-card h2 { color:var(--color-primary-dark); font-size:clamp(1.3rem, 2.4vw, 1.8rem); margin-bottom:var(--space-2); }
+    .banner-card p { max-width:720px; margin:0 auto; color:var(--color-neutral-700); font-size:0.95rem; line-height:1.8; }
+    .banner-card .footer-note { margin-top:var(--space-6); font-size:0.78rem; color:var(--color-primary); }
+    .risk-badge {
+      display:inline-block; background:var(--color-error); color:#fff;
+      padding:0.2rem 0.8rem; border-radius:var(--radius-pill);
+      font-size:0.75rem; font-weight:600; margin-top:0.8rem;
+    }
+
+    /* ===== 返回顶部 ===== */
+    .back-to-top {
+      position:fixed; bottom:2rem; right:2rem;
+      width:48px; height:48px; border-radius:50%;
+      background:var(--color-primary); color:#fff;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.2rem; cursor:pointer;
+      box-shadow: 0 4px 16px rgba(26,74,122,0.3);
+      opacity:0; pointer-events:none;
+      transition: opacity 0.3s, transform 0.3s;
+      z-index:1000; border:none;
+    }
+    .back-to-top.visible { opacity:1; pointer-events:auto; }
+    .back-to-top:hover { transform:scale(1.1); }
+
+    /* ===== 响应式 ===== */
+    @media (max-width:1024px) { .sidebar { width:220px; } }
+    @media (max-width:760px) {
+      .sidebar { display:none; }
+      .layout { padding:0.5rem; }
+      .main-content { padding:0; }
+      .card-body { padding:1.25rem var(--space-4); }
+      .card-header { padding:1rem var(--space-4); }
+      .page-header { flex-direction:column; align-items:flex-start; }
+      .data-table { font-size:0.78rem; }
+      .data-table thead th, .data-table tbody td { padding:0.5rem 0.6rem; }
+    }
+
+    /* ===== 暗色模式 ===== */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #0f1419;
+        --color-neutral-100: #1a2028;
+        --color-neutral-200: #2a3340;
+        --color-neutral-300: #3d4a5a;
+        --color-neutral-400: #6a7a8a;
+        --color-neutral-600: #a0b0c0;
+        --color-neutral-700: #c0cdd8;
+        --color-neutral-800: #d8e2ea;
+        --color-neutral-900: #e8eef4;
+        --color-primary-light: #1a2a3a;
+        --color-accent-soft: #2a4060;
+        --color-primary: #6a9ec8;
+        --color-primary-dark: #b0d0e8;
+        --color-accent: #4a8eb5;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6);
+        --shadow-card-hover: 0 20px 48px -12px rgba(0,0,0,0.7);
+        --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #0a0e12; }
+      .card { background: #11161d; border-color: #2a3340; }
+      .card-header { background: #11161d; border-bottom-color: #2a4060; }
+      .policy-card { background: #11161d; border-color: #2a3340; }
+      .policy-card .policy-icon { background: #1a2a3a; color: #6a9ec8; }
+      .policy-card .detail-list li { color: #a0b0c0; }
+      .policy-card .detail-list li strong { color: #d8e2ea; }
+      .sidebar { background: rgba(15,20,25,0.95); border-color: #2a3340; }
+      .sidebar-brand { border-bottom-color: #2a4060; }
+      .sidebar-brand h3 { color: #6a9ec8; }
+      .sidebar nav ul li a { color: #a0b0c0; }
+      .sidebar nav ul li a:hover { background: #1a2a3a; color: #fff; }
+      .text-block { background:#11161d; border-color:#2a3340; }
+      .text-block p { color:#a0b0c0; }
+      .banner-card { background:linear-gradient(135deg,#11161d,#1a2028); }
+      .banner-card p { color: #a0b0c0; }
+      .page-header h1 { background:linear-gradient(135deg,#b0d0e8,#6a9ec8); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#1a2028; border-color:#2a3340; color:#a0b0c0; }
+      .data-table tbody td { border-bottom-color:#2a3340; color:#a0b0c0; }
+      .data-table tbody tr:nth-child(even) { background:#11161d; }
+      .data-table tbody tr:hover { background:#1a2a3a; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <!-- ===== 侧边导航 ===== -->
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <div class="brand-icon">A</div>
+      <h3>AI Native<br>原生智能中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#overview" class="nav-link"><span class="nav-icon">◎</span> 中台概览</a></li>
+        <li>
+          <a href="#s1" class="nav-link expanded" onclick="toggleSub(this)"><span class="nav-icon">Ⅰ</span> 精准完整定义 <span class="arrow">▸</span></a>
+          <ul class="sub-menu open">
+            <li><a href="#s1-1" class="nav-link">核心官方定义</a></li>
+            <li><a href="#s1-2" class="nav-link">三阶演进式定义</a></li>
+            <li><a href="#s1-3" class="nav-link">行业悖论与核心价值</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#s2" class="nav-link" onclick="toggleSub(this)"><span class="nav-icon">Ⅱ</span> 七大知识体系 <span class="arrow">▸</span></a>
+          <ul class="sub-menu">
+            <li><a href="#s2-1" class="nav-link">知识域1 不确定性治理</a></li>
+            <li><a href="#s2-2" class="nav-link">知识域2 产品范式设计</a></li>
+            <li><a href="#s2-3" class="nav-link">知识域3 Agent技术</a></li>
+            <li><a href="#s2-4" class="nav-link">知识域4 工程落地</a></li>
+            <li><a href="#s2-5" class="nav-link">知识域5 可信安全治理</a></li>
+            <li><a href="#s2-6" class="nav-link">知识域6 全场景业务</a></li>
+            <li><a href="#s2-7" class="nav-link">知识域7 自治进化演进</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#s3" class="nav-link" onclick="toggleSub(this)"><span class="nav-icon">Ⅲ</span> AN-Graph知识图谱 <span class="arrow">▸</span></a>
+          <ul class="sub-menu">
+            <li><a href="#s3-1" class="nav-link">核心实体清单</a></li>
+            <li><a href="#s3-2" class="nav-link">核心三元组关系</a></li>
+            <li><a href="#s3-3" class="nav-link">六大核心能力</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#s4" class="nav-link" onclick="toggleSub(this)"><span class="nav-icon">Ⅳ</span> 产品架构 <span class="arrow">▸</span></a>
+          <ul class="sub-menu">
+            <li><a href="#s4-1" class="nav-link">应用产品层</a></li>
+            <li><a href="#s4-2" class="nav-link">核心能力组件层</a></li>
+            <li><a href="#s4-3" class="nav-link">基础底座层</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#s5" class="nav-link" onclick="toggleSub(this)"><span class="nav-icon">Ⅴ</span> 业务架构 <span class="arrow">▸</span></a>
+          <ul class="sub-menu">
+            <li><a href="#s5-1" class="nav-link">战略管理层</a></li>
+            <li><a href="#s5-2" class="nav-link">六大核心业务域</a></li>
+            <li><a href="#s5-3" class="nav-link">支撑业务域</a></li>
+            <li><a href="#s5-4" class="nav-link">外部生态对接域</a></li>
+          </ul>
+        </li>
+        <li><a href="#s6" class="nav-link"><span class="nav-icon">Ⅵ</span> 数据架构</a></li>
+        <li><a href="#s7" class="nav-link"><span class="nav-icon">Ⅶ</span> 技术架构</a></li>
+        <li><a href="#s8" class="nav-link"><span class="nav-icon">Ⅷ</span> 应用架构</a></li>
+        <li>
+          <a href="#s9" class="nav-link" onclick="toggleSub(this)"><span class="nav-icon">Ⅸ</span> 产品功能模块 <span class="arrow">▸</span></a>
+          <ul class="sub-menu">
+            <li><a href="#s9-1" class="nav-link">模块1~6</a></li>
+            <li><a href="#s9-2" class="nav-link">模块7~11</a></li>
+          </ul>
+        </li>
+        <li><a href="#s10" class="nav-link"><span class="nav-icon">Ⅹ</span> 全套指标体系</a></li>
+        <li><a href="#s11" class="nav-link"><span class="nav-icon">Ⅺ</span> 三阶演进路线</a></li>
+        <li><a href="#s12" class="nav-link"><span class="nav-icon">Ⅻ</span> 全文总结</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer">AI Native Middle Platform · 标准范式版</div>
+  </aside>
+
+  <main class="main-content">
+    <!-- ===== 页面头部 ===== -->
+    <header class="page-header">
+      <h1><span style="display:inline-block;width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:#fff;text-align:center;line-height:40px;font-size:1.1rem;font-weight:800;margin-right:8px;">A</span> AI Native原生智能中台完整体系说明书</h1>
+      <span class="header-meta">标准范式版 · AI Native Middle Platform</span>
+    </header>
+
+    <!-- ===== 概览 ===== -->
+    <section id="overview" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">◎</span> 中台概览</h2>
+        <span class="badge-count">OVERVIEW</span>
+      </div>
+      <div class="card-body">
+        <div class="text-block">
+          <p style="font-size:1.05rem; font-weight:600; color:var(--color-primary-dark); margin-bottom:0.6rem;">AI Native原生智能中台（AI Native Middle Platform，ANMP）</p>
+          <p style="margin-bottom:0.5rem;">本文严格遵循算力中台、数据中台、量化交易中台、具深智能中台统一企业级中台架构范式，基于AI Native"插件化AI→AI原生重构→全域自治Agent"完整演进逻辑，系统化构建AI Native原生智能中台全域体系。</p>
+          <p style="margin-bottom:0.5rem;">完整输出精准定义、七大知识体系、AI Native专属知识图谱、业务/产品/数据/技术/应用/功能六大架构、全量功能模块、标准化指标体系、三阶演进路线，结构层级、颗粒度、体系化程度完全对齐过往顶级中台文档，可直接用于可研报告、架构设计、方案汇报、项目落地。</p>
+          <p style="margin-bottom:0;"><span style="background:var(--color-accent);color:#fff;padding:0.2rem 0.8rem;border-radius:var(--radius-pill);font-size:0.8rem;font-weight:600;">核心前置定位</span> &nbsp;AI Native原生智能中台是大模型时代唯一的下一代企业智能中枢，区别于传统AI能力中台、传统算法中台，核心解决大模型不确定性、传统固定流程僵化、用户体验无法自进化、场景无法自主扩展、AI能力无法沉淀复用的行业终极矛盾。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 一、精准完整定义 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">Ⅰ</span> 一、AI Native原生智能中台 精准完整定义</h2>
+        <span class="badge-count">1.1-1.3</span>
+      </div>
+      <div class="card-body">
+        <div class="content-section" id="s1-1">
+          <h3>1. 核心官方定义</h3>
+          <p><strong>AI Native原生智能中台（AI Native Middle Platform，ANMP）</strong>：是面向企业数字化、C端智能产品、垂直行业智能场景，以大模型原生能力、Agent自主调度、长期上下文记忆、不确定性智能治理、用户行为自迭代为核心底座，彻底摒弃传统"固定流程、预设功能、插件式AI"的传统产品架构，全新构建的动态适配、自进化、自扩展、自生长的下一代全域智能中台体系。</p>
+          <p>中台核心本质是不确定性治理引擎+用户价值自生长引擎：将大模型概率性、生成式、不确定性的能力，通过系统化架构约束、分层治理、闭环迭代，转化为业务可信、体验稳定、场景可落地的标准化原生智能能力，实现产品从"人适配流程"向"AI适配人、AI适配场景"的范式跃迁。</p>
+        </div>
+        <div class="content-section" id="s1-2">
+          <h3>2. 三阶演进式权威定义（过去-现在-未来）</h3>
+          <p><strong>过去（AI插件附属时代）：</strong>AI仅作为传统业务系统的外挂功能、按钮插件、辅助工具，产品核心流程、架构、交互完全沿用传统范式，AI能力被场景强行约束，无法发挥生成式、理解式、自主式价值，属于"传统架构+AI点缀"的伪智能化。</p>
+          <p><strong>现在（AI原生重构时代）：</strong>以大模型为核心重构产品全链路，基于上下文管理、置信度分级、Agent工具调用、人机协同闭环，实现流程动态适配、体验千人千面、场景灵活扩展，成为下一代数字化产品与企业智能系统的主流标准化底座。</p>
+          <p><strong>未来（全域自治智能生态时代）：</strong>通用AI Agent全面普及，中台具备自主任务规划、跨场景协同、全链路自主进化、无人工迭代能力，形成自治、互联、生长的全域AI原生智能生态，彻底颠覆传统软件迭代模式。</p>
+        </div>
+        <div class="content-section" id="s1-3">
+          <h3>3. 核心解决的行业悖论与核心价值</h3>
+          <p><strong>核心行业悖论：</strong>大模型智能生成能力越强，输出结果不确定性、幻觉风险、不可控性越高；传统固定流程、预设功能、确定性软件架构完全无法适配生成式AI，导致"AI能力越强、落地越难、体验越不稳"。</p>
+          <p><strong>中台核心价值：</strong>通过系统化原生架构，完成不确定性可控化、动态能力工程化、用户体验自进化、场景能力自扩展、业务价值自增长五大核心突破，是大模型从"技术可用"到"业务可信、产品好用、商业可落地"的唯一核心载体。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 二、七大完整知识体系 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">Ⅱ</span> 二、AI Native原生智能中台 七大完整知识体系</h2>
+        <span class="badge-count">知识域1-7</span>
+      </div>
+      <div class="card-body">
+        <p style="margin-bottom:1rem;font-size:0.9rem;color:var(--color-neutral-700);">对标顶级中台知识域粒度，构建七大闭环知识体系，覆盖理论、技术、产品、工程、治理、场景、演进全维度，构成AI Native中台完整知识底座。</p>
+        <div class="grid-2">
+          <div class="policy-card" id="s2-1">
+            <span class="policy-icon">1</span>
+            <h4>知识域1：大模型基础理论与不确定性治理知识域</h4>
+            <ul class="detail-list">
+              <li>大模型生成原理、概率输出机制、幻觉产生机理、上下文窗口机制；</li>
+              <li>AI不确定性治理核心理论：边界约束、置信度分级、人机协同兜底、多轮校验机制；</li>
+              <li>生成式AI与传统确定性软件的范式差异、架构差异、迭代差异；</li>
+              <li>大模型输出稳定性、可控性、可信性优化理论体系。</li>
+            </ul>
+          </div>
+          <div class="policy-card" id="s2-2">
+            <span class="policy-icon">2</span>
+            <h4>知识域2：AI Native产品范式与设计方法论知识域</h4>
+            <ul class="detail-list">
+              <li>插件式AI、对话式AI、AI原生三层产品演进范式；</li>
+              <li>无固定流程、动态适配、意图驱动、目标驱动的原生设计思想；</li>
+              <li>长期记忆、上下文管理、用户画像沉淀、千人千面体验体系；</li>
+              <li>AI产品竞争力构建、差异化原生体验打造、去同质化设计体系。</li>
+            </ul>
+          </div>
+          <div class="policy-card" id="s2-3">
+            <span class="policy-icon">3</span>
+            <h4>知识域3：AI Agent智能体技术知识域</h4>
+            <ul class="detail-list">
+              <li>Agent规划、推理、反思、工具调用、任务拆解、自主执行理论；</li>
+              <li>多Agent协同、跨Agent上下文共享、任务联动、冲突规避；</li>
+              <li>通用Agent与垂直场景Agent适配逻辑、轻量化与高性能架构；</li>
+              <li>Agent行为边界管控、权限约束、执行安全治理体系。</li>
+            </ul>
+          </div>
+          <div class="policy-card" id="s2-4">
+            <span class="policy-icon">4</span>
+            <h4>知识域4：原生智能工程落地知识域</h4>
+            <ul class="detail-list">
+              <li>大模型分层推理、端云协同推理、本地记忆+云端认知工程体系；</li>
+              <li>提示词工程、微调工程、RAG检索增强、知识库沉淀工程；</li>
+              <li>用户行为数据回流、模型迭代、体验优化闭环工程；</li>
+              <li>高并发AI服务、低延迟交互、大规模用户记忆管理工程。</li>
+            </ul>
+          </div>
+          <div class="policy-card" id="s2-5">
+            <span class="policy-icon">5</span>
+            <h4>知识域5：AI可信与安全治理知识域</h4>
+            <ul class="detail-list">
+              <li>大模型内容安全、合规风控、敏感信息过滤、输出审计；</li>
+              <li>Agent行为安全、工具调用权限、数据访问权限、操作风控；</li>
+              <li>幻觉风险治理、错误输出拦截、低置信度降级兜底；</li>
+              <li>全链路操作可追溯、可审计、可复盘的安全体系。</li>
+            </ul>
+          </div>
+          <div class="policy-card" id="s2-6">
+            <span class="policy-icon">6</span>
+            <h4>知识域6：全场景AI原生业务知识域</h4>
+            <ul class="detail-list">
+              <li>AI原生办公、AI原生编程、AI原生教育、AI原生客服、AI原生SaaS；</li>
+              <li>C端个性化智能体验、B端动态业务流程适配；</li>
+              <li>企业级智能分析、智能决策、智能自动化场景体系；</li>
+              <li>通用智能入口、垂直场景深度智能的分层适配逻辑。</li>
+            </ul>
+          </div>
+          <div class="policy-card" id="s2-7" style="grid-column:1/-1;">
+            <span class="policy-icon">7</span>
+            <h4>知识域7：AI自治进化与产业演进知识域</h4>
+            <ul class="detail-list">
+              <li>AI产品从人工迭代到实时自进化的演进规律；</li>
+              <li>全域Agent互联、跨产品能力协同、生态化智能演进；</li>
+              <li>大模型普惠化、成本下降、技术成熟带来的产业变革；</li>
+              <li>AI Native商业化体系、订阅制、价值计费、能力复用商业模式。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 三、AN-Graph知识图谱 ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">Ⅲ</span> 三、AI Native原生知识图谱（AN-Graph）完整体系</h2>
+        <span class="badge-count">实体+关系+能力</span>
+      </div>
+      <div class="card-body">
+        <div class="text-block" style="margin-bottom:1.2rem;">
+          <p style="margin-bottom:0.4rem;font-weight:600;color:var(--color-primary-dark);">核心价值</p>
+          <p style="margin-bottom:0;">构建行业首个AI原生专属知识图谱AN-Graph，打通「模型-用户-记忆-意图-Agent-工具-任务-风险-反馈-迭代」全维度关联，实现体验溯源、风险推理、意图识别、迭代优化、场景推演全能力闭环。</p>
+        </div>
+
+        <div class="content-section" id="s3-1">
+          <h3>1. 核心实体清单</h3>
+          <table class="data-table">
+            <thead>
+              <tr><th style="width:22%;">实体类型</th><th>实体示例</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>大模型实体</strong></td><td>通用大模型、垂直微调模型、端侧轻量化模型、Embedding模型</td></tr>
+              <tr><td><strong>用户实体</strong></td><td>C端个人用户、企业管理员、业务操作员、运维人员</td></tr>
+              <tr><td><strong>记忆实体</strong></td><td>用户偏好、历史交互、场景上下文、长期行为特征、临时会话上下文</td></tr>
+              <tr><td><strong>意图实体</strong></td><td>办公创作、代码开发、学习辅导、业务咨询、数据分析、任务执行</td></tr>
+              <tr><td><strong>Agent智能体实体</strong></td><td>办公Agent、编程Agent、教育Agent、客服Agent、通用任务Agent</td></tr>
+              <tr><td><strong>工具组件实体</strong></td><td>文档工具、检索工具、计算工具、绘图工具、流程工具、数据库工具</td></tr>
+              <tr><td><strong>任务实体</strong></td><td>内容生成、问题解答、任务拆解、流程执行、数据分析、内容优化</td></tr>
+              <tr><td><strong>风险实体</strong></td><td>模型幻觉、低置信输出、内容不合规、工具调用错误、意图识别偏差</td></tr>
+              <tr><td><strong>反馈实体</strong></td><td>用户点赞、纠错、跳过、差评、人工修正、会话终止</td></tr>
+              <tr><td><strong>迭代实体</strong></td><td>模型微调、提示词优化、记忆策略更新、边界规则调整、流程优化</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="content-section" id="s3-2">
+          <h3>2. 核心三元组关联关系</h3>
+          <ol>
+            <li>用户实体 → 产生 → 交互上下文 → 沉淀为 → 用户记忆实体；</li>
+            <li>用户记忆+实时会话 → 识别生成 → 用户意图实体；</li>
+            <li>用户意图 → 调度匹配 → 对应场景Agent智能体；</li>
+            <li>Agent智能体 → 自主调用 → 工具组件实体 → 执行生成 → 任务结果；</li>
+            <li>模型输出结果 → 置信度校验 → 触发 → 风险实体（幻觉/偏差）；</li>
+            <li>用户行为 → 产生 → 反馈实体 → 驱动 → 迭代实体优化；</li>
+            <li>迭代优化 → 反向更新 → 模型能力、记忆策略、Agent边界规则。</li>
+          </ol>
+        </div>
+
+        <div class="content-section" id="s3-3">
+          <h3>3. AN-Graph六大核心能力</h3>
+          <div class="grid-2">
+            <div class="policy-card">
+              <span class="policy-icon">①</span>
+              <h4>用户体验全链路溯源</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);margin:0;">从最终体验结果回溯意图识别、模型输出、工具调用、记忆匹配全链路问题。</p>
+            </div>
+            <div class="policy-card">
+              <span class="policy-icon">②</span>
+              <h4>AI风险智能推理</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);margin:0;">自动推演幻觉风险、低质输出、识别偏差的产生链路与根因。</p>
+            </div>
+            <div class="policy-card">
+              <span class="policy-icon">③</span>
+              <h4>千人千面意图研判</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);margin:0;">基于记忆图谱精准识别用户长期偏好与实时意图。</p>
+            </div>
+            <div class="policy-card">
+              <span class="policy-icon">④</span>
+              <h4>Agent协同优化推理</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);margin:0;">识别工具调用冗余、任务路径不合理、协同冲突问题。</p>
+            </div>
+            <div class="policy-card">
+              <span class="policy-icon">⑤</span>
+              <h4>自进化迭代辅助</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);margin:0;">精准定位需要优化的模型、规则、记忆策略、Agent逻辑。</p>
+            </div>
+            <div class="policy-card">
+              <span class="policy-icon">⑥</span>
+              <h4>场景能力扩展推演</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);margin:0;">基于用户行为图谱预判新增场景需求，支撑产品自生长。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 四、产品架构 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">Ⅳ</span> 四、AI Native中台 产品架构（三层标准化架构）</h2>
+        <span class="badge-count">3层</span>
+      </div>
+      <div class="card-body">
+        <div class="content-section" id="s4-1">
+          <h3>1. 应用产品层（面向用户、业务、运营、运维）</h3>
+          <p>AI原生智能工作台、通用Agent交互门户、垂直场景原生应用（办公/编程/教育/客服/SaaS）、智能体验驾驶舱、模型运维中心、用户记忆管理中心、风险审计平台、自进化迭代管理平台。</p>
+        </div>
+        <div class="content-section" id="s4-2">
+          <h3>2. 核心能力组件层（中台可复用、服务化输出核心原生能力）</h3>
+          <p>大模型原生推理组件、长期上下文记忆组件、用户意图理解组件、Agent自主调度组件、工具智能编排组件、不确定性置信度治理组件、人机协同反馈闭环组件、AN-Graph知识图谱引擎、模型微调迭代组件、安全合规风控组件、开放集成网关组件。</p>
+        </div>
+        <div class="content-section" id="s4-3">
+          <h3>3. 基础底座层</h3>
+          <p>大模型算力底座、端云协同推理底座、记忆数据存储底座、向量检索底座、模型仓库底座、用户权限租户隔离底座、高可用服务底座、安全审计底座、离线自治运行底座。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 五、业务架构 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">Ⅴ</span> 五、AI Native中台 业务架构（四层标准化架构）</h2>
+        <span class="badge-count">4层</span>
+      </div>
+      <div class="card-body">
+        <div class="content-section" id="s5-1">
+          <h3>1. 战略管理层</h3>
+          <p>AI原生产品体系规划、全域智能场景布局、Agent生态建设规划、用户体验自进化体系建设、模型迭代战略、商业化能力建设、AI风险治理体系规划。</p>
+        </div>
+        <div class="content-section" id="s5-2">
+          <h3>2. 六大核心业务域</h3>
+          <div class="grid-2">
+            <div class="policy-card">
+              <span class="policy-icon">1</span>
+              <h4>业务域1：用户原生感知与记忆业务域</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);margin:0;">全量用户交互行为采集、长期记忆沉淀、上下文统一管理、用户画像动态更新、千人千面场景适配。</p>
+            </div>
+            <div class="policy-card">
+              <span class="policy-icon">2</span>
+              <h4>业务域2：大模型原生认知推理业务域</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);margin:0;">自然语言理解、多模态生成、复杂意图推理、场景语义解析、通用知识问答、垂直领域深度认知。</p>
+            </div>
+            <div class="policy-card">
+              <span class="policy-icon">3</span>
+              <h4>业务域3：AI Agent自主任务业务域</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);margin:0;">任务拆解、路径规划、多工具编排、自主执行、多Agent协同、复杂场景端到端自治。</p>
+            </div>
+            <div class="policy-card">
+              <span class="policy-icon">4</span>
+              <h4>业务域4：不确定性智能治理业务域</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);margin:0;">输出置信度分级、幻觉识别、风险拦截、降级兜底、人工协同介入、结果校验纠错。</p>
+            </div>
+            <div class="policy-card">
+              <span class="policy-icon">5</span>
+              <h4>业务域5：人机协同闭环迭代业务域</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);margin:0;">用户行为反馈采集、问题样本沉淀、模型微调、规则优化、记忆策略迭代、体验持续优化。</p>
+            </div>
+            <div class="policy-card">
+              <span class="policy-icon">6</span>
+              <h4>业务域6：全域场景原生赋能业务域</h4>
+              <p style="font-size:0.85rem;color:var(--color-neutral-700);margin:0;">覆盖办公、编程、教育、客服、企业SaaS多场景，动态适配各类个性化业务需求。</p>
+            </div>
+          </div>
+        </div>
+        <div class="content-section" id="s5-3">
+          <h3>3. 支撑业务域</h3>
+          <p><strong>安全合规域：</strong>内容风控、行为审计、权限管控、日志存证；</p>
+          <p><strong>运维监控域：</strong>模型监控、Agent运行监控、体验质量监控、风险告警；</p>
+          <p><strong>报表分析域：</strong>用户体验报表、模型效果报表、迭代优化报表、场景能力报表。</p>
+        </div>
+        <div class="content-section" id="s5-4">
+          <h3>4. 外部生态对接域</h3>
+          <p>对接通用大模型底座、垂直行业模型、第三方工具生态、企业业务系统、SaaS平台、各类端侧应用、用户终端产品。</p>
+          <p style="margin-top:0.6rem;padding:0.6rem 1rem;background:var(--color-primary-light);border-radius:var(--radius-sm);font-weight:600;color:var(--color-primary-dark);"><strong>完整业务闭环：</strong>用户交互→记忆沉淀→意图理解→Agent调度→工具执行→结果治理→用户反馈→模型迭代→体验自进化</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 六、数据架构 ===== -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">Ⅵ</span> 六、AI Native中台 数据架构（五层标准化架构）</h2>
+        <span class="badge-count">5层</span>
+      </div>
+      <div class="card-body">
+        <div class="content-section">
+          <h3>1. 数据采集层</h3>
+          <p>用户会话数据、交互行为数据、模型输入输出数据、工具调用日志、Agent执行数据、用户反馈数据、风险异常数据、场景业务数据、知识库文档数据。</p>
+        </div>
+        <div class="content-section">
+          <h3>2. 融合加工层</h3>
+          <p>多源行为数据清洗、会话上下文拼接、用户行为结构化、意图标签化、风险事件结构化、反馈数据分类、优质迭代样本筛选、数据脱敏合规处理。</p>
+        </div>
+        <div class="content-section">
+          <h3>3. 知识图谱建模层（AN-Graph核心）</h3>
+          <p>构建用户-记忆-意图-Agent-工具-任务-风险-反馈全实体关系网络，实时图谱更新、行为链路建模、风险传导建模、体验迭代建模。</p>
+        </div>
+        <div class="content-section">
+          <h3>4. 业务主题指标层</h3>
+          <p>用户体验主题、模型能力主题、Agent执行主题、风险治理主题、迭代优化主题、场景赋能主题、商业化价值主题。</p>
+        </div>
+        <div class="content-section">
+          <h3>5. 服务输出层</h3>
+          <p>智能交互数据服务、用户画像服务、模型迭代样本服务、风险审计数据服务、体验指标报表、图谱推理API服务。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 七、技术架构 ===== -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">Ⅶ</span> 七、AI Native中台 技术架构（七层标准化架构）</h2>
+        <span class="badge-count">7层</span>
+      </div>
+      <div class="card-body">
+        <div class="text-block" style="margin-bottom:1.2rem;text-align:center;font-weight:600;color:var(--color-primary-dark);font-size:0.95rem;">
+          数据采集层 → 统一网关层 → 微服务业务层 → AN-Graph智能推理层 → 计算引擎层 → 多层存储层 → 运维管控层
+        </div>
+        <div class="content-section">
+          <h3>1. 数据采集层</h3>
+          <p>全端用户行为埋点、会话实时采集、模型日志采集、Agent运行日志采集、业务数据同步。</p>
+        </div>
+        <div class="content-section">
+          <h3>2. 统一网关层</h3>
+          <p>API统一鉴权、租户隔离、流量管控、接口安全、模型服务路由、工具调用权限管控。</p>
+        </div>
+        <div class="content-section">
+          <h3>3. 业务服务层</h3>
+          <p>记忆管理、意图理解、Agent调度、工具编排、置信度治理、反馈迭代、安全风控微服务集群。</p>
+        </div>
+        <div class="content-section">
+          <h3>4. 智能推理层</h3>
+          <p>AN-Graph知识图谱引擎、用户意图推理引擎、风险智能研判引擎、迭代优化推理引擎。</p>
+        </div>
+        <div class="content-section">
+          <h3>5. 计算引擎层</h3>
+          <p>大模型推理计算、向量检索计算、行为数据流式计算、样本批量处理、模型微调训练计算。</p>
+        </div>
+        <div class="content-section">
+          <h3>6. 存储层</h3>
+          <p>时序数据库（行为日志）、向量数据库（记忆与知识库）、图数据库（AN-Graph）、对象存储（模型/样本）、缓存数据库（实时会话）。</p>
+        </div>
+        <div class="content-section">
+          <h3>7. 运维管控层</h3>
+          <p>模型版本管理、Agent规则运维、用户记忆运维、风险告警、迭代版本管控、全链路监控。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 八、应用架构 ===== -->
+    <section id="s8" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">Ⅷ</span> 八、AI Native中台 应用架构（七大核心原生场景）</h2>
+        <span class="badge-count">7大场景</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card">
+            <span class="policy-icon">1</span>
+            <h4>AI原生智能办公场景</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);margin:0;">文档自主创作、会议纪要智能整理、多任务自主协同、全链路上下文记忆、办公工具自动串联，实现无感知高效办公。</p>
+          </div>
+          <div class="policy-card">
+            <span class="policy-icon">2</span>
+            <h4>AI原生智能编程场景</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);margin:0;">代码智能生成、Bug自主排查、项目全局理解、开发工具自主调用、项目迭代辅助，降低研发门槛、提升开发效率。</p>
+          </div>
+          <div class="policy-card">
+            <span class="policy-icon">3</span>
+            <h4>AI原生智能教育场景</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);margin:0;">用户学习记忆持久化、薄弱点智能分析、个性化学习路径动态规划、自适应作业批改、一对一智能辅导。</p>
+          </div>
+          <div class="policy-card">
+            <span class="policy-icon">4</span>
+            <h4>AI原生智能客服场景</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);margin:0;">用户全量历史记忆、问题自主处理、工单自动流转、高置信自动解决、低置信自动转人工，实现人机协同最优解。</p>
+          </div>
+          <div class="policy-card">
+            <span class="policy-icon">5</span>
+            <h4>AI原生企业SaaS场景</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);margin:0;">打破传统固定流程，动态适配企业个性化业务、智能数据分析、自主生成决策建议、业务流程自适应优化。</p>
+          </div>
+          <div class="policy-card">
+            <span class="policy-icon">6</span>
+            <h4>通用AI Agent助手场景</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);margin:0;">目标驱动任务执行、自主拆解复杂任务、跨工具协同作业、全场景通用智能辅助。</p>
+          </div>
+          <div class="policy-card" style="grid-column:1/-1;">
+            <span class="policy-icon">7</span>
+            <h4>全域自治智能生态场景</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);margin:0;">跨产品Agent协同、上下文共享、全域需求一站式解决，构建用户全生命周期智能服务生态。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 九、详细产品功能模块 ===== -->
+    <section id="s9" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">Ⅸ</span> 九、详细产品功能模块（11大核心原生模块，全覆盖）</h2>
+        <span class="badge-count">模块1-11</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2" id="s9-1">
+          <div class="policy-card">
+            <span class="policy-icon">M1</span>
+            <h4>模块1：全域用户记忆与上下文管理模块</h4>
+            <ul class="detail-list">
+              <li>用户长期记忆持久化存储；</li>
+              <li>临时会话上下文管理；</li>
+              <li>多端上下文同步；</li>
+              <li>用户偏好智能沉淀；</li>
+              <li>记忆智能更新与过期清理；</li>
+              <li>隐私记忆保护；</li>
+              <li>场景记忆隔离；</li>
+              <li>千人千面记忆适配。</li>
+            </ul>
+          </div>
+          <div class="policy-card">
+            <span class="policy-icon">M2</span>
+            <h4>模块2：大模型原生认知推理模块</h4>
+            <ul class="detail-list">
+              <li>多模态智能理解；</li>
+              <li>自然语言深度语义解析；</li>
+              <li>复杂用户意图识别；</li>
+              <li>多轮对话逻辑推理；</li>
+              <li>垂直领域专业认知；</li>
+              <li>通用知识问答；</li>
+              <li>场景化智能生成；</li>
+              <li>语义纠错优化。</li>
+            </ul>
+          </div>
+          <div class="policy-card">
+            <span class="policy-icon">M3</span>
+            <h4>模块3：AI Agent自主任务调度模块</h4>
+            <ul class="detail-list">
+              <li>用户目标智能拆解；</li>
+              <li>多步骤任务规划；</li>
+              <li>工具链自主编排；</li>
+              <li>跨工具协同执行；</li>
+              <li>任务进度自主监控；</li>
+              <li>异常任务重试；</li>
+              <li>多Agent协同调度；</li>
+              <li>复杂场景自治处理。</li>
+            </ul>
+          </div>
+          <div class="policy-card">
+            <span class="policy-icon">M4</span>
+            <h4>模块4：智能工具编排与调用模块</h4>
+            <ul class="detail-list">
+              <li>全品类工具统一纳管；</li>
+              <li>工具能力智能匹配；</li>
+              <li>自动筛选最优工具；</li>
+              <li>多工具组合调用；</li>
+              <li>工具调用权限管控；</li>
+              <li>调用日志留存；</li>
+              <li>工具执行结果校验；</li>
+              <li>工具能力动态扩展。</li>
+            </ul>
+          </div>
+          <div class="policy-card">
+            <span class="policy-icon">M5</span>
+            <h4>模块5：不确定性分层治理模块</h4>
+            <ul class="detail-list">
+              <li>模型输出置信度实时计算；</li>
+              <li>高置信度直接交付；</li>
+              <li>中置信度用户确认；</li>
+              <li>低置信度自动降级；</li>
+              <li>幻觉内容智能识别；</li>
+              <li>错误输出拦截；</li>
+              <li>极端场景兜底机制；</li>
+              <li>风险输出过滤。</li>
+            </ul>
+          </div>
+          <div class="policy-card">
+            <span class="policy-icon">M6</span>
+            <h4>模块6：人机协同反馈闭环模块</h4>
+            <ul class="detail-list">
+              <li>用户点赞/纠错/跳过/差评行为自动采集；</li>
+              <li>问题样本自动沉淀；</li>
+              <li>优质交互样本筛选；</li>
+              <li>用户修正内容回流；</li>
+              <li>体验问题智能归类；</li>
+              <li>迭代需求自动生成。</li>
+            </ul>
+          </div>
+        </div>
+        <div class="grid-2" id="s9-2" style="margin-top:var(--space-6);">
+          <div class="policy-card">
+            <span class="policy-icon">M7</span>
+            <h4>模块7：AN-Graph知识图谱智能模块</h4>
+            <ul class="detail-list">
+              <li>全维度实体关系建模；</li>
+              <li>用户体验链路溯源；</li>
+              <li>AI风险根因推理；</li>
+              <li>意图精准研判；</li>
+              <li>Agent执行优化分析；</li>
+              <li>场景能力推演；</li>
+              <li>图谱可视化；</li>
+              <li>智能推理API开放。</li>
+            </ul>
+          </div>
+          <div class="policy-card">
+            <span class="policy-icon">M8</span>
+            <h4>模块8：模型自进化迭代模块</h4>
+            <ul class="detail-list">
+              <li>增量样本自动更新；</li>
+              <li>模型轻量化微调；</li>
+              <li>提示词策略优化；</li>
+              <li>记忆规则迭代；</li>
+              <li>Agent行为边界优化；</li>
+              <li>风险治理策略动态调整；</li>
+              <li>迭代效果评估；</li>
+              <li>版本管理。</li>
+            </ul>
+          </div>
+          <div class="policy-card">
+            <span class="policy-icon">M9</span>
+            <h4>模块9：全链路安全合规风控模块</h4>
+            <ul class="detail-list">
+              <li>内容安全审核；</li>
+              <li>敏感信息过滤；</li>
+              <li>模型输出合规校验；</li>
+              <li>Agent操作权限风控；</li>
+              <li>用户数据隐私保护；</li>
+              <li>全链路日志存证；</li>
+              <li>风险事件告警；</li>
+              <li>合规审计。</li>
+            </ul>
+          </div>
+          <div class="policy-card">
+            <span class="policy-icon">M10</span>
+            <h4>模块10：智能态势驾驶舱与报表模块</h4>
+            <ul class="detail-list">
+              <li>用户体验全景态势；</li>
+              <li>模型能力指标监控；</li>
+              <li>Agent执行效果统计；</li>
+              <li>风险治理效果展示；</li>
+              <li>迭代优化效果分析；</li>
+              <li>自动生成体验报告；</li>
+              <li>运维监控大屏。</li>
+            </ul>
+          </div>
+          <div class="policy-card" style="grid-column:1/-1;">
+            <span class="policy-icon">M11</span>
+            <h4>模块11：开放集成生态网关模块</h4>
+            <ul class="detail-list">
+              <li>全中台原生能力API化输出；</li>
+              <li>支持第三方系统集成；</li>
+              <li>端侧应用接入；</li>
+              <li>垂直场景定制扩展；</li>
+              <li>多模型底座适配；</li>
+              <li>二次开发支撑；</li>
+              <li>生态工具对接。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 十、全套指标体系 ===== -->
+    <section id="s10" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">Ⅹ</span> 十、全套指标体系（8大维度标准化KPI）</h2>
+        <span class="badge-count">8大维度</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card">
+            <span class="policy-icon">A</span>
+            <h4>1. 用户记忆与上下文指标</h4>
+            <ul class="detail-list">
+              <li>上下文连贯性准确率；</li>
+              <li>用户记忆留存完整率；</li>
+              <li>多端同步成功率；</li>
+              <li>记忆偏好匹配准确率；</li>
+              <li>无效记忆清理率。</li>
+            </ul>
+          </div>
+          <div class="policy-card">
+            <span class="policy-icon">B</span>
+            <h4>2. 模型认知推理指标</h4>
+            <ul class="detail-list">
+              <li>意图识别准确率；</li>
+              <li>多轮对话逻辑完整率；</li>
+              <li>内容生成准确率；</li>
+              <li>专业场景应答合格率；</li>
+              <li>语义理解精准度。</li>
+            </ul>
+          </div>
+          <div class="policy-card">
+            <span class="policy-icon">C</span>
+            <h4>3. Agent任务执行指标</h4>
+            <ul class="detail-list">
+              <li>复杂任务完成率；</li>
+              <li>工具调用准确率；</li>
+              <li>任务路径优化率；</li>
+              <li>多Agent协同成功率；</li>
+              <li>任务执行时效达标率。</li>
+            </ul>
+          </div>
+          <div class="policy-card">
+            <span class="policy-icon">D</span>
+            <h4>4. 不确定性治理指标</h4>
+            <ul class="detail-list">
+              <li>幻觉发生率；</li>
+              <li>低质输出拦截率；</li>
+              <li>置信度分级准确率；</li>
+              <li>降级兜底成功率；</li>
+              <li>风险输出整改率。</li>
+            </ul>
+          </div>
+          <div class="policy-card">
+            <span class="policy-icon">E</span>
+            <h4>5. 用户体验指标</h4>
+            <ul class="detail-list">
+              <li>用户满意度；</li>
+              <li>会话解决率；</li>
+              <li>一次性解决率；</li>
+              <li>用户纠错率；</li>
+              <li>留存提升率；</li>
+              <li>操作成本下降率。</li>
+            </ul>
+          </div>
+          <div class="policy-card">
+            <span class="policy-icon">F</span>
+            <h4>6. 自进化迭代指标</h4>
+            <ul class="detail-list">
+              <li>有效样本沉淀量；</li>
+              <li>模型迭代精度提升率；</li>
+              <li>体验问题修复率；</li>
+              <li>规则优化覆盖率；</li>
+              <li>自主迭代替代人工率。</li>
+            </ul>
+          </div>
+          <div class="policy-card">
+            <span class="policy-icon">G</span>
+            <h4>7. 知识图谱智能指标</h4>
+            <ul class="detail-list">
+              <li>图谱实体完整率；</li>
+              <li>链路溯源准确率；</li>
+              <li>风险推理准确率；</li>
+              <li>意图研判精准率；</li>
+              <li>场景推演有效率。</li>
+            </ul>
+          </div>
+          <div class="policy-card">
+            <span class="policy-icon">H</span>
+            <h4>8. 安全合规与可用性指标</h4>
+            <ul class="detail-list">
+              <li>内容合规通过率；</li>
+              <li>服务整体可用性；</li>
+              <li>接口响应时延；</li>
+              <li>风险事件处置及时率；</li>
+              <li>审计日志完整率。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 十一、三阶演进路线 ===== -->
+    <section id="s11" class="card">
+      <div class="card-header">
+        <h2><span class="header-icon">Ⅺ</span> 十一、三阶演进路线（当前-中期-未来）</h2>
+        <span class="badge-count">3阶段</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-3">
+          <div class="policy-card" style="border-left-color:var(--color-accent);">
+            <span class="policy-icon">1</span>
+            <h4>阶段一：AI原生能力筑基阶段（当前）</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);margin:0;">完成基础记忆管理、意图识别、简单工具调用、置信度基础治理、基础反馈迭代能力，彻底摆脱插件式AI模式，实现产品从"传统流程"向"AI原生体验"的初步转型，落地基础可信智能能力。</p>
+          </div>
+          <div class="policy-card" style="border-left-color:var(--color-gold);">
+            <span class="policy-icon">2</span>
+            <h4>阶段二：Agent协同智能阶段（中期）</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);margin:0;">AN-Graph知识图谱全面落地，多Agent协同体系成型，复杂任务自主拆解与执行、精细化不确定性治理、系统化人机协同迭代闭环建成，实现企业级、场景级原生智能规模化落地。</p>
+          </div>
+          <div class="policy-card" style="border-left-color:var(--color-jade);">
+            <span class="policy-icon">3</span>
+            <h4>阶段三：全域自治智能生态阶段（未来）</h4>
+            <p style="font-size:0.85rem;color:var(--color-neutral-700);margin:0;">通用AI Agent全面成熟，中台实现全链路无人化自主进化，自动优化规则、自主适配场景、自主生长能力、跨产品全域协同，建成下一代完全自治的AI原生智能生态基础设施。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 十二、全文总结 ===== -->
+    <section id="s12" class="card banner-card">
+      <div class="card-header" style="background:linear-gradient(135deg,#1a2a3a,#2a4060);border-bottom-color:var(--color-accent);">
+        <h2 style="color:#fff;"><span class="header-icon" style="background:rgba(255,255,255,0.2);">Ⅻ</span> 十二、全文总结</h2>
+        <span class="badge-count">SUMMARY</span>
+      </div>
+      <div class="card-body">
+        <div class="icon-big">A</div>
+        <h2>AI Native原生智能中台 · 终极总结</h2>
+        <p>
+          AI Native原生智能中台，完成了从理论知识体系、知识图谱智能、六层标准架构、全量功能模块、标准化指标、全周期演进的全域闭环建设。<br>
+          区别于传统AI中台只做模型调度、能力封装的浅层模式，本中台核心解决大模型不确定性、体验不可控、场景不自适应、产品无法自生长的下一代核心难题，<br>
+          是适配未来3-5年通用Agent、自治智能、全域AI生态的终极企业智能底座。
+        </p>
+        <div class="footer-note">AI Native Middle Platform · 标准范式版 · 全域闭环建设完成</div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ===== 返回顶部按钮 ===== -->
+<button class="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="返回顶部">↑</button>
+
+<script>
+  // 折叠子菜单
+  function toggleSub(el) {
+    el.classList.toggle('expanded');
+    var sub = el.nextElementSibling;
+    if (sub && sub.classList.contains('sub-menu')) {
+      sub.classList.toggle('open');
+    }
+  }
+
+  // 滚动监听：高亮当前区域
+  var navLinks = document.querySelectorAll('.sidebar nav a.nav-link[href^="#"]');
+  var sections = [];
+  navLinks.forEach(function(link) {
+    var id = link.getAttribute('href').slice(1);
+    var el = document.getElementById(id);
+    if (el) sections.push({ id: id, el: el, link: link });
+  });
+
+  function onScroll() {
+    var scrollPos = window.scrollY + 120;
+    var current = null;
+    sections.forEach(function(s) {
+      if (s.el.offsetTop <= scrollPos) current = s;
+    });
+    navLinks.forEach(function(l) { l.classList.remove('active'); });
+    if (current) current.link.classList.add('active');
+
+    // 返回顶部按钮
+    var btn = document.querySelector('.back-to-top');
+    if (window.scrollY > 400) btn.classList.add('visible');
+    else btn.classList.remove('visible');
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  // 默认展开第一个有子菜单的项
+  document.addEventListener('DOMContentLoaded', function() {
+    var firstToggle = document.querySelector('.sidebar nav a.nav-link[onclick]');
+    if (firstToggle) {
+      // already expanded by default class
+    }
+  });
+</script>
+</body>
+</html>

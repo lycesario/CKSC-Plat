@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>企业级数据中台完整体系说明书</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+/* ===== 设计系统 Token ===== */
+:root {
+  --color-primary: #7a2e1a;
+  --color-primary-light: #fce9e0;
+  --color-primary-dark: #4d1c0e;
+  --color-accent: #b85c3a;
+  --color-accent-soft: #f0c8b8;
+  --color-neutral-50: #fcf9f7;
+  --color-neutral-100: #f5ede8;
+  --color-neutral-200: #e5d7ce;
+  --color-neutral-300: #cbb8ab;
+  --color-neutral-400: #a68b7a;
+  --color-neutral-600: #6f5544;
+  --color-neutral-700: #4f3a2e;
+  --color-neutral-800: #34241c;
+  --color-neutral-900: #1e140f;
+  --color-gold: #c29a4a;
+  --color-gold-light: #f3e1b0;
+  --font-base: 1rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --radius-sm: 0.75rem;
+  --radius-md: 1.25rem;
+  --radius-card: 2rem;
+  --radius-pill: 40px;
+  --shadow-card: 0 12px 32px -8px rgba(60, 30, 10, 0.12);
+  --shadow-card-hover: 0 20px 48px -12px rgba(60, 30, 10, 0.20);
+  --shadow-sidebar: 0 16px 40px -8px rgba(60, 30, 10, 0.12);
+  --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--color-neutral-50);
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: var(--color-neutral-900);
+  line-height: 1.6;
+  scroll-behavior: smooth;
+  font-size: var(--font-base);
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+.layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+/* ===== 侧边栏 ===== */
+.sidebar {
+  position:sticky; top:1.5rem; align-self:flex-start;
+  width:280px; flex-shrink:0;
+  background: rgba(255, 249, 245, 0.88);
+  backdrop-filter: blur(16px);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sidebar);
+  border:1px solid rgba(255, 235, 220, 0.6);
+  padding:1.6rem 0.8rem;
+  max-height:calc(100vh - 3rem);
+  overflow-y:auto;
+  transition: var(--transition-default);
+}
+.sidebar::-webkit-scrollbar { width:4px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+.sidebar-brand {
+  display:flex; align-items:center; gap:10px;
+  padding:0 1rem 1rem 1rem;
+  border-bottom:2px solid var(--color-primary-light);
+  margin-bottom:1rem;
+}
+.sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); }
+.sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+.sidebar nav ul { list-style:none; padding:0; margin:0; }
+.sidebar nav ul li { margin-bottom:0.1rem; }
+.sidebar nav ul li a {
+  display:flex; align-items:center; gap:12px;
+  padding:0.55rem 1rem; border-radius:var(--radius-pill);
+  font-weight:500; font-size:0.85rem;
+  color:var(--color-neutral-700); text-decoration:none;
+  transition: all var(--transition-default);
+}
+.sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+.sidebar nav ul li a:hover { background:var(--color-primary-light); color:var(--color-primary-dark); transform:translateX(4px); }
+.sidebar-footer { margin-top:24px; padding:12px; text-align:center; font-size:0.7rem; color:var(--color-neutral-600); border-top:1px solid var(--color-neutral-200); }
+
+/* ===== 主内容 ===== */
+.main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+.page-header {
+  margin-bottom: var(--space-6);
+  padding: var(--space-4) 0 var(--space-2) 0;
+  display: flex; align-items:center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-4);
+}
+.page-header h1 {
+  font-size: clamp(1.6rem, 3.2vw, 2.6rem); font-weight:800; letter-spacing:-0.025em;
+  background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  display:flex; align-items:center; gap:0.5rem;
+}
+.page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+.page-header .header-meta { font-size:0.9rem; color:var(--color-neutral-600); background:var(--color-neutral-100); padding:0.4rem 1.2rem; border-radius:var(--radius-pill); border:1px solid var(--color-neutral-200); }
+
+/* ===== 卡片 ===== */
+.card {
+  background:rgba(255,252,248,0.92); backdrop-filter: blur(4px);
+  border-radius:var(--radius-card); box-shadow:var(--shadow-card); margin-bottom:var(--space-6);
+  border:1px solid rgba(255, 235, 220, 0.5); overflow:hidden; transition: box-shadow var(--transition-default), transform 0.25s;
+}
+.card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+.card-header {
+  padding:1.2rem var(--space-6); background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+  border-bottom:2px solid var(--color-accent-soft); display:flex; align-items:center; gap:var(--space-3);
+}
+.card-header h2 { font-size:clamp(1.2rem, 2.2vw, 1.6rem); font-weight:700; color:var(--color-primary-dark); display:flex; align-items:center; gap:12px; }
+.card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+.card-header .badge-count { margin-left:auto; background:var(--color-accent); color:white; border-radius:var(--radius-pill); padding:0.15rem 0.9rem; font-size:0.7rem; font-weight:600; }
+.card-body { padding:1.8rem var(--space-6); }
+
+/* ===== 网格 ===== */
+.grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+.grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+@media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } }
+@media (max-width:760px) { .grid-2,.grid-3 { grid-template-columns:1fr; } .sidebar { display:none; } .layout { padding:0.5rem; } .card-body { padding:1.25rem var(--space-4); } }
+
+/* ===== 知识卡片 ===== */
+.gov-card {
+  background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+  border-radius:var(--radius-md); padding:1.3rem 1.3rem 1rem;
+  border:1px solid var(--color-neutral-200); transition: all var(--transition-default);
+  position:relative; overflow:hidden; border-left: 4px solid var(--color-accent);
+}
+.gov-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft)); opacity:0; transition: opacity var(--transition-default); }
+.gov-card:hover::before { opacity:1; }
+.gov-card:hover { border-color:var(--color-accent-soft); box-shadow: 0 8px 24px -8px rgba(184,92,58,0.15); transform:translateY(-3px); }
+.gov-card .gov-icon { font-size:1.8rem; color:var(--color-primary); display:inline-block; margin-right:6px; background: var(--color-primary-light); padding:0.2rem 0.6rem; border-radius:12px; }
+.gov-card h4 { color:var(--color-primary-dark); font-size:1.05rem; margin-bottom:0.4rem; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.gov-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+.gov-card .detail-list { padding-left:0; margin:0.4rem 0 0 0; list-style:none; }
+.gov-card .detail-list li { margin-bottom:0.25rem; padding-left:1.2rem; position:relative; font-size:0.85rem; color:var(--color-neutral-700); }
+.gov-card .detail-list li::before { content:'▹'; position:absolute; left:0; color:var(--color-accent); font-weight:600; }
+.gov-card .detail-list li strong { color:var(--color-neutral-800); }
+
+/* ===== 架构层 ===== */
+.arch-diagram { display:flex; flex-direction:column; gap:0.6rem; padding:0.5rem 0; }
+.arch-layer {
+  display:flex; align-items:stretch; gap:0.75rem; background:var(--color-neutral-50);
+  border-radius:var(--radius-md); padding:0.6rem 1rem; border:1px solid var(--color-neutral-200); transition: var(--transition-default);
+}
+.arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+.arch-layer .layer-label { display:flex; flex-direction:column; justify-content:center; min-width:120px; padding-right:1rem; border-right:2px solid var(--color-neutral-200); font-weight:700; font-size:0.8rem; color:var(--color-primary-dark); }
+.arch-layer .layer-label i { font-size:1.1rem; color:var(--color-accent); margin-bottom:0.1rem; }
+.arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+.arch-layer .layer-blocks { display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem; flex:1; padding:0.2rem 0; }
+.arch-block { background:white; border-radius:var(--radius-sm); padding:0.3rem 0.9rem; border:1px solid var(--color-neutral-200); font-size:0.75rem; font-weight:500; color:var(--color-neutral-700); transition: var(--transition-default); }
+.arch-block:hover { border-color:var(--color-accent); background:var(--color-primary-light); color:var(--color-primary-dark); transform:translateY(-1px); }
+.arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+
+/* ===== 表格 ===== */
+.table-wrapper { overflow-x:auto; border-radius:var(--radius-md); border:1px solid var(--color-neutral-200); background:white; }
+table { width:100%; border-collapse:collapse; font-size:0.78rem; }
+th { background:var(--color-neutral-100); padding:12px 10px; font-weight:600; color:var(--color-primary-dark); text-align:left; border-bottom:2px solid var(--color-neutral-200); font-size:0.7rem; text-transform:uppercase; }
+td { padding:10px 10px; border-bottom:1px solid var(--color-neutral-200); vertical-align:middle; color:var(--color-neutral-700); }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:var(--color-neutral-50); }
+
+/* ===== 文本 ===== */
+.content-text { font-size: 0.95rem; color: var(--color-neutral-700); line-height: 1.8; margin-bottom: 1rem; }
+.content-text strong { color: var(--color-primary-dark); }
+.section-title { font-size: 1.2rem; font-weight: 700; color: var(--color-primary-dark); margin: 1.5rem 0 1rem 0; border-bottom: 2px solid var(--color-primary-light); padding-bottom: 0.5rem; }
+.subsection-title { font-size: 1.05rem; font-weight: 600; color: var(--color-neutral-800); margin: 1.2rem 0 0.8rem 0; }
+.normal-list { padding-left: 1.5rem; margin-bottom: 1rem; color: var(--color-neutral-700); font-size: 0.9rem; line-height: 1.7; }
+.normal-list li { margin-bottom: 0.3rem; }
+.normal-list li strong { color: var(--color-neutral-800); }
+.info-tip { background:var(--color-neutral-50); border-radius:var(--radius-md); padding:0.7rem 1.5rem; border-left:5px solid var(--color-accent); margin-top:var(--space-4); display:flex; align-items:center; gap:0.8rem; font-size:0.9rem; color:var(--color-neutral-700); }
+.info-tip i { color:var(--color-accent); font-size:1rem; }
+
+/* ===== 价值 ===== */
+.value-header { text-align: center; margin-bottom: 2rem; }
+.value-header .icon-big { font-size: 2.8rem; color: var(--color-primary); opacity: 0.8; margin-bottom: 0.5rem; }
+.value-header h2 { font-size: clamp(1.6rem, 2.8vw, 2.2rem); color: var(--color-primary-dark); margin-bottom: 0.25rem; }
+.value-subtitle { font-size: 1rem; color: var(--color-neutral-600); letter-spacing: 2px; font-weight: 300; }
+.value-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin: 1.5rem 0 2rem 0; }
+.value-item { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(4px); padding: 1.2rem 1.4rem; border-radius: var(--radius-md); border: 1px solid rgba(255, 235, 220, 0.5); transition: all 0.3s ease; }
+.value-item:hover { transform: translateY(-3px); box-shadow: var(--shadow-card-hover); border-color: var(--color-accent-soft); background: rgba(255, 255, 255, 0.85); }
+.value-item .value-icon { flex-shrink: 0; width: 2.8rem; height: 2.8rem; display: flex; align-items: center; justify-content: center; background: var(--color-primary-light); border-radius: 50%; color: var(--color-accent); font-size: 1.2rem; }
+.value-item .value-content h4 { font-size: 1rem; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 0.3rem; line-height: 1.3; }
+.value-item .value-content p { font-size: 0.9rem; color: var(--color-neutral-700); line-height: 1.6; margin: 0; }
+.value-item.full-width { grid-column: 1 / -1; }
+@media (max-width: 768px) { .value-grid { grid-template-columns: 1fr; gap: 1rem; } }
+
+/* ===== 暗色 ===== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-neutral-50: #1a1410; --color-neutral-100: #221c18; --color-neutral-200: #3a2c24; --color-neutral-700: #d0c4b8; --color-neutral-800: #e8dcd0; --color-neutral-900: #f5ede6;
+    --color-primary-light: #3a2a20; --color-accent-soft: #6a4a3a; --color-primary: #d08a6a; --color-primary-dark: #f0c8b0; --color-accent: #c07a5a; --color-gold: #c29a4a; --color-gold-light: #4a3a20;
+    --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6); --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+  }
+  body { background: #120e0a; }
+  .card { background: #1a1410; border-color: #3a2c24; }
+  .card-header { background: #1a1410; border-bottom-color: #4a3a2e; }
+  .gov-card { background: #1a1410; border-color: #3a2c24; }
+  .gov-card .gov-icon { background: #2a1e16; color: #d08a6a; }
+  .gov-card .detail-list li { color: #c0b4a8; }
+  .table-wrapper { background: #1a1410; border-color: #3a2c24; }
+  th { background: #221c18; color: #e0d4c8; border-bottom-color: #4a3a2e; }
+  td { border-bottom-color: #2a241e; color: #c0b4a8; }
+  .sidebar { background: rgba(20, 16, 12, 0.92); border-color: #3a2c24; }
+  .sidebar-brand { border-bottom-color: #4a3a2e; }
+  .sidebar nav ul li a { color: #c0b4a8; }
+  .sidebar nav ul li a:hover { background: #3a2c24; color: white; }
+  .info-tip { background: #1a1410; border-left-color: #c07a5a; color: #c0b4a8; }
+  .page-header h1 { background:linear-gradient(135deg,#f0c8b0,#d08a6a); -webkit-background-clip:text; background-clip:text; }
+  .page-header .header-meta { background:#2a241e; border-color:#4a3a2e; color:#b8a89c; }
+  .arch-layer { background:#1a1410; border-color:#3a2c24; }
+  .arch-layer .layer-label { border-right-color:#3a2c24; color:#e0d4c8; }
+  .arch-block { background:#1a1410; border-color:#3a2c24; color:#c0b4a8; }
+  .value-item { background: rgba(30, 24, 20, 0.7); border-color: var(--color-neutral-200); }
+  .value-item:hover { background: rgba(40, 32, 26, 0.9); border-color: var(--color-accent-soft); }
+  .value-item .value-content p { color: var(--color-neutral-600); }
+  .value-subtitle { color: var(--color-neutral-400); }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-database" aria-hidden="true"></i>
+      <h3>数据中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-book-open"></i> 数据中台定义</a></li>
+        <li><a href="#s1"><i class="fas fa-book"></i> 完整知识体系</a></li>
+        <li><a href="#s2"><i class="fas fa-sitemap"></i> 五大核心架构</a></li>
+        <li><a href="#s3"><i class="fas fa-puzzle-piece"></i> 产品功能模块</a></li>
+        <li><a href="#s4"><i class="fas fa-chart-line"></i> 全套指标体系</a></li>
+        <li><a href="#s5"><i class="fas fa-boxes"></i> 完整内容体系</a></li>
+        <li><a href="#s6"><i class="fas fa-flag"></i> 核心价值总结</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-database"></i> 数据中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-database"></i> 企业级数据中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> 全结构化、无遗漏</span>
+    </header>
+
+    <!-- ===== S0 数据中台定义 ===== -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> 数据中台完整定义</h2>
+        <span class="badge-count">通用总述</span>
+      </div>
+      <div class="card-body">
+        <div class="section-title">1.1 标准官方定义</div>
+        <div class="content-text">
+          数据中台（Data Middle Platform）是企业级全域数据资产化与服务化基础设施，依托统一标准、统一集成、统一存储、统一治理、统一服务五层闭环能力，打通企业内外部异构数据孤岛，将原始业务数据标准化加工为可复用、可计量、可共享的数据资产（主数据、指标、标签、模型、知识库），并以标准化 API、报表、查询、AI 服务等形式，面向业务前台、业务中台、决策系统持续输出数据价值，实现一次建设、全域复用、数据驱动业务的数字化核心中枢。
+        </div>
+        
+        <div class="section-title">1.2 核心本质与定位</div>
+        <ul class="normal-list">
+          <li><strong>战略定位：</strong>数字化转型底层数据底座，解决 “数据不通、口径不一、重复取数、数据不可信、价值难释放” 五大痛点；</li>
+          <li><strong>核心本质：</strong>把数据变成可服务的资产，区别于传统数据仓库（仅做存储统计）、数据湖（仅做原始存储）；</li>
+          <li><strong>核心特征：</strong>全域统一、资产化、服务化、治理贯穿、云原生弹性、批流一体、全链路可追溯；</li>
+          <li><strong>边界区分</strong>
+            <ul class="normal-list" style="margin-top: 0.5rem;">
+              <li>数据仓库：仅结构化离线统计，无统一治理、无对外服务能力；</li>
+              <li>数据湖：存储全类型原始数据，缺乏标准化建模与指标体系；</li>
+              <li>数据中台：湖仓一体底座 + 全域治理 + 资产中心 + 统一数据服务完整闭环。</li>
+            </ul>
+          </li>
+        </ul>
+        
+        <div class="section-title">1.3 建设核心目标</div>
+        <ol class="normal-list">
+          <li>消除数据孤岛，全域数据统一汇聚、统一标准；</li>
+          <li>建立可信数据资产体系，实现数据可管、可控、可查、可用；</li>
+          <li>沉淀通用数据能力，业务需求自助取数，减少重复开发；</li>
+          <li>支撑实时经营、精细运营、智能风控、AI 训练、监管报送全场景；</li>
+          <li>满足等保、隐私合规、行业监管的数据安全要求；</li>
+          <li>量化数据资产价值，实现数据对内赋能、对外合规共享。</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== S1 完整知识体系 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book"></i> 数据中台完整知识体系</h2>
+        <span class="badge-count">理论+方法论+标准</span>
+      </div>
+      <div class="card-body">
+        <div class="content-text" style="margin-bottom: 1.5rem;">以DAMA-DMBOK2 数据管理知识体系为底层理论，结合阿里 OneData、数据网格 Data Mesh、湖仓一体四大主流方法论，分为 6 大知识域：</div>
+        
+        <div class="subsection-title">2.1 数据战略与规划知识域</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>企业数据战略、数据治理组织架构、数据权责矩阵</li>
+          <li>数据成熟度评估模型、中台建设路线图、投入 ROI 测算</li>
+          <li>数据资产化顶层设计、数据成本核算、数据价值度量体系</li>
+        </ul></div>
+        
+        <div class="subsection-title">2.2 数据架构与建模知识域</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>企业全域数据分层架构（源层→ODS→DWD→DWM→DWS→ADS）</li>
+          <li>建模方法论：维度建模、Data Vault、Anchor、Kimball 总线矩阵</li>
+          <li>主题域划分规范、概念 / 逻辑 / 物理三层模型设计标准</li>
+          <li>主数据、参考数据、指标、标签、事实 / 维度表设计规范</li>
+        </ul></div>
+        
+        <div class="subsection-title">2.3 数据集成与流转知识域</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-exchange-alt"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>离线集成：ETL/ELT、批量同步、增量抽取、全量同步</li>
+          <li>实时集成：CDC 变更捕获、消息队列、流批一体管道</li>
+          <li>异构数据源适配：数据库、日志、API、IoT、文件、第三方外部数据</li>
+          <li>数据同步 SLA 规范、数据管道容错、重试、幂等机制</li>
+        </ul></div>
+        
+        <div class="subsection-title">2.4 全域数据治理知识域（中台生命线）</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>元数据管理：技术元数据、业务元数据、操作元数据、数据血缘</li>
+          <li>数据标准：编码标准、字段标准、指标口径标准、主数据标准</li>
+          <li>数据质量：完整性、唯一性、准确性、一致性、及时性五大校验维度</li>
+          <li>数据安全：分级分类、脱敏、加密、权限、审计、数据水印</li>
+          <li>数据生命周期：采集→存储→加工→服务→归档→销毁全流程管控</li>
+          <li>数据资产盘点、资产目录、资产价值评估、资产运营机制</li>
+        </ul></div>
+        
+        <div class="subsection-title">2.5 数据开发与计算知识域</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-code"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>离线计算：Spark、Hive、分布式调度、批量任务编排</li>
+          <li>实时计算：Flink、实时宽表、实时指标、流 JOIN</li>
+          <li>交互式分析：OLAP 引擎、即席查询、自助 SQL</li>
+          <li>AI 机器学习：特征工程、模型训练、模型服务、样本管理</li>
+          <li>开发规范：SQL 规范、代码发布、版本管理、测试、回滚机制</li>
+        </ul></div>
+        
+        <div class="subsection-title">2.6 数据服务与应用知识域</div>
+        <div class="gov-card" style="margin-bottom:1.5rem;"><span class="gov-icon"><i class="fas fa-store"></i></span><h4>核心内容</h4><ul class="detail-list">
+          <li>数据服务标准化：指标 API、明细查询 API、批量导出、标签服务</li>
+          <li>自助分析体系：BI 报表、数据大屏、自助取数、自然语言问数</li>
+          <li>业务应用适配：用户画像、营销、风控、供应链、财务经营</li>
+          <li>服务治理：网关、限流、熔断、监控、计费、共享审批流程</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <!-- ===== S2 五大核心架构 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> 数据中台五大核心架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用</span>
+      </div>
+      <div class="card-body">
+        <div class="subsection-title">3.1 产品架构（平台产品分层，中台产品全景）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">整体分层：底层技术底座层 → 数据开发工具层 → 全域治理中心层 → 数据资产中心层 → 统一数据服务层 → 配套运维支撑层</div>
+        <div class="arch-diagram" style="margin-bottom: 2rem;">
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-cloud"></i> 底层技术底座产品</div><div class="layer-blocks"><span class="arch-block">湖仓存储产品：数据湖、数仓、OLAP、分布式缓存、对象存储；计算引擎：离线 Spark、实时 Flink、交互式 ClickHouse；消息中间件、调度中心、容器云、资源管理平台</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-code"></i> 数据开发一体化产品</div><div class="layer-blocks"><span class="arch-block">数据集成模块、离线开发、实时开发、脚本开发、任务调度、运维监控、数据沙箱</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-shield-alt"></i> 全域数据治理中心产品</div><div class="layer-blocks"><span class="arch-block">元数据平台、数据标准中心、主数据管理、数据质量平台、数据安全中心、数据生命周期管理</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-gem"></i> 数据资产中心产品</div><div class="layer-blocks"><span class="arch-block">数据资产目录、指标管理平台、标签管理平台、知识图谱、资产价值评估</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-network-wired"></i> 统一数据服务网关产品</div><div class="layer-blocks"><span class="arch-block">API 服务平台、指标服务、明细查询、批量数据服务、模型服务、服务审批、服务监控</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-tools"></i> 配套支撑产品</div><div class="layer-blocks"><span class="arch-block">统一权限中心、用户组织、日志审计、成本计量、告警中心、自助 BI、数据大屏</span></div></div>
+        </div>
+        
+        <div class="subsection-title">3.2 业务架构（面向业务域的全域业务分层）</div>
+        <div class="subsection-title">3.2.1 三层业务全景</div>
+        <ol class="normal-list" style="margin-bottom: 1.5rem;">
+          <li><strong>上层：业务消费层（前台业务系统）</strong><br>营销系统、CRM、电商前台、风控引擎、供应链、财务 ERP、生产 MES、管理驾驶舱、自助 BI、AI 智能应用、监管报送平台。</li>
+          <li><strong>中层：数据中台能力层（中台核心业务能力）</strong><br>数据集成能力、数据治理能力、数据建模开发能力、资产沉淀能力、数据服务输出能力，为所有业务域提供通用数据能力，避免各业务自建数据模块。</li>
+          <li><strong>下层：业务数据源层（原始业务生产系统）</strong><br>内部业务系统：ERP、CRM、OA、MES、门店 POS、会员系统、支付系统、工单系统；<br>半结构化数据：系统日志、埋点行为日志、服务器日志；<br>非结构化数据：IoT 设备、图片、工单文档、音视频；<br>外部第三方数据：行业数据、征信、第三方 API、合作方数据。</li>
+        </ol>
+        
+        <div class="subsection-title">3.2.2 企业标准业务主题域划分（通用全行业）</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-users"></i></span><h4>用户域</h4><ul class="detail-list"><li>会员、客户、渠道、组织人员、供应商</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-box"></i></span><h4>商品 / 物料域</h4><ul class="detail-list"><li>产品、物料、库存、品类、规格</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shopping-cart"></i></span><h4>交易域</h4><ul class="detail-list"><li>订单、支付、退款、履约、售后</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bullhorn"></i></span><h4>营销域</h4><ul class="detail-list"><li>活动、优惠券、投放、流量、触点</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-truck"></i></span><h4>供应链域</h4><ul class="detail-list"><li>采购、生产、仓储、物流、质检</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-file-invoice-dollar"></i></span><h4>财务域</h4><ul class="detail-list"><li>营收、成本、费用、资产、税务</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-user-shield"></i></span><h4>风控域</h4><ul class="detail-list"><li>风险行为、黑名单、欺诈、授信</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cog"></i></span><h4>公共域</h4><ul class="detail-list"><li>时间、地域、字典、通用维度、主数据</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.2.3 业务架构核心流程</div>
+        <div class="content-text" style="margin-bottom: 2rem;">业务系统产生原始数据 → 中台统一采集接入 → 标准化清洗治理 → 按业务域建模沉淀指标 / 标签资产 → 封装标准化数据服务 → 各业务系统按需调用数据服务支撑经营、运营、决策。</div>
+        
+        <div class="subsection-title">3.3 数据架构（全域数据分层流转 + 模型体系，OneData 标准）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">采用湖仓一体五层分层架构，所有数据统一流转、统一标准、统一血缘追踪：</div>
+        <div class="arch-diagram" style="margin-bottom: 1.5rem;">
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-database"></i> ODS</div><div class="layer-blocks"><span class="arch-block">原始数据层：存储数据湖，全量原样同步源系统数据，不做清洗；源库全表快照、实时 CDC 日志、原始埋点、IoT 原始数据；数据原始备份，问题溯源，保留最细粒度原始明细；Parquet/ORC，冷热分层归档</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-filter"></i> DWD</div><div class="layer-blocks"><span class="arch-block">明细数据层：基于 ODS 完成清洗、去重、脱敏、格式统一、脏数据隔离；按业务过程构建明细事实表，保留最细业务粒度；统一字段标准、统一编码、统一主数据映射</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-table"></i> DWM</div><div class="layer-blocks"><span class="arch-block">中间层：按维度轻度聚合，消除重复关联，减少重复计算；宽表模型，用户宽表、订单宽表、商品宽表；多指标复用的中间计算结果，支撑上层汇总</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-bar"></i> DWS</div><div class="layer-blocks"><span class="arch-block">汇总层：按业务主题 + 固定维度聚合，形成汇总宽表；日 / 周 / 月维度汇总表，承载企业核心原子指标、派生指标；OLAP 引擎，支撑高并发报表查询</span></div></div>
+          <div class="arch-layer"><div class="layer-label"><i class="fas fa-chart-line"></i> ADS</div><div class="layer-blocks"><span class="arch-block">应用集市层：面向单一业务场景定制加工，高度聚合；经营报表、大屏指标、风控模型特征、营销标签；各业务应用数据集市相互隔离，按需开放权限</span></div></div>
+        </div>
+        <div class="subsection-title">配套数据模型体系（数据架构核心组成）</div>
+        <div class="grid-2" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-database"></i></span><h4>主数据模型</h4><ul class="detail-list"><li>客户、供应商、物料、组织、产品六大核心主数据，全域唯一编码</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-th-large"></i></span><h4>维度模型</h4><ul class="detail-list"><li>时间、地域、渠道、用户分层、商品品类等通用维度</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-list-alt"></i></span><h4>事实模型</h4><ul class="detail-list"><li>事务事实、周期快照、累积快照三大类事实表</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>指标模型</h4><ul class="detail-list"><li>原子指标、修饰词、派生指标、复合指标四层</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tags"></i></span><h4>标签模型</h4><ul class="detail-list"><li>属性标签、统计标签、规则标签、模型预测标签</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>知识库模型</h4><ul class="detail-list"><li>业务术语、指标口径、数据字典、数据血缘图谱</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.4 技术架构（云原生、存算分离、批流一体）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">整体分为 7 大技术分层，横向贯穿统一治理、统一安全、统一运维三大支撑体系：</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-plug"></i></span><h4>分层 1：数据接入层技术栈</h4><ul class="detail-list"><li>离线批量：DataX、Sqoop、Flink Batch；实时 CDC：Flink CDC、Canal、Debezium；日志采集：Filebeat、Flume；API 接入：HTTP/HTTPS 网关、第三方数据同步组件；缓冲队列：Kafka、Pulsar（流数据统一缓冲）</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-server"></i></span><h4>分层 2：存储层技术栈</h4><ul class="detail-list"><li>数据湖存储：HDFS、对象存储 OSS/S3；数据仓库：Hive、Spark SQL；OLAP 交互式引擎：ClickHouse、Doris、StarRocks；实时存储：Redis、Tair、HBase；冷热分层：归档存储、低成本冷存，自动生命周期迁移</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-cogs"></i></span><h4>分层 3：计算引擎层</h4><ul class="detail-list"><li>离线批计算：Apache Spark、Yarn 资源调度；实时流计算：Apache Flink（流批一体统一引擎）；AI 计算：TensorFlow、PySpark ML、XGBoost；调度引擎：Airflow、DolphinScheduler、自研分布式调度</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-code"></i></span><h4>分层 4：数据开发层技术栈</h4><ul class="detail-list"><li>统一开发 IDE：Web 端 SQL 编辑器、Flink SQL 开发、Python 脚本；版本管理：Git、代码分支、发布流水线；数据沙箱：隔离测试环境，数据仿真、脱敏测试</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>分层 5：数据治理引擎层</h4><ul class="detail-list"><li>元数据：Apache Atlas、自研元数据采集服务；质量引擎：Great Expectations、自定义规则引擎；主数据引擎：主数据匹配、去重、黄金记录生成；标准引擎：字典统一映射、编码转换组件</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-network-wired"></i></span><h4>分层 6：数据服务网关层</h4><ul class="detail-list"><li>API 网关：Spring Cloud Gateway、Nacos 注册中心；服务组件：指标查询服务、批量导出服务、标签 RPC 服务；流量管控：限流、熔断、负载均衡、鉴权</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tools"></i></span><h4>分层 7：运维监控底座</h4><ul class="detail-list"><li>容器底座：K8s 云原生部署；监控告警：Prometheus、Grafana、告警推送；日志中心：ELK 全链路日志采集；资源计量：存储 / CPU 内存算力成本统计</li></ul></div>
+        </div>
+        <div class="subsection-title">横向贯穿三大支撑体系</div>
+        <div class="grid-3" style="margin-bottom: 2rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-lock"></i></span><h4>统一安全体系</h4><ul class="detail-list"><li>Ranger 权限、数据脱敏组件、AES 加密、操作审计</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>统一治理体系</h4><ul class="detail-list"><li>元数据自动采集、全链路血缘自动解析</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-heartbeat"></i></span><h4>统一运维体系</h4><ul class="detail-list"><li>任务重跑、补数、故障自愈、自动扩缩容</li></ul></div>
+        </div>
+        
+        <div class="subsection-title">3.5 应用架构（中台对外输出的全场景应用体系）</div>
+        <div class="content-text" style="margin-bottom: 0.5rem;">分为 4 大类应用，全部基于中台资产与服务能力构建，无底层数据重复加工：</div>
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-line"></i></span><h4>1. 经营决策类应用</h4><ul class="detail-list"><li>企业经营驾驶舱、集团数据大屏、OKR 指标看板、财务经营分析、人力分析；功能：多层下钻、同比环比、预警阈值、自动周报 / 月报</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-bullhorn"></i></span><h4>2. 业务运营类应用</h4><ul class="detail-list"><li>用户精细化运营平台、营销活动分析、商品库存分析、渠道流量分析、供应链产销协同；能力：人群圈选、用户分群、活动效果归因、自助取数报表</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-user-shield"></i></span><h4>3. 风险与智能类应用</h4><ul class="detail-list"><li>实时风控引擎、反欺诈系统、信用评估、客户流失预测、智能推荐、需求预测；依赖：中台特征库、标签库、实时指标服务</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-handshake"></i></span><h4>4. 合规与对外共享类应用</h4><ul class="detail-list"><li>监管报送平台、行业数据上报、第三方数据共享平台、数据对外 API 集市；配套：数据脱敏、共享审批、流量审计、合规水印</li></ul></div>
+        </div>
+        <div class="subsection-title">应用访问链路</div>
+        <div class="content-text" style="margin-bottom: 2rem;">业务人员 / 系统 → 统一门户 / API 网关 → 调用中台标准化数据服务（指标 / 标签 / 明细）→ 中台读取 DWS/ADS 层汇总数据 → 返回结果渲染报表 / 业务系统页面。</div>
+      </div>
+    </section>
+
+    <!-- ===== S3 产品功能模块 ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> 数据中台完整产品功能模块</h2>
+        <span class="badge-count">全模块细分、无遗漏</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-exchange-alt"></i></span><h4>模块 1：全域数据集成平台</h4><ul class="detail-list"><li>数据源管理；离线同步组件；实时 CDC 采集组件；文件 / 日志采集组件；API 数据同步组件；数据管道管理</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-code"></i></span><h4>模块 2：一站式数据开发平台</h4><ul class="detail-list"><li>离线开发工作台；实时开发工作台；Python / 脚本开发；任务调度中心；数据测试沙箱；代码发布管理；运维监控面板</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>模块 3：全域数据治理中心</h4><ul class="detail-list"><li>元数据管理子模块；数据标准管理子模块；主数据管理 MDM 子模块；数据质量管理子模块；数据安全与权限子模块；数据生命周期管理子模块</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-gem"></i></span><h4>模块 4：数据资产中心</h4><ul class="detail-list"><li>全域资产目录；统一指标管理平台；用户标签管理平台；数据知识图谱；资产价值评估</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-network-wired"></i></span><h4>模块 5：统一数据服务网关</h4><ul class="detail-list"><li>服务注册与管理；服务权限与审批；服务治理能力；多类型数据服务；服务计费计量</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-bar"></i></span><h4>模块 6：自助 BI 与可视化应用模块</h4><ul class="detail-list"><li>自助报表平台；数据大屏设计器；自助取数平台；自然语言问数</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-door-open"></i></span><h4>模块 7：统一门户与系统支撑模块</h4><ul class="detail-list"><li>统一用户门户；组织人员管理；消息中心；系统配置中心；运维管理后台</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S4 全套指标体系 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> 数据中台指标体系</h2>
+        <span class="badge-count">平台运维+业务资产双套</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>中台平台运维技术指标</strong></td><td>数据集成：同步完成率≥99.9%，实时CDC延迟≤5s；数据开发调度：任务按时完成率≥99.5%；数据质量：全域质量分≥90，脏数据占比≤0.1%；元数据与治理：采集覆盖率≥99%，脱敏覆盖率100%；数据服务性能：API响应≤200ms，可用率≥99.99%；成本资源：存储增量、算力消耗、成本分摊；安全合规：审计日志留存≥180天</td></tr>
+              <tr><td><strong>数据资产业务指标</strong></td><td>资产规模：表资产总数、指标/标签总数、API数量；活跃度：日均访问次数、自助报表数、API调用量；业务价值：重复开发减少比例、取数耗时下降、营收增量；资产健康：低质量资产占比、僵尸资产占比、口径冲突数</td></tr>
+              <tr><td><strong>企业经营业务指标</strong></td><td>战略北极星：集团年度营收、全域活跃客户总数、整体毛利率；战术KPI：线上GMV、门店销售额、复购率、库存周转天数；运营监控：日访问UV、订单笔数、支付成功率、活动曝光转化；诊断预警：流失客户环比增长率、库存超阈值、客单价下滑幅度</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S5 完整内容体系 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> 数据中台完整内容体系</h2>
+        <span class="badge-count">交付物+标准文档+资产内容</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-sitemap"></i></span><h4>6.1 顶层规划类内容</h4><ul class="detail-list"><li>数据中台整体建设方案、数据战略白皮书；企业全域数据架构蓝图、主题域划分规范；数据治理组织权责制度、数据安全管理办法；中台实施路线图、分阶段落地清单、ROI 测算报告</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-book"></i></span><h4>6.2 标准规范类内容</h4><ul class="detail-list"><li>数据集成规范；数据建模规范；数据标准手册；指标标准手册；标签体系规范；数据安全合规手册</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-project-diagram"></i></span><h4>6.3 数据模型资产内容</h4><ul class="detail-list"><li>全域概念数据模型 CDM、逻辑数据模型 LDM、物理模型 PDM；总线矩阵文档；主数据全量模型文档；数仓分层全量表结构字典</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-shield-alt"></i></span><h4>6.4 治理资产内容</h4><ul class="detail-list"><li>元数据资产目录、全域数据血缘图谱文档；数据质量规则全集、月度质量治理报告；主数据黄金记录库、全域统一码值字典；敏感数据清单、数据脱敏规则库、审计日志归档文件</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-chart-pie"></i></span><h4>6.5 指标 & 标签资产内容</h4><ul class="detail-list"><li>全域指标字典；指标 API 服务接口文档；全量标签库文档、人群圈选规则模板；指标月度波动分析报告、口径变更记录档案</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-store"></i></span><h4>6.6 数据服务与应用内容</h4><ul class="detail-list"><li>全部数据 API 服务 OpenAPI 文档；自助 BI 报表模板库、经营大屏素材与指标配置文档；业务系统接入中台服务对接方案；监管报送数据模板、对外数据共享交付规范</li></ul></div>
+          <div class="gov-card"><span class="gov-icon"><i class="fas fa-tools"></i></span><h4>6.7 运维运营类内容</h4><ul class="detail-list"><li>平台运维手册、集群部署架构文档、故障处理预案；中台监控指标大盘配置、告警规则清单；月度中台资产运营报告、资源成本分摊报表；数据治理月度考核报告、资产整改台账</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S6 核心价值总结 ===== -->
+    <section id="s6" class="card banner-card">
+        <div class="card-body">
+            <div class="value-header">
+                <div class="icon-big"><i class="fas fa-flag"></i></div>
+                <h2>数据中台四大核心价值总结</h2>
+                <p class="value-subtitle">四大维度 · 重塑企业全域数据能力体系</p>
+            </div>
+            <div class="value-grid">
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-coins"></i></div>
+                    <div class="value-content">
+                        <h4>降本</h4>
+                        <p>消除重复数据开发，统一存储算力，大幅降低 IT 人力与硬件成本。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-rocket"></i></div>
+                    <div class="value-content">
+                        <h4>提效</h4>
+                        <p>业务自助取数，指标秒级查询，报表自动化，决策响应速度提升数倍。</p>
+                    </div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="value-content">
+                        <h4>可信</h4>
+                        <p>全链路治理、质量管控、统一口径，解决数据打架、数据不可信问题。</p>
+                    </div>
+                </div>
+                <div class="value-item full-width">
+                    <div class="value-icon"><i class="fas fa-bolt"></i></div>
+                    <div class="value-content">
+                        <h4>赋能</h4>
+                        <p>沉淀标准化数据资产，支撑实时运营、智能风控、AI 创新、合规报送，释放数据商业价值。</p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-note" style="margin-top: 2rem; font-size:0.8rem; color:var(--color-primary);">数据中台 · 企业数字化转型的底层数据底座与统一资产中枢</div>
+        </div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>

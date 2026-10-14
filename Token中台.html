@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Token中台 · 企业级完整体系 · 高保真架构</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ===== 设计系统 Token（完全继承参考样式） ===== */
+    :root {
+      --color-primary: #7a2e1a;
+      --color-primary-light: #fce9e0;
+      --color-primary-dark: #4d1c0e;
+      --color-accent: #b85c3a;
+      --color-accent-soft: #f0c8b8;
+      --color-accent-glow: rgba(184, 92, 58, 0.10);
+      --color-neutral-50: #fcf9f7;
+      --color-neutral-100: #f5ede8;
+      --color-neutral-200: #e5d7ce;
+      --color-neutral-300: #cbb8ab;
+      --color-neutral-400: #a68b7a;
+      --color-neutral-600: #6f5544;
+      --color-neutral-700: #4f3a2e;
+      --color-neutral-800: #34241c;
+      --color-neutral-900: #1e140f;
+      --color-gold: #c29a4a;
+      --color-gold-light: #f3e1b0;
+      --color-jade: #3b7a5e;
+      --color-jade-light: #d4ede0;
+      --color-success: #1f6e4a;
+      --color-warning: #a86b2c;
+      --color-error: #b13a2a;
+      --font-base: 1rem;
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-12: 3rem;
+      --radius-sm: 0.75rem;
+      --radius-md: 1.25rem;
+      --radius-card: 2rem;
+      --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(60, 30, 10, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(60, 30, 10, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(60, 30, 10, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+      --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ===== 重置 & 基础 ===== */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    /* ===== 布局 ===== */
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(255, 249, 245, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(255, 235, 220, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); letter-spacing:-0.01em; }
+    .sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+    .sidebar nav ul { list-style:none; padding:0; margin:0; }
+    .sidebar nav ul li { margin-bottom:0.1rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:12px;
+      padding:0.55rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.85rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+    }
+    .sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+    .sidebar nav ul li a:hover,
+    .sidebar nav ul li a:focus-visible {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateX(4px);
+    }
+    .sidebar-footer {
+      margin-top:24px; padding:12px; text-align:center;
+      font-size:0.7rem; color:var(--color-neutral-600);
+      border-top:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 主内容 ===== */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+    /* ===== 页面头部 ===== */
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+      font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+    .page-header .header-meta {
+      font-size:0.9rem; color:var(--color-neutral-600);
+      background:var(--color-neutral-100);
+      padding:0.4rem 1.2rem;
+      border-radius:var(--radius-pill);
+      border:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 卡片系统 ===== */
+    .card {
+      background:rgba(255,252,248,0.92);
+      backdrop-filter: blur(4px);
+      border-radius:var(--radius-card);
+      box-shadow:var(--shadow-card);
+      margin-bottom:var(--space-6);
+      border:1px solid rgba(255, 235, 220, 0.5);
+      overflow:hidden;
+      transition: box-shadow var(--transition-default), transform 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6);
+      background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft);
+      display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 {
+      font-size:clamp(1.2rem, 2.2vw, 1.6rem);
+      font-weight:700; color:var(--color-primary-dark);
+      display:flex; align-items:center; gap:12px;
+      letter-spacing:-0.01em;
+    }
+    .card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+    .card-header .badge-count {
+      margin-left:auto;
+      background:var(--color-accent);
+      color:white;
+      border-radius:var(--radius-pill);
+      padding:0.15rem 0.9rem;
+      font-size:0.7rem;
+      font-weight:600;
+      letter-spacing:0.3px;
+    }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* ===== 网格 & 卡片（Token卡片风格） ===== */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } .grid-4 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; } }
+
+    /* Token卡片 (复用九字卡片) */
+    .token-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md);
+      padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: all var(--transition-default);
+      position:relative;
+      overflow:hidden;
+      border-left: 4px solid var(--color-accent);
+    }
+    .token-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft));
+      opacity:0;
+      transition: opacity var(--transition-default);
+    }
+    .token-card:hover::before { opacity:1; }
+    .token-card:hover {
+      border-color:var(--color-accent-soft);
+      box-shadow: 0 8px 24px -8px rgba(184,92,58,0.15);
+      transform:translateY(-3px);
+    }
+    .token-card .token-icon {
+      font-size:1.8rem;
+      color:var(--color-primary);
+      display:inline-block;
+      margin-right:6px;
+      background: var(--color-primary-light);
+      padding:0.2rem 0.6rem;
+      border-radius:12px;
+    }
+    .token-card h4 {
+      color:var(--color-primary-dark);
+      font-size:1.05rem;
+      margin-bottom:0.4rem;
+      display:flex; align-items:center; gap:8px;
+      flex-wrap:wrap;
+    }
+    .token-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+    .token-card .detail-list {
+      padding-left:0; margin:0.4rem 0 0 0;
+      list-style:none;
+    }
+    .token-card .detail-list li {
+      margin-bottom:0.25rem;
+      padding-left:1.2rem;
+      position:relative;
+      font-size:0.85rem;
+      color:var(--color-neutral-700);
+    }
+    .token-card .detail-list li::before {
+      content:'▹'; position:absolute; left:0;
+      color:var(--color-accent);
+      font-weight:600;
+    }
+    .token-card .detail-list li strong { color:var(--color-neutral-800); }
+    .token-card .tag-layer {
+      display:inline-block;
+      background:var(--color-gold-light);
+      color:var(--color-primary-dark);
+      border-radius:20px;
+      padding:0.05rem 0.8rem;
+      font-size:0.6rem;
+      font-weight:700;
+      letter-spacing:0.3px;
+      margin-left:0.5rem;
+    }
+
+    /* ===== 架构层（继承九层闭环） ===== */
+    .arch-diagram {
+      display:flex;
+      flex-direction:column;
+      gap:0.6rem;
+      padding:0.5rem 0;
+    }
+    .arch-layer {
+      display:flex;
+      align-items:stretch;
+      gap:0.75rem;
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.6rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: var(--transition-default);
+    }
+    .arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+    .arch-layer .layer-label {
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      min-width:120px;
+      padding-right:1rem;
+      border-right:2px solid var(--color-neutral-200);
+      font-weight:700;
+      font-size:0.8rem;
+      color:var(--color-primary-dark);
+      letter-spacing:0.3px;
+    }
+    .arch-layer .layer-label i {
+      font-size:1.1rem;
+      color:var(--color-accent);
+      margin-bottom:0.1rem;
+    }
+    .arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+    .arch-layer .layer-blocks {
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:0.5rem;
+      flex:1;
+      padding:0.2rem 0;
+    }
+    .arch-block {
+      background:white;
+      border-radius:var(--radius-sm);
+      padding:0.3rem 0.9rem;
+      border:1px solid var(--color-neutral-200);
+      font-size:0.75rem;
+      font-weight:500;
+      color:var(--color-neutral-700);
+      transition: var(--transition-default);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .arch-block:hover {
+      border-color:var(--color-accent);
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateY(-1px);
+    }
+    .arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+    .arch-block.highlight-block {
+      background:var(--color-accent);
+      color:white;
+      border-color:var(--color-accent);
+    }
+    .arch-block.highlight-block i { color:white; }
+    .arch-layer.inner-layer { background:linear-gradient(135deg, #f5efe8, #f0e4da); border-color:var(--color-accent-soft); }
+    .arch-layer.outer-layer { background:linear-gradient(135deg, #f0f2ed, #e6ece2); border-color:#b8c8aa; }
+    .arch-layer.outer-layer .layer-label { border-right-color:#b8c8aa; color:#2d5a3a; }
+    .arch-layer.outer-layer .layer-label i { color:#3b7a5e; }
+    .arch-layer.outer-layer .arch-block { border-color:#c8d8b8; }
+    .arch-layer.outer-layer .arch-block:hover { border-color:#3b7a5e; background:#e0ede0; }
+    .arch-layer.ultimate-layer { background:linear-gradient(135deg, #f0ede8, #e8e0d8); border-color:#c8b8a8; }
+    .arch-layer.ultimate-layer .layer-label { border-right-color:#c8b8a8; color:#6a4a3a; }
+    .arch-layer.ultimate-layer .layer-label i { color:#8a6a5a; }
+    .arch-layer.ultimate-layer .arch-block { border-color:#d8c8b8; }
+    .arch-layer.ultimate-layer .arch-block:hover { border-color:#8a6a5a; background:#ede0d8; }
+
+    /* ===== 表格 ===== */
+    .table-wrapper {
+      overflow-x:auto;
+      border-radius:var(--radius-md);
+      border:1px solid var(--color-neutral-200);
+      background:white;
+    }
+    table {
+      width:100%; border-collapse:collapse; font-size:0.78rem;
+    }
+    th {
+      background:var(--color-neutral-100);
+      padding:12px 10px;
+      font-weight:600;
+      color:var(--color-primary-dark);
+      text-align:left;
+      border-bottom:2px solid var(--color-neutral-200);
+      font-size:0.7rem;
+      text-transform:uppercase;
+      letter-spacing:0.4px;
+    }
+    td {
+      padding:10px 10px;
+      border-bottom:1px solid var(--color-neutral-200);
+      vertical-align:middle;
+      color:var(--color-neutral-700);
+    }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--color-neutral-50); }
+    .level-tag {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      border-radius:var(--radius-pill);
+      padding:0.05rem 0.7rem;
+      font-size:0.65rem;
+      font-weight:600;
+      display:inline-block;
+    }
+
+    /* ===== 信息提示 ===== */
+    .info-tip {
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.7rem 1.5rem;
+      border-left:5px solid var(--color-accent);
+      margin-top:var(--space-4);
+      display:flex; align-items:center; gap:0.8rem;
+      font-size:0.9rem;
+      color:var(--color-neutral-700);
+    }
+    .info-tip i { color:var(--color-accent); font-size:1rem; }
+
+    /* ===== 横幅 ===== */
+    .banner-card {
+      background: linear-gradient(135deg, #f5ede6, #e8dcd2);
+      text-align:center;
+      border-color:var(--color-accent-soft);
+    }
+    .banner-card .card-body { padding:2.5rem var(--space-6); }
+    .banner-card .icon-big { font-size:3rem; color:var(--color-primary); opacity:0.7; margin-bottom:var(--space-3); }
+    .banner-card h2 { color:var(--color-primary-dark); font-size:clamp(1.4rem, 2.5vw, 1.9rem); margin-bottom:var(--space-2); }
+    .banner-card p { max-width:680px; margin:0 auto; color:var(--color-neutral-700); font-size:1rem; }
+    .banner-card .footer-note { margin-top:var(--space-6); font-size:0.8rem; color:var(--color-primary); }
+
+    /* ===== 响应式 ===== */
+    @media (max-width:1024px) { .sidebar { width:220px; } }
+    @media (max-width:760px) {
+      .sidebar { display:none; }
+      .layout { padding:0.5rem; }
+      .main-content { padding:0; }
+      .card-body { padding:1.25rem var(--space-4); }
+      .card-header { padding:1rem var(--space-4); }
+      .page-header { flex-direction:column; align-items:flex-start; }
+    }
+
+    /* ===== 暗色 ===== */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #1a1410;
+        --color-neutral-100: #221c18;
+        --color-neutral-200: #3a2c24;
+        --color-neutral-300: #5a4a3e;
+        --color-neutral-400: #8a7a6e;
+        --color-neutral-600: #b8a89c;
+        --color-neutral-700: #d0c4b8;
+        --color-neutral-800: #e8dcd0;
+        --color-neutral-900: #f5ede6;
+        --color-primary-light: #3a2a20;
+        --color-accent-soft: #6a4a3a;
+        --color-primary: #d08a6a;
+        --color-primary-dark: #f0c8b0;
+        --color-accent: #c07a5a;
+        --color-gold: #c29a4a;
+        --color-gold-light: #4a3a20;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6);
+        --shadow-card-hover: 0 20px 48px -12px rgba(0,0,0,0.7);
+        --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #120e0a; }
+      .card { background: #1a1410; border-color: #3a2c24; }
+      .card-header { background: #1a1410; border-bottom-color: #4a3a2e; }
+      .token-card { background: #1a1410; border-color: #3a2c24; }
+      .token-card .token-icon { background: #2a1e16; color: #d08a6a; }
+      .token-card .detail-list li { color: #c0b4a8; }
+      .token-card .detail-list li strong { color: #e0d4c8; }
+      .table-wrapper { background: #1a1410; border-color: #3a2c24; }
+      th { background: #221c18; color: #e0d4c8; border-bottom-color: #4a3a2e; }
+      td { border-bottom-color: #2a241e; color: #c0b4a8; }
+      tr:hover td { background: #2a241e; }
+      .sidebar { background: rgba(20, 16, 12, 0.92); border-color: #3a2c24; }
+      .sidebar-brand { border-bottom-color: #4a3a2e; }
+      .sidebar-brand h3 { color: #d08a6a; }
+      .sidebar nav ul li a { color: #c0b4a8; }
+      .sidebar nav ul li a:hover { background: #3a2c24; color: white; }
+      .info-tip { background: #1a1410; border-left-color: #c07a5a; color: #c0b4a8; }
+      .banner-card { background:linear-gradient(135deg,#1a1410,#2a241e); }
+      .banner-card p { color: #c0b4a8; }
+      .page-header h1 { background:linear-gradient(135deg,#f0c8b0,#d08a6a); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#2a241e; border-color:#4a3a2e; color:#b8a89c; }
+      .arch-layer { background:#1a1410; border-color:#3a2c24; }
+      .arch-layer:hover { background:#2a1e16; border-color:#5a4a3e; }
+      .arch-layer .layer-label { border-right-color:#3a2c24; color:#e0d4c8; }
+      .arch-block { background:#1a1410; border-color:#3a2c24; color:#c0b4a8; }
+      .arch-block:hover { background:#3a2c24; border-color:#c07a5a; }
+      .arch-layer.inner-layer { background:linear-gradient(135deg,#1a1410,#2a1e16); border-color:#5a3a2a; }
+      .arch-layer.outer-layer { background:linear-gradient(135deg,#141a12,#1a2618); border-color:#2a4a2a; }
+      .arch-layer.outer-layer .layer-label { border-right-color:#2a4a2a; color:#8aba8a; }
+      .arch-layer.outer-layer .layer-label i { color:#5a9a6a; }
+      .arch-layer.outer-layer .arch-block { border-color:#2a4a2a; color:#a0c8a0; }
+      .arch-layer.outer-layer .arch-block:hover { border-color:#5a9a6a; background:#1a2a1a; }
+      .arch-layer.ultimate-layer { background:linear-gradient(135deg,#1a1410,#221c18); border-color:#4a3a2e; }
+      .arch-layer.ultimate-layer .layer-label { border-right-color:#4a3a2e; color:#c8b0a0; }
+      .arch-layer.ultimate-layer .layer-label i { color:#a08070; }
+      .arch-layer.ultimate-layer .arch-block { border-color:#4a3a2e; color:#c8b8a8; }
+      .arch-layer.ultimate-layer .arch-block:hover { border-color:#a08070; background:#2a241e; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-coins" aria-hidden="true"></i>
+      <h3>Token中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s0"><i class="fas fa-cubes"></i> 全域标准定义</a></li>
+        <li><a href="#s1"><i class="fas fa-layer-group"></i> 八大特征</a></li>
+        <li><a href="#s2"><i class="fas fa-book"></i> 知识体系</a></li>
+        <li><a href="#s3"><i class="fas fa-project-diagram"></i> TokenGraph</a></li>
+        <li><a href="#s4"><i class="fas fa-sitemap"></i> 六大架构</a></li>
+        <li><a href="#s5"><i class="fas fa-puzzle-piece"></i> 功能模块</a></li>
+        <li><a href="#s6"><i class="fas fa-chart-line"></i> 指标体系</a></li>
+        <li><a href="#s7"><i class="fas fa-boxes"></i> 资产体系</a></li>
+        <li><a href="#s8"><i class="fas fa-share-alt"></i> 协同关系</a></li>
+        <li><a href="#s9"><i class="fas fa-flag"></i> 核心价值</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-coins"></i> Token中台 · 企业级完整体系</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-coins"></i> 企业级 Token 中台完整体系说明书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> AI 词元统一管控中台</span>
+    </header>
+
+    <!-- ===== S0 全域标准定义 ===== -->
+    <section id="s0" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book-open"></i> Token 中台全域标准定义</h2>
+        <span class="badge-count">当下落地 + 多模态 AI 自治演进</span>
+      </div>
+      <div class="card-body">
+        <div class="arch-diagram">
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-database"></i> 底层依赖 <span class="sub">算力/MCP/存储/数据</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-microchip"></i> 算力中台</span>
+              <span class="arch-block"><i class="fas fa-cloud"></i> PaaS</span>
+              <span class="arch-block"><i class="fas fa-code"></i> MCP</span>
+              <span class="arch-block"><i class="fas fa-database"></i> 时序库</span>
+              <span class="arch-block"><i class="fas fa-vector-square"></i> 向量库</span>
+              <span class="arch-block"><i class="fas fa-table"></i> 数据中台</span>
+            </div>
+          </div>
+          <div class="arch-layer outer-layer">
+            <div class="layer-label"><i class="fas fa-cogs"></i> 核心能力 <span class="sub">计量/预算/路由/上下文/Prompt</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block highlight-block"><i class="fas fa-coins"></i> Token计量</span>
+              <span class="arch-block"><i class="fas fa-layer-group"></i> 五级预算</span>
+              <span class="arch-block"><i class="fas fa-route"></i> 智能路由</span>
+              <span class="arch-block"><i class="fas fa-compress"></i> 上下文优化</span>
+              <span class="arch-block"><i class="fas fa-pen-fancy"></i> Prompt资产</span>
+              <span class="arch-block"><i class="fas fa-project-diagram"></i> TokenGraph</span>
+              <span class="arch-block"><i class="fas fa-shield-alt"></i> 安全熔断</span>
+            </div>
+          </div>
+          <div class="arch-layer ultimate-layer">
+            <div class="layer-label"><i class="fas fa-rocket"></i> 上层赋能 <span class="sub">Skill/Agent/MaaS/Copilot</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-toolbox"></i> Skill</span>
+              <span class="arch-block"><i class="fas fa-robot"></i> Agent</span>
+              <span class="arch-block"><i class="fas fa-cloud"></i> MaaS</span>
+              <span class="arch-block"><i class="fas fa-robot"></i> Copilot</span>
+              <span class="arch-block"><i class="fas fa-code"></i> 低代码AI</span>
+            </div>
+          </div>
+        </div>
+        <div class="info-tip"><i class="fas fa-scroll"></i> Token 中台（词元统一管控中台），是企业全域多模态大模型、智能体、MCP、Skill、AI 应用的统一词元计量、智能调度、预算管控、上下文优化、成本治理、安全审计、资产沉淀中枢，属于 AI 原生底层管控型核心中台。</div>
+        <div style="margin-top:0.8rem; font-size:0.9rem; color:var(--color-neutral-600);">
+          <p><strong>战略定位：</strong>企业全域多模态 Token 统一计量结算中心、AI 流量智能调度降本中枢、分层预算管控平台、上下文优化引擎、Prompt 资产沉淀库、Token 知识图谱推理平台、AI 全链路安全审计中心、AI 成本精细化运营迭代中枢。</p>
+          <p><strong>层级边界：</strong>底层依赖层（算力中台训推弹性算力、PaaS 云原生集群、时序 / 向量 / 图存储、MCP 协议网关、数据中台知识库）；核心能力层（专注流量接入、Token 计量、预算管控、智能路由、上下文压缩、Prompt 管理、图谱推理、安全熔断、成本分析）；上层赋能层（统一接收 Agent、Skill、MaaS、行业 Copilot、低代码 AI 平台请求，输出管控后标准化模型调用流）。</p>
+          <p><strong>上下游固定分层：</strong>算力 / IaaS/PaaS → MCP 协议网关 → Token 中台（流量管控层） → Skill → Agent → MaaS 大模型</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S1 八大核心特征 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-layer-group"></i> 八大核心特征</h2>
+        <span class="badge-count">全模态兼容 · 五级预算 · 三重降本 · 全链路归因</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="token-card"><span class="token-icon"><i class="fas fa-vector-square"></i></span><h4>全模态统一兼容</h4><ul class="detail-list"><li>文本/图像/语音/视频Token统一计量，公有/私有/轻量化全覆盖</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-layer-group"></i></span><h4>五级预算隔离</h4><ul class="detail-list"><li>企业→部门→项目→应用→用户五级配额，超支自动限流熔断</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-route"></i></span><h4>三重降本机制</h4><ul class="detail-list"><li>智能路由择优 + 上下文压缩 + Prompt模板复用综合降本</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-tag"></i></span><h4>全链路精准归因</h4><ul class="detail-list"><li>每笔Token绑定租户/场景/用户/模型/任务，台账可追溯</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-brain"></i></span><h4>三重智能推理</h4><ul class="detail-list"><li>规则 + LLM + TokenGraph 联合调度优化</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-compress"></i></span><h4>长上下文自治治理</h4><ul class="detail-list"><li>自动摘要、过期裁剪、向量缓存复用削减冗余Token</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-shield-alt"></i></span><h4>全域安全熔断</h4><ul class="detail-list"><li>超长输入/注入/违规/预算透支实时拦截审计</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-sync-alt"></i></span><h4>数据驱动自主迭代</h4><ul class="detail-list"><li>每日消耗回流TokenGraph，自动输出路由/上下文/Prompt优化</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S2 十大知识域 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-book"></i> Token 中台专属知识体系</h2>
+        <span class="badge-count">十大完整知识域</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-3">
+          <div class="token-card"><span class="token-icon"><i class="fas fa-sitemap"></i></span><h4>顶层架构与全域规划</h4><ul class="detail-list"><li>AI分层流量架构；五级预算体系；跨中台协同；成熟度评估</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-coins"></i></span><h4>多模态Token计量</h4><ul class="detail-list"><li>文本/图像/语音/视频换算标准；费率归一化；流式统计；缓存抵扣</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-route"></i></span><h4>智能路由与任务分级</h4><ul class="detail-list"><li>自然意图分级；低成本模型优先；负载均衡；错峰调度</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-compress"></i></span><h4>长上下文分层治理</h4><ul class="detail-list"><li>三层上下文差异；自动摘要；时序裁剪；向量缓存；坍缩修复</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-pen-fancy"></i></span><h4>Prompt标准化资产</h4><ul class="detail-list"><li>系统提示/Few-shot/CoT模板；精简优化；版本管控；效果评测</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-layer-group"></i></span><h4>五级预算与计量结算</h4><ul class="detail-list"><li>五级配额；预付费包；超支预警；梯度限流；成本分摊</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-shield-alt"></i></span><h4>安全与风险管控</h4><ul class="detail-list"><li>超长拦截；注入检测；违规熔断；脱敏审计；合规落地</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-chart-pie"></i></span><h4>成本运营与复盘</h4><ul class="detail-list"><li>多维度透视；高消耗识别；ROI测算；复盘闭环</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-project-diagram"></i></span><h4>TokenGraph推理</h4><ul class="detail-list"><li>三元组抽取；任务-模型-消耗关联；链路挖掘；优化推荐</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-industry"></i></span><h4>行业场景落地</h4><ul class="detail-list"><li>客服/办公/营销/风控/研发方案；多智能体优化；私有化管控</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-rocket"></i></span><h4>前沿演进</h4><ul class="detail-list"><li>自治调度；端侧计量；联邦互通；动态费率</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S3 TokenGraph ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-project-diagram"></i> TokenGraph 词元知识图谱</h2>
+        <span class="badge-count">核心实体 · 关联 · 智能能力</span>
+      </div>
+      <div class="card-body">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+          <div><h4 style="color:var(--color-primary-dark);"><i class="fas fa-circle"></i> 核心实体体系</h4><ul class="detail-list" style="list-style:none; padding-left:0;"><li>模型、任务、上下文、Prompt、租户、流量消耗、风险、调度策略、指标、资产</li></ul></div>
+          <div><h4 style="color:var(--color-primary-dark);"><i class="fas fa-link"></i> 核心关联关系</h4><ul class="detail-list" style="list-style:none; padding-left:0;"><li>任务↔模型；任务↔Prompt；租户↔预算；流量↔风险；模型↔策略；每日流量增量更新</li></ul></div>
+        </div>
+        <div style="margin-top:1rem; display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.8rem;">
+          <div class="token-card"><span class="token-icon"><i class="fas fa-magic"></i></span><h4>智能能力</h4><ul class="detail-list"><li>流量经验沉淀</li><li>高消耗链路挖掘</li><li>最优模型推演</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-broom"></i></span><h4>智能能力</h4><ul class="detail-list"><li>预算风险预判</li><li>上下文优化推荐</li><li>Prompt智能匹配</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-shield-alt"></i></span><h4>智能能力</h4><ul class="detail-list"><li>高消耗根因溯源</li><li>策略自主迭代</li><li>知识经验复用</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S4 六大架构 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> 六大完整架构</h2>
+        <span class="badge-count">产品 · 业务 · 数据 · 技术 · 应用 · 治理</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="token-card"><span class="token-icon"><i class="fas fa-cubes"></i></span><h4>产品架构（九层）</h4><ul class="detail-list"><li>MCP接入 → Token计量 → 五级预算 → 智能路由 → 上下文优化 → Prompt资产 → TokenGraph → 安全熔断 → 成本运营</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-briefcase"></i></span><h4>业务架构</h4><ul class="detail-list"><li>底层底座：算力/PaaS/MCP/数据；中层核心：计量/预算/路由/上下文/Prompt/图谱/安全；上层赋能：Skill/Agent/MaaS</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-database"></i></span><h4>数据架构（七层）</h4><ul class="detail-list"><li>TK-ODS → TK-DWD → TK-DWB → TK-DWA → TK-DWS → TK-ADS → TK-OPT</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-microchip"></i></span><h4>技术架构（七层）</h4><ul class="detail-list"><li>MCP流量网关 → 分布式存储 → 核心引擎 → TokenGraph → 安全管控 → 可观测计量 → 管理前端</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-rocket"></i></span><h4>应用架构（八大应用）</h4><ul class="detail-list"><li>计量台账、预算管控、智能调度、上下文管理、Prompt集市、图谱运维、安全审计、成本分析</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-balance-scale"></i></span><h4>治理架构（六大体系）</h4><ul class="detail-list"><li>计量标准化、预算生命周期、路由调度、上下文与Prompt、安全合规、图谱迭代</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S5 功能模块 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> 全量产品功能模块</h2>
+        <span class="badge-count">八大模块全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="token-card"><span class="token-icon"><i class="fas fa-coins"></i></span><h4>MCP流量接入与多模态计量</h4><ul class="detail-list"><li>双协议统一收敛；文本/图像/语音标准化换算；全维度标签注入；实时明细台账</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-layer-group"></i></span><h4>五级分层预算管控</h4><ul class="detail-list"><li>五级独立配额；预付费管理；三级预警；梯度限流；额度调拨；分摊报表</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-route"></i></span><h4>智能路由调度</h4><ul class="detail-list"><li>意图自动分级；TokenGraph择优；负载均衡；故障切换；错峰调度；策略可视化</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-compress"></i></span><h4>长上下文优化引擎</h4><ul class="detail-list"><li>自动摘要；时序裁剪；向量缓存复用；坍缩修复；自定义压缩规则；命中率监控</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-pen-fancy"></i></span><h4>Prompt资产集市</h4><ul class="detail-list"><li>全行业模板库；精简优化；版本管理；场景匹配推荐；复用率统计；权限隔离</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-project-diagram"></i></span><h4>TokenGraph推理</h4><ul class="detail-list"><li>三元组抽取；高消耗链路挖掘；风险预判；优化推荐；增量更新</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-shield-alt"></i></span><h4>安全熔断与审计</h4><ul class="detail-list"><li>超长拦截；注入检测；硬熔断；异常识别；脱敏留存；合规报表</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-chart-line"></i></span><h4>成本运营与可观测</h4><ul class="detail-list"><li>实时消耗大屏；多维度下钻；核心指标监控；分级告警；复盘报告；优化任务推送</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S6 指标体系 ===== -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> 全套指标体系</h2>
+        <span class="badge-count">计量 · 预算 · 调度 · 上下文 · 图谱 · 安全</span>
+      </div>
+      <div class="card-body">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>维度</th><th>核心指标</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Token计量资产</strong></td><td>覆盖率100% · 标签完整率100% · 账实相符率100% · 缓存抵扣≥35% · 核算及时率100%</td></tr>
+              <tr><td><strong>五级预算管控</strong></td><td>预警及时率100% · 熔断执行率100% · 审批闭环率100% · 回收完成率≥90% · 超额发生率≤2%</td></tr>
+              <tr><td><strong>智能调度效能</strong></td><td>轻量匹配率≥92% · 延迟≤20ms · 综合降本≥40% · 切换成功率100% · 削峰≥30%</td></tr>
+              <tr><td><strong>上下文优化</strong></td><td>缓存命中率≥85% · Token削减≥45% · CCI持续可控 · 覆盖率100% · 优化闭环率100%</td></tr>
+              <tr><td><strong>TokenGraph图谱</strong></td><td>场景覆盖率100% · 三元组完整率≥99.7% · 挖掘准确率≥98% · 推荐准确率≥95%</td></tr>
+              <tr><td><strong>安全合规</strong></td><td>超长拦截率100% · 注入拦截率≥99% · 熔断隔离率100% · 审计留存率100% · 脱敏覆盖率100%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S7 资产体系 ===== -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-boxes"></i> 完整内容资产体系</h2>
+        <span class="badge-count">6大资产包</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="token-card"><span class="token-icon"><i class="fas fa-sitemap"></i></span><h4>顶层规划资产</h4><ul class="detail-list"><li>建设白皮书 · 转型方案 · 路线图 · 成熟度评估 · 协同方案</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-book"></i></span><h4>全域标准规范</h4><ul class="detail-list"><li>计量换算标准 · MCP接入规范 · 预算管理规范 · 压缩配置标准 · Prompt规范 · 图谱抽取规范 · 安全审计规范</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-database"></i></span><h4>核心数字资产</h4><ul class="detail-list"><li>多模型费率库 · Prompt模板包 · 压缩规则库 · 路由策略库 · TokenGraph资产包 · 预算模板</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-tools"></i></span><h4>落地工程资产</h4><ul class="detail-list"><li>部署手册 · MCP对接文档 · 资产集市指南 · 运维手册 · API文档 · 验收模板</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-chart-pie"></i></span><h4>运营复盘资产</h4><ul class="detail-list"><li>月度成本报告 · 高消耗复盘 · 降本成果报告 · 安全台账</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-shield-alt"></i></span><h4>应急保障资产</h4><ul class="detail-list"><li>流量雪崩预案 · 计量故障切换 · 集体超限处置 · 图谱恢复预案</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S8 协同关系 ===== -->
+    <section id="s8" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-share-alt"></i> 全中台全域协同关系</h2>
+        <span class="badge-count">8 大中台协同</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-3">
+          <div class="token-card"><span class="token-icon"><i class="fas fa-microchip"></i></span><h4>算力中台</h4><ul class="detail-list"><li>提供推理、向量、图计算弹性算力</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-cloud"></i></span><h4>PaaS/MCP中台</h4><ul class="detail-list"><li>MCP作为统一流量入口，请求先流入管控</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-table"></i></span><h4>数据中台</h4><ul class="detail-list"><li>提供知识库用于长期上下文向量缓存</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-toolbox"></i></span><h4>Skill中台</h4><ul class="detail-list"><li>调用请求统一经过计量与预算校验</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-robot"></i></span><h4>Agent中台</h4><ul class="detail-list"><li>长对话流量由Token中台做上下文瘦身</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-cloud"></i></span><h4>MaaS中台</h4><ul class="detail-list"><li>作为前置管控层，过滤超限/风险流量后转发</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-box"></i></span><h4>SaaS中台</h4><ul class="detail-list"><li>内置Copilot流量接入实现租户分级计费</li></ul></div>
+          <div class="token-card"><span class="token-icon"><i class="fas fa-tasks"></i></span><h4>运维中台</h4><ul class="detail-list"><li>承接Token告警、成本异常工单闭环</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S9 核心价值 ===== -->
+    <section id="s9" class="card banner-card">
+      <div class="card-body">
+        <div class="icon-big"><i class="fas fa-flag"></i></div>
+        <h2>Token 中台 · 核心价值总结</h2>
+        <p>统一全域 AI 流量管控底座，消除多模型计费孤岛：收敛所有 MCP 标准 AI 流量，一套台账统一管理公有 / 私有多模态模型消耗，解决成本分散不可控痛点；<br>五级分层预算隔离，实现精细化成本管控：企业到用户五级配额、分级熔断，避免单业务透支全局 AI 资源；<br>三重自治降本体系，显著削减整体 Token 开销：智能路由择优 + 上下文压缩 + Prompt 模板复用综合降本 40% 以上；<br>长对话上下文自主治理，解决多智能体超长会话成本爆炸：自动摘要、向量缓存大幅降低冗余输入词元；<br>规则 + LLM+TokenGraph 三重智能推理，流量管控从被动事后算账转为事前预判；<br>全链路安全闭环，拦截超长输入、提示注入、预算透支各类 AI 风险，满足合规审计；<br>沉淀企业 AI 流量专属知识资产，基于每日消耗数据持续自主优化调度与上下文策略，支撑全域 AI 规模化低成本长效落地。</p>
+        <div class="footer-note">Token 中台 · AI 词元统一管控中台 · 全中台统一架构范式</div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>
