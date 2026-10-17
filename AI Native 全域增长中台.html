@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>AI Native 全域增长中台 全栈架构白皮书</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ===== 设计系统 Token（完全继承参考样式 + AI中台配色微调） ===== */
+    :root {
+      --color-primary: #1a4d7a;
+      --color-primary-light: #e0ebf5;
+      --color-primary-dark: #0d2b4a;
+      --color-accent: #3a7ab5;
+      --color-accent-soft: #b8d4ee;
+      --color-accent-glow: rgba(58, 122, 181, 0.10);
+      --color-neutral-50: #f7faff;
+      --color-neutral-100: #eef3f8;
+      --color-neutral-200: #d5dee8;
+      --color-neutral-300: #b0c0d0;
+      --color-neutral-400: #8a9fb0;
+      --color-neutral-600: #5a6f80;
+      --color-neutral-700: #3a4a5a;
+      --color-neutral-800: #1e2a36;
+      --color-neutral-900: #0e141c;
+      --color-gold: #b88a3a;
+      --color-gold-light: #f0e1b0;
+      --color-jade: #2a7a5e;
+      --color-jade-light: #d0ede0;
+      --color-success: #1f6e4a;
+      --color-warning: #a86b2c;
+      --color-error: #b13a2a;
+      --font-base: 1rem;
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-12: 3rem;
+      --radius-sm: 0.75rem;
+      --radius-md: 1.25rem;
+      --radius-card: 2rem;
+      --radius-pill: 40px;
+      --shadow-card: 0 12px 32px -8px rgba(20, 40, 60, 0.12);
+      --shadow-card-hover: 0 20px 48px -12px rgba(20, 40, 60, 0.20);
+      --shadow-sidebar: 0 16px 40px -8px rgba(20, 40, 60, 0.12);
+      --transition-default: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+      --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ===== 重置 & 基础 ===== */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--color-neutral-50);
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--color-neutral-900);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      font-size: var(--font-base);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    ::selection { background: var(--color-accent-soft); color: var(--color-primary-dark); }
+
+    /* ===== 布局 ===== */
+    .layout { display:flex; max-width:1600px; margin:0 auto; gap:1.5rem; padding:1.25rem; }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      position:sticky; top:1.5rem; align-self:flex-start;
+      width:280px; flex-shrink:0;
+      background: rgba(247, 250, 255, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sidebar);
+      border:1px solid rgba(200, 215, 235, 0.6);
+      padding:1.6rem 0.8rem;
+      max-height:calc(100vh - 3rem);
+      overflow-y:auto;
+      transition: var(--transition-default);
+    }
+    .sidebar::-webkit-scrollbar { width:4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--color-accent-soft); border-radius:20px; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:10px;
+      padding:0 1rem 1rem 1rem;
+      border-bottom:2px solid var(--color-primary-light);
+      margin-bottom:1rem;
+    }
+    .sidebar-brand h3 { font-size:1.15rem; font-weight:700; color:var(--color-primary); letter-spacing:-0.01em; }
+    .sidebar-brand i { font-size:1.4rem; color:var(--color-accent); }
+    .sidebar nav ul { list-style:none; padding:0; margin:0; }
+    .sidebar nav ul li { margin-bottom:0.1rem; }
+    .sidebar nav ul li a {
+      display:flex; align-items:center; gap:12px;
+      padding:0.55rem 1rem; border-radius:var(--radius-pill);
+      font-weight:500; font-size:0.85rem;
+      color:var(--color-neutral-700); text-decoration:none;
+      transition: all var(--transition-default);
+    }
+    .sidebar nav ul li a i { width:22px; color:var(--color-accent); font-size:1rem; text-align:center; }
+    .sidebar nav ul li a:hover,
+    .sidebar nav ul li a:focus-visible {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateX(4px);
+    }
+    .sidebar nav ul li a.active {
+      background:var(--color-accent);
+      color:white;
+      box-shadow: 0 4px 12px rgba(58,122,181,0.3);
+    }
+    .sidebar-footer {
+      margin-top:24px; padding:12px; text-align:center;
+      font-size:0.7rem; color:var(--color-neutral-600);
+      border-top:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 主内容 ===== */
+    .main-content { flex:1; min-width:0; padding:0.25rem 0.25rem 2rem 0.25rem; }
+
+    /* ===== 页面头部 ===== */
+    .page-header {
+      margin-bottom: var(--space-6);
+      padding: var(--space-4) 0 var(--space-2) 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+    .page-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+      font-weight:800; letter-spacing:-0.025em;
+      background: linear-gradient(135deg, var(--color-primary-dark), var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display:flex; align-items:center; gap:0.5rem;
+    }
+    .page-header h1 i { -webkit-text-fill-color: var(--color-accent); font-size:0.9em; }
+    .page-header .header-meta {
+      font-size:0.9rem; color:var(--color-neutral-600);
+      background:var(--color-neutral-100);
+      padding:0.4rem 1.2rem;
+      border-radius:var(--radius-pill);
+      border:1px solid var(--color-neutral-200);
+    }
+
+    /* ===== 卡片系统 ===== */
+    .card {
+      background:rgba(255,252,248,0.92);
+      backdrop-filter: blur(4px);
+      border-radius:var(--radius-card);
+      box-shadow:var(--shadow-card);
+      margin-bottom:var(--space-6);
+      border:1px solid rgba(200, 215, 235, 0.5);
+      overflow:hidden;
+      transition: box-shadow var(--transition-default), transform 0.25s;
+    }
+    .card:hover { box-shadow: var(--shadow-card-hover); transform:translateY(-2px); }
+    .card-header {
+      padding:1.2rem var(--space-6);
+      background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-light));
+      border-bottom:2px solid var(--color-accent-soft);
+      display:flex; align-items:center; gap:var(--space-3);
+    }
+    .card-header h2 {
+      font-size:clamp(1.2rem, 2.2vw, 1.6rem);
+      font-weight:700; color:var(--color-primary-dark);
+      display:flex; align-items:center; gap:12px;
+      letter-spacing:-0.01em;
+    }
+    .card-header h2 i { color:var(--color-accent); font-size:1.2em; }
+    .card-header .badge-count {
+      margin-left:auto;
+      background:var(--color-accent);
+      color:white;
+      border-radius:var(--radius-pill);
+      padding:0.15rem 0.9rem;
+      font-size:0.7rem;
+      font-weight:600;
+      letter-spacing:0.3px;
+    }
+    .card-body { padding:1.8rem var(--space-6); }
+
+    /* ===== 网格 & 卡片（策略卡片风格） ===== */
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:var(--space-6); }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-6); }
+    .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-6); }
+    @media (max-width:1024px) { .grid-3 { grid-template-columns:repeat(2,1fr); } .grid-4 { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:760px) { .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; } }
+
+    /* 策略卡片 */
+    .policy-card {
+      background:linear-gradient(145deg, #ffffff, var(--color-neutral-50));
+      border-radius:var(--radius-md);
+      padding:1.3rem 1.3rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: all var(--transition-default);
+      position:relative;
+      overflow:hidden;
+      border-left: 4px solid var(--color-accent);
+    }
+    .policy-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, var(--color-gold), var(--color-accent-soft));
+      opacity:0;
+      transition: opacity var(--transition-default);
+    }
+    .policy-card:hover::before { opacity:1; }
+    .policy-card:hover {
+      border-color:var(--color-accent-soft);
+      box-shadow: 0 8px 24px -8px rgba(58,122,181,0.15);
+      transform:translateY(-3px);
+    }
+    .policy-card .policy-icon {
+      font-size:1.8rem;
+      color:var(--color-primary);
+      display:inline-block;
+      margin-right:6px;
+      background: var(--color-primary-light);
+      padding:0.2rem 0.6rem;
+      border-radius:12px;
+    }
+    .policy-card h4 {
+      color:var(--color-primary-dark);
+      font-size:1.05rem;
+      margin-bottom:0.4rem;
+      display:flex; align-items:center; gap:8px;
+      flex-wrap:wrap;
+    }
+    .policy-card h4 i { color:var(--color-accent); font-size:0.9rem; }
+    .policy-card .detail-list {
+      padding-left:0; margin:0.4rem 0 0 0;
+      list-style:none;
+    }
+    .policy-card .detail-list li {
+      margin-bottom:0.25rem;
+      padding-left:1.2rem;
+      position:relative;
+      font-size:0.85rem;
+      color:var(--color-neutral-700);
+    }
+    .policy-card .detail-list li::before {
+      content:'▹'; position:absolute; left:0;
+      color:var(--color-accent);
+      font-weight:600;
+    }
+    .policy-card .detail-list li strong { color:var(--color-neutral-800); }
+    .policy-card .tag-layer {
+      display:inline-block;
+      background:var(--color-gold-light);
+      color:var(--color-primary-dark);
+      border-radius:20px;
+      padding:0.05rem 0.8rem;
+      font-size:0.6rem;
+      font-weight:700;
+      letter-spacing:0.3px;
+      margin-left:0.5rem;
+    }
+
+    /* ===== 架构层 ===== */
+    .arch-diagram {
+      display:flex;
+      flex-direction:column;
+      gap:0.6rem;
+      padding:0.5rem 0;
+    }
+    .arch-layer {
+      display:flex;
+      align-items:stretch;
+      gap:0.75rem;
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.6rem 1rem;
+      border:1px solid var(--color-neutral-200);
+      transition: var(--transition-default);
+    }
+    .arch-layer:hover { border-color:var(--color-accent-soft); background:white; }
+    .arch-layer .layer-label {
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      min-width:120px;
+      padding-right:1rem;
+      border-right:2px solid var(--color-neutral-200);
+      font-weight:700;
+      font-size:0.8rem;
+      color:var(--color-primary-dark);
+      letter-spacing:0.3px;
+    }
+    .arch-layer .layer-label i {
+      font-size:1.1rem;
+      color:var(--color-accent);
+      margin-bottom:0.1rem;
+    }
+    .arch-layer .layer-label .sub { font-weight:400; font-size:0.65rem; color:var(--color-neutral-600); }
+    .arch-layer .layer-blocks {
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:0.5rem;
+      flex:1;
+      padding:0.2rem 0;
+    }
+    .arch-block {
+      background:white;
+      border-radius:var(--radius-sm);
+      padding:0.3rem 0.9rem;
+      border:1px solid var(--color-neutral-200);
+      font-size:0.75rem;
+      font-weight:500;
+      color:var(--color-neutral-700);
+      transition: var(--transition-default);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .arch-block:hover {
+      border-color:var(--color-accent);
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      transform:translateY(-1px);
+    }
+    .arch-block i { margin-right:0.3rem; color:var(--color-accent); font-size:0.65rem; }
+    .arch-block.highlight-block {
+      background:var(--color-accent);
+      color:white;
+      border-color:var(--color-accent);
+    }
+    .arch-block.highlight-block i { color:white; }
+    .arch-layer.inner-layer { background:linear-gradient(135deg, #e8eff5, #dce6f0); border-color:var(--color-accent-soft); }
+    .arch-layer.outer-layer { background:linear-gradient(135deg, #edf2ed, #e2ece2); border-color:#b0c8b0; }
+    .arch-layer.outer-layer .layer-label { border-right-color:#b0c8b0; color:#2a5a3a; }
+    .arch-layer.outer-layer .layer-label i { color:#3a7a5e; }
+    .arch-layer.outer-layer .arch-block { border-color:#c0d8c0; }
+    .arch-layer.outer-layer .arch-block:hover { border-color:#3a7a5e; background:#d8e8d8; }
+    .arch-layer.ultimate-layer { background:linear-gradient(135deg, #f0eee8, #e8e0d8); border-color:#c8b8a8; }
+    .arch-layer.ultimate-layer .layer-label { border-right-color:#c8b8a8; color:#6a4a3a; }
+    .arch-layer.ultimate-layer .layer-label i { color:#8a6a5a; }
+    .arch-layer.ultimate-layer .arch-block { border-color:#d8c8b8; }
+    .arch-layer.ultimate-layer .arch-block:hover { border-color:#8a6a5a; background:#ede0d8; }
+
+    /* ===== 表格 ===== */
+    .table-wrapper {
+      overflow-x:auto;
+      border-radius:var(--radius-md);
+      border:1px solid var(--color-neutral-200);
+      background:white;
+    }
+    table {
+      width:100%; border-collapse:collapse; font-size:0.78rem;
+    }
+    th {
+      background:var(--color-neutral-100);
+      padding:12px 10px;
+      font-weight:600;
+      color:var(--color-primary-dark);
+      text-align:left;
+      border-bottom:2px solid var(--color-neutral-200);
+      font-size:0.7rem;
+      text-transform:uppercase;
+      letter-spacing:0.4px;
+    }
+    td {
+      padding:10px 10px;
+      border-bottom:1px solid var(--color-neutral-200);
+      vertical-align:top;
+      color:var(--color-neutral-700);
+    }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:var(--color-neutral-50); }
+    .level-tag {
+      background:var(--color-primary-light);
+      color:var(--color-primary-dark);
+      border-radius:var(--radius-pill);
+      padding:0.05rem 0.7rem;
+      font-size:0.65rem;
+      font-weight:600;
+      display:inline-block;
+    }
+
+    /* ===== 信息提示 ===== */
+    .info-tip {
+      background:var(--color-neutral-50);
+      border-radius:var(--radius-md);
+      padding:0.7rem 1.5rem;
+      border-left:5px solid var(--color-accent);
+      margin-top:var(--space-4);
+      display:flex; align-items:center; gap:0.8rem;
+      font-size:0.9rem;
+      color:var(--color-neutral-700);
+    }
+    .info-tip i { color:var(--color-accent); font-size:1rem; }
+
+    /* ===== 横幅 ===== */
+    .banner-card {
+      background: linear-gradient(135deg, #e8eef5, #dce4ed);
+      text-align:center;
+      border-color:var(--color-accent-soft);
+    }
+    .banner-card .card-body { padding:2.5rem var(--space-6); }
+    .banner-card .icon-big { font-size:3rem; color:var(--color-primary); opacity:0.7; margin-bottom:var(--space-3); }
+    .banner-card h2 { color:var(--color-primary-dark); font-size:clamp(1.4rem, 2.5vw, 1.9rem); margin-bottom:var(--space-2); }
+    .banner-card p { max-width:680px; margin:0 auto; color:var(--color-neutral-700); font-size:1rem; }
+    .banner-card .footer-note { margin-top:var(--space-6); font-size:0.8rem; color:var(--color-primary); }
+
+    /* ===== 响应式 ===== */
+    @media (max-width:1024px) { .sidebar { width:220px; } }
+    @media (max-width:760px) {
+      .sidebar { display:none; }
+      .layout { padding:0.5rem; }
+      .main-content { padding:0; }
+      .card-body { padding:1.25rem var(--space-4); }
+      .card-header { padding:1rem var(--space-4); }
+      .page-header { flex-direction:column; align-items:flex-start; }
+    }
+
+    /* ===== 暗色 ===== */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-neutral-50: #141a20;
+        --color-neutral-100: #1c2430;
+        --color-neutral-200: #2c3648;
+        --color-neutral-300: #4a5a70;
+        --color-neutral-400: #7a8a9e;
+        --color-neutral-600: #b0c0d0;
+        --color-neutral-700: #d0dce8;
+        --color-neutral-800: #e8eef5;
+        --color-neutral-900: #f5f8fc;
+        --color-primary-light: #2a3a50;
+        --color-accent-soft: #4a6a8a;
+        --color-primary: #7aaeec;
+        --color-primary-dark: #c0d8f0;
+        --color-accent: #5a8ec0;
+        --color-gold: #b88a3a;
+        --color-gold-light: #3a3a20;
+        --shadow-card: 0 12px 32px -8px rgba(0,0,0,0.6);
+        --shadow-card-hover: 0 20px 48px -12px rgba(0,0,0,0.7);
+        --shadow-sidebar: 0 16px 40px -8px rgba(0,0,0,0.6);
+      }
+      body { background: #0c1018; }
+      .card { background: #141a20; border-color: #2c3648; }
+      .card-header { background: #141a20; border-bottom-color: #3a4a5e; }
+      .policy-card { background: #141a20; border-color: #2c3648; }
+      .policy-card .policy-icon { background: #1c2838; color: #7aaeec; }
+      .policy-card .detail-list li { color: #b0c0d0; }
+      .policy-card .detail-list li strong { color: #d0dce8; }
+      .table-wrapper { background: #141a20; border-color: #2c3648; }
+      th { background: #1c2430; color: #d0dce8; border-bottom-color: #3a4a5e; }
+      td { border-bottom-color: #222c3c; color: #b0c0d0; }
+      tr:hover td { background: #1c2838; }
+      .sidebar { background: rgba(12, 16, 24, 0.92); border-color: #2c3648; }
+      .sidebar-brand { border-bottom-color: #3a4a5e; }
+      .sidebar-brand h3 { color: #7aaeec; }
+      .sidebar nav ul li a { color: #b0c0d0; }
+      .sidebar nav ul li a:hover { background: #2c3648; color: white; }
+      .sidebar nav ul li a.active { background: #5a8ec0; }
+      .info-tip { background: #141a20; border-left-color: #5a8ec0; color: #b0c0d0; }
+      .banner-card { background:linear-gradient(135deg,#141a20,#1c2838); }
+      .banner-card p { color: #b0c0d0; }
+      .page-header h1 { background:linear-gradient(135deg,#c0d8f0,#7aaeec); -webkit-background-clip:text; background-clip:text; }
+      .page-header .header-meta { background:#1c2430; border-color:#3a4a5e; color:#a0b0c0; }
+      .arch-layer { background:#141a20; border-color:#2c3648; }
+      .arch-layer:hover { background:#1c2838; border-color:#4a5a70; }
+      .arch-layer .layer-label { border-right-color:#2c3648; color:#d0dce8; }
+      .arch-block { background:#141a20; border-color:#2c3648; color:#b0c0d0; }
+      .arch-block:hover { background:#2c3648; border-color:#5a8ec0; }
+      .arch-layer.inner-layer { background:linear-gradient(135deg,#141a20,#1c2838); border-color:#4a6a8a; }
+      .arch-layer.outer-layer { background:linear-gradient(135deg,#141a18,#1a261a); border-color:#2a4a3a; }
+      .arch-layer.outer-layer .layer-label { border-right-color:#2a4a3a; color:#8aba8a; }
+      .arch-layer.outer-layer .layer-label i { color:#5a9a6a; }
+      .arch-layer.outer-layer .arch-block { border-color:#2a4a3a; color:#a0c8a0; }
+      .arch-layer.outer-layer .arch-block:hover { border-color:#5a9a6a; background:#1a2a1a; }
+      .arch-layer.ultimate-layer { background:linear-gradient(135deg,#141a20,#1c2430); border-color:#3a4a5e; }
+      .arch-layer.ultimate-layer .layer-label { border-right-color:#3a4a5e; color:#c8b0a0; }
+      .arch-layer.ultimate-layer .layer-label i { color:#a08070; }
+      .arch-layer.ultimate-layer .arch-block { border-color:#3a4a5e; color:#c8b8a8; }
+      .arch-layer.ultimate-layer .arch-block:hover { border-color:#a08070; background:#2a2430; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" role="navigation" aria-label="主导航">
+    <div class="sidebar-brand">
+      <i class="fas fa-bullseye" aria-hidden="true"></i>
+      <h3>AI Native 全域增长中台</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#s1"><i class="fas fa-star"></i> 顶层定位与核心范式</a></li>
+        <li><a href="#s2"><i class="fas fa-database"></i> 全域五层递进知识体系</a></li>
+        <li><a href="#s3"><i class="fas fa-project-diagram"></i> 全域增长专属知识图谱</a></li>
+        <li><a href="#s4"><i class="fas fa-sitemap"></i> AI Native五层技术架构</a></li>
+        <li><a href="#s5"><i class="fas fa-briefcase"></i> 四层标准业务架构</a></li>
+        <li><a href="#s6"><i class="fas fa-layer-group"></i> 五层标准数据架构</a></li>
+        <li><a href="#s7"><i class="fas fa-cubes"></i> 七层标准技术架构</a></li>
+        <li><a href="#s8"><i class="fas fa-th-large"></i> 七大核心应用场景</a></li>
+        <li><a href="#s9"><i class="fas fa-puzzle-piece"></i> 十一大核心功能模块</a></li>
+        <li><a href="#s10"><i class="fas fa-chart-line"></i> 七维标准化指标体系</a></li>
+        <li><a href="#s11"><i class="fas fa-route"></i> 四阶段落地实施路径</a></li>
+        <li><a href="#s12"><i class="fas fa-sync-alt"></i> 全链路核心业务闭环</a></li>
+        <li><a href="#s13"><i class="fas fa-flag"></i> 核心优势与体系价值</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer"><i class="fas fa-bullseye"></i> AI Native · 全域增长中台</div>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <h1><i class="fas fa-bullseye"></i> AI Native 全域增长中台 全栈架构白皮书</h1>
+      <span class="header-meta"><i class="fas fa-arrow-right"></i> AI智能增长决策 · 全域用户标准化运营</span>
+    </header>
+
+    <!-- ===== S1 顶层定位与核心范式 ===== -->
+    <section id="s1" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-star"></i> 一、顶层定位与核心范式（AI Native原生重构）</h2>
+        <span class="badge-count">核心定义 · 范式差异 · 设计铁律</span>
+      </div>
+      <div class="card-body">
+        <div class="info-tip"><i class="fas fa-book-open"></i> 本白皮书严格遵循AI Native原生智能范式，对齐中台统一顶层架构、层级规范、知识体系、架构分层、模块粒度与落地标准，重构传统增长工具零散、策略孤岛、用户割裂、投放与运营脱节、缺少因果归因、依赖人工经验操盘的增长体系模式。</div>
+        <div style="margin-top:1rem; font-size:0.9rem; color:var(--color-neutral-600);">
+          <p>本体系摒弃传统增长"渠道投放、活动弹窗、权益发放单点操作，数据割裂、人群重复触达、转化链路断裂、策略不可沉淀、ROI无法全局统筹"行业痛点;以AI智能增长决策、全域用户标准化运营、增长资产沉淀、全链路因果推理、智能策略自愈、跨渠道协同调优为核心，打造企业级全域用户生命周期增长、智能化策略编排、资产化运营、可量化、可自愈、自进化的增长操作系统，作为用户拉新、激活、留存、转化、复购、召回、价值提升的全域增长决策中枢底座。</p>
+        </div>
+
+        <h3 style="margin: 1.5rem 0 0.8rem; color: var(--color-primary-dark); font-size: 1.15rem;">1.1 权威核心定义</h3>
+        <div class="info-tip"><i class="fas fa-quote-left"></i> <strong>AI Native全域增长中台：</strong>是一套基于AI原生范式构建的企业全域用户生命周期智能增长操作系统。彻底颠覆传统增长体系"人工策划活动、分渠道独立运营、经验选人群、事后看数据、策略一次性使用"的工具模式。以AI智能决策为核心驱动，全域标准化增长知识体系为规则底座，增长资产化为价值核心，以用户分群、策略编排、渠道调度、预算分配、效果归因、策略自愈迭代为闭环能力。</div>
+        <div style="margin-top:0.8rem; font-size:0.9rem; color:var(--color-neutral-600);">
+          <p>覆盖全渠道、全端、全生命周期、全触点，完成用户拉新、激活、留存、促活、转化、复购、流失预警、召回、价值分层的标准化运营、智能触达、因果归因、资产沉淀、量化复盘、自主调优。为营销投放、产品运营、用户精细化分层、商业化变现、私域运营提供高可信、可溯源、可复用、可量化的智能增长决策能力，是企业用户资产运营与营收增长的核心智能基建。</p>
+          <p><strong>核心范式差异：</strong>传统增长体系是运营驱动、单点活动、渠道孤岛、事后复盘;AI Native增长中台是AI意图驱动、全局最优资源调度、增长资产沉淀驱动、全链路自治进化、事前预测+事中动态调控+事后因果归因。</p>
+        </div>
+
+        <h3 style="margin: 1.5rem 0 0.8rem; color: var(--color-primary-dark); font-size: 1.15rem;">1.2 五大核心要素层级闭环融合逻辑</h3>
+        <p style="font-size:0.9rem; color:var(--color-neutral-600); margin-bottom:0.8rem;">五大核心要素形成「底座支撑→规则生产→智能增长执行→资产治理→迭代进化」闭环，模块无割裂、能力无堆砌:</p>
+        <div class="arch-diagram">
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-cube"></i> 中台底座 <span class="sub">基础载体</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-plug"></i> 全端触点SDK</span>
+              <span class="arch-block"><i class="fas fa-network-wired"></i> 渠道接入网关</span>
+              <span class="arch-block"><i class="fas fa-bullhorn"></i> 统一触达引擎</span>
+              <span class="arch-block"><i class="fas fa-cog"></i> 配置中心</span>
+              <span class="arch-block"><i class="fas fa-server"></i> 服务治理</span>
+              <span class="arch-block"><i class="fas fa-users"></i> 多租户隔离</span>
+            </div>
+          </div>
+          <div class="arch-layer outer-layer">
+            <div class="layer-label"><i class="fas fa-book"></i> 增长知识体系 <span class="sub">规则大脑</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block highlight-block"><i class="fas fa-life-ring"></i> 用户生命周期知识</span>
+              <span class="arch-block"><i class="fas fa-route"></i> 渠道规则</span>
+              <span class="arch-block"><i class="fas fa-gift"></i> 权益体系</span>
+              <span class="arch-block"><i class="fas fa-comment-dots"></i> 触达规范</span>
+              <span class="arch-block"><i class="fas fa-link"></i> 转化链路</span>
+              <span class="arch-block"><i class="fas fa-coins"></i> 预算模型</span>
+              <span class="arch-block"><i class="fas fa-shield-alt"></i> 合规知识</span>
+            </div>
+          </div>
+          <div class="arch-layer ultimate-layer">
+            <div class="layer-label"><i class="fas fa-robot"></i> AI原生智能 <span class="sub">决策核心</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-user-check"></i> 自动识别用户阶段</span>
+              <span class="arch-block"><i class="fas fa-magic"></i> 智能生成增长策略</span>
+              <span class="arch-block"><i class="fas fa-users-cog"></i> 人群智能圈选</span>
+              <span class="arch-block"><i class="fas fa-wallet"></i> 预算智能分配</span>
+              <span class="arch-block"><i class="fas fa-mobile-alt"></i> 触点智能调度</span>
+              <span class="arch-block"><i class="fas fa-chart-line"></i> 效果预判</span>
+              <span class="arch-block"><i class="fas fa-sync"></i> 策略自愈调优</span>
+            </div>
+          </div>
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-rocket"></i> 全域智能增长执行 <span class="sub">生产能力</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-ad"></i> 多渠道投放</span>
+              <span class="arch-block"><i class="fas fa-home"></i> 站内触点</span>
+              <span class="arch-block"><i class="fas fa-bell"></i> 消息推送</span>
+              <span class="arch-block"><i class="fas fa-gift"></i> 权益发放</span>
+              <span class="arch-block"><i class="fas fa-calendar-check"></i> 活动编排</span>
+              <span class="arch-block"><i class="fas fa-flask"></i> AB实验联动</span>
+            </div>
+          </div>
+          <div class="arch-layer outer-layer">
+            <div class="layer-label"><i class="fas fa-gem"></i> 增长资产化+自进化 <span class="sub">价值闭环</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block highlight-block"><i class="fas fa-users"></i> 人群模型</span>
+              <span class="arch-block"><i class="fas fa-file-alt"></i> 策略模板</span>
+              <span class="arch-block"><i class="fas fa-gift"></i> 权益体系</span>
+              <span class="arch-block"><i class="fas fa-project-diagram"></i> 转化链路</span>
+              <span class="arch-block"><i class="fas fa-star"></i> 最优运营方案</span>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="margin: 1.5rem 0 0.8rem; color: var(--color-primary-dark); font-size: 1.15rem;">1.3 AI Native增长中台五大设计铁律</h3>
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-robot"></i></span><h4>AI主控增长全流程</h4><ul class="detail-list"><li>人群识别、策略生成、渠道分配、预算调度、触达执行、效果复盘、策略迭代全流程由AI主导</li><li>人工仅做业务审核兜底，摆脱经验式单点运营</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-clipboard-list"></i></span><h4>一切增长动作可标准化</h4><ul class="detail-list"><li>用户分层、触达渠道、权益类型、活动模板、预算口径、归因模型、复盘标准全部统一标准化</li><li>消除渠道孤岛与口径混乱</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-gem"></i></span><h4>增长策略即用户资产</h4><ul class="detail-list"><li>人群模型、策略模板、转化链路、最优运营规则作为企业核心增长资产</li><li>可复用、可管理、可迭代、可估值</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-ruler-combined"></i></span><h4>全链路可量化可校验</h4><ul class="detail-list"><li>用户覆盖率、触达转化率、ROI、流失率、资产复用率、预算利用率全维度量化管控</li></ul></div>
+          <div class="policy-card" style="grid-column: span 2;"><span class="policy-icon"><i class="fas fa-infinity"></i></span><h4>增长体系持续自进化</h4><ul class="detail-list"><li>跟随用户结构变迁、渠道生态变化、产品迭代，AI自动优化策略，淘汰低效方案，固化高ROI运营模板</li></ul></div>
+        </div>
+
+        <h3 style="margin: 1.5rem 0 0.8rem; color: var(--color-primary-dark); font-size: 1.15rem;">1.4 传统增长体系 VS AI Native增长中台范式差异</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>对比维度</th><th>传统增长体系</th><th>AI Native全域增长中台</th></tr></thead>
+            <tbody>
+              <tr><td><strong>建设模式</strong></td><td>运营人工策划、单点活动、分渠道独立运营、无统一标准</td><td>AI自动生成策略模板、全域统筹、规模化、体系化运营</td></tr>
+              <tr><td><strong>运营质量</strong></td><td>人群重叠触达、骚扰用户、渠道冲突、归因失真、ROI不可全局评估</td><td>AI人群隔离、触点冲突自愈、因果归因、全局ROI最优,减少无效触达</td></tr>
+              <tr><td><strong>迭代方式</strong></td><td>人工复盘、人工调整活动,周期长,资源浪费</td><td>AI实时感知用户反馈,动态调优策略、自动启停低效活动、预算动态倾斜</td></tr>
+              <tr><td><strong>价值形态</strong></td><td>一次性活动,活动结束策略失效,无资产沉淀</td><td>沉淀人群资产、策略资产、链路资产,持续复用,长期增值</td></tr>
+              <tr><td><strong>运维成本</strong></td><td>运营人力投入大,人群圈选、活动配置、数据复盘成本高</td><td>AI自动化策略编排、人群计算、复盘,人工运营成本降低90%+</td></tr>
+              <tr><td><strong>适配能力</strong></td><td>固定活动模板,难以快速适配新渠道、新用户场景</td><td>用户场景自动识别,动态适配多渠道组合策略,弹性扩展</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S2 全域五层递进知识体系 ===== -->
+    <section id="s2" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-database"></i> 二、全域五层递进知识体系（增长专属标准化知识底座）</h2>
+        <span class="badge-count">5层递进</span>
+      </div>
+      <div class="card-body">
+        <div class="info-tip"><i class="fas fa-info-circle"></i> 基于AI Native知识驱动架构，搭建五层递进式增长专属知识体系，实现用户建模、场景识别、策略编排、渠道调度、预算管控、归因复盘、资产沉淀、迭代优化全生命周期知识标准化、智能化。</div>
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-layer-group"></i></span><h4>2.1 基础层：全域增长领域知识本体</h4><ul class="detail-list"><li>构建企业唯一增长领域统一本体模型，整合用户生命周期、渠道触点、权益资产、活动运营、预算投放、转化链路、合规风控七大领域本体知识</li><li>包含:用户本体、生命周期阶段本体、渠道触点本体、权益本体、活动本体、预算本体、转化事件本体、隐私合规本体，为AI智能增长决策提供底层标准化规则</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-book"></i></span><h4>2.2 规范层：增长标准化知识库</h4><ul class="detail-list"><li>沉淀企业统一增长规范体系，可检索、可复用、可强制执行</li><li>核心包含:用户分层规范、人群圈选规范、触达渠道规范、消息发送规范、权益发放规范、活动编排规范、预算分摊规范、转化归因规范、频次控制规范、用户骚扰防护规范、活动归档规范</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-brain"></i></span><h4>2.3 模型层：AI增长智能模型知识体系</h4><ul class="detail-list"><li>沉淀增长专属AI模型、预测模型知识，支撑智能决策与效果管控</li><li>包含:用户生命周期识别模型、流失预警模型、价值预测模型、人群响应预测模型、渠道转化预测模型、预算分配优化模型、触点冲突检测模型、增长ROI归因模型、策略自愈优化策略知识</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-globe"></i></span><h4>2.4 业务层：全场景增长适配知识体系</h4><ul class="detail-list"><li>覆盖拉新、激活、留存、促活、转化、复购、流失预警、用户召回、高价值用户提效全生命周期场景</li><li>覆盖投放渠道、APP、小程序、H5、短信、推送、私域、线下终端全触点</li><li>沉淀场景化策略模板、人群筛选规则、推荐权益、触达频次约束、核心观测指标、场景冲突特征、最优运营策略知识</li></ul></div>
+          <div class="policy-card" style="grid-column: span 2;"><span class="policy-icon"><i class="fas fa-gem"></i></span><h4>2.5 价值层：增长资产迭代知识体系</h4><ul class="detail-list"><li>构建增长资产治理与持续进化知识体系</li><li>包含:增长资产分级分类知识、策略复用评估知识、低效策略淘汰知识、用户价值迭代知识、渠道成本优化知识、ROI归因知识、最优策略固化知识，实现增长从一次性活动工具升级为用户资产持续增值体系</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S3 全域增长专属知识图谱 ===== -->
+    <section id="s3" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-project-diagram"></i> 三、全域增长专属知识图谱（Growth-Graph）完整体系</h2>
+        <span class="badge-count">10大实体 · 8大能力</span>
+      </div>
+      <div class="card-body">
+        <div class="info-tip"><i class="fas fa-project-diagram"></i> 构建Growth-Graph全域用户增长因果知识图谱，为本中台AI智能推理、用户识别、策略编排、触点冲突治理、归因分析、资源调度、策略迭代的核心智能引擎,实现用户、生命周期、渠道触点、权益、策略、转化效果、预算、迭代优化全域关联建模。</div>
+
+        <h3 style="margin: 1.5rem 0 0.8rem; color: var(--color-primary-dark); font-size: 1.15rem;">3.1 十大核心实体体系</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>实体分类</th><th>核心实体明细</th></tr></thead>
+            <tbody>
+              <tr><td><strong>用户实体</strong></td><td>新访客、注册用户、激活用户、沉默用户、流失用户、高价值用户、分层用户、用户画像标签</td></tr>
+              <tr><td><strong>生命周期实体</strong></td><td>拉新期、激活期、留存期、转化期、复购期、衰退期、流失预警期、召回期</td></tr>
+              <tr><td><strong>渠道触点实体</strong></td><td>信息流投放、搜索投放、APP推送、小程序模板消息、短信、站内弹窗、首页banner、私域社群、线下触点</td></tr>
+              <tr><td><strong>增长策略实体</strong></td><td>活动策略、权益策略、触达策略、定价策略、内容策略、人群运营策略、投放策略</td></tr>
+              <tr><td><strong>权益资产实体</strong></td><td>优惠券、积分、会员、折扣、免费体验、红包、任务奖励、专属特权</td></tr>
+              <tr><td><strong>预算资源实体</strong></td><td>渠道预算、活动预算、权益成本、人力成本、预算周期、预算分配比例</td></tr>
+              <tr><td><strong>转化链路实体</strong></td><td>曝光→点击→访问→注册→激活→下单→支付→复购→留存</td></tr>
+              <tr><td><strong>策略约束实体</strong></td><td>触达频次上限、用户隔离规则、渠道互斥、风控规则、隐私授权约束</td></tr>
+              <tr><td><strong>效果指标实体</strong></td><td>转化率、留存率、LTV、CAC、ROI、触达率、点击率、流失概率、召回成功率</td></tr>
+              <tr><td><strong>迭代优化实体</strong></td><td>策略调优、预算倾斜、渠道启停、权益调整、模板沉淀、低效策略下线</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="margin: 1.5rem 0 0.8rem; color: var(--color-primary-dark); font-size: 1.15rem;">3.2 核心三元组闭环关联关系</h3>
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-1"></i></span><h4>关系一</h4><ul class="detail-list"><li>用户实体→归属阶段→生命周期实体</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-2"></i></span><h4>关系二</h4><ul class="detail-list"><li>生命周期实体→匹配推荐→增长策略实体</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-3"></i></span><h4>关系三</h4><ul class="detail-list"><li>增长策略实体→调度分配→渠道触点实体&权益资产实体</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-4"></i></span><h4>关系四</h4><ul class="detail-list"><li>渠道触点实体→消耗占用→预算资源实体</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-5"></i></span><h4>关系五</h4><ul class="detail-list"><li>用户执行动作→产生结果→转化链路实体&效果指标实体</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-6"></i></span><h4>关系六</h4><ul class="detail-list"><li>指标效果异常/用户状态变更/渠道成本波动→驱动更新→迭代优化实体</li></ul></div>
+          <div class="policy-card" style="grid-column: span 2;"><span class="policy-icon"><i class="fas fa-7"></i></span><h4>关系七：闭环</h4><ul class="detail-list"><li>迭代优化结果→沉淀固化→全新增长策略资产，形成闭环</li></ul></div>
+        </div>
+
+        <h3 style="margin: 1.5rem 0 0.8rem; color: var(--color-primary-dark); font-size: 1.15rem;">3.3 Growth-Graph八大核心智能能力</h3>
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-search-plus"></i></span><h4>1. 用户全链路溯源</h4><ul class="detail-list"><li>从最终转化/流失结果回溯用户全生命周期、触点记录、策略、权益、预算消耗完整链路，定位增长根因</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-shield-alt"></i></span><h4>2. 触点冲突智能预判</h4><ul class="detail-list"><li>图谱推理识别多渠道重复触达、策略冲突、用户骚扰风险提前拦截、自动降频</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-line"></i></span><h4>3. 策略效果预测</h4><ul class="detail-list"><li>基于历史增长资产与用户特征，预测策略转化率、LTV、CAC、ROI,辅助预算分配</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-magic"></i></span><h4>4. 用户场景智能适配</h4><ul class="detail-list"><li>识别用户生命周期跃迁，自动推荐适配策略、渠道、权益无需人工圈选人群</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-gem"></i></span><h4>5. 增长资产价值研判</h4><ul class="detail-list"><li>量化策略模板、人群包、权益体系的复用价值、投入产出、用户贡献率</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-exclamation-triangle"></i></span><h4>6. 增长异常智能归因</h4><ul class="detail-list"><li>自动识别转化率下跌、成本飙升、用户流失突增、渠道效果波动根因</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-star"></i></span><h4>7. 高ROI策略智能固化</h4><ul class="detail-list"><li>自动识别高效策略，沉淀为标准化模板，复用至同类人群</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-infinity"></i></span><h4>8. 增长体系自进化驱动</h4><ul class="detail-list"><li>自动输出策略新增清单、调优清单、关停清单、预算重分配清单</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S4 AI Native五层全域技术架构 ===== -->
+    <section id="s4" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sitemap"></i> 四、AI Native五层全域技术架构</h2>
+        <span class="badge-count">5层递进 + 兜底保障</span>
+      </div>
+      <div class="card-body">
+        <div class="info-tip"><i class="fas fa-info-circle"></i> 摒弃传统营销工具单点架构，采用AI Native五层递进架构，自下而上赋能，实现增长从人工活动工具升级到全域智能资产运营平台。</div>
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-layer-group"></i></span><h4>4.1 第一层：全域技术中台底座（基础支撑层）</h4><ul class="detail-list"><li>承载全端触点接入、渠道网关、策略下发、触达执行、服务运维统一底座</li><li>包含:多端统一SDK、渠道接入网关、策略配置中心、消息触达引擎、多租户隔离、权限管控、灰度发布、版本管理、负载均衡、策略热更新，支撑亿级用户大规模触达高可用、低延迟稳定运行</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-bullhorn"></i></span><h4>4.2 第二层：全域触点接入与执行层（增长生产层）</h4><ul class="detail-list"><li>全域增长动作唯一执行入口，覆盖全渠道、站内站外触点</li><li>包含广告投放对接、站内弹窗/浮窗、推送消息、短信、私域消息、任务活动、权益发放、人群触达排队、触达限流、异常熔断、频次控制</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-brain"></i></span><h4>4.3 第三层：AI Native智能决策层（系统大脑层）</h4><ul class="detail-list"><li>体系AI原生核心能力，替代人工增长策划与运营</li><li>包含用户生命周期识别引擎、智能策略生成引擎、人群智能圈选引擎、预算智能调度引擎、触点冲突检测自愈引擎、效果预测引擎、策略自动启停调优引擎</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-ruler-combined"></i></span><h4>4.4 第四层：增长量化治理层（精准标尺层）</h4><ul class="detail-list"><li>为增长体系质量、效率、价值提供全维度量化管控</li><li>包含用户覆盖率模型、预算利用率模型、ROI评分模型、触点冲突率统计、活动周期效率模型、用户健康度模型、资产价值量化管控</li></ul></div>
+          <div class="policy-card" style="grid-column: span 2;"><span class="policy-icon"><i class="fas fa-gem"></i></span><h4>4.5 第五层：增长资产与业务应用层（价值闭环层）</h4><ul class="detail-list"><li>实现增长能力落地与资产沉淀</li><li>包含增长资产目录、标准化策略模板库、权益资产库、智能复盘报告、用户价值分析、全链路归因审计、资产复用服务、策略下发输出</li></ul></div>
+          <div class="policy-card" style="grid-column: span 2;"><span class="policy-icon"><i class="fas fa-shield-halved"></i></span><h4>4.6 全域合规监控保障层（兜底保障）</h4><ul class="detail-list"><li>用户隐私授权校验、消息合规、营销脱敏、触达退订管理、操作全留痕、营销风控、风险预警、违规触达拦截、全链路审计，满足个人信息保护、广告合规、等保合规</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S5 四层标准业务架构 ===== -->
+    <section id="s5" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-briefcase"></i> 五、四层标准业务架构</h2>
+        <span class="badge-count">战略管理 · 七大业务域 · 支撑 · 外部</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-crown"></i></span><h4>5.1 战略管理层</h4><ul class="detail-list"><li>企业全域增长体系规划、用户资产运营目标、增长质量管控、AI智能增长落地、全链路量化治理、增长资产运营、体系持续迭代升级、合规长效运营</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-network-wired"></i></span><h4>5.2 七大核心业务域</h4><ul class="detail-list">
+            <li><strong>全域触点接入域：</strong>广告渠道对接、站内触点接入、消息通道管理、触达限流、通道健康度监控</li>
+            <li><strong>人群与标签域：</strong>用户画像、人群圈选、用户分群、生命周期识别、人群包管理、人群隔离</li>
+            <li><strong>智能策略编排域：</strong>策略创建、活动编排、权益配置、触达渠道组合、频次约束、模板复用</li>
+            <li><strong>AI资源调度域：</strong>预算分配、流量调度、智能策略推荐、冲突自愈、效果预判、策略启停</li>
+            <li><strong>增长归因分析域：</strong>多触点归因、LTV/CAC计算、ROI分析、分层效果、智能复盘、结论标准化输出</li>
+            <li><strong>增长资产运营域：</strong>资产盘点、分级分类、价值评估、模板沉淀、复用管理、低效策略清理</li>
+            <li><strong>合规风控审计域：</strong>营销合规、隐私授权校验、退订管理、操作留痕、营销风控告警、审计报表</li>
+          </ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-cogs"></i></span><h4>5.3 支撑业务域</h4><ul class="detail-list"><li>多租户权限管理、系统运维监控、策略版本迭代、知识库管理、增长驾驶舱看板、工单闭环、白名单管理</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-plug"></i></span><h4>5.4 外部生态对接域</h4><ul class="detail-list"><li>对接用户中台、埋点中台、AB实验中台、数据中台、AI模型平台、BI平台、业务系统、广告投放平台、会员权益平台，输出人群包、策略配置、增长指标数据服务</li></ul></div>
+        </div>
+        <div class="info-tip"><i class="fas fa-sync-alt"></i> <strong>核心业务闭环：</strong>全域用户行为采集→AI识别用户生命周期→智能生成增长策略→多渠道触点调度执行→效果实时采集计算→Growth-Graph因果归因→智能复盘、策略调优→增长资产沉淀→持续迭代优化</div>
+      </div>
+    </section>
+
+    <!-- ===== S6 五层标准数据架构 ===== -->
+    <section id="s6" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-layer-group"></i> 六、五层标准数据架构</h2>
+        <span class="badge-count">5层 + 七维指标</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-database"></i></span><h4>6.1 全域增长原始数据采集层</h4><ul class="detail-list"><li>采集用户基础信息、行为事件、渠道曝光点击、触达记录、权益领取使用、订单转化、预算消耗、用户反馈、流失行为日志，实时入池</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-broom"></i></span><h4>6.2 增长数据预处理加工层</h4><ul class="detail-list"><li>数据清洗、去重、用户ID归一、标签计算、人群样本对齐、噪声剔除、隐私脱敏、时序对齐，输出标准化用户与增长结构化数据</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>6.3 Growth-Graph知识图谱建模层</h4><ul class="detail-list"><li>构建用户-生命周期-触点-策略-权益-预算-转化因果知识图谱,动态更新实体权重、关联强度、因果关系，支撑AI推理、归因、策略推荐</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-bar"></i></span><h4>6.4 七维量化指标层</h4><ul class="detail-list"><li>覆盖触点运行指标、人群运营指标、转化价值指标、预算资源指标、资产价值指标、AI智能指标、合规风控指标七大指标体系</li></ul></div>
+          <div class="policy-card" style="grid-column: span 2;"><span class="policy-icon"><i class="fas fa-share-alt"></i></span><h4>6.5 标准化增长数据服务输出层</h4><ul class="detail-list"><li>对外输出用户分群数据、策略执行结果、全链路归因报表、ROI分析报告、用户价值预测、增长资产报表、策略优化建议服务</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S7 七层标准技术架构 ===== -->
+    <section id="s7" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-cubes"></i> 七、七层标准技术架构</h2>
+        <span class="badge-count">7层递进</span>
+      </div>
+      <div class="card-body">
+        <div class="info-tip"><i class="fas fa-layer-group"></i> 用户/渠道触点接入层→统一策略与触达网关层→人群&标签计算层→AI智能决策治理层→Growth-Graph知识推理层→数据存储计算层→运维合规治理层</div>
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-1"></i></span><h4>1. 用户/渠道触点接入层</h4><ul class="detail-list"><li>广告API、APP、小程序、推送、短信、私域、线下终端接入</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-2"></i></span><h4>2. 统一策略与触达网关层</h4><ul class="detail-list"><li>策略下发、通道鉴权、消息加密、触达排队、流量限流、退订拦截</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-3"></i></span><h4>3. 人群&标签计算层</h4><ul class="detail-list"><li>实时标签、离线画像、人群包计算、用户分群、人群ID映射</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-4"></i></span><h4>4. AI智能决策治理层</h4><ul class="detail-list"><li>生命周期识别、策略生成、预算优化、冲突检测、自动调参</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-5"></i></span><h4>5. 知识图谱推理层</h4><ul class="detail-list"><li>用户链路建模、策略因果推理、触点冲突预判、ROI研判、迭代推理</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-6"></i></span><h4>6. 存储计算层</h4><ul class="detail-list"><li>实时标签计算、离线统计、时序日志存储、图数据库存储、人群包存储</li></ul></div>
+          <div class="policy-card" style="grid-column: span 2;"><span class="policy-icon"><i class="fas fa-7"></i></span><h4>7. 运维合规层</h4><ul class="detail-list"><li>全链路监控、指标告警、营销风控、合规审计、策略版本调度</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S8 七大核心应用场景 ===== -->
+    <section id="s8" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-th-large"></i> 八、七大核心应用架构场景</h2>
+        <span class="badge-count">7大场景全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-users-cog"></i></span><h4>1. 全生命周期用户精细化运营场景</h4><ul class="detail-list"><li>自动识别用户阶段，拉新、激活、留存、流失召回全链路智能策略编排，实现千人千面运营</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-coins"></i></span><h4>2. 全域投放预算智能优化场景</h4><ul class="detail-list"><li>多广告渠道预算自动分配，动态倾斜高ROI渠道关停低效投放，自动平衡CAC与LTV</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-home"></i></span><h4>3. 站内智能触点运营场景</h4><ul class="detail-list"><li>弹窗、banner、任务、权益智能推荐，控制触达频次，减少骚扰，提升转化同时保护用户体验</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-star"></i></span><h4>4. 高价值用户持续提效场景</h4><ul class="detail-list"><li>识别高潜力/高价值用户，智能匹配专属权益、服务策略，持续提升 LTV</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-user-clock"></i></span><h4>5. 流失预警与智能召回场景</h4><ul class="detail-list"><li>提前识别流失风险用户，自动生成召回策略，选择最优渠道、权益、触达时机</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-recycle"></i></span><h4>6. 增长资产复用规模化运营场景</h4><ul class="detail-list"><li>沉淀标准化策略模板、人群包，新活动快速复用，降低运营策划成本</li></ul></div>
+          <div class="policy-card" style="grid-column: span 2;"><span class="policy-icon"><i class="fas fa-flask"></i></span><h4>7. AB实验联动策略迭代场景</h4><ul class="detail-list"><li>联动AB实验中台，对候选增长策略做科学验证，择优固化为全域运营策略</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S9 十一大核心功能模块 ===== -->
+    <section id="s9" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-puzzle-piece"></i> 九、十一大核心产品功能模块（全量明细）</h2>
+        <span class="badge-count">11大模块全覆盖</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-bullhorn"></i></span><h4>模块1：全渠道触点接入&触达引擎模块</h4><ul class="detail-list"><li>对接信息流、搜索广告、APP推送、小程序消息、短信、站内弹窗、私域社群等全触点;支持消息排队、限流、频次控制、退订管理、触达降级、通道健康监控，统一调度所有用户触达动作</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-users"></i></span><h4>模块2：用户画像与智能分群模块</h4><ul class="detail-list"><li>基础属性+行为标签+价值标签+生命周期标签体系;支持规则圈选、AI智能人群挖掘、预测人群包、人群合并/拆分、人群隔离、人群资产大盘、人群包版本管理</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-magic"></i></span><h4>模块3：AI智能增长策略生成模块</h4><ul class="detail-list"><li>识别用户生命周期与场景，AI自动生成活动、权益、触达组合策略;自动推荐渠道、触达时机、权益类型;支持自定义模板，策略预览、仿真效果预判</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-paint-brush"></i></span><h4>模块4：可视化策略编排模块</h4><ul class="detail-list"><li>低代码画布编排用户旅程，支持分支、条件判断、延时触发、多触点串联、A/B分支、循环终止条件;支持策略灰度发布、一键启停、版本回滚</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-shield-alt"></i></span><h4>模块5：触点冲突智能治理模块</h4><ul class="detail-list"><li>自动识别同一用户多渠道重复触达、策略冲突、高频骚扰风险;自动降频、切换渠道、暂停触达;支持自定义互斥规则、触达上限、用户静默保护</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-wallet"></i></span><h4>模块6：预算与资源智能调度模块</h4><ul class="detail-list"><li>全局预算池管理，分渠道/分活动预算分配;AI动态预算倾斜、预算消耗预警、低效渠道自动缩量;成本监控、权益库存管控，控制营销成本</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>模块7：Growth-Graph知识图谱智能模块</h4><ul class="detail-list"><li>用户生命周期链路建模、策略因果关联、触点冲突推理、ROI归因分析、用户流失根因研判、策略价值评估、图谱可视化、开放推理API</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-pie"></i></span><h4>模块8：全链路智能归因&复盘模块</h4><ul class="detail-list"><li>支持多触点归因模型(末次、首次、线性、时间衰减、马尔可夫)，自动计算CAC、LTV、ROI;分层拆解渠道、人群、权益效果;AI自动输出复盘结论、优化建议</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-gem"></i></span><h4>模块9：增长资产全生命周期管理模块</h4><ul class="detail-list"><li>增长资产盘点、分级分类(人群资产、策略模板资产、权益资产);价值量化、复用统计、低效资产识别清理、资产版本管理、资产目录检索、策略固化归档</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-clipboard-check"></i></span><h4>模块10：合规风控与增长驾驶舱模块</h4><ul class="detail-list"><li>全域增长态势可视化，人群规模、触达数据、转化指标、预算消耗、ROI全景看板;实时异常告警;营销合规校验、退订管理、隐私风险预警、全链路审计</li></ul></div>
+          <div class="policy-card" style="grid-column: span 2;"><span class="policy-icon"><i class="fas fa-plug"></i></span><h4>模块11：开放集成服务模块</h4><ul class="detail-list"><li>人群包API、策略下发API、触达回调API、归因查询API、资产模板复用API;对接广告平台、会员中台、AB实验中台、埋点中台、BI、业务系统</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S10 七维标准化指标体系 ===== -->
+    <section id="s10" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> 十、七维全套标准化量化指标体系</h2>
+        <span class="badge-count">7维指标</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-bolt"></i></span><h4>10.1 触点运行指标</h4><ul class="detail-list"><li>全渠道接入覆盖率100%、触达下发成功率≥99.9%、消息触达延迟≤100ms、触达失败率≤0.01%、通道健康率≥99.9%</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-users"></i></span><h4>10.2 人群运营指标</h4><ul class="detail-list"><li>用户标签覆盖率≥99%、人群分群准确率≥98%、人群重复触达率≤2%、用户识别准确率≥99%、人群更新时延≤T+1</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-chart-line"></i></span><h4>10.3 转化价值指标</h4><ul class="detail-list"><li>目标转化率、7日/30日留存率、LTV、CAC、LTV/CAC比值、召回成功率、高价值用户渗透率、流失预警命中率≥90%</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-coins"></i></span><h4>10.4 预算资源指标</h4><ul class="detail-list"><li>预算利用率≥90%、预算浪费率≤3%、权益核销率、渠道ROI达标率、库存超发率=0</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-gem"></i></span><h4>10.5 增长资产价值指标</h4><ul class="detail-list"><li>策略模板复用率≥90%、低效策略占比≤3%、优质策略固化率≥95%、资产迭代更新及时率100%</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-robot"></i></span><h4>10.6 AI智能能力指标</h4><ul class="detail-list"><li>用户生命周期识别准确率≥98%、策略推荐准确率≥95%、触点冲突自愈修复率≥99%、人工运营策略策划替代率≥90%</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-project-diagram"></i></span><h4>10.7 知识图谱智能指标</h4><ul class="detail-list"><li>用户行为链路完整率≥99%、实体关联匹配准确率≥98%、归因根因准确率≥95%、策略效果预判准确率≥94%</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-shield-alt"></i></span><h4>10.8 合规与迭代指标</h4><ul class="detail-list"><li>营销合规通过率100%、违规触达拦截率100%、问题闭环率100%、体系自主迭代率≥95%</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S11 四阶段落地实施路径 ===== -->
+    <section id="s11" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-route"></i> 十一、四阶段标准化落地实施路径</h2>
+        <span class="badge-count">4阶段递进</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-1"></i></span><h4>阶段一：底座筑基期（1-4周）</h4><ul class="detail-list"><li>完成渠道触点网关、消息触达引擎、基础用户标签体系、基础合规体系搭建，打通埋点与用户数据，基础触达能力落地</li><li><strong>验收标准:</strong>核心渠道接入覆盖率100%，触达下发成功率≥99.9%</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-2"></i></span><h4>阶段二：标准化治理期（5-10周）</h4><ul class="detail-list"><li>统一用户标签体系、生命周期划分、归因口径;存量活动治理，搭建基础策略模板构建初版Growth-Graph知识图谱;消除重复触达、口径混乱</li><li><strong>验收标准:</strong>用户标签覆盖率≥99%，人群重复触达率≤2%</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-3"></i></span><h4>阶段三：AI智能升级期（11-18周）</h4><ul class="detail-list"><li>上线AI智能策略生成、预算调度、触点冲突自愈、流失预测能力;落地增长资产化管理，实现策略自动化编排与智能复盘</li><li><strong>验收标准:</strong>人工运营策略策划替代率≥90%，冲突自愈率≥99%</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-4"></i></span><h4>阶段四：自进化闭环期（长期迭代）</h4><ul class="detail-list"><li>完善Growth-Graph因果推理能力、全局预算优化、策略自主迭代机制，资产持续增值，形成企业永续进化的全域用户增长智能底座</li><li><strong>验收标准:</strong>体系自主迭代率≥95%，策略模板复用率≥90%</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S12 全链路核心业务闭环 ===== -->
+    <section id="s12" class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sync-alt"></i> 十二、全链路核心业务闭环逻辑</h2>
+        <span class="badge-count">8步闭环</span>
+      </div>
+      <div class="card-body">
+        <div class="arch-diagram">
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-database"></i> 数据接入 <span class="sub">Step 1</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-download"></i> 全域用户数据接入</span>
+              <span class="arch-block"><i class="fas fa-info-circle"></i> 埋点中台采集行为/渠道/订单数据统一入池</span>
+            </div>
+          </div>
+          <div class="arch-layer">
+            <div class="layer-label"><i class="fas fa-user-check"></i> AI识别 <span class="sub">Step 2</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-tags"></i> AI用户识别与分层</span>
+              <span class="arch-block"><i class="fas fa-life-ring"></i> 自动识别生命周期/价值/流失风险</span>
+              <span class="arch-block"><i class="fas fa-users"></i> 生成标准化人群包</span>
+            </div>
+          </div>
+          <div class="arch-layer outer-layer">
+            <div class="layer-label"><i class="fas fa-magic"></i> 策略生成 <span class="sub">Step 3</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-project-diagram"></i> Growth-Graph推理匹配</span>
+              <span class="arch-block"><i class="fas fa-bullseye"></i> 最优策略/权益/渠道/触达时机</span>
+            </div>
+          </div>
+          <div class="arch-layer ultimate-layer">
+            <div class="layer-label"><i class="fas fa-bolt"></i> 智能执行 <span class="sub">Step 4</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-coins"></i> AI分配预算</span>
+              <span class="arch-block"><i class="fas fa-bullhorn"></i> 调度触点</span>
+              <span class="arch-block"><i class="fas fa-shield-alt"></i> 冲突检测/限流/防骚扰</span>
+              <span class="arch-block"><i class="fas fa-play"></i> 执行触达</span>
+            </div>
+          </div>
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-chart-bar"></i> 数据回传 <span class="sub">Step 5</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-calculator"></i> 数据回传与指标计算</span>
+              <span class="arch-block"><i class="fas fa-eye"></i> 采集曝光/点击/领取/转化/复购</span>
+              <span class="arch-block"><i class="fas fa-chart-line"></i> 实时计算增长指标</span>
+            </div>
+          </div>
+          <div class="arch-layer outer-layer">
+            <div class="layer-label"><i class="fas fa-search"></i> 因果归因 <span class="sub">Step 6</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-project-diagram"></i> 知识图谱因果归因</span>
+              <span class="arch-block"><i class="fas fa-crosshairs"></i> 定位转化/流失/成本波动根因</span>
+              <span class="arch-block"><i class="fas fa-chart-pie"></i> 评估策略ROI</span>
+            </div>
+          </div>
+          <div class="arch-layer ultimate-layer">
+            <div class="layer-label"><i class="fas fa-file-alt"></i> 复盘沉淀 <span class="sub">Step 7</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-robot"></i> AI输出复盘结论</span>
+              <span class="arch-block"><i class="fas fa-star"></i> 高ROI策略沉淀为资产模板</span>
+              <span class="arch-block"><i class="fas fa-trash"></i> 低效策略下线</span>
+            </div>
+          </div>
+          <div class="arch-layer inner-layer">
+            <div class="layer-label"><i class="fas fa-infinity"></i> 自迭代 <span class="sub">Step 8</span></div>
+            <div class="layer-blocks">
+              <span class="arch-block"><i class="fas fa-sync"></i> 体系自迭代</span>
+              <span class="arch-block"><i class="fas fa-chart-line"></i> 用户结构/渠道效果变化驱动策略模型持续优化</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== S13 核心优势与体系价值 ===== -->
+    <section id="s13" class="card banner-card">
+      <div class="card-body">
+        <div class="icon-big"><i class="fas fa-flag"></i></div>
+        <h2>十三、核心优势与体系价值总结</h2>
+        <div class="grid-2" style="text-align:left; margin-top:1.5rem;">
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-star"></i></span><h4>1. 范式原生领先</h4><ul class="detail-list"><li>AI Native原生增长中台，AI全流程主控用户运营，告别人工单点活动运营,实现规模化自治增长</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-link"></i></span><h4>2. 全链路标准化统一</h4><ul class="detail-list"><li>全域人群、触点、策略、归因、预算口径统一,解决渠道孤岛、重复触达、归因失真痛点</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-balance-scale"></i></span><h4>3. 用户体验与商业收益平衡</h4><ul class="detail-list"><li>触点冲突自愈、骚扰防护，在保护用户体验前提下最大化整体ROI</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-gem"></i></span><h4>4. 增长资产价值沉淀</h4><ul class="detail-list"><li>一次性活动升级为可复用人群资产、策略资产、权益资产,实现用户资产长期增值</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-rocket"></i></span><h4>5. 极致降本增效</h4><ul class="detail-list"><li>90%以上人工人群圈选、活动策划、复盘工作由AI承接，降低运营人力、营销试错成本</li></ul></div>
+          <div class="policy-card"><span class="policy-icon"><i class="fas fa-sync-alt"></i></span><h4>6. 持续自进化闭环</h4><ul class="detail-list"><li>跟随渠道生态、用户变迁自动迭代策略，持续挖掘用户价值，成为企业营收增长智能引擎</li></ul></div>
+        </div>
+        <div class="footer-note">AI Native 全域增长中台 · AI智能增长决策 · 全域用户标准化运营 · 增长资产沉淀 · 自进化闭环</div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+// 侧边栏导航高亮
+document.addEventListener('DOMContentLoaded', function() {
+  const sidebarLinks = document.querySelectorAll('.sidebar nav ul li a');
+  
+  sidebarLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      sidebarLinks.forEach(l => l.classList.remove('active'));
+      this.classList.add('active');
+      const targetId = this.getAttribute('href').substring(1);
+      const targetElement = document.getElementById(targetId);
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+  
+  window.addEventListener('scroll', function() {
+    const sections = document.querySelectorAll('.card');
+    const sidebarLinks = document.querySelectorAll('.sidebar nav ul li a');
+    let currentSectionId = '';
+    const scrollPosition = window.scrollY + 150;
+    
+    sections.forEach(section => {
+      const sectionTop = section.offsetTop;
+      const sectionHeight = section.offsetHeight;
+      if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+        currentSectionId = section.id;
+      }
+    });
+    
+    sidebarLinks.forEach(link => {
+      const linkTarget = link.getAttribute('href').substring(1);
+      if (linkTarget === currentSectionId) {
+        link.classList.add('active');
+      } else {
+        link.classList.remove('active');
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>
